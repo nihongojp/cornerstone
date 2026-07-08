@@ -148,6 +148,36 @@ export const me: RequestHandler = async (req, res): Promise<void> => {
   }
 };
 
+export const resetPassword: RequestHandler = async (req, res): Promise<void> => {
+  const rid = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  try {
+    let { email, newPassword } = req.body;
+    email = normalizeEmail(email);
+
+    if (!email || !newPassword) {
+      res.status(400).json({ message: "Email and new password are required" });
+      return;
+    }
+
+    const user: any = await User.findOne({ email }).select("+password");
+    if (!user) {
+      res.status(404).json({ message: "No account found with that email address" });
+      return;
+    }
+
+    user.password = String(newPassword);
+    await user.save();
+
+    res.status(200).json({ message: "Password reset successfully" });
+    return;
+  } catch (err: any) {
+    console.error(`[AUTH][${rid}] resetPassword error:`, err?.message || err);
+    res.status(500).json({ message: "Server error", error: err?.message || String(err) });
+    return;
+  }
+};
+
 export const changePassword: RequestHandler = async (req, res): Promise<void> => {
   const rid = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 

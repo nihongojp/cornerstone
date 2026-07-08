@@ -21,6 +21,7 @@ import Gallery    from "./pages/Gallery";
 import Stories    from "./pages/Stories";
 import CharInfo   from "./pages/CharInfo";
 import Profile    from "./pages/Profile";
+import ForgotPassword from "./pages/ForgotPassword";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -122,9 +123,10 @@ const AppContent: React.FC = () => {
           <Route path="/charinfo"        element={<Navigate to="/gallery" replace />} />
 
           {/* Public-only */}
-          <Route path="/auth"   element={<PublicOnly><AuthForm /></PublicOnly>} />
-          <Route path="/login"  element={<PublicOnly><AuthForm /></PublicOnly>} />
-          <Route path="/signup" element={<PublicOnly><AuthForm /></PublicOnly>} />
+          <Route path="/auth"             element={<PublicOnly><AuthForm /></PublicOnly>} />
+          <Route path="/login"            element={<PublicOnly><AuthForm /></PublicOnly>} />
+          <Route path="/signup"           element={<PublicOnly><AuthForm /></PublicOnly>} />
+          <Route path="/forgot-password"  element={<ForgotPassword />} />
 
           {/* Protected */}
           <Route path="/dashboard"         element={<RequireAuth><Dashboard /></RequireAuth>} />

@@ -14,7 +14,7 @@ import {
   Alert,
   AlertColor,
 } from "@mui/material";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { setToken, json } from "../services/api";
 
 const AuthForm = (): React.ReactElement => {
@@ -34,6 +34,7 @@ const AuthForm = (): React.ReactElement => {
   const [notifSeverity, setNotifSeverity] = useState<AlertColor>("info");
 
   const location = useLocation() as any;
+  const navigate = useNavigate();
 
   const notify = (msg: string, severity: AlertColor) => {
     setNotifMsg(msg);
@@ -257,7 +258,7 @@ const AuthForm = (): React.ReactElement => {
 
               {mode === "login" && (
                 <Box mt={2} textAlign="center">
-                  <Button variant="text" size="small">
+                  <Button variant="text" size="small" onClick={() => navigate("/forgot-password")}>
                     Forgot password?
                   </Button>
                 </Box>

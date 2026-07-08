@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { signup, login, me, changePassword } from "../controllers/authController";
+import { signup, login, me, changePassword, resetPassword } from "../controllers/authController";
 import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
 router.post("/signup", signup);
 router.post("/login", login);
+router.post("/reset-password", resetPassword);
 
 // quick probe to verify token
 router.get("/me", requireAuth, me);
