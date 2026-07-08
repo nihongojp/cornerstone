@@ -145,8 +145,14 @@ const Dashboard = (): React.ReactElement => {
         const data = await json<{ lessons: Lesson[] }>(
           `/api/lessons?prefecture=${encodeURIComponent(selectedPrefectureCode)}`
         );
+        // #region agent log
+        fetch('http://127.0.0.1:7898/ingest/6efdcf57-8669-49e9-8d53-3f2de7994216',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f1100e'},body:JSON.stringify({sessionId:'f1100e',location:'Dashboard.tsx:lessons-effect',message:'API response',data:{selectedPrefectureCode,lessonCount:data?.lessons?.length??'undefined',lessons:(data?.lessons??[]).slice(0,3).map((l:any)=>({slug:l.slug,title:l.title,prefecture:l.prefecture}))},hypothesisId:'C',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         if (!cancelled) setPrefLessons(Array.isArray(data?.lessons) ? data.lessons : []);
-      } catch {
+      } catch (err: any) {
+        // #region agent log
+        fetch('http://127.0.0.1:7898/ingest/6efdcf57-8669-49e9-8d53-3f2de7994216',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f1100e'},body:JSON.stringify({sessionId:'f1100e',location:'Dashboard.tsx:lessons-effect',message:'API error',data:{selectedPrefectureCode,status:err?.response?.status,msg:err?.message},hypothesisId:'B',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
         if (!cancelled) setPrefLessons([]);
       } finally {
         if (!cancelled) setLessonsLoading(false);
@@ -233,7 +239,11 @@ const Dashboard = (): React.ReactElement => {
         }
         setIsZoomedIn(true);
         const rawName = getRawName(d);
-        setSelectedPrefectureCode(normalizePrefecture(rawName));
+        const code = normalizePrefecture(rawName);
+        // #region agent log
+        fetch('http://127.0.0.1:7898/ingest/6efdcf57-8669-49e9-8d53-3f2de7994216',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f1100e'},body:JSON.stringify({sessionId:'f1100e',location:'Dashboard.tsx:prefPath-click',message:'prefecture path clicked',data:{rawName,code,properties:d?.properties},hypothesisId:'A',timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        setSelectedPrefectureCode(code);
         setPopup({ x: event.clientX, y: event.clientY, name: rawName });
       });
 
@@ -289,8 +299,12 @@ const Dashboard = (): React.ReactElement => {
         .on("click", (event: MouseEvent) => {
           event.stopPropagation();
           const rawName = getRawName(d);
+          const code = normalizePrefecture(rawName);
+          // #region agent log
+          fetch('http://127.0.0.1:7898/ingest/6efdcf57-8669-49e9-8d53-3f2de7994216',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f1100e'},body:JSON.stringify({sessionId:'f1100e',location:'Dashboard.tsx:pin-click',message:'pin clicked',data:{rawName,code,properties:d?.properties},hypothesisId:'A',timestamp:Date.now()})}).catch(()=>{});
+          // #endregion
           setPopup({ x: event.clientX, y: event.clientY, name: rawName });
-          setSelectedPrefectureCode(normalizePrefecture(rawName));
+          setSelectedPrefectureCode(code);
         });
     });
   }, [geoData, containerSize, normalizePrefecture, resetZoom]);
