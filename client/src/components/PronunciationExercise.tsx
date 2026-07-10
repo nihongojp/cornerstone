@@ -342,7 +342,7 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
 
       {/* State hint */}
       <Typography variant="caption" sx={{ color: "text.secondary" }}>
-        {recordState === "idle" && "Press "Start recording" when you're ready"}
+        {recordState === "idle" && "Press Start recording when you're ready"}
         {recordState === "recording" && "🔴 Recording — press Stop when finished"}
         {recordState === "recorded" && "✓ Recording saved — play it back or record again"}
         {recordState === "playing" && "▶ Playing back your recording…"}

@@ -50,6 +50,7 @@ const Header = (): React.ReactElement => {
       { label: "Watch", path: "/watch" },
       { label: "Talk", path: "/talk" },
       { label: "Lessons", path: "/dashboard" }, // <-- FIXED
+      { label: "New Lessons", path: "/new-lessons" },
     ],
     []
   );

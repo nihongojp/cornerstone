@@ -23,6 +23,7 @@ import CharInfo   from "./pages/CharInfo";
 import Profile    from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import NewLessonPage from "./pages/NewLessonPage";
+import NewLessonsListPage from "./pages/NewLessonsListPage";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -133,6 +134,7 @@ const AppContent: React.FC = () => {
           <Route path="/dashboard"         element={<RequireAuth><Dashboard /></RequireAuth>} />
           <Route path="/lesson/:lessonId"  element={<RequireAuth><Lesson /></RequireAuth>} />
           <Route path="/newlesson/:slug"   element={<RequireAuth><NewLessonPage /></RequireAuth>} />
+          <Route path="/new-lessons"       element={<RequireAuth><NewLessonsListPage /></RequireAuth>} />
           <Route path="/watch"             element={<RequireAuth><Watch /></RequireAuth>} />
           <Route path="/talk"              element={<RequireAuth><Talk /></RequireAuth>} />
           <Route path="/profile"           element={<RequireAuth><Profile /></RequireAuth>} />
