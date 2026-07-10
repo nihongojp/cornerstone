@@ -7,6 +7,7 @@ import { connectDB } from './db/db';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import lessonRoutes from './routes/lessonRoutes';
+import newLessonRoutes from './routes/newLessonRoutes';
 import attemptsRoutes from './routes/attemptsRoutes';
 import progressRoutes from './routes/progressRoutes';
 import reviewRoutes from './routes/reviewRoutes';
@@ -46,6 +47,7 @@ app.get('/home', (_req: Request, res: Response) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/lessons', lessonRoutes);
+app.use('/api/newlessons', newLessonRoutes);
 app.use('/api/attempts', attemptsRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/review', reviewRoutes);

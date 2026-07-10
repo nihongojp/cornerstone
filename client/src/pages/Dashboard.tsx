@@ -649,6 +649,35 @@ const Dashboard = (): React.ReactElement => {
             </Typography>
           </Box>
         </Box>
+
+        {/* ── New Lessons panel ──────────────────────────────────────────── */}
+        <Box
+          component={Link}
+          to="/newlesson/l1-v1"
+          sx={{
+            position: "absolute",
+            right: 16,
+            bottom: 16,
+            width: { xs: "56vw", sm: 210 },
+            maxWidth: 240,
+            borderRadius: "16px",
+            overflow: "hidden",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.14)",
+            zIndex: 10,
+            textDecoration: "none",
+            transition: "transform 0.2s, box-shadow 0.2s",
+            "&:hover": { transform: "translateY(-2px)", boxShadow: "0 12px 36px rgba(0,0,0,0.2)" },
+          }}
+        >
+          <Box sx={{ bgcolor: "rgba(180,61,32,0.92)", backdropFilter: "blur(12px)", p: 2.25 }}>
+            <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", mb: 0.5, color: "#fff" }}>
+              New Lessons ✨
+            </Typography>
+            <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.8)", lineHeight: 1.55 }}>
+              Lesson 1 — greetings, phrases, and more.
+            </Typography>
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
