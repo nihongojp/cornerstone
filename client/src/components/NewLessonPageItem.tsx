@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Typography, Chip } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import StyleRoundedIcon from "@mui/icons-material/StyleRounded";
+import FlashcardReview from "./FlashcardReview";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 
 const BRAND = "#B43D20";
@@ -189,46 +190,9 @@ const NewLessonPageItem: React.FC<Props> = ({ item }) => {
     );
   }
 
-  // ── Flashcard review with terms (pages 13–15) ─────────────────────────────
+  // ── Flashcard review with terms ───────────────────────────────────────────
   if (Array.isArray(item.terms)) {
-    return (
-      <Box sx={{ width: "100%", maxWidth: 560, mx: "auto", px: { xs: 1, sm: 2 } }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}>
-          <Box sx={{ width: 32, height: 32, borderRadius: "10px", bgcolor: BRAND, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <StyleRoundedIcon sx={{ color: "#fff", fontSize: "1.1rem" }} />
-          </Box>
-          <Typography sx={{ fontWeight: 800, fontSize: "1.1rem", letterSpacing: "-0.01em" }}>
-            {title}
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 1.5 }}>
-          {(item.terms as any[]).map((t, i) => (
-            <Box
-              key={i}
-              sx={{
-                px: 2,
-                py: 2.5,
-                borderRadius: "16px",
-                border: "1px solid rgba(0,0,0,0.09)",
-                bgcolor: "#fff",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-                textAlign: "center",
-              }}
-            >
-              <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", color: "#1C1917", mb: 1 }}>
-                {t.term}
-              </Typography>
-              <Chip
-                label="Image soon"
-                size="small"
-                sx={{ fontSize: "0.65rem", height: 18, opacity: 0.5 }}
-              />
-            </Box>
-          ))}
-        </Box>
-      </Box>
-    );
+    return <FlashcardReview terms={item.terms as any[]} />;
   }
 
   // ── Generic page fallback (paragraph/content) ─────────────────────────────

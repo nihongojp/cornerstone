@@ -22,6 +22,7 @@ import DragDropPlaceholder from "../components/DragDropPlaceholder";
 import Fact from "../components/Fact";
 
 import { getNewLesson, NewLessonDoc, NewLessonItem } from "../services/newLessons";
+import { expandLessonItems } from "../utils/expandLessonItems";
 
 // ── Step helpers (mirrors Lesson.tsx conventions) ────────────────────────────
 
@@ -81,10 +82,11 @@ function renderItem(
   }
 
   if (type === "dragAndDropExercise") {
+    const term = (item as any)._term as string | undefined;
     const placeholderBank = ["〇", "〇", "〇", "〇", "〇"];
     return (
       <DragDrop
-        prompt={(item as any).description || "Build the correct phrase"}
+        prompt={term ? `Build: "${term}"` : ((item as any).description || "Build the correct phrase")}
         characterBank={placeholderBank}
         correctAnswer="〇〇〇"
         onResult={onResult}
@@ -165,9 +167,13 @@ const NewLessonPage: React.FC = () => {
     return () => { mounted = false; };
   }, [slug, navigate]);
 
-  const items: NewLessonItem[] = useMemo(() => lesson?.items ?? [], [lesson]);
+  // Expand placeholder exercises into one-per-term repetitions (re-randomised
+  // each visit). Raw items change only when the lesson doc changes.
+  const rawItems: NewLessonItem[] = useMemo(() => lesson?.items ?? [], [lesson]);
+  const items: NewLessonItem[] = useMemo(() => expandLessonItems(rawItems), [rawItems]);
 
-  // Collect all matchAudioExercise items once for use as distractor pool.
+  // Distractor pool for matchAudioExercise — uses expanded items so every
+  // generated phrase is available as a potential wrong-answer option.
   const allMatchAudioItems = useMemo(
     () => items.filter((it) => it.type === "matchAudioExercise") as any[],
     [items]
