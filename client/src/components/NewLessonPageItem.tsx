@@ -1,6 +1,5 @@
 import React from "react";
 import { Box, Typography, Chip } from "@mui/material";
-import VideoLibraryRoundedIcon from "@mui/icons-material/VideoLibraryRounded";
 import StyleRoundedIcon from "@mui/icons-material/StyleRounded";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 
@@ -17,34 +16,96 @@ const NewLessonPageItem: React.FC<Props> = ({ item }) => {
   if (Array.isArray(item.videoForm)) {
     return (
       <Box sx={{ width: "100%", maxWidth: 560, mx: "auto", px: { xs: 1, sm: 2 } }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}>
-          <Box sx={{ width: 32, height: 32, borderRadius: "10px", bgcolor: BRAND, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <VideoLibraryRoundedIcon sx={{ color: "#fff", fontSize: "1.1rem" }} />
+        {/* Video placeholder */}
+        <Box
+          sx={{
+            width: "100%",
+            aspectRatio: "16/9",
+            borderRadius: "16px",
+            bgcolor: "rgba(0,0,0,0.06)",
+            border: "2px dashed rgba(0,0,0,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1.5,
+            mb: 3,
+          }}
+        >
+          <Box
+            sx={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              bgcolor: "rgba(0,0,0,0.12)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                width: 0,
+                height: 0,
+                borderTop: "10px solid transparent",
+                borderBottom: "10px solid transparent",
+                borderLeft: "18px solid rgba(0,0,0,0.3)",
+                ml: "4px",
+              }}
+            />
           </Box>
-          <Typography sx={{ fontWeight: 800, fontSize: "1.1rem", letterSpacing: "-0.01em" }}>
-            {title}
+          <Typography sx={{ fontSize: "0.78rem", color: "text.disabled", fontWeight: 600 }}>
+            Video coming soon
           </Typography>
         </Box>
 
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-          {(item.videoForm as string[]).map((line, i) => (
-            <Box
-              key={i}
-              sx={{
-                px: 2.5,
-                py: 1.5,
-                borderRadius: "14px",
-                bgcolor: i % 2 === 0 ? "rgba(180,61,32,0.05)" : "rgba(0,0,0,0.03)",
-                border: `1px solid ${i % 2 === 0 ? "rgba(180,61,32,0.12)" : "rgba(0,0,0,0.07)"}`,
-                alignSelf: i % 2 === 0 ? "flex-start" : "flex-end",
-                maxWidth: "85%",
-              }}
-            >
-              <Typography sx={{ fontWeight: 600, fontSize: "1rem", color: "#1C1917" }}>
-                {line}
-              </Typography>
-            </Box>
-          ))}
+        {/* Title */}
+        <Typography
+          sx={{ fontWeight: 900, fontSize: "1.1rem", color: "#1C1917", mb: 2, letterSpacing: "-0.01em" }}
+        >
+          {title}
+        </Typography>
+
+        {/* Transcript */}
+        <Box
+          sx={{
+            borderRadius: "14px",
+            border: "1px solid rgba(0,0,0,0.08)",
+            bgcolor: "#fff",
+            overflow: "hidden",
+          }}
+        >
+          <Box
+            sx={{
+              px: 2,
+              py: 1,
+              bgcolor: "rgba(0,0,0,0.03)",
+              borderBottom: "1px solid rgba(0,0,0,0.07)",
+            }}
+          />
+
+          <Box sx={{ px: 2.5, py: 1.5, display: "flex", flexDirection: "column", gap: 1.25 }}>
+            {(item.videoForm as string[]).map((line, i) => (
+              <Box key={i} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.72rem",
+                    fontWeight: 800,
+                    color: i % 2 === 0 ? BRAND : "#6366f1",
+                    whiteSpace: "nowrap",
+                    mt: "2px",
+                    minWidth: 80,
+                  }}
+                >
+                  {i % 2 === 0 ? "Person A:" : "Person B:"}
+                </Typography>
+                <Typography sx={{ fontSize: "0.92rem", color: "#1C1917", lineHeight: 1.5 }}>
+                  {line}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </Box>
       </Box>
     );

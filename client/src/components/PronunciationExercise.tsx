@@ -174,17 +174,6 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
 
       {/* Phrase display */}
       <Box textAlign="center">
-        <Typography
-          sx={{
-            fontWeight: 900,
-            fontSize: { xs: "2rem", sm: "2.5rem" },
-            letterSpacing: "-0.02em",
-            lineHeight: 1.2,
-            color: "#1C1917",
-          }}
-        >
-          {phrase}
-        </Typography>
         <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.75 }}>
           Listen, then record your pronunciation
         </Typography>
@@ -210,8 +199,9 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
         onClick={playReference}
         sx={{
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
-          gap: 1.25,
+          gap: 1,
           px: 3,
           py: 1.5,
           borderRadius: "14px",
@@ -240,16 +230,11 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
             ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1.3rem" }} />
             : <VolumeUpRoundedIcon sx={{ color: "#fff", fontSize: "1.3rem" }} />}
         </Box>
-        <Box textAlign="left">
-          <Typography sx={{ fontWeight: 700, fontSize: "0.88rem", color: (!hasRef || audioUnavailable) ? "text.disabled" : BRAND }}>
-            {refPlaying ? "Playing…" : "Play reference audio"}
-          </Typography>
-          {(!hasRef || audioUnavailable) && (
-            <Typography sx={{ fontSize: "0.72rem", color: "text.disabled" }}>
-              Audio not yet available
-            </Typography>
-          )}
-        </Box>
+
+        {/* Phrase label — small, below audio button */}
+        <Typography sx={{ fontWeight: 700, fontSize: "0.78rem", color: (!hasRef || audioUnavailable) ? "text.disabled" : BRAND }}>
+          {(!hasRef || audioUnavailable) ? "Audio not yet available" : refPlaying ? "Playing…" : phrase}
+        </Typography>
       </Box>
 
       {/* Mic permission error */}

@@ -61,8 +61,8 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   const path = location.pathname;
 
-  const hideHeader = path.startsWith("/lesson");
-  const hideFooter = path.startsWith("/lesson") || path === "/dashboard";
+  const hideHeader = path.startsWith("/lesson") || path.startsWith("/newlesson");
+  const hideFooter = path.startsWith("/lesson") || path.startsWith("/newlesson") || path === "/dashboard";
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">

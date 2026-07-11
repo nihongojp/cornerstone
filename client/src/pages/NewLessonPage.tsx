@@ -10,7 +10,6 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -18,6 +17,7 @@ import PronunciationExercise, { PronunciationExerciseData } from "../components/
 import NewLessonPageItem from "../components/NewLessonPageItem";
 import MatchingExercisePlaceholder from "../components/MatchingExercisePlaceholder";
 import MatchAudioExercisePlaceholder from "../components/MatchAudioExercisePlaceholder";
+import DragDrop from "../components/DragDrop";
 import DragDropPlaceholder from "../components/DragDropPlaceholder";
 import Fact from "../components/Fact";
 
@@ -53,7 +53,11 @@ function stepIconFromType(type: string): string {
 
 // ── Item renderer ─────────────────────────────────────────────────────────────
 
-function renderItem(item: NewLessonItem): React.ReactNode {
+function renderItem(
+  item: NewLessonItem,
+  onResult: (r: { result: "correct" | "incorrect" }) => void,
+  allMatchAudioItems: any[]
+): React.ReactNode {
   const type = item.type as string;
 
   if (type === "pronunciationExercise") {
@@ -69,23 +73,43 @@ function renderItem(item: NewLessonItem): React.ReactNode {
   }
 
   if (type === "matchingExercise") {
-    return <MatchingExercisePlaceholder item={item as any} />;
+    return <MatchingExercisePlaceholder item={item as any} onResult={onResult} />;
   }
 
   if (type === "matchAudioExercise") {
-    return <MatchAudioExercisePlaceholder item={item as any} />;
+    return <MatchAudioExercisePlaceholder item={item as any} allItems={allMatchAudioItems} onResult={onResult} />;
   }
 
   if (type === "dragAndDropExercise") {
-    return <DragDropPlaceholder item={item as any} />;
+    const placeholderBank = ["〇", "〇", "〇", "〇", "〇"];
+    return (
+      <DragDrop
+        prompt={(item as any).description || "Build the correct phrase"}
+        characterBank={placeholderBank}
+        correctAnswer="〇〇〇"
+        onResult={onResult}
+      />
+    );
   }
 
   if (type === "infoBreak") {
     return (
-      <Fact
-        title="Note"
-        description={String((item as any).content || "")}
-      />
+      <Box sx={{ width: "100%", maxWidth: 560, mx: "auto", px: { xs: 1, sm: 2 } }}>
+        <Box
+          sx={{
+            borderRadius: "20px",
+            border: "1px solid rgba(0,0,0,0.08)",
+            bgcolor: "#FFFFFF",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+            px: { xs: 2.5, sm: 3 },
+            py: { xs: 2.5, sm: 3 },
+          }}
+        >
+          <Typography sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, lineHeight: 1.7, color: "#374151" }}>
+            {String((item as any).content || "")}
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 
@@ -142,6 +166,12 @@ const NewLessonPage: React.FC = () => {
   }, [slug, navigate]);
 
   const items: NewLessonItem[] = useMemo(() => lesson?.items ?? [], [lesson]);
+
+  // Collect all matchAudioExercise items once for use as distractor pool.
+  const allMatchAudioItems = useMemo(
+    () => items.filter((it) => it.type === "matchAudioExercise") as any[],
+    [items]
+  );
   const totalSteps = items.length;
   const pct = totalSteps ? Math.round(((step + 1) / totalSteps) * 100) : 0;
   const isLast = step >= totalSteps - 1;
@@ -152,6 +182,12 @@ const NewLessonPage: React.FC = () => {
   const handleNext = () => {
     if (isLast) { navigate("/dashboard"); return; }
     setStep((s) => s + 1);
+  };
+
+  const handleResult = ({ result }: { result: "correct" | "incorrect" }) => {
+    if (result === "correct") {
+      setTimeout(() => setStep((s) => (s >= totalSteps - 1 ? s : s + 1)), 1000);
+    }
   };
 
   const handleBack = () => setStep((s) => Math.max(0, s - 1));
@@ -195,13 +231,12 @@ const NewLessonPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4", pb: { xs: 12, md: 8 } }}>
+    <Box sx={{ height: "100dvh", display: "flex", flexDirection: "column", bgcolor: "#F9F7F4", overflow: "hidden" }}>
 
-      {/* ── Sticky header (mirrors Lesson.tsx) ────────────────────────────── */}
+      {/* ── Sticky header ─────────────────────────────────────────────────── */}
       <Box
         sx={{
-          position: "sticky",
-          top: 0,
+          flexShrink: 0,
           zIndex: 10,
           backdropFilter: "blur(12px)",
           bgcolor: "rgba(249,247,244,0.85)",
@@ -210,15 +245,6 @@ const NewLessonPage: React.FC = () => {
       >
         <Container maxWidth="md" sx={{ py: 1.5 }}>
           <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
-            <Button
-              startIcon={<ArrowBackRoundedIcon />}
-              variant="text"
-              onClick={() => navigate("/dashboard")}
-              sx={{ fontWeight: 700, color: "text.secondary", "&:hover": { color: "text.primary" }, minWidth: 0 }}
-            >
-              Back
-            </Button>
-
             <Box sx={{ flexGrow: 1, minWidth: 0 }}>
               <Typography
                 noWrap
@@ -267,75 +293,54 @@ const NewLessonPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* ── Content card ────────────────────────────────────────────────────── */}
-      <Container maxWidth="md" sx={{ pt: { xs: 2.5, md: 3.5 } }}>
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: { xs: 3, md: 4 },
-            border: "1px solid rgba(0,0,0,0.07)",
-            bgcolor: "#FFFFFF",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
-            overflow: "hidden",
-          }}
-        >
-          {/* Card header strip */}
-          <Box
+      {/* ── Content card (fills remaining height, scrolls only if needed) ─── */}
+      <Box sx={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
+        <Container maxWidth="md" sx={{ pt: { xs: 1.5, md: 2 }, pb: { xs: 1.5, md: 2 }, flex: 1, display: "flex", flexDirection: "column" }}>
+          <Paper
+            elevation={0}
             sx={{
-              px: { xs: 2.5, md: 3.5 },
-              pt: { xs: 2, md: 2.5 },
-              pb: 1.5,
-              borderBottom: "1px solid rgba(0,0,0,0.06)",
+              flex: 1,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+              flexDirection: "column",
+              borderRadius: { xs: 3, md: 4 },
+              border: "1px solid rgba(0,0,0,0.07)",
+              bgcolor: "#FFFFFF",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
+              overflow: "hidden",
             }}
           >
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Typography sx={{ fontSize: "1.3rem" }}>{stepIconFromType(activeType)}</Typography>
-              <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", letterSpacing: "-0.01em" }}>
-                {stepLabelFromType(activeType)}
-              </Typography>
-            </Stack>
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-              Step {step + 1} of {totalSteps}
-            </Typography>
-          </Box>
+            {/* Exercise area */}
+            <Box
+              sx={{
+                flex: 1,
+                overflow: "auto",
+                px: { xs: 1.5, md: 3 },
+                py: { xs: 2, md: 2.5 },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {activeItem && (
+                <Box key={`step-${step}`} sx={{ width: "100%" }}>
+                  {renderItem(activeItem, handleResult, allMatchAudioItems)}
+                </Box>
+              )}
+            </Box>
+          </Paper>
+        </Container>
+      </Box>
 
-          {/* Exercise area */}
-          <Box
-            sx={{
-              minHeight: { xs: 400, md: 480 },
-              px: { xs: 1.5, md: 3 },
-              py: { xs: 2.5, md: 3 },
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {activeItem && (
-              <Box key={`step-${step}`} sx={{ width: "100%" }}>
-                {renderItem(activeItem)}
-              </Box>
-            )}
-          </Box>
-        </Paper>
-      </Container>
-
-      {/* ── Fixed bottom nav (mirrors Lesson.tsx) ─────────────────────────── */}
+      {/* ── Bottom nav (in normal flow, not fixed) ────────────────────────── */}
       <Box
         sx={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 20,
+          flexShrink: 0,
           bgcolor: "rgba(255,255,255,0.92)",
           borderTop: "1px solid rgba(0,0,0,0.07)",
           backdropFilter: "blur(12px)",
         }}
       >
-        <Container maxWidth="md" sx={{ py: { xs: 1.5, md: 1.75 } }}>
+        <Container maxWidth="md" sx={{ py: { xs: 1.25, md: 1.5 } }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Button
               disabled={step === 0}
