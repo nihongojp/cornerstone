@@ -11,7 +11,6 @@ import {
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import { Link, useNavigate } from "react-router-dom";
 
-import Header from "../components/Header";
 import { listNewLessons, NewLessonListItem } from "../services/newLessons";
 
 const NewLessonsListPage: React.FC = () => {
@@ -37,8 +36,6 @@ const NewLessonsListPage: React.FC = () => {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4" }}>
-      <Header />
-
       <Container maxWidth="md" sx={{ pt: 5, pb: 8 }}>
         {/* Page title */}
         <Box sx={{ mb: 4 }}>
