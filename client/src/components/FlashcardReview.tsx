@@ -25,6 +25,7 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAudio = !isPlaceholder(term.audioUrl);
+  const hasVideo = !isPlaceholder(term.videoUrl);
 
   const playAudio = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -76,45 +77,65 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
             transition: "box-shadow 0.2s",
           }}
         >
-          {/* Pulsing video placeholder */}
-          <Box
-            sx={{
-              width: "80%",
-              aspectRatio: "16/9",
-              borderRadius: "10px",
-              bgcolor: "rgba(0,0,0,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-              overflow: "hidden",
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                inset: 0,
-                background:
-                  "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)",
-                animation: "shimmer 1.8s ease-in-out infinite",
-              },
-              "@keyframes shimmer": {
-                "0%": { transform: "translateX(-100%)" },
-                "100%": { transform: "translateX(100%)" },
-              },
-            }}
-          >
-            {/* Play triangle */}
+          {/* Embedded video, or a pulsing placeholder until one is provided */}
+          {hasVideo ? (
             <Box
               sx={{
-                width: 0,
-                height: 0,
-                borderTop: "8px solid transparent",
-                borderBottom: "8px solid transparent",
-                borderLeft: "14px solid rgba(0,0,0,0.22)",
-                ml: "3px",
-                zIndex: 1,
+                width: "80%",
+                aspectRatio: "16/9",
+                borderRadius: "10px",
+                overflow: "hidden",
               }}
-            />
-          </Box>
+            >
+              <video
+                src={term.videoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                width: "80%",
+                aspectRatio: "16/9",
+                borderRadius: "10px",
+                bgcolor: "rgba(0,0,0,0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                overflow: "hidden",
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)",
+                  animation: "shimmer 1.8s ease-in-out infinite",
+                },
+                "@keyframes shimmer": {
+                  "0%": { transform: "translateX(-100%)" },
+                  "100%": { transform: "translateX(100%)" },
+                },
+              }}
+            >
+              {/* Play triangle */}
+              <Box
+                sx={{
+                  width: 0,
+                  height: 0,
+                  borderTop: "8px solid transparent",
+                  borderBottom: "8px solid transparent",
+                  borderLeft: "14px solid rgba(0,0,0,0.22)",
+                  ml: "3px",
+                  zIndex: 1,
+                }}
+              />
+            </Box>
+          )}
 
           <Typography
             sx={{
