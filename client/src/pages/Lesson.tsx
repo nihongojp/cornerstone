@@ -607,7 +607,7 @@ const Lesson: React.FC = () => {
                 startIcon={<LogoutRoundedIcon />}
                 variant="contained"
                 size="small"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/new-lessons")}
                 sx={{
                   bgcolor: "#B43D20",
                   "&:hover": { bgcolor: "#9D351C" },

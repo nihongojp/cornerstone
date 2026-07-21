@@ -19,9 +19,6 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
-import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
-import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getToken, clearToken, json } from "../services/api";
 
@@ -38,7 +35,6 @@ const Header = (): React.ReactElement => {
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [learnAnchorEl, setLearnAnchorEl] = useState<null | HTMLElement>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [me, setMe] = useState<Me | null>(null);
   const [loadingMe, setLoadingMe] = useState(false);
@@ -53,16 +49,6 @@ const Header = (): React.ReactElement => {
     ],
     []
   );
-
-  const learnMenuItems = useMemo(
-    () => [
-      { label: "Dashboard", path: "/dashboard", icon: DashboardRoundedIcon },
-      { label: "Lessons", path: "/new-lessons", icon: MenuBookRoundedIcon },
-    ],
-    []
-  );
-
-  const isLearnActive = learnMenuItems.some((item) => location.pathname === item.path);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -181,36 +167,15 @@ const Header = (): React.ReactElement => {
               ))}
 
               <Button
-                onClick={(e) => setLearnAnchorEl(e.currentTarget)}
-                endIcon={<KeyboardArrowDownRoundedIcon />}
+                component={Link}
+                to="/new-lessons"
                 sx={{
-                  fontWeight: isLearnActive ? 800 : 600,
-                  color: isLearnActive ? "#b43d20" : "text.primary",
+                  fontWeight: isActive("/new-lessons") ? 800 : 600,
+                  color: isActive("/new-lessons") ? "#b43d20" : "text.primary",
                 }}
               >
                 Learn
               </Button>
-
-              <Menu
-                anchorEl={learnAnchorEl}
-                open={Boolean(learnAnchorEl)}
-                onClose={() => setLearnAnchorEl(null)}
-              >
-                {learnMenuItems.map(({ label, path, icon: Icon }) => (
-                  <MenuItem
-                    key={label}
-                    component={Link}
-                    to={path}
-                    onClick={() => setLearnAnchorEl(null)}
-                    sx={{
-                      fontWeight: isActive(path) ? 800 : 500,
-                      color: isActive(path) ? "#b43d20" : "text.primary",
-                    }}
-                  >
-                    <Icon fontSize="small" sx={{ mr: 1 }} /> {label}
-                  </MenuItem>
-                ))}
-              </Menu>
 
               {!isAuthed ? (
                 <Button
@@ -276,17 +241,13 @@ const Header = (): React.ReactElement => {
                 </ListItemButton>
               ))}
 
-              {learnMenuItems.map(({ label, path }) => (
-                <ListItemButton
-                  key={label}
-                  component={Link}
-                  to={path}
-                  onClick={() => setDrawerOpen(false)}
-                  sx={{ pl: 3 }}
-                >
-                  <ListItemText primary={label} />
-                </ListItemButton>
-              ))}
+              <ListItemButton
+                component={Link}
+                to="/new-lessons"
+                onClick={() => setDrawerOpen(false)}
+              >
+                <ListItemText primary="Learn" />
+              </ListItemButton>
             </List>
 
             <Box sx={{ px: 2, pb: 2 }}>
