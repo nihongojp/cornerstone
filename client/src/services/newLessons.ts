@@ -15,6 +15,7 @@ export type NewLessonListItem = {
   _id: string;
   lesson: string; // title string, e.g. "Lesson 1 V1"
   slug: string;
+  cardTitle?: string; // editable heading shown on the Lessons list card
   isActive?: boolean;
   tags?: string[];
 };

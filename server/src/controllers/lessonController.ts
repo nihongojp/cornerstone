@@ -21,7 +21,7 @@ export const listLessons: RequestHandler = (req, res) => {
       if (prefecture) query.prefecture = prefecture;
 
       const lessons = await Lesson.find(query)
-        .select("slug title version flashcards prefecture isActive")
+        .select("slug title version cardTitle flashcards prefecture isActive")
         .sort({ createdAt: 1 })
         .lean();
 

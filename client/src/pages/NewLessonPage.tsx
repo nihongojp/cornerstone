@@ -23,6 +23,7 @@ import Fact from "../components/Fact";
 
 import { getNewLesson, NewLessonDoc, NewLessonItem } from "../services/newLessons";
 import { expandLessonItems } from "../utils/expandLessonItems";
+import { isPlaceholderUrl } from "../utils/termMedia";
 
 // ── Step helpers (mirrors Lesson.tsx conventions) ────────────────────────────
 
@@ -83,12 +84,16 @@ function renderItem(
 
   if (type === "dragAndDropExercise") {
     const term = (item as any)._term as string | undefined;
+    const rawAudioUrl = (item as any).audioUrl as string | undefined;
+    const rawImageUrl = (item as any).imageUrl as string | undefined;
     const placeholderBank = ["〇", "〇", "〇", "〇", "〇"];
     return (
       <DragDrop
         prompt={term ? `Build: "${term}"` : ((item as any).description || "Build the correct phrase")}
         characterBank={placeholderBank}
         correctAnswer="〇〇〇"
+        audioUrl={isPlaceholderUrl(rawAudioUrl) ? undefined : rawAudioUrl}
+        imageUrl={isPlaceholderUrl(rawImageUrl) ? undefined : rawImageUrl}
         onResult={onResult}
       />
     );

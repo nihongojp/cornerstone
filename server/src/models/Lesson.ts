@@ -49,6 +49,10 @@ const LessonSchema = new Schema(
     title: { type: String, required: true },
     version: { type: String, default: "V1" },
 
+    // Editable heading shown on the Lessons list card. Falls back to the
+    // auto-computed "Lesson {n}.{m}" (derived from slug) when left blank.
+    cardTitle: { type: String, default: "", trim: true },
+
     flashcards: { type: [String], default: [] },
     funFact: { type: String, default: "" },
     notes: { type: String, default: "" },

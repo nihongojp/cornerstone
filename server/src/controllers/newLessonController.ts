@@ -10,7 +10,7 @@ export const listNewLessons: RequestHandler = (req, res) => {
   void (async (): Promise<void> => {
     try {
       const newLessons = await NewLesson.find({ isActive: { $ne: false } })
-        .select("lesson slug isActive tags createdAt")
+        .select("lesson slug cardTitle isActive tags createdAt")
         .sort({ createdAt: 1 })
         .lean();
 

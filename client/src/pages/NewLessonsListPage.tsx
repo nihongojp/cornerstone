@@ -10,6 +10,7 @@ type Version = {
   lesson: number;
   version: number;
   to: string;
+  cardTitle?: string;
 };
 
 // Sections are always shown for at least these lesson numbers.
@@ -80,7 +81,7 @@ const VersionCard: React.FC<{ v: Version; variant: "primary" | "outlined" }> = (
   return (
     <Paper component={Link} to={v.to} elevation={0} sx={sx}>
       <Typography sx={{ fontWeight: 800, fontSize: "0.95rem" }}>
-        Lesson {v.lesson}.{v.version}
+        {v.cardTitle || `Lesson ${v.lesson}.${v.version}`}
       </Typography>
       {/* Reserved space for a future caption/description. */}
       <Typography sx={{ fontSize: "0.78rem", fontStyle: "italic", color: captionColor, mt: 0.5 }}>
@@ -145,14 +146,14 @@ const NewLessonsListPage: React.FC = () => {
       const grammarMap = new Map<number, Version[]>();
       for (const l of newLessons) {
         const p = parseSlug(l.slug);
-        if (p) pushVersion(grammarMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/newlesson/${l.slug}` });
+        if (p) pushVersion(grammarMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/newlesson/${l.slug}`, cardTitle: l.cardTitle });
       }
 
       // Reading & Writing column ← prefecture lessons (slug like "hiragana-l1-v2-hokkaido").
       const readingMap = new Map<number, Version[]>();
       for (const l of prefLessons) {
         const p = parseSlug(l.slug);
-        if (p) pushVersion(readingMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/lesson/${l.slug}` });
+        if (p) pushVersion(readingMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/lesson/${l.slug}`, cardTitle: l.cardTitle });
       }
 
       setGrammar(grammarMap);

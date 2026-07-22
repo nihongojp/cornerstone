@@ -106,7 +106,7 @@ const AuthForm = (): React.ReactElement => {
       setToken(data.token);
 
       notify("Login successful. Redirecting…", "success");
-      const redirectTo = location.state?.from?.pathname || "/dashboard";
+      const redirectTo = location.state?.from?.pathname || "/new-lessons";
 
       // IMPORTANT: full reload so header + guards pick up localStorage immediately
       window.location.assign(redirectTo);

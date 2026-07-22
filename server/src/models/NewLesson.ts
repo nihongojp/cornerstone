@@ -13,6 +13,9 @@ const NewLessonSchema = new Schema(
     // Flag: when merging the two collections, normalise to "title" on both sides.
     lesson: { type: String, required: true },
     slug: { type: String, required: true, unique: true, index: true },
+    // Editable heading shown on the Lessons list card. Falls back to the
+    // auto-computed "Lesson {n}.{m}" (derived from slug) when left blank.
+    cardTitle: { type: String, default: "", trim: true },
     items: { type: [NewLessonItemSchema], default: [] },
     isActive: { type: Boolean, default: true },
     tags: { type: [String], default: [] },

@@ -43,7 +43,7 @@ const RequireAuth: React.FC<{ children: React.ReactElement }> = ({ children }) =
 };
 
 const PublicOnly: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  if (isAuthed()) return <Navigate to="/dashboard" replace />;
+  if (isAuthed()) return <Navigate to="/new-lessons" replace />;
   return children;
 };
 
