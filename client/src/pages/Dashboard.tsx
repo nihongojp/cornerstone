@@ -626,6 +626,9 @@ const Dashboard = (): React.ReactElement => {
           </Box>
         </Box>
 
+        {/* ── Practice panel ─────────────────────────────────────────────── */}
+        
+
         {/* ── Stories panel ─────────────────────────────────────────────── */}
         <Box
           sx={{

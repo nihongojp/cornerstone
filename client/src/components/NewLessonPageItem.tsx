@@ -29,7 +29,7 @@ function normaliseNewTerms(raw: any): NewTerm[] {
     .map((t): NewTerm | null => {
       if (typeof t === "string") return { term: t };
       if (t && typeof t === "object") {
-        const term = t.term ?? t.word ?? t.text ?? "";
+        const term = t.term ?? t.word ?? t.text ?? t.Title ?? t.title ?? "";
         if (!term) return null;
         return {
           term: String(term),
@@ -87,13 +87,17 @@ const NewTermVideo: React.FC<{ videoUrl?: string }> = ({ videoUrl }) => {
   );
 };
 
-// A single new-term row with a video placeholder and an audio button,
-// mirroring FlashcardReview's native-<audio> playback pattern (VolumeUp →
-// GraphicEq while playing).
-const NewTermRow: React.FC<{ term: NewTerm }> = ({ term }) => {
+// A clickable pronunciation button, mirroring FlashcardReview's native-<audio>
+// playback pattern (VolumeUp → GraphicEq while playing). Reused for both the
+// per-term rows below and the single term introduced by a page's title.
+const TermAudioButton: React.FC<{ audioUrl?: string; label: string; size?: number }> = ({
+  audioUrl,
+  label,
+  size = 40,
+}) => {
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const hasAudio = !isPlaceholderUrl(term.audioUrl);
+  const hasAudio = !isPlaceholderUrl(audioUrl);
 
   const playAudio = () => {
     if (!hasAudio || !audioRef.current) return;
@@ -103,38 +107,17 @@ const NewTermRow: React.FC<{ term: NewTerm }> = ({ term }) => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 1.5,
-        px: 2,
-        py: 1.25,
-        borderRadius: "12px",
-        border: "1px solid rgba(180,61,32,0.15)",
-        bgcolor: "rgba(180,61,32,0.03)",
-      }}
-    >
+    <>
       {hasAudio && (
-        <audio
-          ref={audioRef}
-          src={term.audioUrl}
-          preload="auto"
-          onEnded={() => setPlaying(false)}
-        />
+        <audio ref={audioRef} src={audioUrl} preload="auto" onEnded={() => setPlaying(false)} />
       )}
-
-      {/* Video placeholder / embed */}
-      <NewTermVideo videoUrl={term.videoUrl} />
-
-      {/* Audio button */}
       <Box
         onClick={playAudio}
         role="button"
-        aria-label={`Play pronunciation of ${term.term}`}
+        aria-label={`Play pronunciation of ${label}`}
         sx={{
-          width: 40,
-          height: 40,
+          width: size,
+          height: size,
           flexShrink: 0,
           borderRadius: "50%",
           bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.1)",
@@ -152,9 +135,32 @@ const NewTermRow: React.FC<{ term: NewTerm }> = ({ term }) => {
         }}
       >
         {playing
-          ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1.2rem" }} />
-          : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.25)", fontSize: "1.2rem" }} />}
+          ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: size * 0.3 }} />
+          : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.25)", fontSize: size * 0.3 }} />}
       </Box>
+    </>
+  );
+};
+
+// A single new-term row with a video placeholder and an audio button.
+const NewTermRow: React.FC<{ term: NewTerm }> = ({ term }) => {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: 1.5,
+        px: 2,
+        py: 1.25,
+        borderRadius: "12px",
+        border: "1px solid rgba(180,61,32,0.15)",
+        bgcolor: "rgba(180,61,32,0.03)",
+      }}
+    >
+      {/* Video placeholder / embed */}
+      <NewTermVideo videoUrl={term.videoUrl} />
+
+      <TermAudioButton audioUrl={term.audioUrl} label={term.term} />
 
       {/* Term + optional definition */}
       <Box sx={{ minWidth: 0 }}>
@@ -321,12 +327,21 @@ const NewLessonPageItem: React.FC<Props> = ({ item }) => {
           </Box>
         )}
 
-        {/* Title */}
-        <Typography
-          sx={{ fontWeight: 900, fontSize: "1.1rem", color: "#1C1917", mb: 2, letterSpacing: "-0.01em" }}
-        >
-          {title}
-        </Typography>
+        {/* Title + pronunciation button for the term this page introduces,
+            with its optional description shown inline in smaller text. */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, flexWrap: "wrap" }}>
+          <Typography
+            sx={{ fontWeight: 900, fontSize: "1.1rem", color: "#1C1917", letterSpacing: "-0.01em" }}
+          >
+            {title}
+          </Typography>
+          <TermAudioButton audioUrl={item.audioUrl ?? item.audioURL ?? item.audio} label={title} size={32} />
+          {item.description && (
+            <Typography sx={{ fontSize: "0.8rem", color: "text.secondary", lineHeight: 1.4 }}>
+              — {item.description}
+            </Typography>
+          )}
+        </Box>
 
         {/* Transcript */}
         <Box

@@ -1,4 +1,10 @@
 import { NewLessonItem } from "../services/newLessons";
+import {
+  buildTermMediaRegistry,
+  enrichItemWithTermMedia,
+  resolveTermMedia,
+  TermMediaRegistry,
+} from "./termMedia";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -30,30 +36,43 @@ function isPlaceholderItem(item: NewLessonItem): boolean {
 }
 
 // ── Generators ────────────────────────────────────────────────────────────────
+// Each generator looks up the term's real media (already entered somewhere
+// else in the lesson — a page, a matchingExercise dot, etc.) before falling
+// back to a placeholder, so re-entering it in MongoDB Compass isn't needed.
 
-function makeMatchAudio(phrase: string, number: number): NewLessonItem {
+function makeMatchAudio(phrase: string, number: number, registry: TermMediaRegistry): NewLessonItem {
+  const media = resolveTermMedia(registry, phrase);
   return {
     type: "matchAudioExercise",
     number,
     phrase,
-    audioUrl: "PLACEHOLDER_AUDIO_URL",
+    audioUrl: media?.audioUrl ?? "PLACEHOLDER_AUDIO_URL",
   } as unknown as NewLessonItem;
 }
 
-function makePronunciation(phrase: string, number: number): NewLessonItem {
+function makePronunciation(phrase: string, number: number, registry: TermMediaRegistry): NewLessonItem {
+  const media = resolveTermMedia(registry, phrase);
   return {
     type: "pronunciationExercise",
     number,
     phrase,
-    audioUrl: "PLACEHOLDER_AUDIO_URL",
+    audioUrl: media?.audioUrl ?? "PLACEHOLDER_AUDIO_URL",
   } as unknown as NewLessonItem;
 }
 
-function makeDragDrop(templateItem: NewLessonItem, phrase: string, number: number): NewLessonItem {
+function makeDragDrop(
+  templateItem: NewLessonItem,
+  phrase: string,
+  number: number,
+  registry: TermMediaRegistry
+): NewLessonItem {
+  const media = resolveTermMedia(registry, phrase);
   return {
     ...(templateItem as object),
     _term: phrase,
     number,
+    audioUrl: media?.audioUrl,
+    imageUrl: media?.imageUrl,
   } as unknown as NewLessonItem;
 }
 
@@ -74,6 +93,12 @@ function makeDragDrop(templateItem: NewLessonItem, phrase: string, number: numbe
  * - Items before the first matchingExercise are always passed through.
  */
 export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
+  // Built once from the raw, un-expanded items so media entered anywhere in
+  // the lesson (a page's video/audio, a hand-authored matching-exercise dot,
+  // etc.) is available to every other item that references the same term —
+  // regardless of which one appears first.
+  const registry = buildTermMediaRegistry(items);
+
   const result: NewLessonItem[] = [];
   let currentTerms: string[] = [];
   let i = 0;
@@ -86,7 +111,7 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
     if (type === "matchingExercise") {
       const matchItems: Array<{ phrase?: string }> = (item as any).items ?? [];
       currentTerms = shuffled(matchItems.map((m) => String(m.phrase ?? "")));
-      result.push(item);
+      result.push(enrichItemWithTermMedia(item, registry));
       i++;
       continue;
     }
@@ -114,18 +139,19 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
       currentTerms.forEach((phrase, idx) => {
         const num = idx + 1;
         if (type === "matchAudioExercise") {
-          result.push(makeMatchAudio(phrase, num));
+          result.push(makeMatchAudio(phrase, num, registry));
         } else if (type === "pronunciationExercise") {
-          result.push(makePronunciation(phrase, num));
+          result.push(makePronunciation(phrase, num, registry));
         } else {
-          result.push(makeDragDrop(templateItem, phrase, num));
+          result.push(makeDragDrop(templateItem, phrase, num, registry));
         }
       });
       continue;
     }
 
-    // ── Pass through unchanged ───────────────────────────────────────────────
-    result.push(item);
+    // ── Pass through, filling in any media already associated with this
+    // item's term elsewhere in the lesson ────────────────────────────────────
+    result.push(enrichItemWithTermMedia(item, registry));
     i++;
   }
 

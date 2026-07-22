@@ -30,6 +30,7 @@ export type LessonDoc = {
   slug: string;
   title: string;
   version: string;
+  cardTitle?: string; // editable heading shown on the Lessons list card
 
   flashcards: string[];
   funFact?: string;
@@ -45,7 +46,7 @@ export type LessonDoc = {
 
 export type LessonListItem = Pick<
   LessonDoc,
-  "_id" | "slug" | "title" | "version" | "flashcards" | "prefecture" | "isActive"
+  "_id" | "slug" | "title" | "version" | "cardTitle" | "flashcards" | "prefecture" | "isActive"
 >;
 
 const BASE = "/api/lessons";
