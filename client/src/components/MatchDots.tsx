@@ -12,6 +12,45 @@ type DotMatchProps = {
 
 const DOT_SIZE = 14;
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Shuffles `pool` so that, as much as possible, no item ends up on the same
+// row it occupies in `reference` — this keeps the correct right-column
+// answer from lining up on the same row as its left-column term.
+function derangeRelativeTo(reference: number[], pool: number[]): number[] {
+  if (pool.length <= 1) return shuffle(pool);
+
+  let result = shuffle(pool);
+  for (let attempt = 0; attempt < 20; attempt++) {
+    if (result.every((v, i) => v !== reference[i])) return result;
+    result = shuffle(pool);
+  }
+
+  // Fallback: targeted swaps to remove any remaining same-row matches.
+  for (let i = 0; i < result.length; i++) {
+    if (result[i] !== reference[i]) continue;
+    const j = result.findIndex(
+      (v, idx) => idx !== i && v !== reference[i] && result[i] !== reference[idx]
+    );
+    if (j !== -1) [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function buildArrangement(pairs: DotMatchPair[]): { leftOrder: number[]; rightOrder: number[] } {
+  const ids = pairs.map((_, i) => i);
+  const leftOrder = shuffle(ids);
+  const rightOrder = derangeRelativeTo(leftOrder, ids);
+  return { leftOrder, rightOrder };
+}
+
 const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -22,8 +61,22 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
   const [submitted, setSubmitted] = useState(false);
   const [correctSet, setCorrectSet] = useState<Set<string>>(new Set());
 
-  const leftLabels = useMemo(() => pairs.map((p) => p.hiragana), [pairs]);
-  const rightLabels = useMemo(() => pairs.map((p) => p.katakana), [pairs]);
+  // Randomized once per mount so the layout is fresh on every attempt.
+  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs));
+
+  const leftLabels = useMemo(() => leftOrder.map((pairId) => pairs[pairId].hiragana), [leftOrder, pairs]);
+  const rightLabels = useMemo(() => rightOrder.map((pairId) => pairs[pairId].katakana), [rightOrder, pairs]);
+
+  // Row index on the right column holding the correct katakana for each left row.
+  const correctRightRowForLeftRow = useMemo(
+    () => leftOrder.map((pairId) => rightOrder.indexOf(pairId)),
+    [leftOrder, rightOrder]
+  );
+  // Row index on the left column holding the correct hiragana for each right row.
+  const correctLeftRowForRightRow = useMemo(
+    () => rightOrder.map((pairId) => leftOrder.indexOf(pairId)),
+    [leftOrder, rightOrder]
+  );
 
   const getLineColor = (dot1Id: string, dot2Id: string): string => {
     if (!submitted) return "#B43D20";
@@ -124,7 +177,9 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
 
   const handleCheck = () => {
     const made = new Set(connections.map((c) => `${c.dot1Id}-${c.dot2Id}`));
-    const expected = new Set(leftLabels.map((_, i) => `L${i + 1}-R${i + 1}`));
+    const expected = new Set(
+      correctRightRowForLeftRow.map((rightRow, leftRow) => `L${leftRow + 1}-R${rightRow + 1}`)
+    );
     const allCorrect = expected.size === made.size && [...expected].every((k) => made.has(k));
     setCorrectSet(expected);
     setSubmitted(true);
@@ -178,7 +233,8 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
             const id = `L${i + 1}`;
             const active = firstId === id;
             const connected = isConnected(id);
-            const isCorrect = submitted && correctSet.has(`${id}-R${i + 1}`) && connections.some((c) => c.dot1Id === id && c.dot2Id === `R${i + 1}`);
+            const expectedRId = `R${correctRightRowForLeftRow[i] + 1}`;
+            const isCorrect = submitted && connections.some((c) => c.dot1Id === id && c.dot2Id === expectedRId);
             const isWrong = submitted && connected && !isCorrect;
 
             return (
@@ -229,7 +285,7 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
             const connected = isConnected(id);
             // Find what L dot is connected to this R dot
             const connectedL = connections.find((c) => c.dot2Id === id)?.dot1Id;
-            const expectedL = `L${i + 1}`;
+            const expectedL = `L${correctLeftRowForRightRow[i] + 1}`;
             const isCorrect = submitted && connectedL === expectedL;
             const isWrong = submitted && connected && !isCorrect;
 

@@ -25,7 +25,10 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
   const [playCount, setPlayCount] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const choices = useMemo(() => options ?? [], [options]);
+  // Deduped defensively — callers should already pass unique options, but a
+  // duplicate here would otherwise render two identical, independently-
+  // clickable answer buttons.
+  const choices = useMemo(() => Array.from(new Set(options ?? [])), [options]);
 
   const play = () => {
     if (!audioUrl || !audioRef.current) return;
