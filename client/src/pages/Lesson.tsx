@@ -26,7 +26,7 @@ import Fact from "../components/Fact";
 import Reward from "../components/Rewards";
 import RInfo from "../components/RewardInfo";
 
-import { submitAttempt, upsertProgress } from "../services/progress";
+import { submitAttempt, upsertProgress, getProgress } from "../services/progress";
 import { isAuthed, safe } from "../services/api";
 import { getLesson, LessonDoc } from "../services/lessons";
 
@@ -112,6 +112,8 @@ function resolveLessonIdentifier(lesson: LessonDoc): string {
 }
 
 function getLessonHeader(lesson: LessonDoc): string {
+  const cardTitle = String((lesson as any).cardTitle || "").trim();
+  if (cardTitle) return cardTitle;
   const t = String((lesson as any).title || "Lesson");
   const v = String((lesson as any).version || "");
   return v ? `${t} (${v})` : t;
@@ -168,9 +170,11 @@ const Lesson: React.FC = () => {
   const [attemptCount, setAttemptCount] = useState(0);
 
   const answeredStepRef = useRef<Record<string, boolean>>({});
+  const resumedRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
+    resumedRef.current = false;
 
     void (async (): Promise<void> => {
       try {
@@ -337,22 +341,26 @@ const Lesson: React.FC = () => {
   const pct = steps.length ? Math.round(((step + 1) / steps.length) * 100) : 0;
   const accuracy = attemptCount ? Math.round((100 * correctCount) / attemptCount) : 0;
 
+  // Resume at the last-seen step, since exercise order here is authored and
+  // stable (unlike the Grammar flow, no re-shuffling happens), so the saved
+  // raw index is safe to reuse directly. Runs once per lesson load.
   useEffect(() => {
-    if (!lesson || !isAuthed() || !lessonKey) return;
+    if (!lesson || !isAuthed() || !lessonKey || !steps.length || resumedRef.current) return;
+    resumedRef.current = true;
 
+    let cancelled = false;
     void (async (): Promise<void> => {
       try {
-        await upsertProgress({
-          lessonId: lessonKey,
-          status: "in_progress",
-          lastStep: 0,
-          accuracyPct: 0,
-        });
+        const saved = await getProgress(lessonKey);
+        if (!cancelled && saved && saved.status === "in_progress" && saved.lastStep > 0 && saved.lastStep < steps.length) {
+          setStep(saved.lastStep);
+        }
       } catch (e) {
-        console.error("[Progress] upsert failed:", e);
+        console.error("[Progress] fetch failed:", e);
       }
     })();
-  }, [lesson, lessonKey]);
+    return () => { cancelled = true; };
+  }, [lesson, lessonKey, steps]);
 
   function advance({
     result,
@@ -403,7 +411,7 @@ const Lesson: React.FC = () => {
         });
       }
 
-      navigate("/dashboard");
+      navigate("/new-lessons");
     }
   }
 
@@ -461,6 +469,19 @@ const Lesson: React.FC = () => {
     if (prevKey) delete answeredStepRef.current[prevKey];
 
     setStep(prevStep);
+  };
+
+  const handleSaveAndExit = () => {
+    if (lesson && isAuthed() && lessonKey) {
+      void upsertProgress({
+        lessonId: lessonKey,
+        status: "in_progress",
+        lastStep: step,
+        stepKey: steps[step]?.key,
+        accuracyPct: accuracy,
+      }).catch((e) => console.error("[Progress] save failed:", e));
+    }
+    navigate("/new-lessons");
   };
 
   if (loading) {
@@ -537,7 +558,7 @@ const Lesson: React.FC = () => {
             <Button
               startIcon={<ArrowBackRoundedIcon />}
               variant="text"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/new-lessons")}
               sx={{
                 fontWeight: 700,
                 color: "text.secondary",
@@ -561,12 +582,6 @@ const Lesson: React.FC = () => {
               </Typography>
 
               <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" sx={{ mt: 0.25 }}>
-                <Chip
-                  size="small"
-                  label={`${stepIcon(activeKey)} ${activeLabel} · ${step + 1}/${steps.length}`}
-                  sx={{ fontWeight: 700, fontSize: "0.72rem", height: 22 }}
-                />
-
                 {attemptCount > 0 && (
                   <Chip
                     size="small"
@@ -598,7 +613,7 @@ const Lesson: React.FC = () => {
                 startIcon={<LogoutRoundedIcon />}
                 variant="contained"
                 size="small"
-                onClick={() => navigate("/new-lessons")}
+                onClick={handleSaveAndExit}
                 sx={{
                   bgcolor: "#B43D20",
                   "&:hover": { bgcolor: "#9D351C" },

@@ -1,10 +1,11 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Box, Chip, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import { ChoiceCandidate } from "../utils/expandLessonItems";
 
 const BRAND = "#B43D20";
 
@@ -13,11 +14,13 @@ export interface MatchAudioItem {
   phrase: string;
   audioUrl?: string;
   imageUrl?: string;
+  // Other terms learned since the last checkpoint (or since the start of the
+  // lesson) — the pool the 2 wrong-answer images are drawn from.
+  checkpointPool?: ChoiceCandidate[];
 }
 
 interface Props {
   item: MatchAudioItem;
-  allItems: MatchAudioItem[];
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 }
 
@@ -25,29 +28,38 @@ function isPlaceholder(url?: string) {
   return !url || url.toUpperCase().includes("PLACEHOLDER");
 }
 
-// Deterministic position for the correct answer based on phrase content,
-// so each exercise has a different correct-button position.
-function correctPosition(phrase: string): number {
-  let hash = 0;
-  for (let i = 0; i < phrase.length; i++) {
-    hash = (hash * 31 + phrase.charCodeAt(i)) & 0xffff;
-  }
-  return hash % 3;
-}
-
-// Seeded shuffle — stable across renders for the same phrase.
-function seededShuffle<T>(arr: T[], seed: number): T[] {
+function randomShuffle<T>(arr: T[]): T[] {
   const out = [...arr];
-  let s = seed;
   for (let i = out.length - 1; i > 0; i--) {
-    s = (s * 1664525 + 1013904223) & 0xffffffff;
-    const j = Math.abs(s) % (i + 1);
+    const j = Math.floor(Math.random() * (i + 1));
     [out[i], out[j]] = [out[j], out[i]];
   }
   return out;
 }
 
-const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, allItems, onResult }) => {
+// The correct term plus up to 2 random, DISTINCT distractors from the
+// checkpoint pool, in a freshly randomised order — recomputed every time the
+// exercise is presented (see the useState lazy initializer below), not
+// derived from the phrase. Never pads with a duplicate of the correct answer
+// (or of a distractor already picked) — if fewer than 2 distinct distractors
+// exist, the exercise simply shows fewer than 3 tiles.
+function buildChoices(item: MatchAudioItem): ChoiceCandidate[] {
+  const correct: ChoiceCandidate = { phrase: item.phrase, imageUrl: item.imageUrl };
+  const pool = item.checkpointPool ?? [];
+
+  const seenPhrases = new Set<string>([item.phrase]);
+  const distractorCandidates: ChoiceCandidate[] = [];
+  for (const c of pool) {
+    if (seenPhrases.has(c.phrase)) continue;
+    seenPhrases.add(c.phrase);
+    distractorCandidates.push(c);
+  }
+
+  const distractors = randomShuffle(distractorCandidates).slice(0, 2);
+  return randomShuffle([correct, ...distractors]);
+}
+
+const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -62,22 +74,12 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, allItems, onResu
     audioRef.current.play().catch(() => setPlaying(false));
   };
 
-  // Build 3 choices: correct + 2 distractors, correct at deterministic position.
-  const choices = useMemo(() => {
-    const distractorPool = allItems.filter((a) => a.phrase !== item.phrase);
-    const seed = item.phrase.split("").reduce((acc, c) => acc * 31 + c.charCodeAt(0), 0);
-    const shuffled = seededShuffle(distractorPool, seed);
-    const distractors = shuffled.slice(0, 2);
+  // Computed once when this exercise is first presented (lazy initializer —
+  // never recomputed on re-render), so the correct answer's position and the
+  // 2 distractors are freshly randomised every time the exercise is shown.
+  const [choices] = useState<ChoiceCandidate[]>(() => buildChoices(item));
 
-    const pos = correctPosition(item.phrase);
-    const result: MatchAudioItem[] = [...distractors];
-    result.splice(pos, 0, item);
-    // Pad with current item if not enough distractors
-    while (result.length < 3) result.push(item);
-    return result;
-  }, [item, allItems]);
-
-  const handleChoice = (choice: MatchAudioItem) => {
+  const handleChoice = (choice: ChoiceCandidate) => {
     if (selected || wrongFlash) return;
     if (choice.phrase === item.phrase) {
       setSelected(choice.phrase);
@@ -89,7 +91,7 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, allItems, onResu
     }
   };
 
-  const getState = (choice: MatchAudioItem) => {
+  const getState = (choice: ChoiceCandidate) => {
     if (selected && choice.phrase === item.phrase) return "correct";
     if (wrongFlash === choice.phrase) return "wrong";
     return "idle";

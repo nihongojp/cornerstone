@@ -72,20 +72,26 @@ const Placeholder: React.FC = () => (
   </Box>
 );
 
-// A single version rendered as a card: title up top, with reserved space
-// below for a caption to be filled in later.
+// A single version rendered as a card: the big editable title up top (from
+// MongoDB's cardTitle field, with a placeholder until one is set), and the
+// auto-numbered "Lesson N.M" shown as the caption underneath.
 const VersionCard: React.FC<{ v: Version; variant: "primary" | "outlined" }> = ({ v, variant }) => {
   const sx = variant === "primary" ? primaryCard : outlinedCard;
   const captionColor = variant === "primary" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.35)";
 
   return (
     <Paper component={Link} to={v.to} elevation={0} sx={sx}>
-      <Typography sx={{ fontWeight: 800, fontSize: "0.95rem" }}>
-        {v.cardTitle || `Lesson ${v.lesson}.${v.version}`}
-      </Typography>
-      {/* Reserved space for a future caption/description. */}
-      <Typography sx={{ fontSize: "0.78rem", fontStyle: "italic", color: captionColor, mt: 0.5 }}>
-        Add a caption
+      {v.cardTitle ? (
+        <Typography sx={{ fontWeight: 800, fontSize: "0.95rem" }}>
+          {v.cardTitle}
+        </Typography>
+      ) : (
+        <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", fontStyle: "italic", color: captionColor }}>
+          Add a title
+        </Typography>
+      )}
+      <Typography sx={{ fontSize: "0.78rem", color: captionColor, mt: 0.5 }}>
+        Lesson {v.lesson}.{v.version}
       </Typography>
     </Paper>
   );
@@ -176,7 +182,7 @@ const NewLessonsListPage: React.FC = () => {
           <Typography
             sx={{ fontWeight: 900, fontSize: { xs: "1.6rem", sm: "2rem" }, letterSpacing: "-0.02em", color: "#1C1917" }}
           >
-            Lessons ✨
+            Lessons
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
             Select a lesson to begin
