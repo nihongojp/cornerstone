@@ -38,7 +38,6 @@ type CardData = { id: number; front: string; back: string; audio?: string };
 interface FlipsProps {
   onResult?: ResultCb;
   prompt?: string;
-  correctCardId?: number;
   cards?: CardData[];
 }
 
@@ -239,18 +238,7 @@ const Lesson: React.FC = () => {
             back: "",
           }));
 
-          const correctRaw = String((lesson as any).flashcardsCorrect || flashcards[0] || "");
-          const idx = flashcards.findIndex((x) => x === correctRaw);
-          const correctId = idx >= 0 ? idx : 0;
-
-          return (
-            <FlipsC
-              onResult={on}
-              prompt="Flip the cards, then select the correct one."
-              cards={cardData}
-              correctCardId={correctId}
-            />
-          );
+          return <FlipsC onResult={on} prompt="Flip each card to review." cards={cardData} />;
         },
       });
     }
@@ -271,7 +259,10 @@ const Lesson: React.FC = () => {
       }
 
       if (exType === "matchAudioLetter") {
-        const options = (ex.items || []).map(normalizeChoiceLabel);
+        // Dedupe so the same answer never appears twice among the choices —
+        // source data (ex.items) isn't guaranteed unique.
+        const rawOptions: string[] = (ex.items || []).map(normalizeChoiceLabel);
+        const options = Array.from(new Set(rawOptions));
         const correctAnswer = normalizeChoiceLabel((ex.correctAnswers || [])[0] || options[0] || "");
 
         out.push({
