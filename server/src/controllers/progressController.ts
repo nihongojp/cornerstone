@@ -18,11 +18,12 @@ export const upsertProgress: RequestHandler = async (req, res): Promise<void> =>
       return;
     }
 
-    const { lessonId, status, lastStep, accuracyPct } = (req.body || {}) as {
+    const { lessonId, status, lastStep, accuracyPct, stepKey } = (req.body || {}) as {
       lessonId: string;
       status: "in_progress" | "completed";
       lastStep: number;
       accuracyPct?: number;
+      stepKey?: string;
     };
 
     if (
@@ -46,6 +47,7 @@ export const upsertProgress: RequestHandler = async (req, res): Promise<void> =>
         status,
         lastStep,
         accuracyPct: accuracyPct ?? 0,
+        stepKey: stepKey ?? "",
         updatedAt: new Date(),
       },
       { new: true, upsert: true, setDefaultsOnInsert: true }
@@ -162,6 +164,41 @@ export const getUpNextLesson: RequestHandler = async (req, res): Promise<void> =
     return;
   } catch (err: any) {
     console.error(`[PROGRESS][${rid}] up-next error`, err?.message || err);
+    res.status(500).json({ error: "Internal error", details: err?.message || String(err) });
+    return;
+  }
+};
+
+/**
+ * GET /api/progress/:lessonId
+ * Returns the current user's saved progress for one specific lesson (by
+ * slug), or { progress: null } if they haven't started it — used to resume
+ * a lesson at the exercise the user last saw.
+ */
+export const getProgressForLesson: RequestHandler = async (req, res): Promise<void> => {
+  const rid = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  try {
+    const authed = req as AuthedRequest;
+    const userId = authed.user?._id;
+
+    if (!userId) {
+      console.warn(`[PROGRESS][${rid}] get-by-lesson unauthorized: missing req.user`);
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const { lessonId } = req.params;
+    if (!lessonId) {
+      res.status(400).json({ error: "lessonId is required" });
+      return;
+    }
+
+    const doc = await UserProgress.findOne({ userId, lessonId }).lean();
+    res.status(200).json({ progress: doc ?? null });
+    return;
+  } catch (err: any) {
+    console.error(`[PROGRESS][${rid}] get-by-lesson error`, err?.message || err);
     res.status(500).json({ error: "Internal error", details: err?.message || String(err) });
     return;
   }

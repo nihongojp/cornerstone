@@ -148,7 +148,7 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
   const containerHeight = pairs.length * ROW_HEIGHT;
 
   return (
-    <Box sx={{ textAlign: "center", p: { xs: 1, sm: 2 }, width: "100%" }}>
+    <Box sx={{ textAlign: "center", p: { xs: 1, sm: 2 }, width: "100%", overflowX: "hidden" }}>
       <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.75, color: "#1C1917" }}>
         {instructions || "Match phrase to appropriate situation — connect the dots"}
       </Typography>

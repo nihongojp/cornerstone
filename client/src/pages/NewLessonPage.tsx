@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
-  Chip,
   CircularProgress,
   Container,
   LinearProgress,
@@ -24,32 +23,31 @@ import Fact from "../components/Fact";
 import { getNewLesson, NewLessonDoc, NewLessonItem } from "../services/newLessons";
 import { expandLessonItems } from "../utils/expandLessonItems";
 import { isPlaceholderUrl } from "../utils/termMedia";
+import { getProgress, upsertProgress } from "../services/progress";
+import { isAuthed } from "../services/api";
 
-// ── Step helpers (mirrors Lesson.tsx conventions) ────────────────────────────
-
-function stepLabelFromType(type: string): string {
+// A content-derived key identifying a specific exercise, stable across
+// re-expansions of the same lesson even though matchAudio/pronunciation/
+// dragAndDrop items are re-shuffled on every visit. Used to resume at the
+// same exercise the user last saw, rather than a raw (unstable) index.
+function stepKeyForItem(item: NewLessonItem): string {
+  const type = item.type as string;
+  const any = item as any;
   switch (type) {
-    case "page": return "Lesson";
-    case "pronunciationExercise": return "Pronunciation";
-    case "matchingExercise": return "Matching";
-    case "matchAudioExercise": return "Listen";
-    case "dragAndDropExercise": return "Drag & Drop";
-    case "infoBreak": return "Note";
-    case "lifeUsefulFact": return "Life Tip";
-    default: return "Step";
-  }
-}
-
-function stepIconFromType(type: string): string {
-  switch (type) {
-    case "page": return "📖";
-    case "pronunciationExercise": return "🎙";
-    case "matchingExercise": return "🔗";
-    case "matchAudioExercise": return "🎧";
-    case "dragAndDropExercise": return "✋";
-    case "infoBreak": return "💡";
-    case "lifeUsefulFact": return "🌟";
-    default: return "📌";
+    case "page":
+      return `page:${any.title || ""}`;
+    case "matchAudioExercise":
+    case "pronunciationExercise":
+      return `${type}:${any.phrase || ""}`;
+    case "matchingExercise":
+      return `matchingExercise:${(any.items || []).map((m: any) => m.phrase).join("|")}`;
+    case "dragAndDropExercise":
+      return `dragAndDropExercise:${any._term || any.phrase || any.term || ""}`;
+    case "infoBreak":
+    case "lifeUsefulFact":
+      return `${type}:${String(any.content || "").slice(0, 40)}`;
+    default:
+      return `${type}:${any.number ?? ""}`;
   }
 }
 
@@ -57,8 +55,7 @@ function stepIconFromType(type: string): string {
 
 function renderItem(
   item: NewLessonItem,
-  onResult: (r: { result: "correct" | "incorrect" }) => void,
-  allMatchAudioItems: any[]
+  onResult: (r: { result: "correct" | "incorrect" }) => void
 ): React.ReactNode {
   const type = item.type as string;
 
@@ -79,7 +76,7 @@ function renderItem(
   }
 
   if (type === "matchAudioExercise") {
-    return <MatchAudioExercisePlaceholder item={item as any} allItems={allMatchAudioItems} onResult={onResult} />;
+    return <MatchAudioExercisePlaceholder item={item as any} onResult={onResult} />;
   }
 
   if (type === "dragAndDropExercise") {
@@ -153,11 +150,13 @@ const NewLessonPage: React.FC = () => {
   const [step, setStep] = useState(0);
 
   const stepKeysSeen = useRef<Set<number>>(new Set());
+  const resumedRef = useRef(false);
 
   useEffect(() => {
     if (!slug) { navigate("/dashboard", { replace: true }); return; }
 
     let mounted = true;
+    resumedRef.current = false;
     void (async () => {
       try {
         setLoading(true);
@@ -177,21 +176,42 @@ const NewLessonPage: React.FC = () => {
   const rawItems: NewLessonItem[] = useMemo(() => lesson?.items ?? [], [lesson]);
   const items: NewLessonItem[] = useMemo(() => expandLessonItems(rawItems), [rawItems]);
 
-  // Distractor pool for matchAudioExercise — uses expanded items so every
-  // generated phrase is available as a potential wrong-answer option.
-  const allMatchAudioItems = useMemo(
-    () => items.filter((it) => it.type === "matchAudioExercise") as any[],
-    [items]
-  );
+  // Resume at the last-seen exercise (by content key, since the expansion
+  // above re-shuffles order every visit — a raw saved index could point at a
+  // different exercise). Runs once per lesson load.
+  useEffect(() => {
+    if (!slug || !items.length || !isAuthed() || resumedRef.current) return;
+    resumedRef.current = true;
+    let cancelled = false;
+    void (async () => {
+      const saved = await getProgress(slug);
+      if (cancelled || !saved || saved.status !== "in_progress") return;
+      const idx = saved.stepKey ? items.findIndex((it) => stepKeyForItem(it) === saved.stepKey) : -1;
+      if (idx >= 0) setStep(idx);
+      else if (saved.lastStep > 0 && saved.lastStep < items.length) setStep(saved.lastStep);
+    })();
+    return () => { cancelled = true; };
+  }, [slug, items]);
+
   const totalSteps = items.length;
   const pct = totalSteps ? Math.round(((step + 1) / totalSteps) * 100) : 0;
   const isLast = step >= totalSteps - 1;
   const activeItem = items[step];
-  const activeType = activeItem?.type as string ?? "";
-  const lessonTitle = lesson?.lesson ?? "Lesson";
+  const lessonTitle = lesson?.cardTitle || lesson?.lesson || "Lesson";
 
   const handleNext = () => {
-    if (isLast) { navigate("/dashboard"); return; }
+    if (isLast) {
+      if (slug && isAuthed() && activeItem) {
+        void upsertProgress({
+          lessonId: slug,
+          status: "completed",
+          lastStep: step,
+          stepKey: stepKeyForItem(activeItem),
+        }).catch((e) => console.error("[Progress] complete failed:", e));
+      }
+      navigate("/new-lessons");
+      return;
+    }
     setStep((s) => s + 1);
   };
 
@@ -202,6 +222,18 @@ const NewLessonPage: React.FC = () => {
   };
 
   const handleBack = () => setStep((s) => Math.max(0, s - 1));
+
+  const handleSaveAndExit = () => {
+    if (slug && isAuthed() && activeItem) {
+      void upsertProgress({
+        lessonId: slug,
+        status: "in_progress",
+        lastStep: step,
+        stepKey: stepKeyForItem(activeItem),
+      }).catch((e) => console.error("[Progress] save failed:", e));
+    }
+    navigate("/new-lessons");
+  };
 
   // ── Loading ──────────────────────────────────────────────────────────────
   if (loading) {
@@ -263,20 +295,13 @@ const NewLessonPage: React.FC = () => {
               >
                 {lessonTitle}
               </Typography>
-              <Stack direction="row" alignItems="center" gap={0.75} sx={{ mt: 0.25 }}>
-                <Chip
-                  size="small"
-                  label={`${stepIconFromType(activeType)} ${stepLabelFromType(activeType)} · ${step + 1}/${totalSteps}`}
-                  sx={{ fontWeight: 700, fontSize: "0.72rem", height: 22 }}
-                />
-              </Stack>
             </Box>
 
             <Button
               startIcon={<LogoutRoundedIcon />}
               variant="contained"
               size="small"
-              onClick={() => navigate("/new-lessons")}
+              onClick={handleSaveAndExit}
               sx={{
                 bgcolor: "#B43D20",
                 "&:hover": { bgcolor: "#9D351C" },
@@ -305,7 +330,7 @@ const NewLessonPage: React.FC = () => {
       </Box>
 
       {/* ── Content card (fills remaining height, scrolls only if needed) ─── */}
-      <Box sx={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
+      <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
         <Container maxWidth="md" sx={{ pt: { xs: 1.5, md: 2 }, pb: { xs: 1.5, md: 2 }, flex: 1, display: "flex", flexDirection: "column" }}>
           <Paper
             elevation={0}
@@ -324,7 +349,8 @@ const NewLessonPage: React.FC = () => {
             <Box
               sx={{
                 flex: 1,
-                overflow: "auto",
+                overflowY: "auto",
+                overflowX: "hidden",
                 px: { xs: 1.5, md: 3 },
                 py: { xs: 2, md: 2.5 },
                 display: "flex",
@@ -334,7 +360,7 @@ const NewLessonPage: React.FC = () => {
             >
               {activeItem && (
                 <Box key={`step-${step}`} sx={{ width: "100%" }}>
-                  {renderItem(activeItem, handleResult, allMatchAudioItems)}
+                  {renderItem(activeItem, handleResult)}
                 </Box>
               )}
             </Box>

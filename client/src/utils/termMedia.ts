@@ -209,7 +209,11 @@ export function enrichItemWithTermMedia(item: NewLessonItem, registry: TermMedia
 
   if ((type === "matchAudioExercise" || type === "pronunciationExercise") && any.phrase) {
     const r = resolveTermMedia(registry, any.phrase);
-    return { ...any, audioUrl: pickReal(any.audioUrl) ?? r?.audioUrl ?? any.audioUrl };
+    const next: any = { ...any, audioUrl: pickReal(any.audioUrl) ?? r?.audioUrl ?? any.audioUrl };
+    if (type === "matchAudioExercise") {
+      next.imageUrl = pickReal(any.imageUrl) ?? r?.imageUrl ?? any.imageUrl;
+    }
+    return next;
   }
 
   if (type === "dragAndDropExercise") {

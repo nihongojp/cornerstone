@@ -35,18 +35,36 @@ function isPlaceholderItem(item: NewLessonItem): boolean {
   );
 }
 
+// A term available as a multiple-choice image option — the phrase plus
+// whatever image is already associated with it elsewhere in the lesson.
+export type ChoiceCandidate = { phrase: string; imageUrl?: string };
+
+function buildCheckpointPool(terms: string[], registry: TermMediaRegistry): ChoiceCandidate[] {
+  return terms.map((phrase) => ({ phrase, imageUrl: resolveTermMedia(registry, phrase)?.imageUrl }));
+}
+
 // ── Generators ────────────────────────────────────────────────────────────────
 // Each generator looks up the term's real media (already entered somewhere
 // else in the lesson — a page, a matchingExercise dot, etc.) before falling
 // back to a placeholder, so re-entering it in MongoDB Compass isn't needed.
 
-function makeMatchAudio(phrase: string, number: number, registry: TermMediaRegistry): NewLessonItem {
+function makeMatchAudio(
+  phrase: string,
+  number: number,
+  registry: TermMediaRegistry,
+  checkpointPool: ChoiceCandidate[]
+): NewLessonItem {
   const media = resolveTermMedia(registry, phrase);
   return {
     type: "matchAudioExercise",
     number,
     phrase,
     audioUrl: media?.audioUrl ?? "PLACEHOLDER_AUDIO_URL",
+    imageUrl: media?.imageUrl,
+    // Other terms learned since the last checkpoint (or since the start of
+    // the lesson, for the first checkpoint) — the distractor pool for the
+    // multiple-choice image UI. See MatchAudioExercisePlaceholder.
+    checkpointPool,
   } as unknown as NewLessonItem;
 }
 
@@ -101,6 +119,7 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
 
   const result: NewLessonItem[] = [];
   let currentTerms: string[] = [];
+  let currentPool: ChoiceCandidate[] = [];
   let i = 0;
 
   while (i < items.length) {
@@ -111,6 +130,7 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
     if (type === "matchingExercise") {
       const matchItems: Array<{ phrase?: string }> = (item as any).items ?? [];
       currentTerms = shuffled(matchItems.map((m) => String(m.phrase ?? "")));
+      currentPool = buildCheckpointPool(currentTerms, registry);
       result.push(enrichItemWithTermMedia(item, registry));
       i++;
       continue;
@@ -135,11 +155,13 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
         i++;
       }
 
-      // Emit one generated item per term
+      // Emit one generated item per term. Snapshot currentPool into a const
+      // so the closure below doesn't reference the outer `let` directly.
+      const poolForThisBlock = currentPool;
       currentTerms.forEach((phrase, idx) => {
         const num = idx + 1;
         if (type === "matchAudioExercise") {
-          result.push(makeMatchAudio(phrase, num, registry));
+          result.push(makeMatchAudio(phrase, num, registry, poolForThisBlock));
         } else if (type === "pronunciationExercise") {
           result.push(makePronunciation(phrase, num, registry));
         } else {
@@ -151,7 +173,12 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
 
     // ── Pass through, filling in any media already associated with this
     // item's term elsewhere in the lesson ────────────────────────────────────
-    result.push(enrichItemWithTermMedia(item, registry));
+    const enriched = enrichItemWithTermMedia(item, registry);
+    if (type === "matchAudioExercise") {
+      const any = enriched as any;
+      any.checkpointPool = currentPool.length ? currentPool : [{ phrase: any.phrase, imageUrl: any.imageUrl }];
+    }
+    result.push(enriched);
     i++;
   }
 

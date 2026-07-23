@@ -9,6 +9,7 @@ export type ProgressDoc = {
   lessonId: string;
   status: ProgressStatus;
   lastStep: number;
+  stepKey?: string;
   accuracyPct?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -29,12 +30,29 @@ export async function upsertProgress(payload: {
   lessonId: string;
   status: ProgressStatus;
   lastStep: number;
+  stepKey?: string;
   accuracyPct?: number;
 }): Promise<ProgressDoc> {
   return json<ProgressDoc>("/api/progress", {
     method: "POST",
     data: payload,
   });
+}
+
+/**
+ * Fetch the current user's saved progress for one specific lesson (by
+ * slug). Returns null if they haven't started it, or if unauthenticated /
+ * the request fails — callers should treat that as "start from the top".
+ */
+export async function getProgress(lessonId: string): Promise<ProgressDoc | null> {
+  try {
+    const data = await json<{ progress: ProgressDoc | null }>(
+      `/api/progress/${encodeURIComponent(lessonId)}`
+    );
+    return data?.progress ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function submitAttempt(payload: {

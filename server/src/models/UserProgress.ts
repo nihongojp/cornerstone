@@ -27,6 +27,14 @@ const UserProgressSchema = new Schema(
       default: 0,
       min: 0,
     },
+    // Content-derived key identifying the exact exercise lastStep pointed to.
+    // Grammar lessons re-shuffle exercise order on every visit, so the raw
+    // index alone isn't enough to resume the same exercise — this key lets
+    // the client find it again in a freshly-shuffled list.
+    stepKey: {
+      type: String,
+      default: "",
+    },
     accuracyPct: {
       type: Number,
       default: 0,
