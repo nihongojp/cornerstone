@@ -16,7 +16,6 @@ import PronunciationExercise, { PronunciationExerciseData } from "../components/
 import NewLessonPageItem from "../components/NewLessonPageItem";
 import MatchingExercisePlaceholder from "../components/MatchingExercisePlaceholder";
 import MatchAudioExercisePlaceholder from "../components/MatchAudioExercisePlaceholder";
-import DragDrop from "../components/DragDrop";
 import DragDropPlaceholder from "../components/DragDropPlaceholder";
 import Fact from "../components/Fact";
 
@@ -80,15 +79,14 @@ function renderItem(
   }
 
   if (type === "dragAndDropExercise") {
-    const term = (item as any)._term as string | undefined;
+    const term = ((item as any)._term ?? (item as any).phrase ?? (item as any).term ?? "") as string;
     const rawAudioUrl = (item as any).audioUrl as string | undefined;
     const rawImageUrl = (item as any).imageUrl as string | undefined;
-    const placeholderBank = ["〇", "〇", "〇", "〇", "〇"];
     return (
-      <DragDrop
-        prompt={term ? `Build: "${term}"` : ((item as any).description || "Build the correct phrase")}
-        characterBank={placeholderBank}
-        correctAnswer="〇〇〇"
+      <DragDropPlaceholder
+        prompt="Which word matches this image?"
+        correctPhrase={term}
+        checkpointPool={(item as any).checkpointPool}
         audioUrl={isPlaceholderUrl(rawAudioUrl) ? undefined : rawAudioUrl}
         imageUrl={isPlaceholderUrl(rawImageUrl) ? undefined : rawImageUrl}
         onResult={onResult}

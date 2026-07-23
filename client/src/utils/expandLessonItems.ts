@@ -3,6 +3,7 @@ import {
   buildTermMediaRegistry,
   enrichItemWithTermMedia,
   resolveTermMedia,
+  sameTerm,
   TermMediaRegistry,
 } from "./termMedia";
 
@@ -17,30 +18,23 @@ function shuffled<T>(arr: T[]): T[] {
   return out;
 }
 
-/**
- * A placeholder exercise is one whose phrase field signals "fill me in
- * dynamically" rather than a real assigned phrase.
- * dragAndDropExercise items always count as placeholders because they never
- * carry a phrase field.
- */
-function isPlaceholderItem(item: NewLessonItem): boolean {
-  const type = item.type as string;
-  if (type === "dragAndDropExercise") return true;
-  const phrase = String((item as any).phrase ?? "").toLowerCase().trim();
-  return (
-    phrase === "" ||
-    phrase.includes("random") ||
-    phrase.includes("chosen") ||
-    phrase.includes("placeholder")
-  );
-}
-
 // A term available as a multiple-choice image option — the phrase plus
 // whatever image is already associated with it elsewhere in the lesson.
 export type ChoiceCandidate = { phrase: string; imageUrl?: string };
 
 function buildCheckpointPool(terms: string[], registry: TermMediaRegistry): ChoiceCandidate[] {
   return terms.map((phrase) => ({ phrase, imageUrl: resolveTermMedia(registry, phrase)?.imageUrl }));
+}
+
+// Adds `newTerms` to `existing`, skipping any that already match (by the same
+// fuzzy comparison the media registry uses) so a term learned at one
+// checkpoint isn't duplicated if it's re-listed at another.
+function addTerms(existing: string[], newTerms: string[]): string[] {
+  const merged = [...existing];
+  for (const term of newTerms) {
+    if (!merged.some((t) => sameTerm(t, term))) merged.push(term);
+  }
+  return merged;
 }
 
 // ── Generators ────────────────────────────────────────────────────────────────
@@ -79,36 +73,48 @@ function makePronunciation(phrase: string, number: number, registry: TermMediaRe
 }
 
 function makeDragDrop(
-  templateItem: NewLessonItem,
   phrase: string,
   number: number,
-  registry: TermMediaRegistry
+  registry: TermMediaRegistry,
+  checkpointPool: ChoiceCandidate[]
 ): NewLessonItem {
   const media = resolveTermMedia(registry, phrase);
   return {
-    ...(templateItem as object),
+    type: "dragAndDropExercise",
     _term: phrase,
     number,
     audioUrl: media?.audioUrl,
     imageUrl: media?.imageUrl,
+    // Other terms learned so far — the distractor pool for the
+    // image-to-romanized-reading drag choices. See DragDropPlaceholder.
+    checkpointPool,
   } as unknown as NewLessonItem;
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
 /**
- * Expand placeholder exercise items into one-per-term repetitions.
+ * Expand each checkpoint into its full set of practice exercises.
  *
  * Rules:
- * - A `matchingExercise` defines the "current checkpoint" — its items[].phrase
- *   values become the term list for subsequent placeholder exercises.
- * - Consecutive placeholder items of the same type (matchAudioExercise,
- *   pronunciationExercise, dragAndDropExercise) are consumed as a group and
- *   replaced with exactly one generated item per checkpoint term, in a freshly
- *   shuffled order (randomised on every call).
- * - Non-placeholder exercises (e.g. Lesson 1's real-phrase matchAudio items)
- *   are passed through unchanged.
- * - Items before the first matchingExercise are always passed through.
+ * - A `matchingExercise` ("match the dots") defines a checkpoint — its
+ *   items[].phrase values are the terms newly introduced since the last
+ *   checkpoint (or since the start of the lesson, for the first one).
+ * - Immediately after each checkpoint, exactly one matchAudioExercise, one
+ *   pronunciationExercise, and one dragAndDropExercise is generated per
+ *   newly-introduced term — guaranteeing equal counts regardless of what (if
+ *   anything) was hand-authored for that checkpoint in MongoDB, so no
+ *   exercises go missing. The three types appear as separate back-to-back
+ *   batches, always in this order: match-audio → pronunciation → drag & drop.
+ * - Each batch is independently (re-)shuffled on every call, so term order
+ *   differs batch to batch and from the introduction order.
+ * - Any hand-authored matchAudioExercise/pronunciationExercise/
+ *   dragAndDropExercise items already in the source are dropped once a
+ *   checkpoint has been seen, since they're now always regenerated above;
+ *   items of those types appearing before the first checkpoint (where there's
+ *   no term list yet) are left untouched.
+ * - Everything else — pages, info breaks, life-useful facts — passes through
+ *   completely unchanged, in its original position.
  */
 export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
   // Built once from the raw, un-expanded items so media entered anywhere in
@@ -119,66 +125,57 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
 
   const result: NewLessonItem[] = [];
   let currentTerms: string[] = [];
+  // All terms introduced at this checkpoint or any earlier one — the
+  // distractor pool for multiple-choice exercises, kept cumulative so older
+  // terms (e.g. from checkpoint 1) can still appear as wrong answers even
+  // after later checkpoints (e.g. checkpoint 2) have moved on.
+  let cumulativeTerms: string[] = [];
   let currentPool: ChoiceCandidate[] = [];
+  let seenCheckpoint = false;
   let i = 0;
 
   while (i < items.length) {
     const item = items[i];
     const type = item.type as string;
 
-    // ── Checkpoint: capture + shuffle terms ──────────────────────────────────
+    // ── Checkpoint: capture terms, then generate its 3 practice batches ──────
     if (type === "matchingExercise") {
       const matchItems: Array<{ phrase?: string }> = (item as any).items ?? [];
-      currentTerms = shuffled(matchItems.map((m) => String(m.phrase ?? "")));
-      currentPool = buildCheckpointPool(currentTerms, registry);
+      currentTerms = matchItems.map((m) => String(m.phrase ?? "")).filter(Boolean);
+      cumulativeTerms = addTerms(cumulativeTerms, currentTerms);
+      currentPool = buildCheckpointPool(cumulativeTerms, registry);
+      seenCheckpoint = true;
       result.push(enrichItemWithTermMedia(item, registry));
       i++;
+
+      const poolForThisCheckpoint = currentPool;
+      shuffled(currentTerms).forEach((phrase, idx) => {
+        result.push(makeMatchAudio(phrase, idx + 1, registry, poolForThisCheckpoint));
+      });
+      shuffled(currentTerms).forEach((phrase, idx) => {
+        result.push(makePronunciation(phrase, idx + 1, registry));
+      });
+      shuffled(currentTerms).forEach((phrase, idx) => {
+        result.push(makeDragDrop(phrase, idx + 1, registry, poolForThisCheckpoint));
+      });
       continue;
     }
 
-    // ── Expandable placeholder block ─────────────────────────────────────────
-    const isExpandable =
-      currentTerms.length > 0 &&
-      (type === "matchAudioExercise" ||
-        type === "pronunciationExercise" ||
-        type === "dragAndDropExercise") &&
-      isPlaceholderItem(item);
-
-    if (isExpandable) {
-      // Consume ALL consecutive placeholder items of this same type
-      const templateItem = item;
-      while (
-        i < items.length &&
-        (items[i] as any).type === type &&
-        isPlaceholderItem(items[i])
-      ) {
-        i++;
-      }
-
-      // Emit one generated item per term. Snapshot currentPool into a const
-      // so the closure below doesn't reference the outer `let` directly.
-      const poolForThisBlock = currentPool;
-      currentTerms.forEach((phrase, idx) => {
-        const num = idx + 1;
-        if (type === "matchAudioExercise") {
-          result.push(makeMatchAudio(phrase, num, registry, poolForThisBlock));
-        } else if (type === "pronunciationExercise") {
-          result.push(makePronunciation(phrase, num, registry));
-        } else {
-          result.push(makeDragDrop(templateItem, phrase, num, registry));
-        }
-      });
+    // ── Already regenerated above — drop any hand-authored ones from the
+    // source once a checkpoint has been seen, so they aren't duplicated.
+    // Before the first checkpoint there's no term list yet, so leave these
+    // untouched if they somehow appear that early.
+    if (
+      seenCheckpoint &&
+      (type === "matchAudioExercise" || type === "pronunciationExercise" || type === "dragAndDropExercise")
+    ) {
+      i++;
       continue;
     }
 
     // ── Pass through, filling in any media already associated with this
     // item's term elsewhere in the lesson ────────────────────────────────────
-    const enriched = enrichItemWithTermMedia(item, registry);
-    if (type === "matchAudioExercise") {
-      const any = enriched as any;
-      any.checkpointPool = currentPool.length ? currentPool : [{ phrase: any.phrase, imageUrl: any.imageUrl }];
-    }
-    result.push(enriched);
+    result.push(enrichItemWithTermMedia(item, registry));
     i++;
   }
 
