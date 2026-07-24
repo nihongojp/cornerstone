@@ -17,6 +17,7 @@ import NewLessonPageItem from "../components/NewLessonPageItem";
 import MatchingExercisePlaceholder from "../components/MatchingExercisePlaceholder";
 import MatchAudioExercisePlaceholder from "../components/MatchAudioExercisePlaceholder";
 import DragDropPlaceholder from "../components/DragDropPlaceholder";
+import DragDropCombination from "../components/DragDropCombination";
 import Fact from "../components/Fact";
 
 import { getNewLesson, NewLessonDoc, NewLessonItem } from "../services/newLessons";
@@ -79,16 +80,46 @@ function renderItem(
   }
 
   if (type === "dragAndDropExercise") {
-    const term = ((item as any)._term ?? (item as any).phrase ?? (item as any).term ?? "") as string;
-    const rawAudioUrl = (item as any).audioUrl as string | undefined;
-    const rawImageUrl = (item as any).imageUrl as string | undefined;
+    const any = item as any;
+    const rawAudioUrl = any.audioUrl as string | undefined;
+    const rawImageUrl = any.imageUrl as string | undefined;
+    const audioUrl = isPlaceholderUrl(rawAudioUrl) ? undefined : rawAudioUrl;
+    const imageUrl = isPlaceholderUrl(rawImageUrl) ? undefined : rawImageUrl;
+
+    // Manually-authored multi-tile, ordered-combination exercise (Compass
+    // fields `options` + `correctSequence` on this item) — drag several
+    // tiles into slots in the right order, not just pick one correct tile.
+    const options: string[] | undefined = Array.isArray(any.options)
+      ? any.options.map((o: unknown) => String(o))
+      : undefined;
+    const correctSequence: string[] | undefined = Array.isArray(any.correctSequence)
+      ? any.correctSequence.map((o: unknown) => String(o))
+      : undefined;
+
+    if (options?.length && correctSequence?.length) {
+      return (
+        <DragDropCombination
+          prompt={any.prompt || "Drag the tiles into the correct order"}
+          options={options}
+          correctSequence={correctSequence}
+          audioUrl={audioUrl}
+          imageUrl={imageUrl}
+          onResult={onResult}
+        />
+      );
+    }
+
+    // Fallback for any term that doesn't have a manual combination authored
+    // yet — the original single-tile "pick the correct term" exercise, so
+    // nothing is ever left blank while you're still filling these in.
+    const term = (any._term ?? any.phrase ?? any.term ?? "") as string;
     return (
       <DragDropPlaceholder
         prompt="Which word matches this image?"
         correctPhrase={term}
-        checkpointPool={(item as any).checkpointPool}
-        audioUrl={isPlaceholderUrl(rawAudioUrl) ? undefined : rawAudioUrl}
-        imageUrl={isPlaceholderUrl(rawImageUrl) ? undefined : rawImageUrl}
+        checkpointPool={any.checkpointPool}
+        audioUrl={audioUrl}
+        imageUrl={imageUrl}
         onResult={onResult}
       />
     );
@@ -207,14 +238,17 @@ const NewLessonPage: React.FC = () => {
           stepKey: stepKeyForItem(activeItem),
         }).catch((e) => console.error("[Progress] complete failed:", e));
       }
-      navigate("/new-lessons");
+      navigate(lesson?.nextSlug ? `/newlesson/${lesson.nextSlug}` : "/new-lessons");
       return;
     }
     setStep((s) => s + 1);
   };
 
   const handleResult = ({ result }: { result: "correct" | "incorrect" }) => {
-    if (result === "correct") {
+    // Drag-and-drop exercises don't auto-advance — getting it right reveals
+    // the reference audio in place, and the user clicks Next themselves once
+    // they're done listening, instead of being swept along after 1 second.
+    if (result === "correct" && activeItem?.type !== "dragAndDropExercise") {
       setTimeout(() => setStep((s) => (s >= totalSteps - 1 ? s : s + 1)), 1000);
     }
   };
@@ -404,7 +438,7 @@ const NewLessonPage: React.FC = () => {
                 boxShadow: "0 4px 14px rgba(180,61,32,0.35)",
               }}
             >
-              {isLast ? "Finish 🎉" : "Next →"}
+              {isLast ? (lesson?.nextSlug ? "Continue →" : "Finish 🎉") : "Next →"}
             </Button>
           </Stack>
         </Container>

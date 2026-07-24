@@ -23,6 +23,9 @@ export type NewLessonListItem = {
 // Full document shape returned by the single-lesson endpoint.
 export type NewLessonDoc = NewLessonListItem & {
   items: NewLessonItem[];
+  // When set, finishing this lesson offers "Continue" straight into the
+  // named lesson (by slug) instead of the normal exit back to the list.
+  nextSlug?: string;
 };
 
 const BASE = "/api/newlessons";

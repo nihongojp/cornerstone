@@ -16,6 +16,10 @@ const NewLessonSchema = new Schema(
     // auto-computed "Lesson {n}.{m}" (derived from slug) when left blank.
     cardTitle: { type: String, default: "", trim: true },
     slug: { type: String, required: true, unique: true, index: true },
+    // When set, finishing this lesson offers "Continue" straight into the
+    // named lesson (by slug) instead of the normal "Finish" back to the
+    // Lessons list — used to chain a multi-part lesson (e.g. l1-v1 -> l1-v2).
+    nextSlug: { type: String, default: "" },
     items: { type: [NewLessonItemSchema], default: [] },
     isActive: { type: Boolean, default: true },
     tags: { type: [String], default: [] },
