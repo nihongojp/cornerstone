@@ -36,9 +36,14 @@ export function derangeRelativeTo(reference: number[], pool: number[]): number[]
   return result;
 }
 
-export function buildArrangement(count: number): { leftOrder: number[]; rightOrder: number[] } {
+export function buildArrangement(
+  count: number,
+  options?: { keepLeftOrder?: boolean }
+): { leftOrder: number[]; rightOrder: number[] } {
   const ids = Array.from({ length: count }, (_, i) => i);
-  const leftOrder = shuffle(ids);
+  // Version 1 keeps the left column in its authored order (e.g. the order
+  // hiragana were introduced on the flashcards) rather than shuffling it too.
+  const leftOrder = options?.keepLeftOrder ? ids : shuffle(ids);
   const rightOrder = derangeRelativeTo(leftOrder, ids);
   return { leftOrder, rightOrder };
 }

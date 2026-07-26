@@ -9,11 +9,14 @@ type Connection = { dot1Id: string; dot2Id: string };
 type DotMatchProps = {
   pairs: DotMatchPair[];
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
+  // Version 1 keeps the left column in the order the terms were introduced
+  // instead of shuffling it along with the right column.
+  keepLeftOrder?: boolean;
 };
 
 const DOT_SIZE = 14;
 
-const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
+const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult, keepLeftOrder }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dotRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -23,8 +26,9 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
   const [submitted, setSubmitted] = useState(false);
   const [correctSet, setCorrectSet] = useState<Set<string>>(new Set());
 
-  // Randomized once per mount so the layout is fresh on every attempt.
-  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length));
+  // Randomized once per mount so the layout is fresh on every attempt
+  // (except the left column when keepLeftOrder is set — see buildArrangement).
+  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length, { keepLeftOrder }));
 
   const leftLabels = useMemo(() => leftOrder.map((pairId) => pairs[pairId].hiragana), [leftOrder, pairs]);
   const rightLabels = useMemo(() => rightOrder.map((pairId) => pairs[pairId].katakana), [rightOrder, pairs]);
