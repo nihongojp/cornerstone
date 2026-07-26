@@ -136,7 +136,7 @@ const Flips: React.FC<FlipsProps> = ({
                         {frontFace}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.65rem" }}>
-                        Tap to flip
+                        Hiragana
                       </Typography>
                     </Box>
 
@@ -163,7 +163,7 @@ const Flips: React.FC<FlipsProps> = ({
                         {backFace}
                       </Typography>
                       <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.65rem" }}>
-                        Tap to flip
+                        Katakana
                       </Typography>
                     </Box>
                   </Box>
