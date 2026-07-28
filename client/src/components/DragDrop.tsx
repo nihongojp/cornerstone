@@ -3,6 +3,7 @@ import { Box, IconButton, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
+import SelfRecordButton from "./SelfRecordButton";
 
 type DragPayload =
   | { source: "bank"; char: string }
@@ -276,12 +277,13 @@ const DragDrop: React.FC<DragDropProps> = ({
 
         {/* V1: audio is an upfront hint. V2+: audio is a reward after a correct Check. */}
         {(showAudioUpfront || (checked && isCorrect)) && audioUrl ? (
-          <>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <audio ref={audioRef} src={audioUrl} preload="auto" />
 
             <IconButton
               onClick={play}
               disabled={playing}
+              aria-label="Play reference audio"
               sx={{
                 width: 52,
                 height: 52,
@@ -296,7 +298,9 @@ const DragDrop: React.FC<DragDropProps> = ({
             >
               {playing ? <GraphicEqRoundedIcon /> : <VolumeUpRoundedIcon />}
             </IconButton>
-          </>
+
+            <SelfRecordButton />
+          </Box>
         ) : (showAudioUpfront || (checked && isCorrect)) && !answerCaption ? (
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
             No audio

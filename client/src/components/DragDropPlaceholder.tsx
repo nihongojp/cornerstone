@@ -5,6 +5,7 @@ import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
 import { ChoiceCandidate } from "../utils/expandLessonItems";
 import { buildChoiceOptions } from "../utils/buildChoiceOptions";
+import SelfRecordButton from "./SelfRecordButton";
 
 // Grammar-lesson (newlessons) drag-and-drop exercise: shows the term's image
 // as the prompt, and the learner drags the matching romanized-reading tile
@@ -200,24 +201,28 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
       {/* Reference audio — under the image after a correct Check */}
       {showAudio && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexDirection: "column" }}>
-          <audio ref={audioRef} src={audioUrl} preload="auto" />
-          <IconButton
-            onClick={play}
-            disabled={playing}
-            sx={{
-              width: 52,
-              height: 52,
-              bgcolor: playing ? "rgba(180,61,32,0.08)" : "#B43D20",
-              color: playing ? "#B43D20" : "#fff",
-              border: playing ? "2px solid #B43D20" : "none",
-              "&:hover": { bgcolor: playing ? "rgba(180,61,32,0.12)" : "#9D351C" },
-              "&.Mui-disabled": { bgcolor: "rgba(180,61,32,0.2)", color: "#B43D20" },
-              transition: "all 0.2s",
-              boxShadow: playing ? "none" : "0 4px 14px rgba(180,61,32,0.35)",
-            }}
-          >
-            {playing ? <GraphicEqRoundedIcon /> : <VolumeUpRoundedIcon />}
-          </IconButton>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <audio ref={audioRef} src={audioUrl} preload="auto" />
+            <IconButton
+              onClick={play}
+              disabled={playing}
+              aria-label="Play reference audio"
+              sx={{
+                width: 52,
+                height: 52,
+                bgcolor: playing ? "rgba(180,61,32,0.08)" : "#B43D20",
+                color: playing ? "#B43D20" : "#fff",
+                border: playing ? "2px solid #B43D20" : "none",
+                "&:hover": { bgcolor: playing ? "rgba(180,61,32,0.12)" : "#9D351C" },
+                "&.Mui-disabled": { bgcolor: "rgba(180,61,32,0.2)", color: "#B43D20" },
+                transition: "all 0.2s",
+                boxShadow: playing ? "none" : "0 4px 14px rgba(180,61,32,0.35)",
+              }}
+            >
+              {playing ? <GraphicEqRoundedIcon /> : <VolumeUpRoundedIcon />}
+            </IconButton>
+            <SelfRecordButton />
+          </Box>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
             Hear the reference pronunciation
           </Typography>

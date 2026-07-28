@@ -4,13 +4,22 @@ import { Link } from "react-router-dom";
 
 import { listNewLessons } from "../services/newLessons";
 import { listLessons } from "../services/lessons";
+import { getProgress } from "../services/progress";
+import { isAuthed } from "../services/api";
+
+// A card's color reflects the signed-in user's progress on that specific
+// lesson version, rather than which column (Grammar vs Reading & Writing)
+// it lives in.
+type CardProgressStatus = "not_started" | "in_progress" | "completed";
 
 // One playable variant of a lesson (a specific version).
 type Version = {
   lesson: number;
   version: number;
   to: string;
+  slug: string;
   cardTitle?: string;
+  progressStatus?: CardProgressStatus;
 };
 
 // Sections are always shown for at least these lesson numbers.
@@ -48,7 +57,29 @@ const cardBase = {
   "&:hover": { transform: "translateY(-2px)" },
 };
 
-const primaryCard = {
+// Not started: the neutral/default look — white with a subtle brand-tinted
+// border. Same for every card regardless of column.
+const notStartedCard = {
+  ...cardBase,
+  bgcolor: "#fff",
+  border: "1.5px solid rgba(180,61,32,0.4)",
+  "&:hover": { ...cardBase["&:hover"], border: "1.5px solid #B43D20", boxShadow: "0 8px 24px rgba(0,0,0,0.08)" },
+};
+
+// In progress: opened but not finished — a light brand-color tint so it
+// reads as "underway" without the full weight of the completed style.
+const inProgressCard = {
+  ...cardBase,
+  bgcolor: "rgba(180,61,32,0.10)",
+  border: "1.5px solid rgba(180,61,32,0.45)",
+  color: "#1C1917",
+  boxShadow: "0 2px 10px rgba(180,61,32,0.12)",
+  "&:hover": { ...cardBase["&:hover"], border: "1.5px solid #B43D20", boxShadow: "0 8px 20px rgba(180,61,32,0.22)" },
+};
+
+// Completed: the strongest signal — filled brand color, matching the app's
+// existing "primary" card treatment.
+const completedCard = {
   ...cardBase,
   bgcolor: "#B43D20",
   color: "#fff",
@@ -56,11 +87,16 @@ const primaryCard = {
   "&:hover": { ...cardBase["&:hover"], boxShadow: "0 8px 24px rgba(180,61,32,0.28)" },
 };
 
-const outlinedCard = {
-  ...cardBase,
-  bgcolor: "#fff",
-  border: "1.5px solid rgba(180,61,32,0.4)",
-  "&:hover": { ...cardBase["&:hover"], border: "1.5px solid #B43D20", boxShadow: "0 8px 24px rgba(0,0,0,0.08)" },
+const CARD_STYLE_BY_STATUS: Record<CardProgressStatus, object> = {
+  not_started: notStartedCard,
+  in_progress: inProgressCard,
+  completed: completedCard,
+};
+
+const CAPTION_COLOR_BY_STATUS: Record<CardProgressStatus, string> = {
+  not_started: "rgba(0,0,0,0.35)",
+  in_progress: "rgba(0,0,0,0.45)",
+  completed: "rgba(255,255,255,0.7)",
 };
 
 // Placeholder shown when a column has no versions yet.
@@ -85,9 +121,10 @@ const Placeholder: React.FC = () => (
 // automatically for Reading & Writing, with a placeholder only if neither
 // is available), and the auto-numbered "Lesson N.M" shown as the caption
 // underneath.
-const VersionCard: React.FC<{ v: Version; variant: "primary" | "outlined" }> = ({ v, variant }) => {
-  const sx = variant === "primary" ? primaryCard : outlinedCard;
-  const captionColor = variant === "primary" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.35)";
+const VersionCard: React.FC<{ v: Version }> = ({ v }) => {
+  const status = v.progressStatus ?? "not_started";
+  const sx = CARD_STYLE_BY_STATUS[status];
+  const captionColor = CAPTION_COLOR_BY_STATUS[status];
 
   return (
     <Paper component={Link} to={v.to} elevation={0} sx={sx}>
@@ -111,8 +148,7 @@ const VersionCard: React.FC<{ v: Version; variant: "primary" | "outlined" }> = (
 const LessonColumn: React.FC<{
   heading: string;
   versions: Version[];
-  variant: "primary" | "outlined";
-}> = ({ heading, versions, variant }) => {
+}> = ({ heading, versions }) => {
   const sorted = [...versions].sort((a, b) => a.version - b.version);
 
   return (
@@ -133,7 +169,7 @@ const LessonColumn: React.FC<{
       {sorted.length > 0 ? (
         <Stack gap={1.25}>
           {sorted.map((v) => (
-            <VersionCard key={v.to} v={v} variant={variant} />
+            <VersionCard key={v.to} v={v} />
           ))}
         </Stack>
       ) : (
@@ -162,7 +198,7 @@ const NewLessonsListPage: React.FC = () => {
       const grammarMap = new Map<number, Version[]>();
       for (const l of newLessons) {
         const p = parseSlug(l.slug);
-        if (p) pushVersion(grammarMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/newlesson/${l.slug}`, cardTitle: l.cardTitle });
+        if (p) pushVersion(grammarMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/newlesson/${l.slug}`, slug: l.slug, cardTitle: l.cardTitle });
       }
 
       // Reading & Writing column ← prefecture lessons (slug like "hiragana-l1-v2-hokkaido").
@@ -174,11 +210,26 @@ const NewLessonsListPage: React.FC = () => {
             lesson: p.lesson,
             version: p.version,
             to: `/lesson/${l.slug}`,
+            slug: l.slug,
             cardTitle: l.cardTitle || deriveReadingCardTitle(l.flashcards),
           });
         }
       }
 
+      // Look up each version's saved progress (by the same slug the lesson
+      // pages themselves use as their progress key) so cards can be colored
+      // by "not started" / "in progress" / "completed" instead of column.
+      // getProgress() already swallows per-request failures and resolves to
+      // null, so one bad lookup can't break the rest of the list.
+      if (isAuthed()) {
+        const allVersions = [...grammarMap.values(), ...readingMap.values()].flat();
+        const docs = await Promise.all(allVersions.map((v) => getProgress(v.slug)));
+        allVersions.forEach((v, i) => {
+          v.progressStatus = docs[i]?.status ?? "not_started";
+        });
+      }
+
+      if (!mounted) return;
       setGrammar(grammarMap);
       setReading(readingMap);
       setLoading(false);
@@ -224,12 +275,8 @@ const NewLessonsListPage: React.FC = () => {
 
                 {/* Two columns side by side; each stacks its versions vertically. */}
                 <Stack direction={{ xs: "column", sm: "row" }} gap={2} alignItems="flex-start">
-                  <LessonColumn heading="Grammar" versions={grammar.get(n) ?? []} variant="primary" />
-                  <LessonColumn
-                    heading="Reading & Writing"
-                    versions={reading.get(n) ?? []}
-                    variant="outlined"
-                  />
+                  <LessonColumn heading="Grammar" versions={grammar.get(n) ?? []} />
+                  <LessonColumn heading="Reading & Writing" versions={reading.get(n) ?? []} />
                 </Stack>
               </Box>
             ))}

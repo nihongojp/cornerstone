@@ -23,6 +23,11 @@ export type LessonExercise =
       characterBank: string[];
       correctAnswer: string;
       prompt?: string;
+      audioUrl?: string;
+      imageUrl?: string;
+      image?: string;
+      /** V2+ bonus batch — hiragana tiles, no Japanese caption hint. */
+      bonus?: boolean;
     };
 
 export type LessonDoc = {

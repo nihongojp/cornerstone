@@ -29,6 +29,9 @@ const ExerciseSchema = new Schema(
     characterBank: { type: [String], default: undefined },
     correctAnswer: { type: String, default: undefined },
 
+    // V2+ drag-and-drop: bonus copies of main terms (hiragana tiles, no caption).
+    bonus: { type: Boolean, default: undefined },
+
     // Preferred field for client usage.
     imageUrl: { type: String, default: undefined },
 
