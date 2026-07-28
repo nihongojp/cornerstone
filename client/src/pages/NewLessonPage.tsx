@@ -200,6 +200,15 @@ const NewLessonPage: React.FC = () => {
     return () => { mounted = false; };
   }, [slug, navigate]);
 
+  // Lock page scroll for the whole lesson so Check/Reset stay in view.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   // Expand placeholder exercises into one-per-term repetitions (re-randomised
   // each visit). Raw items change only when the lesson doc changes.
   const rawItems: NewLessonItem[] = useMemo(() => lesson?.items ?? [], [lesson]);
@@ -361,13 +370,14 @@ const NewLessonPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* ── Content card (fills remaining height, scrolls only if needed) ─── */}
-      <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
-        <Container maxWidth="md" sx={{ pt: { xs: 1.5, md: 2 }, pb: { xs: 1.5, md: 2 }, flex: 1, display: "flex", flexDirection: "column" }}>
+      {/* ── Content card (fills remaining height; scrolling disabled) ─────── */}
+      <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <Container maxWidth="md" sx={{ pt: { xs: 1, md: 1.5 }, pb: { xs: 1, md: 1.5 }, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
           <Paper
             elevation={0}
             sx={{
               flex: 1,
+              minHeight: 0,
               display: "flex",
               flexDirection: "column",
               borderRadius: { xs: 3, md: 4 },
@@ -381,10 +391,10 @@ const NewLessonPage: React.FC = () => {
             <Box
               sx={{
                 flex: 1,
-                overflowY: "auto",
-                overflowX: "hidden",
-                px: { xs: 1.5, md: 3 },
-                py: { xs: 2, md: 2.5 },
+                minHeight: 0,
+                overflow: "hidden",
+                px: { xs: 1, md: 2 },
+                py: { xs: 1, md: 1.5 },
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

@@ -61,17 +61,17 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
   };
 
   return (
-    <Box sx={{ textAlign: "center", width: "100%", maxWidth: 560, mx: "auto", px: { xs: 1, sm: 2 } }}>
+    <Box sx={{ textAlign: "center", width: "100%", maxWidth: 560, mx: "auto", px: { xs: 0.5, sm: 1 } }}>
       <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.5, color: "#1C1917" }}>
         {prompt || "Listen and choose the right character"}
       </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary", mb: 3.5 }}>
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
         {playCount === 0 ? "Press play to hear the audio." : "Choose the character you heard."}
       </Typography>
 
       {/* Audio player */}
       {audioUrl ? (
-        <Box sx={{ mb: 4 }}>
+        <Box sx={{ mb: 2 }}>
           <audio ref={audioRef} src={audioUrl} preload="auto" />
           <Box
             onClick={!playing ? play : undefined}
@@ -82,7 +82,7 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
               gap: 1,
               cursor: playing ? "default" : "pointer",
               px: 4,
-              py: 2.5,
+              py: 2,
               borderRadius: "20px",
               bgcolor: playing ? "rgba(180,61,32,0.08)" : "rgba(180,61,32,0.06)",
               border: `2px solid ${playing ? "#B43D20" : "rgba(180,61,32,0.2)"}`,
@@ -122,9 +122,9 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
       ) : (
         <Box
           sx={{
-            py: 3,
+            py: 2,
             px: 4,
-            mb: 4,
+            mb: 2,
             borderRadius: "16px",
             bgcolor: "rgba(0,0,0,0.03)",
             border: "1px dashed rgba(0,0,0,0.15)",
@@ -192,7 +192,7 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
       {selected && (
         <Typography
           sx={{
-            mt: 2.5,
+            mt: 2,
             fontWeight: 700,
             fontSize: "0.95rem",
             color: selected === correctAnswer ? "#059669" : "#DC2626",

@@ -170,11 +170,11 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
   const containerHeight = pairs.length * ROW_HEIGHT;
 
   return (
-    <Box sx={{ textAlign: "center", p: { xs: 1, sm: 2 }, width: "100%", overflowX: "hidden" }}>
-      <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.75, color: "#1C1917" }}>
+    <Box sx={{ textAlign: "center", p: { xs: 0.5, sm: 1 }, width: "100%", overflowX: "hidden" }}>
+      <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.5, color: "#1C1917" }}>
         {instructions || "Match phrase to appropriate situation — connect the dots"}
       </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 1.25 }}>
         {submitted ? "Done! See your results above." : "Click a dot on the left, then one on the right to connect."}
       </Typography>
 
@@ -355,7 +355,7 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
         </Typography>
       )}
 
-      <Box sx={{ mt: 3, display: "flex", gap: 1.5, justifyContent: "center" }}>
+      <Box sx={{ mt: 1.25, display: "flex", gap: 1.25, justifyContent: "center" }}>
         <Button
           variant="contained"
           disabled={!canCheck || submitted}

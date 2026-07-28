@@ -54,6 +54,9 @@ const LessonSchema = new Schema(
     cardTitle: { type: String, default: "", trim: true },
 
     flashcards: { type: [String], default: [] },
+    // Parallel to flashcards[] — per-card pronunciation URLs (optional;
+    // client falls back to matchAudioLetter audio when missing).
+    flashcardsAudio: { type: [String], default: [] },
     funFact: { type: String, default: "" },
     notes: { type: String, default: "" },
 

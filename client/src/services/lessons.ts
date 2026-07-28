@@ -33,6 +33,8 @@ export type LessonDoc = {
   cardTitle?: string; // editable heading shown on the Lessons list card
 
   flashcards: string[];
+  /** Parallel to flashcards — per-card audio URLs when authored in Mongo. */
+  flashcardsAudio?: string[];
   funFact?: string;
   notes?: string;
 

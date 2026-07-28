@@ -59,10 +59,9 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
     [placedPhrase, correctPhrase]
   );
 
-  // Revealed as soon as the correct tile is placed — regardless of whether
-  // "Check" has been pressed — as positive reinforcement of the correct
-  // reading's pronunciation. Hides again if the tile is swapped out.
-  const showAudio = isCorrect && Boolean(audioUrl);
+  // Audio is never shown as an upfront hint here — reveal it under the
+  // image only after the learner presses Check and the answer is correct.
+  const showAudio = checked && isCorrect && Boolean(audioUrl);
 
   const bankTiles = choices.filter((c) => c.phrase !== placedPhrase);
 
@@ -141,11 +140,11 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
         width: "100%",
         maxWidth: 680,
         mx: "auto",
-        px: { xs: 1, sm: 2 },
+        px: { xs: 0.5, sm: 1 },
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 2.5,
+        gap: 1.25,
       }}
     >
       <Box sx={{ textAlign: "center" }}>
@@ -198,7 +197,7 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
         )}
       </Box>
 
-      {/* Reference audio — hidden until the correct tile is placed */}
+      {/* Reference audio — under the image after a correct Check */}
       {showAudio && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexDirection: "column" }}>
           <audio ref={audioRef} src={audioUrl} preload="auto" />

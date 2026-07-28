@@ -70,6 +70,7 @@ interface DragDropProps {
   answer?: string[];
   caption?: string;
   answerCaption?: string;
+  showAudioUpfront?: boolean;
 }
 
 export type DotMatchPair = { hiragana: string; katakana: string; audio?: string };
@@ -105,22 +106,55 @@ const RInfoC = RInfo as unknown as React.FC<RewardInfoProps>;
 
 function splitPair(s: string): DotMatchPair {
   const [hiragana, katakana] = String(s).split("/");
-  return { hiragana: hiragana ?? s, katakana: katakana ?? "" };
+  return {
+    hiragana: (hiragana ?? s).trim(),
+    katakana: (katakana ?? "").trim(),
+  };
 }
 
 // Maps each flashcard's hiragana face to its per-character audio, so the
 // same clip used on the flashcard can also play from Connect the Dots.
+// Prefers the parallel flashcardsAudio[] array; falls back to matching
+// matchAudioLetter exercise audio by correct answer (covers V2/V3 lessons
+// that never authored flashcardsAudio in Mongo).
 function buildCharAudioMap(lesson: any): Record<string, string> {
   const flashcards: string[] = lesson?.flashcards || [];
   const audio: string[] = lesson?.flashcardsAudio || [];
   const map: Record<string, string> = {};
 
   flashcards.forEach((raw, idx) => {
+    const src = String(audio[idx] || "").trim();
+    if (!src) return;
     const hiragana = String(raw).split("/")[0]?.trim();
-    if (hiragana && audio[idx]) map[hiragana] = audio[idx];
+    if (hiragana) map[hiragana] = src;
   });
 
+  const exercises: any[] = lesson?.exercises || [];
+  for (const ex of exercises) {
+    if (String(ex?.type || "") !== "matchAudioLetter") continue;
+    const src = String(ex?.audioUrl || ex?.audio || "").trim();
+    if (!src) continue;
+    const answers: string[] = Array.isArray(ex?.correctAnswers) ? ex.correctAnswers : [];
+    for (const ans of answers) {
+      const hiragana = String(ans).split("/")[0]?.trim();
+      if (hiragana && !map[hiragana]) map[hiragana] = src;
+    }
+  }
+
   return map;
+}
+
+function resolveFlashcardAudio(
+  raw: string,
+  idx: number,
+  flashcardsAudio: string[],
+  charAudio: Record<string, string>
+): string | undefined {
+  const fromArray = String(flashcardsAudio[idx] || "").trim();
+  if (fromArray) return fromArray;
+  const hiragana = String(raw).split("/")[0]?.trim();
+  const fromMap = hiragana ? String(charAudio[hiragana] || "").trim() : "";
+  return fromMap || undefined;
 }
 
 // Fisher-Yates — used to randomize the order same-type exercises are
@@ -158,29 +192,13 @@ function stepKeyFromExercise(ex: any, fallbackIndex: number): string {
 function stepLabelFromKey(key: string): string {
   if (key === "flips") return "Flashcards";
   if (key === "fact") return "Fun Fact";
+  if (key === "bonusFact") return "Bonus Fact";
   if (key === "reward") return "Reward";
   if (key === "rinfo") return "Notes";
   if (key.includes("connectTheDots")) return "Connect Dots";
   if (key.includes("matchAudioLetter")) return "Audio Match";
   if (key.includes("vocabulary_drag_drop")) return "Drag & Drop";
   return "Exercise";
-}
-
-const STEP_ICONS: Record<string, string> = {
-  flips: "🃏",
-  fact: "💡",
-  reward: "🏆",
-  rinfo: "📝",
-  connectTheDots: "🔗",
-  matchAudioLetter: "🎧",
-  vocabulary_drag_drop: "✋",
-};
-
-function stepIcon(key: string): string {
-  for (const [k, v] of Object.entries(STEP_ICONS)) {
-    if (key.includes(k)) return v;
-  }
-  return "📌";
 }
 
 function resolveExerciseImage(ex: any): string | undefined {
@@ -228,6 +246,7 @@ const Lesson: React.FC = () => {
           slug: (l as any)?.slug,
           _id: (l as any)?._id,
           flashcardsLen: ((l as any)?.flashcards || []).length,
+          flashcardsAudioLen: ((l as any)?.flashcardsAudio || []).length,
           exercisesLen: ((l as any)?.exercises || []).length,
           exerciseTypes: ((l as any)?.exercises || []).map((x: any) => x?.type),
           exerciseImages: ((l as any)?.exercises || []).map((x: any) => ({
@@ -279,7 +298,7 @@ const Lesson: React.FC = () => {
             id: idx,
             front: raw,
             back: "",
-            audio: flashcardsAudio[idx],
+            audio: resolveFlashcardAudio(raw, idx, flashcardsAudio, charAudio),
           }));
 
           return <FlipsC onResult={on} prompt="Flip each card to review." cards={cardData} />;
@@ -324,7 +343,7 @@ const Lesson: React.FC = () => {
         const key = stepKeyFromExercise(ex, i);
         const pairs: DotMatchPair[] = (ex.items || []).map((s: string) => {
           const pair = splitPair(s);
-          return { ...pair, audio: charAudio[pair.hiragana] };
+          return { ...pair, audio: charAudio[pair.hiragana] || undefined };
         });
         out.push({
           key,
@@ -351,7 +370,7 @@ const Lesson: React.FC = () => {
               onResult={on}
               options={options}
               correctAnswer={correctAnswer}
-              audioUrl={shuffledEx.audioUrl}
+              audioUrl={shuffledEx.audioUrl || shuffledEx.audio}
               prompt={shuffledEx.prompt || "Listen and choose the right character"}
             />
           ),
@@ -391,6 +410,7 @@ const Lesson: React.FC = () => {
               audioUrl={shuffledEx.audioUrl}
               imageUrl={resolveExerciseImage(shuffledEx)}
               answerCaption={!isBonus && !isV1 ? shuffledEx.correctAnswer : undefined}
+              showAudioUpfront={isV1}
             />
           ),
         });
@@ -398,6 +418,14 @@ const Lesson: React.FC = () => {
       }
 
       console.warn("[Lesson] unknown exercise type:", exType, ex);
+    });
+
+    // Placeholder bonus fact after all exercises and before the reward /
+    // "Lesson Complete!" page. Hardcoded for every lesson for now.
+    out.push({
+      key: "bonusFact",
+      graded: false,
+      comp: () => <FactC title="Bonus Fact" description="Bonus fact coming soon." />,
     });
 
     if ((lesson as any).achievement?.title || (lesson as any).achievement?.xp !== undefined) {
@@ -447,6 +475,15 @@ const Lesson: React.FC = () => {
     })();
     return () => { cancelled = true; };
   }, [lesson, lessonKey, steps]);
+
+  // Lock page scroll for the whole lesson so Check/Reset stay in view.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   // Records an attempt's outcome (counts + server sync) at most once per
   // step, returning the accuracy that resulted from it. Separated from
@@ -652,18 +689,25 @@ const Lesson: React.FC = () => {
   const isLast = step >= steps.length - 1;
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4", pb: { xs: 12, md: 8 } }}>
+    <Box
+      sx={{
+        height: "100dvh",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "#F9F7F4",
+        overflow: "hidden",
+      }}
+    >
       <Box
         sx={{
-          position: "sticky",
-          top: 0,
+          flexShrink: 0,
           zIndex: 10,
           backdropFilter: "blur(12px)",
           bgcolor: "rgba(249,247,244,0.85)",
           borderBottom: "1px solid rgba(0,0,0,0.07)",
         }}
       >
-        <Container maxWidth="md" sx={{ py: 1.5 }}>
+        <Container maxWidth="md" sx={{ py: 1 }}>
           <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
             <Button
               startIcon={<ArrowBackRoundedIcon />}
@@ -684,22 +728,22 @@ const Lesson: React.FC = () => {
                 noWrap
                 sx={{
                   fontWeight: 900,
-                  fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                  fontSize: { xs: "0.9rem", sm: "1rem" },
                   letterSpacing: "-0.01em",
                 }}
               >
                 {getLessonHeader(lesson)}
               </Typography>
 
-              <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" sx={{ mt: 0.25 }}>
+              <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" sx={{ mt: 0.15 }}>
                 {attemptCount > 0 && (
                   <Chip
                     size="small"
                     label={`${accuracy}% acc`}
                     sx={{
                       fontWeight: 700,
-                      fontSize: "0.72rem",
-                      height: 22,
+                      fontSize: "0.7rem",
+                      height: 20,
                       bgcolor: accuracy >= 70 ? "rgba(5,150,105,0.1)" : "rgba(220,38,38,0.1)",
                       color: accuracy >= 70 ? "#059669" : "#DC2626",
                     }}
@@ -737,12 +781,12 @@ const Lesson: React.FC = () => {
             </Stack>
           </Stack>
 
-          <Box sx={{ mt: 1.25 }}>
+          <Box sx={{ mt: 1 }}>
             <LinearProgress
               variant="determinate"
               value={pct}
               sx={{
-                height: 6,
+                height: 5,
                 borderRadius: 999,
                 bgcolor: "rgba(0,0,0,0.06)",
                 "& .MuiLinearProgress-bar": {
@@ -758,10 +802,10 @@ const Lesson: React.FC = () => {
             <Paper
               variant="outlined"
               sx={{
-                mt: 1.5,
-                p: 1.5,
+                mt: 1,
+                p: 1,
                 borderRadius: 2,
-                maxHeight: 200,
+                maxHeight: 120,
                 overflow: "auto",
                 fontFamily: "monospace",
                 fontSize: 11,
@@ -775,73 +819,97 @@ const Lesson: React.FC = () => {
         </Container>
       </Box>
 
-      <Container maxWidth="md" sx={{ pt: { xs: 2.5, md: 3.5 } }}>
-        <Paper
-          elevation={0}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Container
+          maxWidth="md"
           sx={{
-            borderRadius: { xs: 3, md: 4 },
-            border: "1px solid rgba(0,0,0,0.07)",
-            bgcolor: "#FFFFFF",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
-            overflow: "hidden",
+            pt: { xs: 1, md: 1.5 },
+            pb: { xs: 1, md: 1.5 },
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <Box
+          <Paper
+            elevation={0}
             sx={{
-              px: { xs: 2.5, md: 3.5 },
-              pt: { xs: 2, md: 2.5 },
-              pb: 1.5,
-              borderBottom: "1px solid rgba(0,0,0,0.06)",
+              flex: 1,
+              minHeight: 0,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 1,
+              flexDirection: "column",
+              borderRadius: { xs: 3, md: 4 },
+              border: "1px solid rgba(0,0,0,0.07)",
+              bgcolor: "#FFFFFF",
+              boxShadow: "0 4px 24px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
+              overflow: "hidden",
             }}
           >
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Typography sx={{ fontSize: "1.3rem" }}>{stepIcon(activeKey)}</Typography>
-              <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", letterSpacing: "-0.01em" }}>
-                {activeLabel}
+            <Box
+              sx={{
+                flexShrink: 0,
+                px: { xs: 2, md: 3 },
+                py: 1,
+                borderBottom: "1px solid rgba(0,0,0,0.06)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 1,
+              }}
+            >
+              <Stack direction="row" alignItems="center" gap={1}>
+                <Typography sx={{ fontWeight: 800, fontSize: "0.9rem", letterSpacing: "-0.01em" }}>
+                  {activeLabel}
+                </Typography>
+              </Stack>
+
+              <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                Step {step + 1} of {steps.length}
               </Typography>
-            </Stack>
+            </Box>
 
-            <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-              Step {step + 1} of {steps.length}
-            </Typography>
-          </Box>
-
-          <Box
-            sx={{
-              minHeight: { xs: 400, md: 480 },
-              px: { xs: 1.5, md: 3 },
-              py: { xs: 2.5, md: 3 },
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {steps[step] && (
-              <Box key={`step-${step}-${attemptCount}`} sx={{ width: "100%" }}>
-                {steps[step].comp(handleResult)}
-              </Box>
-            )}
-          </Box>
-        </Paper>
-      </Container>
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                overflow: "hidden",
+                px: { xs: 1, md: 2 },
+                py: { xs: 1, md: 1.5 },
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {steps[step] && (
+                <Box
+                  key={`step-${step}-${attemptCount}`}
+                  sx={{ width: "100%", height: "100%", overflow: "hidden", display: "flex", alignItems: "center" }}
+                >
+                  {steps[step].comp(handleResult)}
+                </Box>
+              )}
+            </Box>
+          </Paper>
+        </Container>
+      </Box>
 
       <Box
         sx={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 20,
+          flexShrink: 0,
           bgcolor: "rgba(255,255,255,0.92)",
           borderTop: "1px solid rgba(0,0,0,0.07)",
           backdropFilter: "blur(12px)",
         }}
       >
-        <Container maxWidth="md" sx={{ py: { xs: 1.5, md: 1.75 } }}>
+        <Container maxWidth="md" sx={{ py: { xs: 1, md: 1.25 } }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1}>
             <Button
               disabled={step === 0}

@@ -157,11 +157,11 @@ const DragDropCombination: React.FC<Props> = ({
         width: "100%",
         maxWidth: 680,
         mx: "auto",
-        px: { xs: 1, sm: 2 },
+        px: { xs: 0.5, sm: 1 },
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 2.5,
+        gap: 1.25,
       }}
     >
       <Box sx={{ textAlign: "center" }}>
