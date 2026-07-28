@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Grid, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import { Box, IconButton, Typography } from "@mui/material";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 
 type CardData = { id: number; front: string; back?: string; audio?: string };
 
@@ -33,9 +33,6 @@ const Flips: React.FC<FlipsProps> = ({
   const [flipped, setFlipped] = useState<Record<number, boolean>>({});
   const completedRef = useRef(false);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
   const toggleFlip = (id: number) => {
     setFlipped((p) => ({ ...p, [id]: !p[id] }));
   };
@@ -54,18 +51,16 @@ const Flips: React.FC<FlipsProps> = ({
     }
   }, [allFlipped, onResult]);
 
-  if (!cards.length) return <Box p={3}><Typography>No cards to display.</Typography></Box>;
+  if (!cards.length) return <Box p={2}><Typography>No cards to display.</Typography></Box>;
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 860, mx: "auto", px: { xs: 1, sm: 2 } }}>
-      {/* Header */}
-      <Box sx={{ textAlign: "center", mb: 3 }}>
+    <Box sx={{ width: "100%", maxWidth: 860, mx: "auto", px: { xs: 0.5, sm: 1 } }}>
+      <Box sx={{ textAlign: "center", mb: 1.5 }}>
         <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, color: "#1C1917" }}>
           {prompt}
         </Typography>
 
-        {/* Mini progress pips */}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 0.75, mt: 1.5 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 0.75, mt: 1 }}>
           {cards.map((c) => (
             <Box
               key={c.id}
@@ -81,104 +76,141 @@ const Flips: React.FC<FlipsProps> = ({
         </Box>
       </Box>
 
-      {/* Cards */}
-      <Grid container spacing={{ xs: 2, sm: 2.5 }} justifyContent="center">
+      {/* Keep cards in a compact wrapping row so 3–5 still fit without scrolling. */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: { xs: 1.25, sm: 2 },
+        }}
+      >
         {cards.map((card) => {
           const isFlipped = !!flipped[card.id];
           const { frontFace, backFace } = splitFaces(card);
 
           return (
-            <Grid item key={card.id} xs={12} sm={6} md={4} display="flex" justifyContent="center">
-              <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1.5, width: "100%" }}>
-
-                {/* Flip card */}
+            <Box
+              key={card.id}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 1,
+                width: { xs: 160, sm: 220 },
+              }}
+            >
+              <Box
+                onClick={() => toggleFlip(card.id)}
+                sx={{
+                  perspective: "1000px",
+                  width: "100%",
+                  height: 180,
+                  cursor: "pointer",
+                }}
+              >
                 <Box
-                  onClick={() => toggleFlip(card.id)}
                   sx={{
-                    perspective: "1000px",
-                    width: isMobile ? "100%" : 220,
-                    maxWidth: 260,
-                    height: 180,
-                    cursor: "pointer",
+                    position: "relative",
+                    width: "100%",
+                    height: "100%",
+                    transition: "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
+                    transformStyle: "preserve-3d",
+                    transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
                   <Box
                     sx={{
-                      position: "relative",
-                      width: "100%",
-                      height: "100%",
-                      transition: "transform 0.55s cubic-bezier(0.4,0,0.2,1)",
-                      transformStyle: "preserve-3d",
-                      transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+                      position: "absolute",
+                      inset: 0,
+                      backfaceVisibility: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 1,
+                      border: "2px solid rgba(0,0,0,0.1)",
+                      borderRadius: "16px",
+                      bgcolor: "#FFFFFF",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                      userSelect: "none",
                     }}
                   >
-                    {/* Front face */}
-                    <Box
+                    <Typography sx={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+                      {frontFace}
+                    </Typography>
+                    <Typography
+                      variant="caption"
                       sx={{
-                        position: "absolute",
-                        inset: 0,
-                        backfaceVisibility: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 1,
-                        border: "2px solid rgba(0,0,0,0.1)",
-                        borderRadius: "16px",
-                        bgcolor: "#FFFFFF",
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                        userSelect: "none",
-                        transition: "box-shadow 0.2s",
-                        "&:hover": { boxShadow: "0 4px 20px rgba(0,0,0,0.13)" },
+                        color: "text.secondary",
+                        fontWeight: 600,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        fontSize: "0.65rem",
                       }}
                     >
-                      <Typography sx={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
-                        {frontFace}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.65rem" }}>
-                        Tap to flip
-                      </Typography>
-                    </Box>
+                      Hiragana
+                    </Typography>
+                  </Box>
 
-                    {/* Back face */}
-                    <Box
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      backfaceVisibility: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 1,
+                      border: "2px solid rgba(0,0,0,0.1)",
+                      borderRadius: "16px",
+                      bgcolor: "#FFFFFF",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                      userSelect: "none",
+                      transform: "rotateY(180deg)",
+                    }}
+                  >
+                    <Typography sx={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
+                      {backFace}
+                    </Typography>
+                    <Typography
+                      variant="caption"
                       sx={{
-                        position: "absolute",
-                        inset: 0,
-                        backfaceVisibility: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 1,
-                        border: "2px solid rgba(0,0,0,0.1)",
-                        borderRadius: "16px",
-                        bgcolor: "#FFFFFF",
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
-                        userSelect: "none",
-                        transform: "rotateY(180deg)",
+                        color: "text.secondary",
+                        fontWeight: 600,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        fontSize: "0.65rem",
                       }}
                     >
-                      <Typography sx={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
-                        {backFace}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", fontSize: "0.65rem" }}>
-                        Tap to flip
-                      </Typography>
-                    </Box>
+                      Katakana
+                    </Typography>
                   </Box>
                 </Box>
-
-                {card.audio && (
-                  <IconButton size="small" onClick={() => playAudio(card.audio)} sx={{ color: "#B43D20" }}>
-                    <VolumeUpIcon fontSize="small" />
-                  </IconButton>
-                )}
               </Box>
-            </Grid>
+
+              {card.audio && (
+                <IconButton
+                  size="small"
+                  onClick={() => playAudio(card.audio)}
+                  aria-label="Play audio"
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    color: "#fff",
+                    bgcolor: "#B43D20",
+                    boxShadow: "0 2px 10px rgba(180,61,32,0.3)",
+                    "&:hover": { bgcolor: "#9D351C" },
+                  }}
+                >
+                  <VolumeUpRoundedIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
           );
         })}
-      </Grid>
+      </Box>
     </Box>
   );
 };

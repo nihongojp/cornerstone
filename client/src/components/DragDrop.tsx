@@ -3,6 +3,7 @@ import { Box, IconButton, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
+import SelfRecordButton from "./SelfRecordButton";
 
 type DragPayload =
   | { source: "bank"; char: string }
@@ -23,6 +24,12 @@ type DragDropProps = {
   bankItems?: string[];
   answer?: string[];
   caption?: string;
+  // Shown directly under the image — e.g. the target word in Japanese —
+  // used in place of an audio hint when no audioUrl is provided.
+  answerCaption?: string;
+  // V1 reading/writing: show audio as an upfront hint whenever audioUrl exists.
+  // V2+: leave false/undefined so audio only appears after a correct Check.
+  showAudioUpfront?: boolean;
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
 
@@ -40,6 +47,8 @@ const DragDrop: React.FC<DragDropProps> = ({
   image,
   bankItems,
   answer,
+  answerCaption,
+  showAudioUpfront = false,
 }) => {
   const bank = characterBank ?? bankItems ?? defaultBank;
   const resolvedImageUrl = String(imageUrl || image || "").trim();
@@ -192,11 +201,11 @@ const DragDrop: React.FC<DragDropProps> = ({
         width: "100%",
         maxWidth: 680,
         mx: "auto",
-        px: { xs: 1, sm: 2 },
+        px: { xs: 0.5, sm: 1 },
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 2.5,
+        gap: 1.5,
       }}
     >
       <Box sx={{ textAlign: "center" }}>
@@ -211,7 +220,7 @@ const DragDrop: React.FC<DragDropProps> = ({
         ) : null}
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap", justifyContent: "center" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
         <Box
           sx={{
             width: { xs: 116, sm: 150 },
@@ -260,13 +269,21 @@ const DragDrop: React.FC<DragDropProps> = ({
           )}
         </Box>
 
-        {audioUrl ? (
-          <>
+        {answerCaption && (
+          <Typography sx={{ fontWeight: 800, fontSize: { xs: "1.3rem", sm: "1.6rem" }, color: "#1C1917" }}>
+            {answerCaption}
+          </Typography>
+        )}
+
+        {/* V1: audio is an upfront hint. V2+: audio is a reward after a correct Check. */}
+        {(showAudioUpfront || (checked && isCorrect)) && audioUrl ? (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <audio ref={audioRef} src={audioUrl} preload="auto" />
 
             <IconButton
               onClick={play}
               disabled={playing}
+              aria-label="Play reference audio"
               sx={{
                 width: 52,
                 height: 52,
@@ -281,19 +298,21 @@ const DragDrop: React.FC<DragDropProps> = ({
             >
               {playing ? <GraphicEqRoundedIcon /> : <VolumeUpRoundedIcon />}
             </IconButton>
-          </>
-        ) : (
+
+            <SelfRecordButton />
+          </Box>
+        ) : (showAudioUpfront || (checked && isCorrect)) && !answerCaption ? (
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
             No audio
           </Typography>
-        )}
+        ) : null}
       </Box>
 
       <Box
         sx={{
           display: "flex",
           gap: 1.25,
-          p: 1.5,
+          p: 1.25,
           borderRadius: "14px",
           bgcolor: "#F9F7F4",
           border: "1px solid rgba(0,0,0,0.08)",
@@ -349,6 +368,7 @@ const DragDrop: React.FC<DragDropProps> = ({
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: { xs: "1.5rem", sm: "1.8rem" },
+                fontWeight: 600,
                 cursor: char ? "grab" : "default",
                 userSelect: "none",
                 transition: "border-color 0.2s, background-color 0.2s",
@@ -370,11 +390,10 @@ const DragDrop: React.FC<DragDropProps> = ({
         sx={{
           display: "flex",
           gap: 1.25,
-          p: 1.5,
+          p: 1.25,
           borderRadius: "14px",
           bgcolor: "#F9F7F4",
           border: "1px solid rgba(0,0,0,0.08)",
-          minHeight: 76,
           flexWrap: "wrap",
           justifyContent: "center",
           width: "100%",
@@ -395,6 +414,7 @@ const DragDrop: React.FC<DragDropProps> = ({
               borderRadius: "12px",
               cursor: "grab",
               fontSize: { xs: "1.5rem", sm: "1.8rem" },
+              fontWeight: 600,
               userSelect: "none",
               bgcolor: "#fff",
               display: "flex",
@@ -414,20 +434,20 @@ const DragDrop: React.FC<DragDropProps> = ({
         ))}
       </Box>
 
-      <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", justifyContent: "center" }}>
+      <Box sx={{ display: "flex", gap: 1.25, flexWrap: "wrap", justifyContent: "center" }}>
         <Box
           component="button"
           onClick={handleCheck}
           disabled={!isComplete}
           sx={{
-            px: 3,
-            py: 1.25,
+            px: 2.5,
+            py: 0.9,
             borderRadius: 999,
             border: "none",
             bgcolor: isComplete ? "#B43D20" : "rgba(0,0,0,0.08)",
             color: isComplete ? "#fff" : "rgba(0,0,0,0.35)",
             fontWeight: 700,
-            fontSize: "0.9rem",
+            fontSize: "0.85rem",
             cursor: isComplete ? "pointer" : "default",
             transition: "all 0.2s",
             boxShadow: isComplete ? "0 4px 14px rgba(180,61,32,0.35)" : "none",
@@ -441,14 +461,14 @@ const DragDrop: React.FC<DragDropProps> = ({
           component="button"
           onClick={reset}
           sx={{
-            px: 3,
-            py: 1.25,
+            px: 2.5,
+            py: 0.9,
             borderRadius: 999,
             border: "1px solid rgba(0,0,0,0.15)",
             bgcolor: "#fff",
             color: "#6B7280",
             fontWeight: 700,
-            fontSize: "0.9rem",
+            fontSize: "0.85rem",
             cursor: "pointer",
             transition: "all 0.2s",
             "&:hover": { bgcolor: "#F9F7F4" },
@@ -462,8 +482,9 @@ const DragDrop: React.FC<DragDropProps> = ({
         <Typography
           sx={{
             fontWeight: 700,
-            fontSize: "0.95rem",
+            fontSize: "0.85rem",
             color: isCorrect ? "#059669" : "#DC2626",
+            lineHeight: 1.2,
           }}
         >
           {isCorrect ? "✓ Correct!" : "✗ Not quite — try again."}

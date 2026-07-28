@@ -29,6 +29,9 @@ const ExerciseSchema = new Schema(
     characterBank: { type: [String], default: undefined },
     correctAnswer: { type: String, default: undefined },
 
+    // V2+ drag-and-drop: bonus copies of main terms (hiragana tiles, no caption).
+    bonus: { type: Boolean, default: undefined },
+
     // Preferred field for client usage.
     imageUrl: { type: String, default: undefined },
 
@@ -54,6 +57,9 @@ const LessonSchema = new Schema(
     cardTitle: { type: String, default: "", trim: true },
 
     flashcards: { type: [String], default: [] },
+    // Parallel to flashcards[] — per-card pronunciation URLs (optional;
+    // client falls back to matchAudioLetter audio when missing).
+    flashcardsAudio: { type: [String], default: [] },
     funFact: { type: String, default: "" },
     notes: { type: String, default: "" },
 

@@ -33,6 +33,14 @@ function fuzzyKey(term: string): string {
   return exactKey(term).replace(/(.)\1+/g, "$1");
 }
 
+// Same normalized-term comparison the registry uses internally, exposed so
+// other lesson-processing code (e.g. checkpoint scoping) can group/match
+// terms the same way media lookups do.
+export function sameTerm(a?: string, b?: string): boolean {
+  if (!a || !b) return false;
+  return exactKey(a) === exactKey(b) || fuzzyKey(a) === fuzzyKey(b);
+}
+
 function mergeMedia(base: TermMedia, extra: TermMedia): TermMedia {
   const merged: TermMedia = { ...base };
   for (const key of MEDIA_KEYS) {
@@ -41,15 +49,23 @@ function mergeMedia(base: TermMedia, extra: TermMedia): TermMedia {
   return merged;
 }
 
+// "page" entries come from the intro/dialogue video pages where a term is
+// first taught; "exercise" entries come from matchAudio/pronunciation/drag-
+// and-drop/matching exercises that quiz that term later. The two are kept
+// distinct because a term's exercise audio is often a separate, cleaner
+// recording than its intro-page dialogue clip — see EntrySource priority
+// note on buildTermMediaRegistry below.
+type EntrySource = "page" | "exercise";
+
 /**
  * Every (term, media) pair a single lesson item can contribute. An item may
  * introduce more than one term — a page contributes its own title plus each
  * of its `newTerms`/`terms`; a matchingExercise contributes one term per dot.
  */
-function extractEntries(item: NewLessonItem): Array<{ term: string; media: TermMedia }> {
+function extractEntries(item: NewLessonItem): Array<{ term: string; media: TermMedia; source: EntrySource }> {
   const type = item.type as string;
   const any = item as any;
-  const entries: Array<{ term: string; media: TermMedia }> = [];
+  const entries: Array<{ term: string; media: TermMedia; source: EntrySource }> = [];
 
   if (type === "page") {
     if (any.title) {
@@ -59,6 +75,7 @@ function extractEntries(item: NewLessonItem): Array<{ term: string; media: TermM
           audioUrl: any.audioUrl ?? any.audioURL ?? any.audio,
           videoUrl: any.videoUrl ?? any.videoURL ?? any.video,
         },
+        source: "page",
       });
     }
     if (Array.isArray(any.newTerms)) {
@@ -69,6 +86,7 @@ function extractEntries(item: NewLessonItem): Array<{ term: string; media: TermM
         entries.push({
           term: String(term),
           media: { audioUrl: t.audioUrl ?? t.audio, videoUrl: t.videoUrl ?? t.video, imageUrl: t.imageUrl ?? t.image },
+          source: "page",
         });
       }
     }
@@ -78,6 +96,7 @@ function extractEntries(item: NewLessonItem): Array<{ term: string; media: TermM
         entries.push({
           term: String(t.term),
           media: { audioUrl: t.audioUrl, videoUrl: t.videoUrl, imageUrl: t.imageUrl },
+          source: "page",
         });
       }
     }
@@ -86,18 +105,22 @@ function extractEntries(item: NewLessonItem): Array<{ term: string; media: TermM
   if (type === "matchingExercise" && Array.isArray(any.items)) {
     for (const m of any.items) {
       if (!m?.phrase) continue;
-      entries.push({ term: String(m.phrase), media: { audioUrl: m.audioUrl, imageUrl: m.imageUrl } });
+      entries.push({ term: String(m.phrase), media: { audioUrl: m.audioUrl, imageUrl: m.imageUrl }, source: "exercise" });
     }
   }
 
   if ((type === "matchAudioExercise" || type === "pronunciationExercise") && any.phrase) {
-    entries.push({ term: String(any.phrase), media: { audioUrl: any.audioUrl } });
+    entries.push({ term: String(any.phrase), media: { audioUrl: any.audioUrl }, source: "exercise" });
   }
 
   if (type === "dragAndDropExercise") {
     const term = any.phrase ?? any._term ?? any.term;
     if (term) {
-      entries.push({ term: String(term), media: { audioUrl: any.audioUrl, imageUrl: any.imageUrl ?? any.image } });
+      entries.push({
+        term: String(term),
+        media: { audioUrl: any.audioUrl, imageUrl: any.imageUrl ?? any.image },
+        source: "exercise",
+      });
     }
   }
 
@@ -113,25 +136,37 @@ export type TermMediaRegistry = {
  * Scans every item in a lesson (in any order) and collects the real,
  * non-placeholder media already associated with each term, so it can be
  * reused wherever else that term appears.
+ *
+ * Exercise audio (matchAudio/pronunciation/dragAndDrop/matchingExercise)
+ * takes priority over an intro page's dialogue audio when both exist for the
+ * same term: exercise clips are usually a separate, purpose-recorded single-
+ * phrase pronunciation, distinct from the fuller intro-page dialogue clip, so
+ * they're the more useful default to reuse for quizzing that term elsewhere.
+ * Processing exercise entries before page entries achieves this because
+ * mergeMedia only fills keys that aren't already set.
  */
 export function buildTermMediaRegistry(items: NewLessonItem[]): TermMediaRegistry {
   const exact = new Map<string, TermMedia>();
   const fuzzy = new Map<string, TermMedia>();
 
-  for (const item of items) {
-    for (const { term, media } of extractEntries(item)) {
-      const realMedia: TermMedia = {
-        audioUrl: pickReal(media.audioUrl),
-        videoUrl: pickReal(media.videoUrl),
-        imageUrl: pickReal(media.imageUrl),
-      };
-      if (!realMedia.audioUrl && !realMedia.videoUrl && !realMedia.imageUrl) continue;
+  const allEntries = items.flatMap((item) => extractEntries(item));
+  const ordered = [
+    ...allEntries.filter((e) => e.source === "exercise"),
+    ...allEntries.filter((e) => e.source === "page"),
+  ];
 
-      const ek = exactKey(term);
-      const fk = fuzzyKey(term);
-      if (ek) exact.set(ek, mergeMedia(exact.get(ek) ?? {}, realMedia));
-      if (fk) fuzzy.set(fk, mergeMedia(fuzzy.get(fk) ?? {}, realMedia));
-    }
+  for (const { term, media } of ordered) {
+    const realMedia: TermMedia = {
+      audioUrl: pickReal(media.audioUrl),
+      videoUrl: pickReal(media.videoUrl),
+      imageUrl: pickReal(media.imageUrl),
+    };
+    if (!realMedia.audioUrl && !realMedia.videoUrl && !realMedia.imageUrl) continue;
+
+    const ek = exactKey(term);
+    const fk = fuzzyKey(term);
+    if (ek) exact.set(ek, mergeMedia(exact.get(ek) ?? {}, realMedia));
+    if (fk) fuzzy.set(fk, mergeMedia(fuzzy.get(fk) ?? {}, realMedia));
   }
 
   return { exact, fuzzy };

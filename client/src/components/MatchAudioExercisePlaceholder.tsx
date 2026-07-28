@@ -6,6 +6,7 @@ import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { ChoiceCandidate } from "../utils/expandLessonItems";
+import { buildChoiceOptions } from "../utils/buildChoiceOptions";
 
 const BRAND = "#B43D20";
 
@@ -28,35 +29,14 @@ function isPlaceholder(url?: string) {
   return !url || url.toUpperCase().includes("PLACEHOLDER");
 }
 
-function randomShuffle<T>(arr: T[]): T[] {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
-
 // The correct term plus up to 2 random, DISTINCT distractors from the
 // checkpoint pool, in a freshly randomised order — recomputed every time the
 // exercise is presented (see the useState lazy initializer below), not
-// derived from the phrase. Never pads with a duplicate of the correct answer
-// (or of a distractor already picked) — if fewer than 2 distinct distractors
-// exist, the exercise simply shows fewer than 3 tiles.
+// derived from the phrase. See buildChoiceOptions for the shared selection
+// logic (also used by DragDropPlaceholder).
 function buildChoices(item: MatchAudioItem): ChoiceCandidate[] {
   const correct: ChoiceCandidate = { phrase: item.phrase, imageUrl: item.imageUrl };
-  const pool = item.checkpointPool ?? [];
-
-  const seenPhrases = new Set<string>([item.phrase]);
-  const distractorCandidates: ChoiceCandidate[] = [];
-  for (const c of pool) {
-    if (seenPhrases.has(c.phrase)) continue;
-    seenPhrases.add(c.phrase);
-    distractorCandidates.push(c);
-  }
-
-  const distractors = randomShuffle(distractorCandidates).slice(0, 2);
-  return randomShuffle([correct, ...distractors]);
+  return buildChoiceOptions(correct, item.checkpointPool ?? [], 2);
 }
 
 const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {

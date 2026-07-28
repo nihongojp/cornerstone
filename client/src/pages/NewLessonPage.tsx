@@ -16,8 +16,8 @@ import PronunciationExercise, { PronunciationExerciseData } from "../components/
 import NewLessonPageItem from "../components/NewLessonPageItem";
 import MatchingExercisePlaceholder from "../components/MatchingExercisePlaceholder";
 import MatchAudioExercisePlaceholder from "../components/MatchAudioExercisePlaceholder";
-import DragDrop from "../components/DragDrop";
 import DragDropPlaceholder from "../components/DragDropPlaceholder";
+import DragDropCombination from "../components/DragDropCombination";
 import Fact from "../components/Fact";
 
 import { getNewLesson, NewLessonDoc, NewLessonItem } from "../services/newLessons";
@@ -80,17 +80,46 @@ function renderItem(
   }
 
   if (type === "dragAndDropExercise") {
-    const term = (item as any)._term as string | undefined;
-    const rawAudioUrl = (item as any).audioUrl as string | undefined;
-    const rawImageUrl = (item as any).imageUrl as string | undefined;
-    const placeholderBank = ["〇", "〇", "〇", "〇", "〇"];
+    const any = item as any;
+    const rawAudioUrl = any.audioUrl as string | undefined;
+    const rawImageUrl = any.imageUrl as string | undefined;
+    const audioUrl = isPlaceholderUrl(rawAudioUrl) ? undefined : rawAudioUrl;
+    const imageUrl = isPlaceholderUrl(rawImageUrl) ? undefined : rawImageUrl;
+
+    // Manually-authored multi-tile, ordered-combination exercise (Compass
+    // fields `options` + `correctSequence` on this item) — drag several
+    // tiles into slots in the right order, not just pick one correct tile.
+    const options: string[] | undefined = Array.isArray(any.options)
+      ? any.options.map((o: unknown) => String(o))
+      : undefined;
+    const correctSequence: string[] | undefined = Array.isArray(any.correctSequence)
+      ? any.correctSequence.map((o: unknown) => String(o))
+      : undefined;
+
+    if (options?.length && correctSequence?.length) {
+      return (
+        <DragDropCombination
+          prompt={any.prompt || "Drag the tiles into the correct order"}
+          options={options}
+          correctSequence={correctSequence}
+          audioUrl={audioUrl}
+          imageUrl={imageUrl}
+          onResult={onResult}
+        />
+      );
+    }
+
+    // Fallback for any term that doesn't have a manual combination authored
+    // yet — the original single-tile "pick the correct term" exercise, so
+    // nothing is ever left blank while you're still filling these in.
+    const term = (any._term ?? any.phrase ?? any.term ?? "") as string;
     return (
-      <DragDrop
-        prompt={term ? `Build: "${term}"` : ((item as any).description || "Build the correct phrase")}
-        characterBank={placeholderBank}
-        correctAnswer="〇〇〇"
-        audioUrl={isPlaceholderUrl(rawAudioUrl) ? undefined : rawAudioUrl}
-        imageUrl={isPlaceholderUrl(rawImageUrl) ? undefined : rawImageUrl}
+      <DragDropPlaceholder
+        prompt="Which word matches this image?"
+        correctPhrase={term}
+        checkpointPool={any.checkpointPool}
+        audioUrl={audioUrl}
+        imageUrl={imageUrl}
         onResult={onResult}
       />
     );
@@ -171,6 +200,15 @@ const NewLessonPage: React.FC = () => {
     return () => { mounted = false; };
   }, [slug, navigate]);
 
+  // Lock page scroll for the whole lesson so Check/Reset stay in view.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
   // Expand placeholder exercises into one-per-term repetitions (re-randomised
   // each visit). Raw items change only when the lesson doc changes.
   const rawItems: NewLessonItem[] = useMemo(() => lesson?.items ?? [], [lesson]);
@@ -209,14 +247,17 @@ const NewLessonPage: React.FC = () => {
           stepKey: stepKeyForItem(activeItem),
         }).catch((e) => console.error("[Progress] complete failed:", e));
       }
-      navigate("/new-lessons");
+      navigate(lesson?.nextSlug ? `/newlesson/${lesson.nextSlug}` : "/new-lessons");
       return;
     }
     setStep((s) => s + 1);
   };
 
   const handleResult = ({ result }: { result: "correct" | "incorrect" }) => {
-    if (result === "correct") {
+    // Drag-and-drop exercises don't auto-advance — getting it right reveals
+    // the reference audio in place, and the user clicks Next themselves once
+    // they're done listening, instead of being swept along after 1 second.
+    if (result === "correct" && activeItem?.type !== "dragAndDropExercise") {
       setTimeout(() => setStep((s) => (s >= totalSteps - 1 ? s : s + 1)), 1000);
     }
   };
@@ -329,13 +370,14 @@ const NewLessonPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* ── Content card (fills remaining height, scrolls only if needed) ─── */}
-      <Box sx={{ flex: 1, overflowY: "auto", overflowX: "hidden", display: "flex", flexDirection: "column" }}>
-        <Container maxWidth="md" sx={{ pt: { xs: 1.5, md: 2 }, pb: { xs: 1.5, md: 2 }, flex: 1, display: "flex", flexDirection: "column" }}>
+      {/* ── Content card (fills remaining height; scrolling disabled) ─────── */}
+      <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+        <Container maxWidth="md" sx={{ pt: { xs: 1, md: 1.5 }, pb: { xs: 1, md: 1.5 }, flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
           <Paper
             elevation={0}
             sx={{
               flex: 1,
+              minHeight: 0,
               display: "flex",
               flexDirection: "column",
               borderRadius: { xs: 3, md: 4 },
@@ -349,10 +391,10 @@ const NewLessonPage: React.FC = () => {
             <Box
               sx={{
                 flex: 1,
-                overflowY: "auto",
-                overflowX: "hidden",
-                px: { xs: 1.5, md: 3 },
-                py: { xs: 2, md: 2.5 },
+                minHeight: 0,
+                overflow: "hidden",
+                px: { xs: 1, md: 2 },
+                py: { xs: 1, md: 1.5 },
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -406,7 +448,7 @@ const NewLessonPage: React.FC = () => {
                 boxShadow: "0 4px 14px rgba(180,61,32,0.35)",
               }}
             >
-              {isLast ? "Finish 🎉" : "Next →"}
+              {isLast ? (lesson?.nextSlug ? "Continue →" : "Finish 🎉") : "Next →"}
             </Button>
           </Stack>
         </Container>

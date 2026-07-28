@@ -1,47 +1,37 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
-import { ChoiceCandidate } from "../utils/expandLessonItems";
-import { buildChoiceOptions } from "../utils/buildChoiceOptions";
 import SelfRecordButton from "./SelfRecordButton";
 
-// Grammar-lesson (newlessons) drag-and-drop exercise: shows the term's image
-// as the prompt, and the learner drags the matching romanized-reading tile
-// (from up to 4 options — the correct term plus distinct distractors from
-// checkpointPool) into a single long drop target. Unlike the reading/writing
-// lesson's DragDrop (components/DragDrop.tsx), there is no per-answer slot
-// box, since only one tile is ever expected here.
-type DragPayload = { phrase: string };
+// Grammar-lesson drag-and-drop: build the correct word/phrase by dragging
+// several word-fragment tiles, in order, into ONE shared drop box (not a
+// fixed box per expected piece — the box just grows as tiles are added).
+// Tiles size themselves to their own text (padding-based, no fixed
+// width/height), since fragments vary a lot in length ("ha" vs "arigatou").
+type DragPayload = { source: "bank" | "box"; index: number };
 
-type DragDropPlaceholderProps = {
+type Props = {
   prompt?: string;
   imageUrl?: string;
   audioUrl?: string;
-  correctPhrase: string;
-  checkpointPool?: ChoiceCandidate[];
+  options: string[];
+  correctSequence: string[];
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
 
-const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
-  prompt = "Which word matches this image?",
+const DragDropCombination: React.FC<Props> = ({
+  prompt = "Drag the tiles into the correct order",
   imageUrl,
   audioUrl,
-  correctPhrase,
-  checkpointPool,
+  options,
+  correctSequence,
   onResult,
 }) => {
   const resolvedImageUrl = String(imageUrl || "").trim();
 
-  // Correct tile + up to 3 distinct distractors, computed once per
-  // presentation (lazy initializer — never recomputed on re-render) so the
-  // set and order are fresh every time this exercise is shown.
-  const [choices] = useState<ChoiceCandidate[]>(() =>
-    buildChoiceOptions({ phrase: correctPhrase }, checkpointPool ?? [], 3)
-  );
-
-  const [placedPhrase, setPlacedPhrase] = useState<string | null>(null);
+  const [placedIndices, setPlacedIndices] = useState<number[]>([]);
   const [checked, setChecked] = useState(false);
   const [boxDragOver, setBoxDragOver] = useState(false);
   const [bankDragOver, setBankDragOver] = useState(false);
@@ -51,23 +41,22 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
   const dragPayloadRef = useRef<DragPayload | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    setImageFailed(false);
-  }, [resolvedImageUrl]);
-
+  const placedTiles = placedIndices.map((i) => options[i]);
+  const isComplete = placedIndices.length === correctSequence.length;
   const isCorrect = useMemo(
-    () => placedPhrase !== null && placedPhrase.trim().toLowerCase() === correctPhrase.trim().toLowerCase(),
-    [placedPhrase, correctPhrase]
+    () =>
+      isComplete &&
+      placedTiles.every(
+        (t, i) => t.trim().toLowerCase() === (correctSequence[i] ?? "").trim().toLowerCase()
+      ),
+    [placedTiles, correctSequence, isComplete]
   );
-
-  // Audio is never shown as an upfront hint here — reveal it under the
-  // image only after the learner presses Check and the answer is correct.
   const showAudio = checked && isCorrect && Boolean(audioUrl);
 
-  const bankTiles = choices.filter((c) => c.phrase !== placedPhrase);
+  const bankIndices = options.map((_, i) => i).filter((i) => !placedIndices.includes(i));
 
-  const onDragStartTile = (e: React.DragEvent<HTMLDivElement>, phrase: string) => {
-    const payload: DragPayload = { phrase };
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>, source: "bank" | "box", index: number) => {
+    const payload: DragPayload = { source, index };
     dragPayloadRef.current = payload;
     e.dataTransfer.setData("application/json", JSON.stringify(payload));
     e.dataTransfer.effectAllowed = "move";
@@ -82,45 +71,73 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
     }
   };
 
-  // Dropping any tile onto the box places it, replacing whatever was there
-  // before — only one tile is ever expected, so there's no need to track a
-  // fixed number of slots.
+  // Moves the dragged tile (from the bank, or already in the box) so it ends
+  // up at `targetPos` within the placed sequence — this is what actually
+  // lets you reorder tiles you've already placed, not just append/remove.
+  const moveToPosition = (payload: DragPayload, targetPos: number) => {
+    setChecked(false);
+    setPlacedIndices((prev) => {
+      const next = [...prev];
+      let pos = targetPos;
+      if (payload.source === "box") {
+        const fromPos = next.indexOf(payload.index);
+        if (fromPos === -1) return next;
+        next.splice(fromPos, 1);
+        if (fromPos < pos) pos -= 1;
+      }
+      pos = Math.max(0, Math.min(pos, next.length));
+      next.splice(pos, 0, payload.index);
+      return next;
+    });
+  };
+
   const onDropBox = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setBoxDragOver(false);
     const payload = readPayload(e);
     if (!payload) return;
-    setChecked(false);
-    setPlacedPhrase(payload.phrase);
+    // Dropped on the box's own background (not on a specific tile) — treat
+    // as "put it at the end."
+    moveToPosition(payload, placedIndices.length);
+  };
+
+  // Dropped directly on an already-placed tile — insert the dragged tile
+  // right before this one, reordering as needed.
+  const onDropOnTile = (e: React.DragEvent<HTMLDivElement>, beforeIndexInPlaced: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setBoxDragOver(false);
+    const payload = readPayload(e);
+    if (!payload) return;
+    moveToPosition(payload, beforeIndexInPlaced);
   };
 
   const onDropBank = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setBankDragOver(false);
     const payload = readPayload(e);
-    if (!payload || payload.phrase !== placedPhrase) return;
+    if (!payload || payload.source !== "box") return;
     setChecked(false);
-    setPlacedPhrase(null);
+    setPlacedIndices((prev) => prev.filter((i) => i !== payload.index));
   };
 
-  const removePlaced = () => {
+  const removeTile = (index: number) => {
     setChecked(false);
-    setPlacedPhrase(null);
+    setPlacedIndices((prev) => prev.filter((i) => i !== index));
   };
 
   const handleCheck = () => {
-    if (placedPhrase === null) return;
+    if (!isComplete) return;
     setChecked(true);
     onResult?.({
       result: isCorrect ? "correct" : "incorrect",
-      detail: { placed: placedPhrase, correct: correctPhrase },
+      detail: { placed: placedTiles, correct: correctSequence },
     });
   };
 
   const reset = () => {
-    setPlacedPhrase(null);
+    setPlacedIndices([]);
     setChecked(false);
-    setBoxDragOver(false);
   };
 
   const play = () => {
@@ -154,7 +171,7 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
         </Typography>
       </Box>
 
-      {/* Prompt image — the exercise's primary cue */}
+      {/* Prompt image */}
       <Box
         sx={{
           width: { xs: 148, sm: 180 },
@@ -198,7 +215,8 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
         )}
       </Box>
 
-      {/* Reference audio — under the image after a correct Check */}
+      {/* Reference audio — hidden until the user presses Check and the
+          sequence is correct, as positive reinforcement. */}
       {showAudio && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexDirection: "column" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -229,11 +247,11 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
         </Box>
       )}
 
-      {/* Single long drop target — holds at most one tile; no per-answer
-          slots, since only one correct tile is ever expected. */}
+      {/* Single long drop target — holds the ordered sequence of placed
+          tiles, growing to fit them instead of showing per-piece boxes. */}
       <Box
         role="button"
-        aria-label="Drop the matching word here"
+        aria-label="Drop the tiles here in order"
         onDragOver={(e) => {
           e.preventDefault();
           setBoxDragOver(true);
@@ -244,7 +262,7 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
           width: "100%",
           minHeight: 64,
           borderRadius: "14px",
-          border: `2px ${placedPhrase ? "solid" : "dashed"} ${
+          border: `2px ${placedIndices.length ? "solid" : "dashed"} ${
             boxDragOver
               ? "#60A5FA"
               : checked
@@ -258,45 +276,54 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
               : "#fff",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          flexWrap: "wrap",
+          justifyContent: placedIndices.length ? "flex-start" : "center",
+          gap: 1,
           px: 2,
           py: 1.5,
           transition: "border-color 0.2s, background-color 0.2s",
           boxShadow: boxDragOver ? "0 0 0 4px rgba(96,165,250,0.2)" : "none",
         }}
       >
-        {placedPhrase === null ? (
+        {placedIndices.length === 0 ? (
           <Typography sx={{ color: "text.disabled", fontSize: "0.9rem", userSelect: "none" }}>
-            Drop the matching word here…
+            Drop the words here in order…
           </Typography>
         ) : (
-          <Box
-            draggable
-            onDragStart={(e) => onDragStartTile(e, placedPhrase)}
-            onDoubleClick={removePlaced}
-            title="Drag out, or double-click to remove"
-            sx={{
-              px: 2.5,
-              py: 1,
-              borderRadius: "10px",
-              border: `2px solid ${
-                checked ? (isCorrect ? "#059669" : "#DC2626") : "rgba(0,0,0,0.15)"
-              }`,
-              bgcolor: checked
-                ? (isCorrect ? "rgba(5,150,105,0.06)" : "rgba(220,38,38,0.06)")
-                : "#F9F7F4",
-              fontSize: { xs: "1rem", sm: "1.1rem" },
-              fontWeight: 700,
-              cursor: "grab",
-              userSelect: "none",
-              color: checked ? (isCorrect ? "#065F46" : "#7F1D1D") : "inherit",
-            }}
-          >
-            {placedPhrase}
-          </Box>
+          placedIndices.map((idx, pos) => (
+            <Box
+              key={`placed-${idx}`}
+              draggable
+              onDragStart={(e) => onDragStart(e, "box", idx)}
+              onDoubleClick={() => removeTile(idx)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setBoxDragOver(true);
+              }}
+              onDrop={(e) => onDropOnTile(e, pos)}
+              title="Drag out, drag onto another tile to reorder, or double-click to remove"
+              sx={{
+                px: 2,
+                py: 1,
+                borderRadius: "10px",
+                border: `2px solid ${checked ? (isCorrect ? "#059669" : "#DC2626") : "rgba(0,0,0,0.15)"}`,
+                bgcolor: checked ? (isCorrect ? "rgba(5,150,105,0.06)" : "rgba(220,38,38,0.06)") : "#F9F7F4",
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                cursor: "grab",
+                userSelect: "none",
+                color: checked ? (isCorrect ? "#065F46" : "#7F1D1D") : "inherit",
+              }}
+            >
+              {options[idx]}
+            </Box>
+          ))
         )}
       </Box>
 
+      {/* Bank — remaining, not-yet-placed tiles */}
       <Box
         sx={{
           display: "flex",
@@ -318,11 +345,11 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
         onDragLeave={() => setBankDragOver(false)}
         onDrop={onDropBank}
       >
-        {bankTiles.map((choice) => (
+        {bankIndices.map((idx) => (
           <Box
-            key={choice.phrase}
+            key={`bank-${idx}`}
             draggable
-            onDragStart={(e) => onDragStartTile(e, choice.phrase)}
+            onDragStart={(e) => onDragStart(e, "bank", idx)}
             title="Drag to the box above"
             sx={{
               px: 2.5,
@@ -330,8 +357,9 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
               border: "2px solid rgba(0,0,0,0.1)",
               borderRadius: "12px",
               cursor: "grab",
-              fontSize: { xs: "1rem", sm: "1.1rem" },
+              fontSize: { xs: "0.95rem", sm: "1.05rem" },
               fontWeight: 700,
+              whiteSpace: "nowrap",
               userSelect: "none",
               bgcolor: "#fff",
               display: "flex",
@@ -346,7 +374,7 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
               },
             }}
           >
-            {choice.phrase}
+            {options[idx]}
           </Box>
         ))}
       </Box>
@@ -355,20 +383,20 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
         <Box
           component="button"
           onClick={handleCheck}
-          disabled={placedPhrase === null}
+          disabled={!isComplete}
           sx={{
             px: 3,
             py: 1.25,
             borderRadius: 999,
             border: "none",
-            bgcolor: placedPhrase !== null ? "#B43D20" : "rgba(0,0,0,0.08)",
-            color: placedPhrase !== null ? "#fff" : "rgba(0,0,0,0.35)",
+            bgcolor: isComplete ? "#B43D20" : "rgba(0,0,0,0.08)",
+            color: isComplete ? "#fff" : "rgba(0,0,0,0.35)",
             fontWeight: 700,
             fontSize: "0.9rem",
-            cursor: placedPhrase !== null ? "pointer" : "default",
+            cursor: isComplete ? "pointer" : "default",
             transition: "all 0.2s",
-            boxShadow: placedPhrase !== null ? "0 4px 14px rgba(180,61,32,0.35)" : "none",
-            "&:hover": placedPhrase !== null ? { bgcolor: "#9D351C" } : {},
+            boxShadow: isComplete ? "0 4px 14px rgba(180,61,32,0.35)" : "none",
+            "&:hover": isComplete ? { bgcolor: "#9D351C" } : {},
           }}
         >
           Check
@@ -396,13 +424,7 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
       </Box>
 
       {checked && (
-        <Typography
-          sx={{
-            fontWeight: 700,
-            fontSize: "0.95rem",
-            color: isCorrect ? "#059669" : "#DC2626",
-          }}
-        >
+        <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: isCorrect ? "#059669" : "#DC2626" }}>
           {isCorrect ? "✓ Correct!" : "✗ Not quite — try again."}
         </Typography>
       )}
@@ -410,4 +432,4 @@ const DragDropPlaceholder: React.FC<DragDropPlaceholderProps> = ({
   );
 };
 
-export default DragDropPlaceholder;
+export default DragDropCombination;

@@ -23,6 +23,11 @@ export type LessonExercise =
       characterBank: string[];
       correctAnswer: string;
       prompt?: string;
+      audioUrl?: string;
+      imageUrl?: string;
+      image?: string;
+      /** V2+ bonus batch — hiragana tiles, no Japanese caption hint. */
+      bonus?: boolean;
     };
 
 export type LessonDoc = {
@@ -33,6 +38,8 @@ export type LessonDoc = {
   cardTitle?: string; // editable heading shown on the Lessons list card
 
   flashcards: string[];
+  /** Parallel to flashcards — per-card audio URLs when authored in Mongo. */
+  flashcardsAudio?: string[];
   funFact?: string;
   notes?: string;
 

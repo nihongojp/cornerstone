@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
+import { buildArrangement } from "../utils/dotMatchArrangement";
 
 export type MediaMatchPair = {
   phrase: string;
@@ -36,10 +37,26 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
   const [firstId, setFirstId] = useState<string | null>(null);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [submitted, setSubmitted] = useState(false);
-  const [correctSet] = useState<Set<string>>(
-    new Set(pairs.map((_, i) => `L${i + 1}-R${i + 1}`))
-  );
+  const [correctSet, setCorrectSet] = useState<Set<string>>(new Set());
   const [playing, setPlaying] = useState<number | null>(null);
+
+  // Randomized once per mount so each column's layout is fresh on every
+  // attempt, and the correct answer isn't reliably on the same row.
+  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length));
+
+  const leftPairs = useMemo(() => leftOrder.map((idx) => pairs[idx]), [leftOrder, pairs]);
+  const rightPairs = useMemo(() => rightOrder.map((idx) => pairs[idx]), [rightOrder, pairs]);
+
+  // Row index on the right column holding the correct match for each left row.
+  const correctRightRowForLeftRow = useMemo(
+    () => leftOrder.map((pairId) => rightOrder.indexOf(pairId)),
+    [leftOrder, rightOrder]
+  );
+  // Row index on the left column holding the correct match for each right row.
+  const correctLeftRowForRightRow = useMemo(
+    () => rightOrder.map((pairId) => leftOrder.indexOf(pairId)),
+    [leftOrder, rightOrder]
+  );
 
   const getLineColor = (dot1Id: string, dot2Id: string): string => {
     if (!submitted) return "#B43D20";
@@ -98,12 +115,12 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
     });
   };
 
-  useEffect(() => { drawAllLines(connections); }, [connections, submitted]);
+  useEffect(() => { drawAllLines(connections); }, [connections, submitted, correctSet]);
   useEffect(() => {
     const handler = () => drawAllLines(connections);
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
-  }, [connections, submitted]);
+  }, [connections, submitted, correctSet]);
 
   const isConnected = (id: string) => connections.some((c) => c.dot1Id === id || c.dot2Id === id);
 
@@ -134,25 +151,30 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
 
   const handleCheck = () => {
     const made = new Set(connections.map((c) => `${c.dot1Id}-${c.dot2Id}`));
-    const allCorrect = correctSet.size === made.size && [...correctSet].every((k) => made.has(k));
+    const expected = new Set(
+      correctRightRowForLeftRow.map((rightRow, leftRow) => `L${leftRow + 1}-R${rightRow + 1}`)
+    );
+    const allCorrect = expected.size === made.size && [...expected].every((k) => made.has(k));
+    setCorrectSet(expected);
     setSubmitted(true);
-    onResult?.({ result: allCorrect ? "correct" : "incorrect", detail: { made: [...made] } });
+    onResult?.({ result: allCorrect ? "correct" : "incorrect", detail: { made: [...made], expected: [...expected] } });
   };
 
   const handleReset = () => {
     setConnections([]);
     setFirstId(null);
     setSubmitted(false);
+    setCorrectSet(new Set());
   };
 
   const containerHeight = pairs.length * ROW_HEIGHT;
 
   return (
-    <Box sx={{ textAlign: "center", p: { xs: 1, sm: 2 }, width: "100%", overflowX: "hidden" }}>
-      <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.75, color: "#1C1917" }}>
+    <Box sx={{ textAlign: "center", p: { xs: 0.5, sm: 1 }, width: "100%", overflowX: "hidden" }}>
+      <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.5, color: "#1C1917" }}>
         {instructions || "Match phrase to appropriate situation — connect the dots"}
       </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 1.25 }}>
         {submitted ? "Done! See your results above." : "Click a dot on the left, then one on the right to connect."}
       </Typography>
 
@@ -178,11 +200,12 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
 
         {/* Left column — audio buttons */}
         <Box sx={{ display: "flex", flexDirection: "column", zIndex: 2 }}>
-          {pairs.map((pair, i) => {
+          {leftPairs.map((pair, i) => {
             const id = `L${i + 1}`;
             const active = firstId === id;
             const connected = isConnected(id);
-            const isCorrect = submitted && correctSet.has(`${id}-R${i + 1}`) && connections.some((c) => c.dot1Id === id && c.dot2Id === `R${i + 1}`);
+            const expectedRId = `R${correctRightRowForLeftRow[i] + 1}`;
+            const isCorrect = submitted && connections.some((c) => c.dot1Id === id && c.dot2Id === expectedRId);
             const isWrong = submitted && connected && !isCorrect;
             const hasAudio = !isPlaceholder(pair.audioUrl);
 
@@ -259,12 +282,13 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
 
         {/* Right column — image placeholders */}
         <Box sx={{ display: "flex", flexDirection: "column", zIndex: 2 }}>
-          {pairs.map((pair, i) => {
+          {rightPairs.map((pair, i) => {
             const id = `R${i + 1}`;
             const active = firstId === id;
             const connected = isConnected(id);
             const connectedL = connections.find((c) => c.dot2Id === id)?.dot1Id;
-            const isCorrect = submitted && connectedL === `L${i + 1}`;
+            const expectedL = `L${correctLeftRowForRightRow[i] + 1}`;
+            const isCorrect = submitted && connectedL === expectedL;
             const isWrong = submitted && connected && !isCorrect;
             const hasImage = !isPlaceholder(pair.imageUrl);
 
@@ -331,7 +355,7 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
         </Typography>
       )}
 
-      <Box sx={{ mt: 3, display: "flex", gap: 1.5, justifyContent: "center" }}>
+      <Box sx={{ mt: 1.25, display: "flex", gap: 1.25, justifyContent: "center" }}>
         <Button
           variant="contained"
           disabled={!canCheck || submitted}

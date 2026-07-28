@@ -1,57 +1,28 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
+import { buildArrangement } from "../utils/dotMatchArrangement";
 
-export type DotMatchPair = { hiragana: string; katakana: string };
+export type DotMatchPair = { hiragana: string; katakana: string; audio?: string };
+
+function playAudio(src?: string) {
+  if (!src) return;
+  new Audio(src).play().catch(() => {});
+}
 
 type Connection = { dot1Id: string; dot2Id: string };
 
 type DotMatchProps = {
   pairs: DotMatchPair[];
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
+  // Version 1 keeps the left column in the order the terms were introduced
+  // instead of shuffling it along with the right column.
+  keepLeftOrder?: boolean;
 };
 
 const DOT_SIZE = 14;
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// Shuffles `pool` so that, as much as possible, no item ends up on the same
-// row it occupies in `reference` — this keeps the correct right-column
-// answer from lining up on the same row as its left-column term.
-function derangeRelativeTo(reference: number[], pool: number[]): number[] {
-  if (pool.length <= 1) return shuffle(pool);
-
-  let result = shuffle(pool);
-  for (let attempt = 0; attempt < 20; attempt++) {
-    if (result.every((v, i) => v !== reference[i])) return result;
-    result = shuffle(pool);
-  }
-
-  // Fallback: targeted swaps to remove any remaining same-row matches.
-  for (let i = 0; i < result.length; i++) {
-    if (result[i] !== reference[i]) continue;
-    const j = result.findIndex(
-      (v, idx) => idx !== i && v !== reference[i] && result[i] !== reference[idx]
-    );
-    if (j !== -1) [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
-
-function buildArrangement(pairs: DotMatchPair[]): { leftOrder: number[]; rightOrder: number[] } {
-  const ids = pairs.map((_, i) => i);
-  const leftOrder = shuffle(ids);
-  const rightOrder = derangeRelativeTo(leftOrder, ids);
-  return { leftOrder, rightOrder };
-}
-
-const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
+const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult, keepLeftOrder }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dotRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -61,10 +32,12 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
   const [submitted, setSubmitted] = useState(false);
   const [correctSet, setCorrectSet] = useState<Set<string>>(new Set());
 
-  // Randomized once per mount so the layout is fresh on every attempt.
-  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs));
+  // Randomized once per mount so the layout is fresh on every attempt
+  // (except the left column when keepLeftOrder is set — see buildArrangement).
+  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length, { keepLeftOrder }));
 
   const leftLabels = useMemo(() => leftOrder.map((pairId) => pairs[pairId].hiragana), [leftOrder, pairs]);
+  const leftAudio = useMemo(() => leftOrder.map((pairId) => pairs[pairId].audio), [leftOrder, pairs]);
   const rightLabels = useMemo(() => rightOrder.map((pairId) => pairs[pairId].katakana), [rightOrder, pairs]);
 
   // Row index on the right column holding the correct katakana for each left row.
@@ -198,11 +171,11 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
   const containerHeight = pairs.length * ROW_HEIGHT;
 
   return (
-    <Box sx={{ textAlign: "center", p: { xs: 1, sm: 2 }, width: "100%", overflowX: "hidden" }}>
-      <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.75, color: "#1C1917" }}>
+    <Box sx={{ textAlign: "center", p: { xs: 0.5, sm: 1 }, width: "100%", overflowX: "hidden" }}>
+      <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.5, color: "#1C1917" }}>
         Match each hiragana to its katakana
       </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary", mb: 3 }}>
+      <Typography variant="body2" sx={{ color: "text.secondary", mb: 1.25 }}>
         {submitted ? "Done! See your results above." : "Click a dot on the left, then one on the right to connect."}
       </Typography>
 
@@ -237,24 +210,41 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
             const isCorrect = submitted && connections.some((c) => c.dot1Id === id && c.dot2Id === expectedRId);
             const isWrong = submitted && connected && !isCorrect;
 
+            const audioSrc = leftAudio[i];
+
             return (
               <Box key={i} sx={{ height: ROW_HEIGHT, display: "flex", alignItems: "center", gap: 1.5 }}>
                 <Box
+                  onClick={audioSrc ? () => playAudio(audioSrc) : undefined}
                   sx={{
+                    position: "relative",
                     width: CARD_SIZE,
                     height: CARD_SIZE,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "1.8rem",
+                    fontSize: { xs: "1.5rem", sm: "1.8rem" },
                     fontWeight: 600,
                     borderRadius: "12px",
                     border: `2px solid ${isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.1)"}`,
                     bgcolor: isCorrect ? "rgba(5,150,105,0.05)" : isWrong ? "rgba(220,38,38,0.05)" : "#FAFAFA",
                     transition: "border-color 0.3s, background-color 0.3s",
+                    cursor: audioSrc ? "pointer" : "default",
                   }}
                 >
                   {label}
+                  {audioSrc && (
+                    <VolumeUpRoundedIcon
+                      sx={{
+                        position: "absolute",
+                        top: 2,
+                        right: 2,
+                        fontSize: "0.95rem",
+                        color: "#B43D20",
+                        opacity: 0.75,
+                      }}
+                    />
+                  )}
                 </Box>
                 <Box
                   ref={(el) => { dotRefs.current[id] = el as HTMLDivElement | null; }}
@@ -314,7 +304,7 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "1.8rem",
+                    fontSize: { xs: "1.5rem", sm: "1.8rem" },
                     fontWeight: 600,
                     borderRadius: "12px",
                     border: `2px solid ${isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.1)"}`,
@@ -338,7 +328,7 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult }) => {
       )}
 
       {/* Actions */}
-      <Box sx={{ mt: 3, display: "flex", gap: 1.5, justifyContent: "center" }}>
+      <Box sx={{ mt: 1.25, display: "flex", gap: 1.5, justifyContent: "center" }}>
         <Button
           variant="contained"
           disabled={!canCheck || submitted}
