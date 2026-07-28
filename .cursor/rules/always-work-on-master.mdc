@@ -1,0 +1,11 @@
+---
+description: Always work on master; never use cursor/forgot-password-page
+alwaysApply: true
+---
+
+# Always work on master
+
+- **Always** check out and work on `master` for this repo.
+- **Never** check out `cursor/forgot-password-page` unless the user explicitly asks.
+- If you find yourself on `cursor/forgot-password-page` (or any agent/tool switches you there), switch back to `master` immediately.
+- Prefer merging needed work into `master` over continuing development on that feature branch.
