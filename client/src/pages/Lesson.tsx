@@ -29,9 +29,18 @@ import RInfo from "../components/RewardInfo";
 import { submitAttempt, upsertProgress, getProgress } from "../services/progress";
 import { isAuthed, safe } from "../services/api";
 import { getLesson, LessonDoc } from "../services/lessons";
+import { kanaTilesToRomaji } from "../utils/kana";
 
 type ResultCb = (args: { result: "correct" | "incorrect"; detail?: any }) => void;
-type StepSpec = { key: string; graded: boolean; comp: (on: ResultCb) => React.ReactNode };
+type StepSpec = {
+  key: string;
+  graded: boolean;
+  // Defaults to true. Drag-and-drop sets this to false since its audio
+  // button only appears after a correct check — auto-advancing would skip
+  // past it before the learner gets a chance to click it.
+  autoAdvance?: boolean;
+  comp: (on: ResultCb) => React.ReactNode;
+};
 
 type CardData = { id: number; front: string; back: string; audio?: string };
 
@@ -60,13 +69,15 @@ interface DragDropProps {
   bankItems?: string[];
   answer?: string[];
   caption?: string;
+  answerCaption?: string;
 }
 
-export type DotMatchPair = { hiragana: string; katakana: string };
+export type DotMatchPair = { hiragana: string; katakana: string; audio?: string };
 
 interface DotMatchProps {
   onResult?: ResultCb;
   pairs: DotMatchPair[];
+  keepLeftOrder?: boolean;
 }
 
 interface FactProps {
@@ -97,9 +108,30 @@ function splitPair(s: string): DotMatchPair {
   return { hiragana: hiragana ?? s, katakana: katakana ?? "" };
 }
 
-function normalizeChoiceLabel(s: string): string {
-  const [a] = String(s).split("/");
-  return a ?? s;
+// Maps each flashcard's hiragana face to its per-character audio, so the
+// same clip used on the flashcard can also play from Connect the Dots.
+function buildCharAudioMap(lesson: any): Record<string, string> {
+  const flashcards: string[] = lesson?.flashcards || [];
+  const audio: string[] = lesson?.flashcardsAudio || [];
+  const map: Record<string, string> = {};
+
+  flashcards.forEach((raw, idx) => {
+    const hiragana = String(raw).split("/")[0]?.trim();
+    if (hiragana && audio[idx]) map[hiragana] = audio[idx];
+  });
+
+  return map;
+}
+
+// Fisher-Yates — used to randomize the order same-type exercises are
+// presented in, without touching where that group sits relative to others.
+function shuffle<T>(arr: T[]): T[] {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 function resolveLessonIdentifier(lesson: LessonDoc): string {
@@ -230,6 +262,13 @@ const Lesson: React.FC = () => {
 
     const out: StepSpec[] = [];
     const flashcards: string[] = (lesson as any).flashcards || [];
+    const flashcardsAudio: string[] = (lesson as any).flashcardsAudio || [];
+    const charAudio = buildCharAudioMap(lesson);
+    // Version 1 differs from version 2+ in a couple of ways: the under-image
+    // answer caption on drag-and-drop is version-2+ only (v1 relies on its
+    // audio hint instead), and Connect the Dots keeps its left column in
+    // authored order instead of shuffling it too.
+    const isV1 = String((lesson as any).version || "").trim().toUpperCase() === "V1";
 
     if (flashcards.length) {
       out.push({
@@ -240,6 +279,7 @@ const Lesson: React.FC = () => {
             id: idx,
             front: raw,
             back: "",
+            audio: flashcardsAudio[idx],
           }));
 
           return <FlipsC onResult={on} prompt="Flip each card to review." cards={cardData} />;
@@ -247,27 +287,61 @@ const Lesson: React.FC = () => {
       });
     }
 
+    // Fun fact sits right after the flashcards and before any exercises
+    // (e.g. Connect the Dots), rather than at the end of the lesson.
+    if ((lesson as any).funFact) {
+      out.push({
+        key: "fact",
+        graded: false,
+        comp: () => <FactC title="Fun Fact" description={String((lesson as any).funFact || "")} />,
+      });
+    }
+
     const exercises: any[] = (lesson as any).exercises || [];
+
+    // Randomize the order the audio-match exercises are presented in on each
+    // load, without disturbing where that group sits relative to the other
+    // exercise types.
+    const shuffledAudioMatches = shuffle(exercises.filter((ex) => ex?.type === "matchAudioLetter"));
+    let audioMatchCursor = 0;
+
+    // Drag-and-drop has two independent batches — the main set and a bonus
+    // repeat of the same terms — each shuffled on its own so neither batch
+    // always presents its terms in the same order.
+    const shuffledMainDrag = shuffle(
+      exercises.filter((ex) => ex?.type === "vocabulary_drag_drop" && !ex?.bonus)
+    );
+    const shuffledBonusDrag = shuffle(
+      exercises.filter((ex) => ex?.type === "vocabulary_drag_drop" && ex?.bonus)
+    );
+    let mainDragCursor = 0;
+    let bonusDragCursor = 0;
 
     exercises.forEach((ex, i) => {
       const exType = String(ex?.type || "");
-      const key = stepKeyFromExercise(ex, i);
 
       if (exType === "connectTheDots") {
+        const key = stepKeyFromExercise(ex, i);
+        const pairs: DotMatchPair[] = (ex.items || []).map((s: string) => {
+          const pair = splitPair(s);
+          return { ...pair, audio: charAudio[pair.hiragana] };
+        });
         out.push({
           key,
           graded: true,
-          comp: (on) => <DotsC onResult={on} pairs={(ex.items || []).map(splitPair)} />,
+          comp: (on) => <DotsC onResult={on} pairs={pairs} keepLeftOrder={isV1} />,
         });
         return;
       }
 
       if (exType === "matchAudioLetter") {
-        // Dedupe so the same answer never appears twice among the choices —
-        // source data (ex.items) isn't guaranteed unique.
-        const rawOptions: string[] = (ex.items || []).map(normalizeChoiceLabel);
-        const options = Array.from(new Set(rawOptions));
-        const correctAnswer = normalizeChoiceLabel((ex.correctAnswers || [])[0] || options[0] || "");
+        const shuffledEx = shuffledAudioMatches[audioMatchCursor++];
+        const key = stepKeyFromExercise(shuffledEx, i);
+
+        // Keep the full "hiragana/katakana" pair on each choice (instead of
+        // normalizing down to hiragana only) so both scripts are visible.
+        const options = Array.from(new Set((shuffledEx.items || []) as string[]));
+        const correctAnswer = (shuffledEx.correctAnswers || [])[0] || options[0] || "";
 
         out.push({
           key,
@@ -277,8 +351,8 @@ const Lesson: React.FC = () => {
               onResult={on}
               options={options}
               correctAnswer={correctAnswer}
-              audioUrl={ex.audioUrl}
-              prompt={ex.prompt || "Listen and choose the right character"}
+              audioUrl={shuffledEx.audioUrl}
+              prompt={shuffledEx.prompt || "Listen and choose the right character"}
             />
           ),
         });
@@ -286,17 +360,37 @@ const Lesson: React.FC = () => {
       }
 
       if (exType === "vocabulary_drag_drop") {
+        const isBonus = !!ex.bonus;
+        const shuffledEx = isBonus
+          ? shuffledBonusDrag[bonusDragCursor++]
+          : shuffledMainDrag[mainDragCursor++];
+        const key = stepKeyFromExercise(shuffledEx, i);
+        const rawBank: string[] = shuffledEx.characterBank || [];
+        const rawAnswer: string[] = String(shuffledEx.correctAnswer || "").split("");
+
+        // Version 2+'s main set already shows the correct Japanese word as a
+        // caption hint, so it drags English letters (the romaji reading)
+        // instead of hiragana tiles. The bonus set has no caption hint and
+        // keeps building the hiragana spelling from scratch.
+        const useRomajiTiles = !isV1 && !isBonus;
+
         out.push({
           key,
           graded: true,
+          autoAdvance: false,
           comp: (on) => (
             <DragC
               onResult={on}
-              prompt={ex.prompt || "Build the correct word"}
-              characterBank={ex.characterBank || []}
-              correctAnswer={ex.correctAnswer}
-              audioUrl={ex.audioUrl}
-              imageUrl={resolveExerciseImage(ex)}
+              prompt={
+                shuffledEx.prompt ||
+                (isBonus ? "Bonus: build the correct word without hints" : "Build the correct word")
+              }
+              characterBank={useRomajiTiles ? kanaTilesToRomaji(rawBank) : rawBank}
+              correctAnswer={useRomajiTiles ? undefined : shuffledEx.correctAnswer}
+              answer={useRomajiTiles ? kanaTilesToRomaji(rawAnswer) : undefined}
+              audioUrl={shuffledEx.audioUrl}
+              imageUrl={resolveExerciseImage(shuffledEx)}
+              answerCaption={!isBonus && !isV1 ? shuffledEx.correctAnswer : undefined}
             />
           ),
         });
@@ -305,14 +399,6 @@ const Lesson: React.FC = () => {
 
       console.warn("[Lesson] unknown exercise type:", exType, ex);
     });
-
-    if ((lesson as any).funFact) {
-      out.push({
-        key: "fact",
-        graded: false,
-        comp: () => <FactC title="Fun Fact" description={String((lesson as any).funFact || "")} />,
-      });
-    }
 
     if ((lesson as any).achievement?.title || (lesson as any).achievement?.xp !== undefined) {
       out.push({
@@ -362,7 +448,11 @@ const Lesson: React.FC = () => {
     return () => { cancelled = true; };
   }, [lesson, lessonKey, steps]);
 
-  function advance({
+  // Records an attempt's outcome (counts + server sync) at most once per
+  // step, returning the accuracy that resulted from it. Separated from
+  // navigation so a correct drag-and-drop answer can be recorded right away
+  // while still waiting on the learner to click "Next" before moving on.
+  function recordAttempt({
     result,
     detail,
     createAttempt,
@@ -372,12 +462,11 @@ const Lesson: React.FC = () => {
     detail?: any;
     createAttempt: boolean;
     stepKey: string;
-  }) {
-    if (answeredStepRef.current[stepKey]) return;
+  }): number {
+    if (answeredStepRef.current[stepKey]) return accuracy;
 
     answeredStepRef.current[stepKey] = true;
 
-    const isLastStep = step >= steps.length - 1;
     const nextAttemptCount = attemptCount + (createAttempt ? 1 : 0);
     const nextCorrectCount = createAttempt && result === "correct" ? correctCount + 1 : correctCount;
     const nextAccuracy = nextAttemptCount ? Math.round((100 * nextCorrectCount) / nextAttemptCount) : accuracy;
@@ -388,6 +477,12 @@ const Lesson: React.FC = () => {
     if (lesson && isAuthed() && createAttempt && lessonKey) {
       void submitAttempt({ lessonId: lessonKey, stepIndex: step, result, detail });
     }
+
+    return nextAccuracy;
+  }
+
+  function goToNextStep(nextAccuracy: number) {
+    const isLastStep = step >= steps.length - 1;
 
     if (!isLastStep) {
       const nextStep = step + 1;
@@ -415,13 +510,28 @@ const Lesson: React.FC = () => {
     }
   }
 
+  function advance(args: {
+    result: "correct" | "incorrect";
+    detail?: any;
+    createAttempt: boolean;
+    stepKey: string;
+  }) {
+    goToNextStep(recordAttempt(args));
+  }
+
   const handleResult = (args: { result: "correct" | "incorrect"; detail?: any }) => {
     const k = steps[step]?.key || String(step);
 
     if (args.result === "correct") {
-      setTimeout(() => {
-        advance({ ...args, createAttempt: true, stepKey: k });
-      }, 900);
+      const autoAdvance = steps[step]?.autoAdvance ?? true;
+
+      if (autoAdvance) {
+        setTimeout(() => {
+          advance({ ...args, createAttempt: true, stepKey: k });
+        }, 900);
+      } else {
+        recordAttempt({ ...args, createAttempt: true, stepKey: k });
+      }
     } else {
       setTimeout(() => {
         setAttemptCount((c) => c + 1);

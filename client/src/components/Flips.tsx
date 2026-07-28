@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Grid, IconButton, Typography, useMediaQuery, useTheme } from "@mui/material";
-import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 
 type CardData = { id: number; front: string; back?: string; audio?: string };
 
@@ -170,8 +170,20 @@ const Flips: React.FC<FlipsProps> = ({
                 </Box>
 
                 {card.audio && (
-                  <IconButton size="small" onClick={() => playAudio(card.audio)} sx={{ color: "#B43D20" }}>
-                    <VolumeUpIcon fontSize="small" />
+                  <IconButton
+                    size="small"
+                    onClick={() => playAudio(card.audio)}
+                    aria-label="Play audio"
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      color: "#fff",
+                      bgcolor: "#B43D20",
+                      boxShadow: "0 2px 10px rgba(180,61,32,0.3)",
+                      "&:hover": { bgcolor: "#9D351C" },
+                    }}
+                  >
+                    <VolumeUpRoundedIcon fontSize="small" />
                   </IconButton>
                 )}
               </Box>

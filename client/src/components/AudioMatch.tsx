@@ -53,11 +53,11 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
     });
   };
 
+  // Only the choice the learner actually clicked changes color — never
+  // reveal which one was correct until they've picked it themselves.
   const getButtonState = (label: string) => {
-    if (!selected) return "idle";
-    if (label === correctAnswer) return "correct";
-    if (label === selected) return "wrong";
-    return "idle";
+    if (!selected || label !== selected) return "idle";
+    return label === correctAnswer ? "correct" : "wrong";
   };
 
   return (
@@ -154,10 +154,10 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
               onClick={() => choose(c)}
               disabled={!!selected && state === "idle"}
               sx={{
-                minWidth: { xs: 72, sm: 88 },
-                height: { xs: 72, sm: 88 },
-                fontSize: { xs: "1.6rem", sm: "2rem" },
-                fontWeight: 700,
+                minWidth: { xs: 100, sm: 130 },
+                height: { xs: 76, sm: 92 },
+                fontSize: { xs: "1.5rem", sm: "1.8rem" },
+                fontWeight: 600,
                 borderRadius: "16px",
                 border: `2px solid ${state === "correct" ? "#059669" : state === "wrong" ? "#DC2626" : "rgba(0,0,0,0.12)"}`,
                 bgcolor:
@@ -182,7 +182,7 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
                 },
               }}
             >
-              {c}
+              {c.replace("/", " / ")}
             </Button>
           );
         })}
@@ -198,7 +198,7 @@ const AudioMatch: React.FC<AudioMatchProps> = ({
             color: selected === correctAnswer ? "#059669" : "#DC2626",
           }}
         >
-          {selected === correctAnswer ? "✓ Correct!" : `✗ It was ${correctAnswer}`}
+          {selected === correctAnswer ? "✓ Correct!" : "✗ Not quite — try again."}
         </Typography>
       )}
     </Box>

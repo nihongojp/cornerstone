@@ -23,6 +23,9 @@ type DragDropProps = {
   bankItems?: string[];
   answer?: string[];
   caption?: string;
+  // Shown directly under the image — e.g. the target word in Japanese —
+  // used in place of an audio hint when no audioUrl is provided.
+  answerCaption?: string;
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
 
@@ -40,6 +43,7 @@ const DragDrop: React.FC<DragDropProps> = ({
   image,
   bankItems,
   answer,
+  answerCaption,
 }) => {
   const bank = characterBank ?? bankItems ?? defaultBank;
   const resolvedImageUrl = String(imageUrl || image || "").trim();
@@ -211,7 +215,7 @@ const DragDrop: React.FC<DragDropProps> = ({
         ) : null}
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap", justifyContent: "center" }}>
+      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
         <Box
           sx={{
             width: { xs: 116, sm: 150 },
@@ -260,7 +264,15 @@ const DragDrop: React.FC<DragDropProps> = ({
           )}
         </Box>
 
-        {audioUrl ? (
+        {answerCaption && (
+          <Typography sx={{ fontWeight: 800, fontSize: { xs: "1.3rem", sm: "1.6rem" }, color: "#1C1917" }}>
+            {answerCaption}
+          </Typography>
+        )}
+
+        {/* The pronunciation audio is a reward for getting the answer right,
+            not a hint — so it only appears once the check passes. */}
+        {checked && isCorrect && audioUrl ? (
           <>
             <audio ref={audioRef} src={audioUrl} preload="auto" />
 
@@ -282,11 +294,11 @@ const DragDrop: React.FC<DragDropProps> = ({
               {playing ? <GraphicEqRoundedIcon /> : <VolumeUpRoundedIcon />}
             </IconButton>
           </>
-        ) : (
+        ) : checked && isCorrect && !answerCaption ? (
           <Typography variant="caption" sx={{ color: "text.secondary" }}>
             No audio
           </Typography>
-        )}
+        ) : null}
       </Box>
 
       <Box
@@ -349,6 +361,7 @@ const DragDrop: React.FC<DragDropProps> = ({
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: { xs: "1.5rem", sm: "1.8rem" },
+                fontWeight: 600,
                 cursor: char ? "grab" : "default",
                 userSelect: "none",
                 transition: "border-color 0.2s, background-color 0.2s",
@@ -395,6 +408,7 @@ const DragDrop: React.FC<DragDropProps> = ({
               borderRadius: "12px",
               cursor: "grab",
               fontSize: { xs: "1.5rem", sm: "1.8rem" },
+              fontWeight: 600,
               userSelect: "none",
               bgcolor: "#fff",
               display: "flex",

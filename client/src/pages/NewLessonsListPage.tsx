@@ -31,6 +31,14 @@ function pushVersion(map: Map<number, Version[]>, lesson: number, v: Version) {
   map.set(lesson, arr);
 }
 
+// Reading & Writing cards title themselves after the hiragana/katakana pairs
+// they cover (e.g. "あ/ア、い/イ、う/ウ"), matching the format Lesson 1 was
+// given manually. Deriving it from the flashcards means every lesson gets
+// the same treatment without needing a cardTitle typed into MongoDB.
+function deriveReadingCardTitle(flashcards?: string[]): string | undefined {
+  return flashcards && flashcards.length ? flashcards.join("、") : undefined;
+}
+
 const cardBase = {
   p: 2,
   borderRadius: "16px",
@@ -72,9 +80,11 @@ const Placeholder: React.FC = () => (
   </Box>
 );
 
-// A single version rendered as a card: the big editable title up top (from
-// MongoDB's cardTitle field, with a placeholder until one is set), and the
-// auto-numbered "Lesson N.M" shown as the caption underneath.
+// A single version rendered as a card: the big title up top (MongoDB's
+// cardTitle field when set — e.g. Grammar lessons — otherwise derived
+// automatically for Reading & Writing, with a placeholder only if neither
+// is available), and the auto-numbered "Lesson N.M" shown as the caption
+// underneath.
 const VersionCard: React.FC<{ v: Version; variant: "primary" | "outlined" }> = ({ v, variant }) => {
   const sx = variant === "primary" ? primaryCard : outlinedCard;
   const captionColor = variant === "primary" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.35)";
@@ -159,7 +169,14 @@ const NewLessonsListPage: React.FC = () => {
       const readingMap = new Map<number, Version[]>();
       for (const l of prefLessons) {
         const p = parseSlug(l.slug);
-        if (p) pushVersion(readingMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/lesson/${l.slug}`, cardTitle: l.cardTitle });
+        if (p) {
+          pushVersion(readingMap, p.lesson, {
+            lesson: p.lesson,
+            version: p.version,
+            to: `/lesson/${l.slug}`,
+            cardTitle: l.cardTitle || deriveReadingCardTitle(l.flashcards),
+          });
+        }
       }
 
       setGrammar(grammarMap);

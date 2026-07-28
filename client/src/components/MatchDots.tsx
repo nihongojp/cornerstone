@@ -1,8 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import { buildArrangement } from "../utils/dotMatchArrangement";
 
-export type DotMatchPair = { hiragana: string; katakana: string };
+export type DotMatchPair = { hiragana: string; katakana: string; audio?: string };
+
+function playAudio(src?: string) {
+  if (!src) return;
+  new Audio(src).play().catch(() => {});
+}
 
 type Connection = { dot1Id: string; dot2Id: string };
 
@@ -31,6 +37,7 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult, keepLeftOrder }) =
   const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length, { keepLeftOrder }));
 
   const leftLabels = useMemo(() => leftOrder.map((pairId) => pairs[pairId].hiragana), [leftOrder, pairs]);
+  const leftAudio = useMemo(() => leftOrder.map((pairId) => pairs[pairId].audio), [leftOrder, pairs]);
   const rightLabels = useMemo(() => rightOrder.map((pairId) => pairs[pairId].katakana), [rightOrder, pairs]);
 
   // Row index on the right column holding the correct katakana for each left row.
@@ -203,24 +210,41 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult, keepLeftOrder }) =
             const isCorrect = submitted && connections.some((c) => c.dot1Id === id && c.dot2Id === expectedRId);
             const isWrong = submitted && connected && !isCorrect;
 
+            const audioSrc = leftAudio[i];
+
             return (
               <Box key={i} sx={{ height: ROW_HEIGHT, display: "flex", alignItems: "center", gap: 1.5 }}>
                 <Box
+                  onClick={audioSrc ? () => playAudio(audioSrc) : undefined}
                   sx={{
+                    position: "relative",
                     width: CARD_SIZE,
                     height: CARD_SIZE,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "1.8rem",
+                    fontSize: { xs: "1.5rem", sm: "1.8rem" },
                     fontWeight: 600,
                     borderRadius: "12px",
                     border: `2px solid ${isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.1)"}`,
                     bgcolor: isCorrect ? "rgba(5,150,105,0.05)" : isWrong ? "rgba(220,38,38,0.05)" : "#FAFAFA",
                     transition: "border-color 0.3s, background-color 0.3s",
+                    cursor: audioSrc ? "pointer" : "default",
                   }}
                 >
                   {label}
+                  {audioSrc && (
+                    <VolumeUpRoundedIcon
+                      sx={{
+                        position: "absolute",
+                        top: 2,
+                        right: 2,
+                        fontSize: "0.85rem",
+                        color: "#B43D20",
+                        opacity: 0.65,
+                      }}
+                    />
+                  )}
                 </Box>
                 <Box
                   ref={(el) => { dotRefs.current[id] = el as HTMLDivElement | null; }}
@@ -280,7 +304,7 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult, keepLeftOrder }) =
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "1.8rem",
+                    fontSize: { xs: "1.5rem", sm: "1.8rem" },
                     fontWeight: 600,
                     borderRadius: "12px",
                     border: `2px solid ${isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.1)"}`,
