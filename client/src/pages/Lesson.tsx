@@ -890,7 +890,7 @@ const Lesson: React.FC = () => {
             >
               {steps[step] && (
                 <Box
-                  key={`step-${step}-${attemptCount}`}
+                  key={`step-${step}`}
                   sx={{ width: "100%", height: "100%", overflow: "hidden", display: "flex", alignItems: "center" }}
                 >
                   {steps[step].comp(handleResult)}
