@@ -4,6 +4,15 @@ import { Schema, model } from "mongoose";
 // (pronunciationExercise, matchingExercise, matchAudioExercise, etc.) not yet in the
 // lessons enum. strict:false lets MongoDB documents pass through without validation
 // rejection while we stabilise the shape.
+//
+// pronunciationExercise item fields (edit in Compass; all optional except type/phrase):
+//   type: "pronunciationExercise"
+//   phrase: string            — term key + default transcript fallback
+//   transcript?: string       — longer text shown under the video (falls back to phrase)
+//   videoUrl?: string         — practice video (UI only; not used as reference audio)
+//   audioUrl?: string         — dedicated reference audio clip (NOT derived from video)
+// Hand-authored items keyed by `phrase` are reused at expand time so these
+// fields survive checkpoint regeneration.
 const NewLessonItemSchema = new Schema({}, { strict: false, _id: false });
 
 const NewLessonSchema = new Schema(

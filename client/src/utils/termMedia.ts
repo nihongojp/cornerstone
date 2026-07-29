@@ -110,7 +110,17 @@ function extractEntries(item: NewLessonItem): Array<{ term: string; media: TermM
   }
 
   if ((type === "matchAudioExercise" || type === "pronunciationExercise") && any.phrase) {
-    entries.push({ term: String(any.phrase), media: { audioUrl: any.audioUrl }, source: "exercise" });
+    entries.push({
+      term: String(any.phrase),
+      media: {
+        audioUrl: any.audioUrl,
+        // pronunciationExercise may also carry a dedicated practice video
+        ...(type === "pronunciationExercise"
+          ? { videoUrl: any.videoUrl ?? any.videoURL ?? any.video }
+          : {}),
+      },
+      source: "exercise",
+    });
   }
 
   if (type === "dragAndDropExercise") {
@@ -244,9 +254,20 @@ export function enrichItemWithTermMedia(item: NewLessonItem, registry: TermMedia
 
   if ((type === "matchAudioExercise" || type === "pronunciationExercise") && any.phrase) {
     const r = resolveTermMedia(registry, any.phrase);
+    // audioUrl is the dedicated reference clip for pronunciation — never
+    // derived from a video track. Registry fill is an interim fallback only.
     const next: any = { ...any, audioUrl: pickReal(any.audioUrl) ?? r?.audioUrl ?? any.audioUrl };
     if (type === "matchAudioExercise") {
       next.imageUrl = pickReal(any.imageUrl) ?? r?.imageUrl ?? any.imageUrl;
+    }
+    if (type === "pronunciationExercise") {
+      const existingVideo = pickReal(any.videoUrl) ?? pickReal(any.videoURL) ?? pickReal(any.video);
+      next.videoUrl = existingVideo ?? r?.videoUrl ?? any.videoUrl;
+      // Preserve an explicit Compass `transcript` when present; UI falls
+      // back to `phrase` when this is absent.
+      if (typeof any.transcript === "string" && any.transcript.trim()) {
+        next.transcript = any.transcript;
+      }
     }
     return next;
   }

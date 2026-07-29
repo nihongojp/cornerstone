@@ -7,11 +7,28 @@ import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 
+/**
+ * Grammar / vocab pronunciation practice item.
+ *
+ * MongoDB Compass fields (on a `pronunciationExercise` item):
+ * - `phrase`      — term / short label (always used as fallback transcript)
+ * - `transcript`  — optional longer transcript text shown under the video
+ * - `videoUrl`    — optional practice video (separate from reference audio)
+ * - `audioUrl`    — dedicated reference audio clip (NOT the video's audio track)
+ *
+ * Hand-authored items keyed by `phrase` are reused at expand time (like
+ * dragAndDrop), so Compass edits survive checkpoint regeneration.
+ */
 export type PronunciationExerciseData = {
   type: "pronunciationExercise";
   number: number;
   phrase: string;
-  audioUrl: string;
+  /** Dedicated reference audio — do not derive from video. */
+  audioUrl?: string;
+  /** Optional practice video shown above the transcript. */
+  videoUrl?: string;
+  /** Optional transcript; falls back to `phrase` when omitted. */
+  transcript?: string;
 };
 
 type RecordingState = "idle" | "recording" | "recorded" | "playing";
@@ -23,7 +40,7 @@ interface Props {
 
 const BRAND = "#B43D20";
 
-function isPlaceholderUrl(url: string): boolean {
+function isPlaceholderUrl(url?: string): boolean {
   return !url || url.toUpperCase().includes("PLACEHOLDER");
 }
 
@@ -42,7 +59,8 @@ function getSupportedMimeType(): string {
 }
 
 const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete }) => {
-  const { number, phrase, audioUrl } = exercise;
+  const { number, phrase, audioUrl, videoUrl, transcript } = exercise;
+  const displayTranscript = (transcript?.trim() || phrase || "").trim();
 
   const [recordState, setRecordState] = useState<RecordingState>("idle");
   const [micError, setMicError] = useState<string | null>(null);
@@ -56,8 +74,11 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
   const recordingBlobRef = useRef<Blob | null>(null);
   const playbackUrlRef = useRef<string | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  // When true, reference `onended` should continue into the user recording.
+  const chainToRecordingRef = useRef(false);
 
   const hasRef = !isPlaceholderUrl(audioUrl);
+  const hasVideo = !isPlaceholderUrl(videoUrl);
 
   // Clean up object URLs on unmount
   useEffect(() => {
@@ -67,9 +88,27 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
     };
   }, []);
 
-  // ── Reference audio ────────────────────────────────────────────────────────
+  const playUserRecording = useCallback(() => {
+    if (!playbackUrlRef.current || !playbackAudioRef.current) {
+      setRecordState("recorded");
+      return;
+    }
+    const a = playbackAudioRef.current;
+    a.src = playbackUrlRef.current;
+    a.currentTime = 0;
+    setRecordState("playing");
+    a.play().catch(() => setRecordState("recorded"));
+  }, []);
+
+  // ── Reference audio only ───────────────────────────────────────────────────
   const playReference = useCallback(() => {
     if (!hasRef || !refAudioRef.current) return;
+    chainToRecordingRef.current = false;
+    // Don't let a chained compare continue if the user taps reference alone.
+    if (playbackAudioRef.current) {
+      playbackAudioRef.current.pause();
+      playbackAudioRef.current.currentTime = 0;
+    }
     const a = refAudioRef.current;
     a.currentTime = 0;
     setRefPlaying(true);
@@ -82,6 +121,10 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
   // ── Start recording ────────────────────────────────────────────────────────
   const startRecording = useCallback(async () => {
     setMicError(null);
+    chainToRecordingRef.current = false;
+    refAudioRef.current?.pause();
+    setRefPlaying(false);
+
     let stream: MediaStream;
 
     try {
@@ -122,18 +165,42 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
     recorderRef.current?.stop();
   }, []);
 
-  // ── Play back recording ────────────────────────────────────────────────────
-  const playRecording = useCallback(() => {
-    if (!playbackUrlRef.current || !playbackAudioRef.current) return;
-    const a = playbackAudioRef.current;
-    a.src = playbackUrlRef.current;
-    a.currentTime = 0;
-    setRecordState("playing");
-    a.play().catch(() => setRecordState("recorded"));
-  }, []);
+  // ── Compare: reference audio, then user recording seamlessly ───────────────
+  const playCompare = useCallback(() => {
+    if (!playbackUrlRef.current) return;
+
+    // Stop any in-flight playback first.
+    if (playbackAudioRef.current) {
+      playbackAudioRef.current.pause();
+      playbackAudioRef.current.currentTime = 0;
+    }
+
+    if (hasRef && refAudioRef.current && !audioUnavailable) {
+      chainToRecordingRef.current = true;
+      const a = refAudioRef.current;
+      a.currentTime = 0;
+      setRefPlaying(true);
+      setRecordState("playing");
+      a.play().catch(() => {
+        // Reference failed — still play the user recording.
+        chainToRecordingRef.current = false;
+        setRefPlaying(false);
+        setAudioUnavailable(true);
+        playUserRecording();
+      });
+      return;
+    }
+
+    // No reference audio — play the recording alone.
+    chainToRecordingRef.current = false;
+    playUserRecording();
+  }, [hasRef, audioUnavailable, playUserRecording]);
 
   // ── Rerecord ───────────────────────────────────────────────────────────────
   const rerecord = useCallback(() => {
+    chainToRecordingRef.current = false;
+    refAudioRef.current?.pause();
+    setRefPlaying(false);
     if (playbackAudioRef.current) {
       playbackAudioRef.current.pause();
       playbackAudioRef.current.src = "";
@@ -150,7 +217,16 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
 
   // ── Playback ended ─────────────────────────────────────────────────────────
   const handlePlaybackEnded = useCallback(() => setRecordState("recorded"), []);
-  const handleRefEnded = useCallback(() => setRefPlaying(false), []);
+
+  const handleRefEnded = useCallback(() => {
+    setRefPlaying(false);
+    if (chainToRecordingRef.current) {
+      chainToRecordingRef.current = false;
+      // Start user recording immediately — no intentional gap beyond the
+      // browser's natural audio handoff.
+      playUserRecording();
+    }
+  }, [playUserRecording]);
 
   return (
     <Box
@@ -172,21 +248,61 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
         sx={{ fontWeight: 700, fontSize: "0.72rem", bgcolor: "rgba(180,61,32,0.08)", color: BRAND }}
       />
 
-      {/* Phrase display */}
-      <Box textAlign="center">
+      {/* Video (when present) */}
+      {hasVideo && (
+        <Box
+          sx={{
+            width: "100%",
+            aspectRatio: "16/9",
+            borderRadius: "16px",
+            overflow: "hidden",
+            bgcolor: "#000",
+          }}
+        >
+          <video
+            src={videoUrl}
+            controls
+            playsInline
+            preload="metadata"
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
+        </Box>
+      )}
+
+      {/* Transcript */}
+      <Box textAlign="center" sx={{ width: "100%" }}>
+        <Typography
+          sx={{
+            fontWeight: 800,
+            fontSize: displayTranscript.length > 80 ? "1rem" : "1.25rem",
+            color: "#1C1917",
+            lineHeight: 1.45,
+            letterSpacing: "-0.01em",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {displayTranscript}
+        </Typography>
         <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.75 }}>
           Listen, then record your pronunciation
         </Typography>
       </Box>
 
-      {/* Hidden audio elements */}
+      {/* Hidden audio elements — reference is a dedicated clip, never the video track */}
       {hasRef && (
         <audio
           ref={refAudioRef}
           src={audioUrl}
           preload="auto"
           onEnded={handleRefEnded}
-          onError={() => { setAudioUnavailable(true); setRefPlaying(false); }}
+          onError={() => {
+            setAudioUnavailable(true);
+            setRefPlaying(false);
+            if (chainToRecordingRef.current) {
+              chainToRecordingRef.current = false;
+              playUserRecording();
+            }
+          }}
         />
       )}
       <audio ref={playbackAudioRef} onEnded={handlePlaybackEnded} />
@@ -195,7 +311,7 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
       <Box
         component="button"
         aria-label="Play reference audio"
-        disabled={!hasRef || audioUnavailable || refPlaying}
+        disabled={!hasRef || audioUnavailable || refPlaying || recordState === "playing"}
         onClick={playReference}
         sx={{
           display: "flex",
@@ -207,7 +323,7 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
           borderRadius: "14px",
           border: `2px solid ${(!hasRef || audioUnavailable) ? "rgba(0,0,0,0.12)" : refPlaying ? BRAND : "rgba(180,61,32,0.3)"}`,
           bgcolor: refPlaying ? "rgba(180,61,32,0.08)" : "rgba(180,61,32,0.04)",
-          cursor: (!hasRef || audioUnavailable || refPlaying) ? "default" : "pointer",
+          cursor: (!hasRef || audioUnavailable || refPlaying || recordState === "playing") ? "default" : "pointer",
           transition: "all 0.2s",
           background: "none",
           "&:hover:not(:disabled)": { bgcolor: "rgba(180,61,32,0.1)", borderColor: BRAND },
@@ -231,9 +347,12 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
             : <VolumeUpRoundedIcon sx={{ color: "#fff", fontSize: "1.3rem" }} />}
         </Box>
 
-        {/* Phrase label — small, below audio button */}
         <Typography sx={{ fontWeight: 700, fontSize: "0.78rem", color: (!hasRef || audioUnavailable) ? "text.disabled" : BRAND }}>
-          {(!hasRef || audioUnavailable) ? "Audio not yet available" : refPlaying ? "Playing…" : phrase}
+          {(!hasRef || audioUnavailable)
+            ? "No reference audio"
+            : refPlaying
+              ? "Playing…"
+              : "Play reference"}
         </Typography>
       </Box>
 
@@ -283,14 +402,14 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
           </Button>
         )}
 
-        {/* Playback */}
+        {/* Playback: reference first, then user recording */}
         {(recordState === "recorded" || recordState === "playing") && (
           <Button
             variant="contained"
-            aria-label="Play your recording"
+            aria-label="Play reference then your recording"
             startIcon={<PlayArrowRoundedIcon />}
             disabled={recordState === "playing"}
-            onClick={playRecording}
+            onClick={playCompare}
             sx={{
               borderRadius: 999,
               fontWeight: 700,
@@ -299,7 +418,11 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
               "&:hover": { bgcolor: "#9D351C" },
             }}
           >
-            {recordState === "playing" ? "Playing…" : "Play your recording"}
+            {recordState === "playing"
+              ? (refPlaying ? "Reference…" : "Your recording…")
+              : hasRef && !audioUnavailable
+                ? "Play reference + yours"
+                : "Play your recording"}
           </Button>
         )}
 
@@ -329,8 +452,16 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
       <Typography variant="caption" sx={{ color: "text.secondary" }}>
         {recordState === "idle" && "Press Start recording when you're ready"}
         {recordState === "recording" && "🔴 Recording — press Stop when finished"}
-        {recordState === "recorded" && "✓ Recording saved — play it back or record again"}
-        {recordState === "playing" && "▶ Playing back your recording…"}
+        {recordState === "recorded" && (
+          hasRef && !audioUnavailable
+            ? "✓ Recording saved — play reference then yours, or record again"
+            : "✓ Recording saved — play it back or record again"
+        )}
+        {recordState === "playing" && (
+          refPlaying
+            ? "▶ Playing reference audio…"
+            : "▶ Playing back your recording…"
+        )}
       </Typography>
     </Box>
   );
