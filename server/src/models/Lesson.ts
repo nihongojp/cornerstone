@@ -17,7 +17,7 @@ const ExerciseSchema = new Schema(
     type: {
       type: String,
       required: true,
-      enum: ["connectTheDots", "matchAudioLetter", "vocabulary_drag_drop"],
+      enum: ["connectTheDots", "matchAudioLetter", "vocabulary_drag_drop", "factBreak"],
     },
 
     items: { type: [String], default: undefined },
@@ -28,6 +28,12 @@ const ExerciseSchema = new Schema(
 
     characterBank: { type: [String], default: undefined },
     correctAnswer: { type: String, default: undefined },
+
+    // factBreak: an ungraded fun-fact/info page inserted at a specific spot
+    // in the exercises sequence (unlike the single top-level `funFact`,
+    // which always sits right after flashcards).
+    title: { type: String, default: undefined },
+    content: { type: String, default: undefined },
 
     // V2+ drag-and-drop: bonus copies of main terms (hiragana tiles, no caption).
     bonus: { type: Boolean, default: undefined },

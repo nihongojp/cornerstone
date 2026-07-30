@@ -198,6 +198,7 @@ function stepLabelFromKey(key: string): string {
   if (key.includes("connectTheDots")) return "Connect Dots";
   if (key.includes("matchAudioLetter")) return "Audio Match";
   if (key.includes("vocabulary_drag_drop")) return "Drag & Drop";
+  if (key.toLowerCase().includes("factbreak")) return "Fun Fact";
   return "Exercise";
 }
 
@@ -412,6 +413,17 @@ const Lesson: React.FC = () => {
               answerCaption={!isBonus && !isV1 ? shuffledEx.correctAnswer : undefined}
               showAudioUpfront={isV1}
             />
+          ),
+        });
+        return;
+      }
+
+      if (exType === "factBreak") {
+        out.push({
+          key: stepKeyFromExercise(ex, i),
+          graded: false,
+          comp: () => (
+            <FactC title={String(ex.title || "Fun Fact")} description={String(ex.content || "")} />
           ),
         });
         return;
