@@ -3,6 +3,10 @@ import api from "./api";
 // Loose item type — newlessons items are heterogeneous (page, pronunciationExercise,
 // matchingExercise, matchAudioExercise, dragAndDropExercise, infoBreak, lifeUsefulFact).
 // Typed as a discriminated-union-friendly base; callers can narrow by item.type.
+//
+// pronunciationExercise Compass fields (optional except type/phrase):
+//   phrase, transcript?, videoUrl?, audioUrl?
+//   — audioUrl is dedicated reference audio (not the video track).
 export type NewLessonItem = {
   type: string;
   number?: number;
