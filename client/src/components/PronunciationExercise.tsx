@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Box, Button, Chip, Typography } from "@mui/material";
+import { Box, Button, Chip, CircularProgress, Typography } from "@mui/material";
 import MicRoundedIcon from "@mui/icons-material/MicRounded";
 import StopRoundedIcon from "@mui/icons-material/StopRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
+import { checkPronunciation, PronunciationCheckResult } from "../services/pronunciation";
 
 export type PronunciationExerciseData = {
   type: "pronunciationExercise";
@@ -48,6 +49,9 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
   const [micError, setMicError] = useState<string | null>(null);
   const [audioUnavailable, setAudioUnavailable] = useState(false);
   const [refPlaying, setRefPlaying] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [checkResult, setCheckResult] = useState<PronunciationCheckResult | null>(null);
+  const [checkError, setCheckError] = useState<string | null>(null);
 
   const refAudioRef = useRef<HTMLAudioElement | null>(null);
   const playbackAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -58,6 +62,7 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
   const streamRef = useRef<MediaStream | null>(null);
 
   const hasRef = !isPlaceholderUrl(audioUrl);
+  const alreadyChecked = checkResult !== null;
 
   // Clean up object URLs on unmount
   useEffect(() => {
@@ -113,6 +118,8 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
       setRecordState("recorded");
     };
 
+    setCheckResult(null);
+    setCheckError(null);
     recorder.start();
     setRecordState("recording");
   }, [onRecordingComplete]);
@@ -143,10 +150,28 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
       playbackUrlRef.current = null;
     }
     recordingBlobRef.current = null;
+    setCheckResult(null);
+    setCheckError(null);
     setRecordState("idle");
     // Immediately begin a new recording per the state machine
     void startRecording();
   }, [startRecording]);
+
+  // ── Check pronunciation ────────────────────────────────────────────────────
+  const handleCheckPronunciation = useCallback(async () => {
+    if (!hasRef || !recordingBlobRef.current) return;
+    setChecking(true);
+    setCheckError(null);
+    setCheckResult(null);
+    try {
+      const result = await checkPronunciation(recordingBlobRef.current, audioUrl);
+      setCheckResult(result);
+    } catch {
+      setCheckError("Couldn't score that recording — please try again.");
+    } finally {
+      setChecking(false);
+    }
+  }, [hasRef, audioUrl]);
 
   // ── Playback ended ─────────────────────────────────────────────────────────
   const handlePlaybackEnded = useCallback(() => setRecordState("recorded"), []);
@@ -303,24 +328,27 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
           </Button>
         )}
 
-        {/* Rerecord */}
-        {(recordState === "recorded" || recordState === "playing") && (
+        {/* Check pronunciation — disabled once this recording has already
+            been scored, so the same clip can't be re-submitted; a fresh
+            recording (via "Try again") re-enables it. */}
+        {(recordState === "recorded" || recordState === "playing") && hasRef && (
           <Button
             variant="outlined"
-            aria-label="Record again"
-            startIcon={<ReplayRoundedIcon />}
-            disabled={recordState === "playing"}
-            onClick={rerecord}
+            aria-label={alreadyChecked ? "Already checked" : "Check pronunciation"}
+            startIcon={checking ? <CircularProgress size={16} sx={{ color: BRAND }} /> : <GraphicEqRoundedIcon />}
+            disabled={checking || alreadyChecked}
+            onClick={handleCheckPronunciation}
             sx={{
               borderRadius: 999,
               fontWeight: 700,
               px: 2.5,
-              borderColor: "rgba(0,0,0,0.2)",
-              color: "text.secondary",
-              "&:hover": { borderColor: BRAND, color: BRAND },
+              borderColor: BRAND,
+              color: BRAND,
+              "&:hover": { bgcolor: "rgba(180,61,32,0.08)" },
+              "&.Mui-disabled": alreadyChecked ? { opacity: 0.45, filter: "grayscale(60%)", borderColor: "rgba(0,0,0,0.2)", color: "text.disabled" } : undefined,
             }}
           >
-            Record again
+            {checking ? "Checking…" : alreadyChecked ? "Checked" : "Check pronunciation"}
           </Button>
         )}
       </Box>
@@ -329,9 +357,72 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
       <Typography variant="caption" sx={{ color: "text.secondary" }}>
         {recordState === "idle" && "Press Start recording when you're ready"}
         {recordState === "recording" && "🔴 Recording — press Stop when finished"}
-        {recordState === "recorded" && "✓ Recording saved — play it back or record again"}
+        {recordState === "recorded" && "✓ Recording saved — play it back or try again"}
         {recordState === "playing" && "▶ Playing back your recording…"}
       </Typography>
+
+      {/* Pronunciation check result */}
+      {checkError && (
+        <Box
+          role="alert"
+          sx={{
+            width: "100%",
+            px: 2.5,
+            py: 1.5,
+            borderRadius: "12px",
+            bgcolor: "rgba(220,38,38,0.06)",
+            border: "1px solid rgba(220,38,38,0.2)",
+          }}
+        >
+          <Typography sx={{ fontSize: "0.85rem", color: "#DC2626", fontWeight: 600 }}>{checkError}</Typography>
+        </Box>
+      )}
+
+      {checkResult && (() => {
+        const pct = Math.round(checkResult.score * 100);
+        const tone = pct > 67 ? "#1E8E3E" : pct >= 33 ? "#B7791F" : "#DC2626";
+        const label = pct > 67 ? "Great pronunciation!" : pct >= 33 ? "Pretty good — keep practicing" : "Not quite — try again";
+        return (
+          <Box
+            sx={{
+              width: "100%",
+              px: 2.5,
+              py: 1.5,
+              borderRadius: "12px",
+              bgcolor: `${tone}14`,
+              border: `1px solid ${tone}33`,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: 0.5,
+            }}
+          >
+            <Typography sx={{ fontSize: "1.1rem", fontWeight: 800, color: tone }}>{pct}%</Typography>
+            <Typography sx={{ fontSize: "0.85rem", color: tone, fontWeight: 600 }}>{label}</Typography>
+          </Box>
+        );
+      })()}
+
+      {/* Try again */}
+      {(recordState === "recorded" || recordState === "playing") && (
+        <Button
+          variant="outlined"
+          aria-label="Try again"
+          startIcon={<ReplayRoundedIcon />}
+          disabled={recordState === "playing"}
+          onClick={rerecord}
+          sx={{
+            borderRadius: 999,
+            fontWeight: 700,
+            px: 2.5,
+            borderColor: "rgba(0,0,0,0.2)",
+            color: "text.secondary",
+            "&:hover": { borderColor: BRAND, color: BRAND },
+          }}
+        >
+          Try again
+        </Button>
+      )}
     </Box>
   );
 };

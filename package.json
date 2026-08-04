@@ -2,9 +2,5 @@
   "name": "Cornerstone",
   "lockfileVersion": 3,
   "requires": true,
-  "packages": {
-    "": {
-      "name": "Cornerstone"
-    }
-  }
+  "packages": {}
 }
