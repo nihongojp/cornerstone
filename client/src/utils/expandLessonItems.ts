@@ -67,7 +67,61 @@ function makePronunciation(phrase: string, number: number, registry: TermMediaRe
     type: "pronunciationExercise",
     number,
     phrase,
+    // Dedicated reference audio field (never the video track). Interim
+    // fallback from the term registry is fine until Compass sets audioUrl.
     audioUrl: media?.audioUrl ?? "PLACEHOLDER_AUDIO_URL",
+    // Practice video for this term when one exists on a page / newTerms entry.
+    ...(media?.videoUrl ? { videoUrl: media.videoUrl } : {}),
+    // Optional longer text — leave unset so UI falls back to `phrase`.
+    // Set `transcript` on a hand-authored item in Compass to override.
+  } as unknown as NewLessonItem;
+}
+
+// A hand-authored pronunciationExercise item found in the raw document,
+// keyed by phrase — takes priority over auto-generation for that term so
+// Compass fields (videoUrl, audioUrl, transcript) survive regeneration.
+type ManualPronunciation = { phrase: string; raw: Record<string, unknown> };
+
+function findManualPronunciationItems(items: NewLessonItem[]): ManualPronunciation[] {
+  const found: ManualPronunciation[] = [];
+  for (const it of items) {
+    if ((it.type as string) !== "pronunciationExercise") continue;
+    const any = it as any;
+    const phrase = String(any.phrase ?? "").trim();
+    if (phrase) found.push({ phrase, raw: any });
+  }
+  return found;
+}
+
+function resolvePronunciation(
+  phrase: string,
+  number: number,
+  registry: TermMediaRegistry,
+  manualItems: ManualPronunciation[]
+): NewLessonItem {
+  const manual = manualItems.find((m) => sameTerm(m.phrase, phrase));
+  if (!manual) return makePronunciation(phrase, number, registry);
+
+  const media = resolveTermMedia(registry, phrase);
+  const audioUrl = !isPlaceholderUrlLike(manual.raw.audioUrl)
+    ? (manual.raw.audioUrl as string)
+    : (media?.audioUrl ?? "PLACEHOLDER_AUDIO_URL");
+  const videoUrl = !isPlaceholderUrlLike(manual.raw.videoUrl)
+    ? (manual.raw.videoUrl as string)
+    : media?.videoUrl;
+  const transcript =
+    typeof manual.raw.transcript === "string" && manual.raw.transcript.trim()
+      ? manual.raw.transcript
+      : undefined;
+
+  return {
+    ...manual.raw,
+    type: "pronunciationExercise",
+    number,
+    phrase,
+    audioUrl,
+    ...(videoUrl ? { videoUrl } : {}),
+    ...(transcript ? { transcript } : {}),
   } as unknown as NewLessonItem;
 }
 
@@ -170,10 +224,14 @@ function computeFullCheckpointPositions(totalCheckpoints: number): Set<number> {
  * - Each batch is independently (re-)shuffled on every call, so term order
  *   differs batch to batch and from the introduction order. Batches always
  *   appear in this order: match-audio → pronunciation → drag & drop.
- * - Any hand-authored matchAudioExercise/pronunciationExercise items already
- *   in the source are dropped once a checkpoint has been seen, since they're
- *   now always regenerated above; items of those types appearing before the
- *   first checkpoint (where there's no term list yet) are left untouched.
+ * - Any hand-authored matchAudioExercise items already in the source are
+ *   dropped once a checkpoint has been seen, since they're now always
+ *   regenerated above; items of that type appearing before the first
+ *   checkpoint (where there's no term list yet) are left untouched.
+ * - pronunciationExercise is like dragAndDrop: a hand-authored one (keyed by
+ *   `phrase`) is reused at the matching full-checkpoint slot so Compass
+ *   fields (`videoUrl`, `audioUrl`, `transcript`) win over auto-generation.
+ *   Terms without a hand-authored item still get one generated automatically.
  * - dragAndDropExercise is different: a hand-authored one (keyed by its own
  *   `_term`) is a real, individually-editable MongoDB item — it's reused
  *   as-is (Compass edits win) for that term's exercise instead of being
@@ -192,6 +250,7 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
   const totalCheckpoints = items.filter((it) => (it.type as string) === "matchingExercise").length;
   const fullPositions = computeFullCheckpointPositions(totalCheckpoints);
   const manualDragDropItems = findManualDragDropItems(items);
+  const manualPronunciationItems = findManualPronunciationItems(items);
 
   const result: NewLessonItem[] = [];
   // Whole-lesson cumulative terms — the distractor pool for multiple-choice
@@ -234,7 +293,7 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
       if (isFull) {
         const termsToCover = termsSinceLastFull;
         shuffled(termsToCover).forEach((phrase, idx) => {
-          result.push(makePronunciation(phrase, idx + 1, registry));
+          result.push(resolvePronunciation(phrase, idx + 1, registry, manualPronunciationItems));
         });
 
         // A manually-curated distractor pool (Compass field `dragDropOptions`
