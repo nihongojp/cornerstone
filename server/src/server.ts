@@ -12,10 +12,12 @@ import attemptsRoutes from './routes/attemptsRoutes';
 import progressRoutes from './routes/progressRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 import resourceRoutes from './routes/resourceRoute';
+import pronunciationRoutes from './routes/pronunciationRoutes';
 //import galleryRoutes from './routes/galleryRoutes';
 
 import mongoose from "mongoose";
 import { Lesson } from "./models/Lesson";
+import { warmPhonemeRecognizer } from "./services/phonemeRecognizer";
 
 dotenv.config({ path: './.env' });
 
@@ -52,7 +54,12 @@ app.use('/api/attempts', attemptsRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/review', reviewRoutes);
 app.use('/api/resources', resourceRoutes);
+app.use('/api/pronunciation', pronunciationRoutes);
 //app.use('/api/gallery', galleryRoutes);
+
+// Fire-and-forget: loads the phoneme model into memory now instead of on
+// the first /api/pronunciation/check request.
+warmPhonemeRecognizer();
 
 app.get("/debug/lessons", async (_req, res) => {
   const dbName = mongoose.connection.db?.databaseName;

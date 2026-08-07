@@ -55,3 +55,6 @@ coverage/
 # Other
 public/static/
 public/scripts/
+
+# Downloaded ML model weights (fetched on demand at runtime)
+server/.model-cache/
