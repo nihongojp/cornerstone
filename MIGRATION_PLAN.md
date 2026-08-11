@@ -130,6 +130,11 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 - **P7 — Developer migration guide** (after everything else is done): write `MIGRATION_GUIDE.md` at repo root for the other devs — what changed and why; old→new concept mappings (CRA scripts → Next App Router, react-router routes → `src/app/` file routing + route groups, axios/localStorage JWT → Better Auth httpOnly cookie sessions + `useSession`, Express routes/controllers → server components + route handlers, Mongoose/Compass → Drizzle/Postgres + Airtable authoring, GitHub Pages → Vercel, pronunciation carve-out); a "new stuff you may not know" section with links to official learning resources (Next.js App Router docs/Learn course, server vs client components, caching/revalidation, Better Auth docs, Drizzle docs, Airtable Web API, Vercel deployment docs, Resend); repo-layout tour; env-var setup for local dev; gotchas (hydration, "use client", MUI SSR). Written last so it documents what actually shipped rather than the plan.
 
+## Deferred follow-ups (explicitly out of scope)
+
+- **Tailwind CSS v4**: not a version upgrade — the codebase has no Tailwind today; it's MUI 6 + Emotion `sx` styling across every component. Adopting Tailwind means restyling ~40 components/pages and replacing MUI primitives (buttons, drawers, dialogs, calendar), which would break the migration's core verification method (side-by-side parity with the old app) and multiply regression risk with zero test coverage. Decision: migrate styling as-is; revisit Tailwind post-cutover as its own incremental project (Tailwind v4 coexists fine with Emotion — set `@import "tailwindcss"` with preflight disabled to avoid clobbering MUI baseline styles — so it can be introduced file-by-file later without a big bang).
+- **japan.geojson (12.4MB)**: TopoJSON conversion / simplification (~90% smaller) after cutover.
+
 ## Top risks
 
 1. expandLessonItems SSR shuffle/hydration (fix designed above; test resume hard)
