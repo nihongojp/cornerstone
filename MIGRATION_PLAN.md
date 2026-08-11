@@ -132,7 +132,7 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 ## Deferred follow-ups (explicitly out of scope)
 
-- **Tailwind CSS v4**: not a version upgrade — the codebase has no Tailwind today; it's MUI 6 + Emotion `sx` styling across every component. Adopting Tailwind means restyling ~40 components/pages and replacing MUI primitives (buttons, drawers, dialogs, calendar), which would break the migration's core verification method (side-by-side parity with the old app) and multiply regression risk with zero test coverage. Decision: migrate styling as-is; revisit Tailwind post-cutover as its own incremental project (Tailwind v4 coexists fine with Emotion — set `@import "tailwindcss"` with preflight disabled to avoid clobbering MUI baseline styles — so it can be introduced file-by-file later without a big bang).
+- **Tailwind CSS v4**: not a version upgrade — the codebase has no Tailwind today; it's MUI 6 + Emotion `sx` styling across every component. Adopting Tailwind means restyling ~40 components/pages and replacing MUI primitives (buttons, drawers, dialogs, calendar), which would break the migration's core verification method (side-by-side parity with the old app) and multiply regression risk with zero test coverage. Decision: migrate styling as-is. **Deferring costs nothing**: Tailwind v4 coexists cleanly with Emotion, so after cutover it can be added with preflight disabled (`@import "tailwindcss"` minus the base layer, so it doesn't clobber MUI's baseline styles) and adopted incrementally, file-by-file — no big-bang restyle required, and nothing in this migration forecloses it.
 - **japan.geojson (12.4MB)**: TopoJSON conversion / simplification (~90% smaller) after cutover.
 
 ## Top risks
