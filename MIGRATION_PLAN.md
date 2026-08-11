@@ -120,6 +120,8 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 ## Phases (each ends deployable; old stack runs in parallel until cutover)
 
+> **Progress**: ✅ P0 complete (commit db5e1f5 on `feature/nextjs-vercel-migration`, PR #5) — Next 15.5 scaffold + all public pages ported and smoke-tested; Next 16 blocked by @mui/material-nextjs@6 peer range. **Next up: P1** (Neon Postgres + Drizzle + Better Auth; swap the `src/lib/auth-client.ts` stub for the real client — Header/Home already consume its final shape).
+
 - **P0 — Scaffold + static pages**: root Next app, MUI setup, layouts/route groups, port public pages + Header/Footer + data/ + public/. Gate: `tsc --noEmit` + `next build` clean; smoke all 6 public pages on a Vercel preview, `/charinfo` redirect works, prod build has no FOUC.
 - **P1 — Postgres + Better Auth**: Neon, Drizzle migrations, auth config/handler/middleware/layouts, port AuthForm/ForgotPassword/Profile, new reset-password page, Resend. Smoke: signup, logout/login, cookie is httpOnly, logged-out `/dashboard` redirects, reset-email round trip, change password, delete account.
 - **P2 — Airtable content**: base/tables, run script 01 against a Mongo copy, client/content/adapters/revalidate, port Resources. Smoke: verify pass zero diffs; `/resources` identical; Airtable edit → live within seconds.
