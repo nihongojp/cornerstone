@@ -54,7 +54,7 @@ scripts/migrate/
 ```
 
 - `/charinfo → /gallery` becomes a `redirects()` entry in next.config.ts; `*` catch-all → redirect `/`. `ScrollToTop` dropped (App Router default). The sticky-header `Box sx` wrapper from `App.tsx:91` moves into a small client component in the `(site)` layout.
-- Packages: `next@^16` (fallback 15.5), `react@^19`, MUI 6.4 + `@mui/material-nextjs`, `better-auth@^1.4`, `drizzle-orm` + `drizzle-kit`, `@neondatabase/serverless`, `bcryptjs` (pure JS — native `bcrypt` breaks Vercel builds), `resend`, `@vercel/blob`, `tsx` + `mongodb` (scripts only), `typescript@^5.7`. Delete: axios, react-scripts, cra-template, web-vitals, `@types/react-router-dom`.
+- Packages: `next@^16` + `@mui/material-nextjs@^9` (adapter v9 supports Next 16 and has no `@mui/material` peer, so MUI stays on 6), `react@^19`, MUI 6.4 + `@mui/material-nextjs`, `better-auth@^1.4`, `drizzle-orm` + `drizzle-kit`, `@neondatabase/serverless`, `bcryptjs` (pure JS — native `bcrypt` breaks Vercel builds), `resend`, `@vercel/blob`, `tsx` + `mongodb` (scripts only), `typescript@^5.7`. Delete: axios, react-scripts, cra-template, web-vitals, `@types/react-router-dom`.
 
 ## Postgres + Drizzle
 
@@ -120,7 +120,7 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 ## Phases (each ends deployable; old stack runs in parallel until cutover)
 
-> **Progress**: ✅ P0 (db5e1f5) — Next 15.5 scaffold + public pages ported; Next 16 blocked by @mui/material-nextjs@6 peer range. ✅ P1 (77864b8) — Drizzle schema + Better Auth live, all flows verified against local Postgres incl. legacy-bcrypt login and CSRF rejection. Local dev DB: `postgresql://localhost:5432/cornerstone_dev` (start server with `LC_ALL=C pg_ctl -D /opt/homebrew/var/postgresql@18 start` — the LC_ALL is required on PG18/macOS). **Next up: P2** (Airtable content layer). Still needed from the user before deploy: a Neon `DATABASE_URL`, plus `RESEND_API_KEY`/`EMAIL_FROM` for real reset emails (dev logs the link to the console instead).
+> **Progress**: ✅ P0 (db5e1f5) — scaffold + public pages ported. ✅ P1 (77864b8) — Drizzle schema + Better Auth live, all flows verified against local Postgres incl. legacy-bcrypt login and CSRF rejection. Local dev DB: `postgresql://localhost:5432/cornerstone_dev` (start server with `LC_ALL=C pg_ctl -D /opt/homebrew/var/postgresql@18 start` — the LC_ALL is required on PG18/macOS). **Next up: P2** (Airtable content layer). Still needed from the user before deploy: a Neon `DATABASE_URL`, plus `RESEND_API_KEY`/`EMAIL_FROM` for real reset emails (dev logs the link to the console instead).
 
 - **P0 — Scaffold + static pages**: root Next app, MUI setup, layouts/route groups, port public pages + Header/Footer + data/ + public/. Gate: `tsc --noEmit` + `next build` clean; smoke all 6 public pages on a Vercel preview, `/charinfo` redirect works, prod build has no FOUC.
 - **P1 — Postgres + Better Auth**: Neon, Drizzle migrations, auth config/handler/middleware/layouts, port AuthForm/ForgotPassword/Profile, new reset-password page, Resend. Smoke: signup, logout/login, cookie is httpOnly, logged-out `/dashboard` redirects, reset-email round trip, change password, delete account.
@@ -141,7 +141,7 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 1. expandLessonItems SSR shuffle/hydration (fix designed above; test resume hard)
 2. TS 4.9→5.7 minor breaks in client code (strict mode already on)
-3. Next 16 + React 19 + MUI 6.4 combo — supported; do NOT bump MUI 7 now; Next 15.5 is the fallback; `params` is a Promise (await it)
+3. Next 16 + React 19 + MUI 6 — verified working via `@mui/material-nextjs@9` (v6 of the adapter caps at Next 15). Do NOT bump MUI to 7+ in this migration; `params` is a Promise (await it)
 4. Airtable author JSON typos — adapters fail soft, never 500
 5. bcryptjs (pure JS) everywhere, never native bcrypt on Vercel
 6. Neon pooled URL / neon-http driver only; no pg Pool per invocation
