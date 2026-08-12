@@ -15,19 +15,30 @@
     "@mui/icons-material": "^6.4.11",
     "@mui/material": "^6.4.11",
     "@mui/material-nextjs": "^6.5.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "bcryptjs": "^3.0.3",
+    "better-auth": "^1.6.27",
     "d3": "^7.9.0",
+    "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.25.0",
     "lucide-react": "^0.541.0",
     "next": "^15.5.0",
+    "pg": "^8.23.0",
     "react": "^19.0.0",
     "react-calendar": "^5.1.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "resend": "^6.19.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",
     "@types/node": "^22.10.7",
+    "@types/pg": "^8.21.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.12",
     "typescript": "^5.7.3"
   }
 }

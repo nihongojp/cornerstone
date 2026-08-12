@@ -56,7 +56,7 @@ const Header = (): React.ReactElement => {
     router.refresh();
   };
 
-  const initialsOf = (first?: string, last?: string) => {
+  const initialsOf = (first?: string | null, last?: string | null) => {
     const a = (first?.[0] || "").toUpperCase();
     const b = (last?.[0] || "").toUpperCase();
     return a + b || "U";

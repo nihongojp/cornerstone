@@ -1,21 +1,29 @@
-// Phase 0 stub — replaced with Better Auth's createAuthClient in Phase 1.
-// The shape mirrors better-auth/react's useSession so consumers (Header,
-// Home, guards) are written once and don't change when real auth lands.
+"use client";
 
-export type SessionUser = {
-  id: string;
-  email: string;
-  name: string;
-  firstName?: string;
-  lastName?: string;
-};
+import { createAuthClient } from "better-auth/react";
+import { inferAdditionalFields } from "better-auth/client/plugins";
+import type { auth } from "./auth";
 
-export type Session = { user: SessionUser } | null;
+/*
+ * Type-only import of the server config so firstName/lastName/role come through
+ * typed on the session user. `import type` is erased at build time, so none of
+ * the server-side database or secret handling reaches the browser bundle.
+ */
+export const authClient = createAuthClient({
+  plugins: [inferAdditionalFields<typeof auth>()],
+});
 
-export function useSession(): { data: Session; isPending: boolean } {
-  return { data: null, isPending: false };
-}
+export const {
+  useSession,
+  signIn,
+  signUp,
+  signOut,
+  requestPasswordReset,
+  resetPassword,
+  changePassword,
+  changeEmail,
+  updateUser,
+  deleteUser,
+} = authClient;
 
-export async function signOut(): Promise<void> {
-  // no-op until Better Auth lands in Phase 1
-}
+export type SessionUser = typeof authClient.$Infer.Session.user;
