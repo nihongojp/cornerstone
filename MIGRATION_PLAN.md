@@ -138,7 +138,7 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 ## Phases (each ends deployable; old stack runs in parallel until cutover)
 
-> **Progress**: ✅ **P0–P4 complete.**
+> **Progress**: ✅ **P0–P5 complete.**
 > - P0 (db5e1f5) — Next 16 scaffold + public pages ported.
 > - P1 (77864b8) — Drizzle schema + Better Auth, all flows verified against local Postgres incl. legacy-bcrypt login and cross-origin CSRF rejection.
 > - P2 (653a584, e971466) — Airtable serving real migrated content: 9 lessons, 3 grammar lessons, 8 resource categories, 19 achievements. Round-trip verified and idempotent.
@@ -146,7 +146,9 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 >
 > - P4 (b4f5f88) — Dashboard/Watch/Talk ported; migrations 02 + 03 written and rehearsed against the dev database. **3 real users migrated, 2 test accounts filtered; 19 of 23 progress rows migrated** (4 skipped for users that no longer exist, 3 of those on the obsolete `lesson-1` id). All bcrypt hashes verified byte-identical Mongo → Postgres. Also stripped 4 leftover debug blocks that POSTed to `127.0.0.1:7898`.
 >
-> **Next up: P5** — full parity pass, old stack vs new, route by route.
+> - P5 (70e4f48) — parity pass. `node scripts/parity-check.mjs` transcribes the CRA route table into an executable check: **36/36 pass** — all 19 routes, every guard in both auth states, header/footer visibility on all three chrome variants. No leftovers (zero react-router / services / axios / localStorage-token / debug references), nothing missed (the 7 unported files are comment-only stubs plus two unreferenced components), all 15 routes render server-side clean, and content counts match end to end.
+>
+> **Next up: P6** — cutover. Needs the deployment credentials below. **P7** (the developer migration guide) is written last, after cutover.
 >
 > Local dev DB: `postgresql://localhost:5432/cornerstone_dev` (start with `LC_ALL=C pg_ctl -D /opt/homebrew/var/postgresql@18 start` — the `LC_ALL` is required on PG18/macOS). Dev login: hanako@example.com.
 >
