@@ -6,7 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "parity": "node scripts/parity-check.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "migrate:survey": "tsx scripts/migrate/00-survey.ts",
+    "migrate:content": "tsx scripts/migrate/01-content-to-airtable.ts",
+    "migrate:users": "tsx scripts/migrate/02-users-to-postgres.ts",
+    "migrate:progress": "tsx scripts/migrate/03-progress-to-postgres.ts"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

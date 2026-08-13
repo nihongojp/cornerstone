@@ -46,13 +46,27 @@ const HEADER_MARK = "Nihon-Go!";
 const FOOTER_MARK = "All Rights Reserved";
 
 async function signIn() {
-  const res = await fetch(`${BASE}/api/auth/sign-in/email`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Origin: BASE },
-    body: JSON.stringify(CREDENTIALS),
-    redirect: "manual",
-  });
-  if (!res.ok) throw new Error(`sign-in failed: ${res.status} — is the dev user seeded?`);
+  let res;
+  try {
+    res = await fetch(`${BASE}/api/auth/sign-in/email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Origin: BASE },
+      body: JSON.stringify(CREDENTIALS),
+      redirect: "manual",
+    });
+  } catch (err) {
+    console.error(`Could not reach ${BASE} — is the server running?`);
+    console.error(`  ${err instanceof Error ? err.message : err}`);
+    process.exit(2);
+  }
+  if (!res.ok) {
+    console.error(
+      `Sign-in failed (${res.status}). The signed-in half of the check needs an account:\n` +
+        `  ${CREDENTIALS.email}\n` +
+        `Create it, or edit CREDENTIALS at the top of this script.`
+    );
+    process.exit(2);
+  }
   return (res.headers.getSetCookie?.() ?? [])
     .map((c) => c.split(";")[0])
     .join("; ");
