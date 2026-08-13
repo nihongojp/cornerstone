@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.env.*
+
+# Downloaded ML model weights (fetched on demand locally; baked into the image
+# at docker build time — see Dockerfile).
+.model-cache/
