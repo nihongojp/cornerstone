@@ -152,7 +152,9 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 >
 > Still needed before deploy: a Neon `DATABASE_URL`, `RESEND_API_KEY`/`EMAIL_FROM` for real reset emails (dev logs the link to the console), and a host for the pronunciation container plus `PRONUNCIATION_SERVICE_URL`/`_SECRET`.
 >
-> Known limitation, faithfully preserved from the Express app: `up-next` only looks up legacy lessons, so a grammar lesson yields the generic "Continue lesson" card. Untested until the container runs: the pronunciation scoring round trip — and only `l1-v1` has real reference audio.
+> ✅ **Pronunciation round trip verified** (locally, service on :5055). Model loads in ~10s; matched audio scores **1.0** (16/16 phonemes), mismatched scores **0.17** — so the scoring genuinely discriminates rather than just returning 200. Through the Next proxy: unauthenticated → 401, authenticated → 1.0. The reference-audio cache halves repeat latency (~0.51s cold → ~0.21s warm). Only `l1-v1` has real reference audio, so it's the only lesson that can exercise this.
+>
+> Known limitation, faithfully preserved from the Express app: `up-next` only looks up legacy lessons, so a grammar lesson yields the generic "Continue lesson" card.
 
 - **P0 — Scaffold + static pages**: root Next app, MUI setup, layouts/route groups, port public pages + Header/Footer + data/ + public/. Gate: `tsc --noEmit` + `next build` clean; smoke all 6 public pages on a Vercel preview, `/charinfo` redirect works, prod build has no FOUC.
 - **P1 — Postgres + Better Auth**: Neon, Drizzle migrations, auth config/handler/middleware/layouts, port AuthForm/ForgotPassword/Profile, new reset-password page, Resend. Smoke: signup, logout/login, cookie is httpOnly, logged-out `/dashboard` redirects, reset-email round trip, change password, delete account.
