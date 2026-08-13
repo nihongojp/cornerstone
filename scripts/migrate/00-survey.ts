@@ -84,7 +84,9 @@ async function main() {
     }
 
     console.log("\n── Resources ──");
-    const resources = await db.collection("resources").find({}).toArray();
+    // The live collection is "Resource" (capitalised, singular) — the lowercase
+    // "resources" that Mongoose would normally create is empty.
+    const resources = await db.collection("Resource").find({}).toArray();
     for (const doc of resources) {
       const items = Array.isArray(doc.items) ? doc.items.length : 0;
       console.log(`  ${String(doc.id ?? doc._id).padEnd(28)} category=${doc.category} items=${items}`);

@@ -138,7 +138,11 @@ async function main() {
   try {
     const lessons = await db.collection("lessons").find({}).toArray();
     const newLessons = await db.collection("newlessons").find({}).toArray();
-    const resources = await db.collection("resources").find({}).toArray();
+    // "Resource", capitalised and singular — that's what the live database
+    // actually uses. The lowercase "resources" collection Mongoose would
+    // normally create exists but is empty, so reading it silently migrates
+    // nothing.
+    const resources = await db.collection("Resource").find({}).toArray();
 
     console.log(
       `Read from Mongo: ${lessons.length} lessons, ${newLessons.length} newlessons, ${resources.length} resources`
