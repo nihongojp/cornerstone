@@ -58,7 +58,7 @@ scripts/migrate/
 
 ## Postgres + Drizzle
 
-Drizzle over Prisma: Better Auth CLI generates the Drizzle auth schema (`user`/`session`/`account`/`verification`), the neon-http driver is serverless-safe, and there's only one custom table. **Drop dead models**: `Attempt`, `ReviewItem` (only writer is the no-op `submitAttempt()` stub — keep the stub export so player code ports unchanged), `Gallery`, `Unit`.
+Drizzle over Prisma: Better Auth CLI generates the Drizzle auth schema (`user`/`session`/`account`/`verification`), the neon-http driver is serverless-safe, and there's only one custom table. **Drop dead models**: `Attempt`, `ReviewItem` (confirmed against live data — see the survey section; keep the no-op `submitAttempt()` stub export so player code ports unchanged), `Gallery`, `Unit`.
 
 `user_progress` (1:1 port of `server/src/models/UserProgress.ts`): `id` (uuid pk), `user_id` → user.id cascade, `lesson_id` (slug, text), `status` enum in_progress|completed, `last_step` int, `step_key` text (opaque content-derived resume key — the stepKey mechanism in `NewLessonPage.tsx:33` needs zero changes), `accuracy_pct` real, timestamps, **unique (user_id, lesson_id)**.
 
@@ -71,6 +71,23 @@ Drizzle over Prisma: Better Auth CLI generates the Drizzle auth schema (`user`/`
 - **Enforcement**: middleware does optimistic `getSessionCookie()` redirect (`?from=` preserves return path); real checks are `auth.api.getSession()` in the `(protected)`/`(dashboard)`/`(player)` layouts + every progress route handler. Never import Drizzle/Neon in middleware.
 - **Client**: `createAuthClient` from `better-auth/react`. AuthForm's full-page reload after login (`AuthForm.tsx:111`) → `router.push + router.refresh`; Header's storage-event/token code → `useSession()` (cross-tab sync free); `Home.tsx:31` localStorage-read-during-render (SSR-fatal) → `useSession()`; Profile's four endpoints → `updateUser`/`changeEmail`/`changePassword`/`deleteUser`.
 
+## Source data: what the survey found (`scripts/migrate/00-survey.ts`)
+
+The live database is **`Cornerstone`** — the connection string must include it in the path, or the driver silently connects to an empty `test` database. Collection naming is inconsistent: **`Resource`** (capitalised, 8 docs) is the live one; the lowercase `resources` Mongoose would create is empty.
+
+Real content: **9 legacy lessons** (Hokkaido/Akita/Iwate/Miyagi, 2–5 flashcards and 6–14 exercises each), **3 grammar lessons** (`l1-v1` → `l1-v2` chain, plus `l2-v1`, 18–27 items each), **8 resource categories** (28 items), **5 users** (all bcrypt — no plaintext to hash), **23 progress rows**. Every JSON body is under 7KB, far below Airtable's ~100k long-text limit.
+
+Media is uneven and matters for P3: `l1-v1` has 30 real media URLs, but `l2-v1` has **0 real URLs and 63 placeholders**, and `l1-v2` has 8 URLs to 62 placeholders. Pronunciation exercises in the latter two have no reference audio to score against.
+
+**Collection decisions (user-confirmed):**
+- **`attempts` (89) / `reviewitems` (22) — DROP.** They do hold data, contradicting the original "no writer" assumption, but nearly all of it is keyed to `lesson-1`, an obsolete lesson-id scheme matching no current lesson; only one row references a live lesson. No reader, no writer (`submitAttempt()` is a no-op stub).
+- **`Achievement` (19) — MIGRATE** to an Airtable `Achievements` table. A complete, coherent progression design (accuracy tiers, study-hour milestones, firsts) with IDs, XP and lucide icon names, which no code reads. Preserved so it outlives the Mongo cluster; **wiring up the feature stays out of scope**, and the table description says so.
+- **`Character` (11) — DROP.** Only 3 rows have names and none have images; the hardcoded `src/data/characters.ts` is richer for every character it covers.
+- **`Item` (1) — DROP.** A single placeholder row (`"Img": "Image file"`); the Gallery's Items tab renders hardcoded names anyway.
+- **`User` (3, capitalised) — DROP.** Superseded duplicate of `users`; 2 of its 3 emails already exist there.
+- **Test accounts** (`claude-test-verify@`, `pronun-smoke-test@`) sit in the production `users` collection — migration 02 filters them and logs each skip, migrating **3 real users**.
+- 3 of the 7 users referenced by progress rows no longer exist, so those rows are skipped.
+
 ## Airtable content layer
 
 **Schema — hybrid**: real fields for filterable metadata, JSON-in-long-text for lesson bodies. (Linked-records-per-item rejected: `NewLesson.items[]` is heterogeneous, nested, order-sensitive, and `termMedia.ts` assumes whole-lesson JSON; a JSON field in Airtable's expanded view matches today's Compass authoring model with a better UI.)
@@ -79,6 +96,7 @@ Base "Cornerstone Content":
 - **Lessons**: Slug (primary), Title, CardTitle, Version, Prefecture (single-select, 47 opts), FunFact, Notes, Flashcards (JSON), FlashcardsAudio (JSON — per-card pronunciation URLs, new on master), Exercises (JSON — now includes `factBreak` type + `bonus`/`title`/`content` fields), Achievement (JSON), IsActive, Tags, SourceId (Mongo `_id` hex — idempotency + legacy `/lesson/<ObjectId>` URL fallback)
 - **NewLessons**: Slug (primary), Lesson (title), CardTitle, Items (JSON, verbatim Mongo shape — includes the new pronunciationExercise fields `transcript`/`videoUrl`/`audioUrl`), NextSlug (single line — lesson chaining, l1-v1 → l1-v2), IsActive, Tags, SourceId
 - **Resources**: ResourceId (primary), Category, Items (JSON)
+- **Achievements**: AchievementId (primary), Title, XP, Icon, SourceId — migrated content only; nothing in the app reads it yet
 
 Hardcoded content (FunFacts/Gallery/Stories/CharInfo in `src/data/`) stays hardcoded — out of scope.
 
@@ -111,7 +129,7 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 ## Migration scripts (`scripts/migrate/`, run via `npx tsx`, raw mongodb driver, idempotent)
 
 1. **01-content-to-airtable**: read `lessons`/`newlessons`/`resources`; PATCH with `performUpsert` merging on Slug/ResourceId, batches of 10, ≥300ms sleep (<5 req/s). Assert JSON bodies <95k chars (Airtable long-text limit; escape hatch: split Items/Items2). Ends with verify pass: re-fetch, parse, deep-compare vs Mongo, print diffs.
-2. **02-users-to-postgres**: `user.id` = **Mongo `_id` hex** (makes script 03 trivial + idempotent), name/firstName/lastName/role/email, `emailVerified: true`; `account` row `{providerId: "credential", password: <bcrypt hash verbatim>}`. **Legacy plaintext passwords** (old login tolerated them, `authController.ts:92-104`): bcrypt-hash during import or those users can never log in. `onConflictDoNothing`, log skips.
+2. **02-users-to-postgres** (skips test accounts and the legacy capitalised `User` collection — see the survey section): `user.id` = **Mongo `_id` hex** (makes script 03 trivial + idempotent), name/firstName/lastName/role/email, `emailVerified: true`; `account` row `{providerId: "credential", password: <bcrypt hash verbatim>}`. **Legacy plaintext passwords** (old login tolerated them, `authController.ts:92-104`): bcrypt-hash during import or those users can never log in. `onConflictDoNothing`, log skips.
 3. **03-progress-to-postgres**: `userprogresses` → `user_progress` (userId = same hex), `onConflictDoUpdate` on (user_id, lesson_id) keeping newer updatedAt; skip rows whose user wasn't migrated; print counts.
 
 ## Env vars (Vercel + `.env.local`)

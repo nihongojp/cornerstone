@@ -75,6 +75,21 @@ function resourceFields(doc: AnyDoc): Record<string, unknown> {
   return fields;
 }
 
+/*
+ * The Achievement catalog is real design work that no code reads yet — the
+ * players only use the achievement embedded in each lesson. It comes across so
+ * the design outlives the Mongo cluster; wiring up the feature is out of scope.
+ */
+function achievementFields(doc: AnyDoc): Record<string, unknown> {
+  return {
+    AchievementId: String(doc.achievementId ?? doc._id),
+    Title: doc.title ?? "",
+    XP: typeof doc.xp === "number" ? doc.xp : 0,
+    Icon: doc.icon ?? "",
+    SourceId: String(doc._id),
+  };
+}
+
 /** Compares what Airtable now holds against the Mongo source. */
 function verify(
   label: string,
@@ -143,9 +158,11 @@ async function main() {
     // normally create exists but is empty, so reading it silently migrates
     // nothing.
     const resources = await db.collection("Resource").find({}).toArray();
+    const achievements = await db.collection("Achievement").find({}).toArray();
 
     console.log(
-      `Read from Mongo: ${lessons.length} lessons, ${newLessons.length} newlessons, ${resources.length} resources`
+      `Read from Mongo: ${lessons.length} lessons, ${newLessons.length} newlessons, ` +
+        `${resources.length} resources, ${achievements.length} achievements`
     );
 
     if (lessons.length) {
@@ -173,6 +190,15 @@ async function main() {
         resources.map((doc) => ({ fields: resourceFields(doc) }))
       );
       console.log(`Resources   → created ${result.created}, updated ${result.updated}`);
+    }
+
+    if (achievements.length) {
+      const result = await upsertRecords(
+        "Achievements",
+        ["AchievementId"],
+        achievements.map((doc) => ({ fields: achievementFields(doc) }))
+      );
+      console.log(`Achievements→ created ${result.created}, updated ${result.updated}`);
     }
 
     console.log("\nVerifying round trip…");
