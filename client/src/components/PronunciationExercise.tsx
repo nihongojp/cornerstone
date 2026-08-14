@@ -231,7 +231,7 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
     setCheckError(null);
     setCheckResult(null);
     try {
-      const result = await checkPronunciation(recordingBlobRef.current, audioUrl);
+      const result = await checkPronunciation(recordingBlobRef.current, audioUrl as string);
       setCheckResult(result);
     } catch {
       setCheckError("Couldn't score that recording — please try again.");
