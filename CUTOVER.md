@@ -16,11 +16,15 @@ Collect these. Steps 4 onward are blocked without them.
 |---|---|---|
 | Neon Postgres database | [neon.tech](https://neon.tech) or Vercel's integration | free tier fine |
 | Vercel project | [vercel.com](https://vercel.com) | free tier fine |
+| Vercel Blob store | the Vercel project's **Storage** tab | free tier fine |
 | Resend API key + verified sender | [resend.com](https://resend.com) | free tier fine |
 | Container host for pronunciation | Railway / Render / Fly.io | **~$5–20/mo** |
-| Airtable PAT | [airtable.com/create/tokens](https://airtable.com/create/tokens) | free |
 
 The container host is the only recurring cost, and the only piece that can't be free — it needs ~2GB RAM and must stay warm.
+
+Blob storage backs media uploaded through the CMS. Adding it to the Vercel project sets `BLOB_READ_WRITE_TOKEN` for you.
+
+There is no Airtable step any more. Content lives in Payload, in the same Neon database as everything else (#20).
 
 ---
 
@@ -28,13 +32,34 @@ The container host is the only recurring cost, and the only piece that can't be 
 
 Create the Neon database and copy the **pooled** connection string (it has `-pooler` in the host).
 
+Two migration systems share this database: drizzle-kit owns the `public` schema (auth + `user_progress`), Payload owns the `payload` schema. See [docs/database-workflow.md](docs/database-workflow.md).
+
+**The order matters and is not interchangeable.** Payload never issues
+`CREATE SCHEMA`, so drizzle has to go first; the cross-schema foreign key from
+`user_progress` to `lessons` then lands in Payload's migration, the first point
+at which both sides of it exist (#44).
+
 ```bash
-# in .env.local, temporarily, to create the tables:
+# in .env.local, temporarily:
 DATABASE_URL=<neon pooled url>
-npm run db:migrate
+PAYLOAD_SECRET=<openssl rand -base64 32>
+
+npm run db:migrate         # public schema, and CREATE SCHEMA payload
+npm run payload:migrate    # the payload schema, and the cross-schema FK
 ```
 
-**Verify:** `npm run db:studio` shows five empty tables — `user`, `session`, `account`, `verification`, `user_progress`.
+Use the same `PAYLOAD_SECRET` here that you set on Vercel in step 3 — it is only used to sign admin sessions, but a mismatch means the migration you just ran was against a different secret than the app boots with, which is confusing later for no reason.
+
+**Verify:**
+
+```bash
+psql "$DATABASE_URL" -c '\dt public.*' \
+  -c "select conname from pg_constraint where conname = 'user_progress_lesson_id_lessons_slug_fk'"
+```
+
+Five tables in `public` — `user`, `session`, `account`, `verification`, `user_progress` — and the constraint row. `npm run db:studio` shows the same five, empty.
+
+This is the same pair of commands `.github/workflows/migrate-production.yml` runs on every merge, so nothing here is cutover-specific.
 
 ---
 
@@ -70,64 +95,89 @@ Environment variables — set for Production *and* Preview:
 
 ```
 DATABASE_URL                  = <neon pooled url>
+PAYLOAD_SECRET                = <the value from step 1>
+BLOB_READ_WRITE_TOKEN         = set for you when Blob storage is added
 BETTER_AUTH_SECRET            = <openssl rand -base64 32>   ← fresh, not your local one
 BETTER_AUTH_URL               = https://<your-domain>
-AIRTABLE_API_KEY              = <PAT, data.records:read>
-AIRTABLE_BASE_ID              = appMVqVTfpIWVGjgO
 RESEND_API_KEY                = <resend key>
 EMAIL_FROM                    = noreply@<your-verified-domain>
-REVALIDATE_SECRET             = <openssl rand -hex 16>
 PRONUNCIATION_SERVICE_URL     = https://<service-url>
 PRONUNCIATION_SERVICE_SECRET  = <the secret from step 2>
 ```
 
-**Do not set `MONGODB_URI` on Vercel.** It's only for the local migration scripts.
+`AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID` and `REVALIDATE_SECRET` are gone — delete them from any environment that still has them. `/api/revalidate` existed for an Airtable automation to call and no longer exists either.
+
+**Do not set `MONGODB_URI` on Vercel.** It's only for the local migration script.
 
 Deploy. **Verify** the preview URL loads and you can sign up.
 
 ---
 
-## 4. Announce the content freeze
+## 4. Seed the CMS admins — immediately
 
-Tell anyone who authors lessons to **stop editing in MongoDB Compass**. Any edit after this point is lost unless you re-run step 6.
+Do this in the same sitting as the first deploy, before anything else. It is not optional and it is not cosmetic: while zero `cms_admins` rows exist, Payload serves an **unauthenticated first-user form** at `/admin` to anyone who finds the URL, one submission away from a stranger owning the CMS (#32). Creating the first account closes that window permanently.
 
-From here on, Airtable is the source of truth for content.
+```bash
+# with .env.local still pointing DATABASE_URL at Neon
+npm run payload:seed-admins
+```
+
+It creates the committed roster in `scripts/payload/seed-admins.ts`, printing a generated password per account **once** — nothing is written to disk and nothing is emailed. Deliver them through 1Password; each person changes theirs at `/admin` on first sign-in. Someone not on the roster:
+
+```bash
+npm run payload:seed-admins -- "Ryoko <ryoko@example.com>"
+```
+
+Idempotent by email — an existing account is left completely alone, so it is safe to re-run after a partial failure.
+
+**Verify:**
+
+```bash
+curl https://<your-domain>/api/cms_admins/init
+# {"initialized":true}
+```
+
+`false` means the window is still open. Step 8's parity check asserts this too, but do not wait until then to find out.
+
+The "Forgot password?" link on `/admin` **does not work and fails silently** — Payload has no email adapter. Recovery is another admin resetting it under Settings → CMS admins. See [docs/payload-content-model.md](docs/payload-content-model.md#when-a-password-is-lost).
 
 ---
 
-## 5. Wire up Airtable revalidation
+## 5. Announce the content freeze
 
-In the Cornerstone Content base: **Automations → When record updated → Run script**, one per table.
+Tell anyone who authors lessons to **stop editing in MongoDB Compass**. Any edit after this point is lost unless you re-run step 6.
 
-```js
-await fetch("https://<your-domain>/api/revalidate?secret=<REVALIDATE_SECRET>", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ table: "Lessons" }),   // or NewLessons / Resources
-});
-```
+From here on, Payload is the source of truth for content — `/admin` on the new site.
 
-**Verify:** edit a lesson title in Airtable, reload the site twice — the first request serves the cached copy and triggers a refresh, the second shows the new value.
+Nothing has to be wired up for edits to appear: the collection hooks in `src/payload/hooks/revalidate.ts` drop the affected cache tags in-process on every save and delete, because Payload runs inside the app. There is no webhook, no automation and no shared secret. (A one-hour backstop expiry covers anything a hook misses.)
 
 ---
 
 ## 6. Migrate the data
 
-Locally, with `.env.local` pointing `DATABASE_URL` at **Neon** and `MONGODB_URI` at production Mongo (including the `/Cornerstone` database name — without it you get an empty `test` database).
+Locally, with `.env.local` pointing `DATABASE_URL` at **Neon**, `PAYLOAD_SECRET` at the value from step 1, and `MONGODB_URI` at production Mongo (including the `/Cornerstone` database name — without it you get an empty `test` database).
 
 ```bash
-npm run migrate:content    # Mongo → Airtable; ends with a round-trip verification
+npm run migrate:content    # Mongo → Payload; ends with a round-trip verification
 ```
 
-It is idempotent — safe to re-run.
+Source is Mongo only — the content that was unique to Airtable was deliberately dropped in #26, so there is nothing to reconcile. The script also bakes the checkpoint expansion (#27): exercise batches that used to be synthesised on every render become real, editable content exactly once, here.
 
-**Expected output**, based on the rehearsal:
+It is idempotent — lessons and resource groups upsert on the Mongo `_id`, courses on slug — so it is safe to re-run.
 
-| Script | Expect |
+**Expected output.** It refuses to import a partial set, gating on the survey volume:
+
+| Stage | Expect |
 |---|---|
-| content | 9 lessons, 3 grammar lessons, 8 resources, 19 achievements · "All records round-tripped cleanly" |
+| Source volume | 2 legacy lessons, 3 grammar lessons, 8 resource groups |
+| Grammar items in | `l1-v1` 18, `l1-v2` 23, `l2-v1` 27 — expanded on the way in, so more exercises come out than went in |
+| legacyJson | "nothing routed to legacyJson — every item mapped to a real block" |
+| Verification | "VERIFICATION PASSED — the stored content reproduces the learner-visible sequence computed from Mongo exactly" |
+| Final counts | 2 courses, 5 lessons, 8 resources |
 
-If content reports any problem, **stop** — do not proceed until it round-trips cleanly.
+The verification pass re-reads everything through Payload, maps it back to the contract shapes in `src/lib/types/lessons.ts`, and diffs it against the sequence computed straight from Mongo. That diff is the only proof the one-way expansion was done correctly.
+
+The script exits non-zero on any rejected record or any diff. If it reports a problem, **stop** — do not proceed until it passes.
 
 ---
 
@@ -162,8 +212,10 @@ the bootstrap still open serves the create-first-user screen at `/admin/login`
 with a 200 and a `Login — …` title, indistinguishable over HTTP from the real
 login screen, so only that line can tell you which you have.
 
-A failing bootstrap line means `npm run payload:seed-admins` has not been run
-against this environment; a failing content line means the import has not.
+A failing bootstrap line means step 4 was skipped against this environment; a
+failing content line means step 6 was. A 5xx on the whole run usually means the
+database was never migrated — `npm run db:migrate` and `npm run payload:migrate`,
+step 1.
 
 Then by hand:
 
@@ -172,6 +224,7 @@ Then by hand:
 - [ ] Play a grammar lesson end to end; Save & Exit, reopen, confirm it resumes at the same exercise
 - [ ] Pronunciation check on `l1-v1` returns a score (only lesson with real reference audio)
 - [ ] Dashboard map renders; clicking a prefecture lists its lessons
+- [ ] Sign in to `/admin`, edit a lesson title, reload the site — the new title is there
 
 ---
 
@@ -208,11 +261,17 @@ After step 9 it gets harder — that's why decommissioning is last and the dump 
 
 | Symptom | Cause |
 |---|---|
-| Build fails, `AIRTABLE_API_KEY not set` | Env var missing on Vercel — `/resources` is prerendered at build |
+| `payload:migrate` says `schema "payload" does not exist` | `db:migrate` was skipped or failed — it creates the schema |
+| `payload:*` dies with `ERR_VM_MODULE_LINK_FAILURE` | Node 22. These commands need Node 24 |
+| Build fails reading content | `DATABASE_URL` or `PAYLOAD_SECRET` missing on Vercel — pages are prerendered at build and read Payload in-process |
 | Every page 500s | `BETTER_AUTH_SECRET` or `DATABASE_URL` missing. Deliberate: no silent fallback |
 | Sign-in works, session doesn't persist | `BETTER_AUTH_URL` doesn't match the real domain |
 | Reset emails never arrive | Resend domain not verified, or `EMAIL_FROM` isn't on that domain |
+| `/admin` offers to create the first user | Step 4 never ran against this environment. Do it now |
+| `/admin` 500s | `PAYLOAD_SECRET` unset, or the `payload` schema was never migrated |
+| Media uploads fail in the admin | `BLOB_READ_WRITE_TOKEN` missing — add Blob storage to the Vercel project |
 | Pronunciation 502s | Container down or asleep. Check `/health` |
 | Pronunciation 503s | `PRONUNCIATION_SERVICE_URL`/`_SECRET` missing on Vercel |
-| Lessons empty, no errors | Airtable PAT lacks access to the base, or wrong `AIRTABLE_BASE_ID` |
+| Lessons and resources empty, no errors | The import (step 6) hasn't run against this database |
+| Deleting a lesson fails | Someone has progress on it — unpublish instead. The FK is doing its job (#11) |
 | Migration finds nothing | `MONGODB_URI` missing the `/Cornerstone` database name |
