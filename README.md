@@ -4,7 +4,7 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 
 **Stack:** Next.js (App Router) · React 19 · TypeScript · MUI 6 · Better Auth · Payload CMS · Postgres on Neon (Drizzle + Payload) · deployed on Vercel.
 
-> **Migrating from the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](CUTOVER.md) step 9 — nothing in them runs. [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the old concepts to their replacements, but predates the move off Airtable, so trust this file and the code over it on anything content-related.
+> **Migrating from the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](CUTOVER.md) step 10 — nothing in them runs. [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the old concepts to their replacements, but predates the move off Airtable, so trust this file and the code over it on anything content-related.
 
 ---
 
@@ -43,7 +43,7 @@ npm run dev
 
 Open http://localhost:3000. Sign up on `/auth` and you're in.
 
-Content comes from Payload in the same database, so a freshly migrated branch has empty lesson pages until content is imported ([CUTOVER.md](CUTOVER.md) step 6) — branching from `development` instead gets you a copy that already has it. To sign in to `/admin`, run `npm run payload:seed-admins` first; until at least one admin exists, Payload serves an unauthenticated first-user form there.
+Content comes from Payload in the same database, so a freshly migrated branch has empty lesson pages until content is imported ([CUTOVER.md](CUTOVER.md) step 7) — branching from `development` instead gets you a copy that already has it. To sign in to `/admin`, run `npm run payload:seed-admins` first; until at least one admin exists, Payload serves an unauthenticated first-user form there.
 
 ---
 
@@ -55,6 +55,8 @@ Content comes from Payload in the same database, so a freshly migrated branch ha
 | `npm run build` / `npm start` | Production build / serve it |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run parity [url]` | Verifies every route's guard and chrome against the original app's route table, then that the CMS is up and serving real content |
+
+Against a Vercel **preview** or `*.vercel.app` URL, `npm run parity` needs `VERCEL_AUTOMATION_BYPASS_SECRET` in `.env.local` or the environment — those URLs sit behind Vercel Authentication, and without it the run measures the auth wall instead of the app. Localhost and the custom production domain need nothing.
 | `npm run db:generate` | Generate a SQL migration after editing the Drizzle schema |
 | `npm run db:migrate` | Apply pending migrations |
 | `npm run db:studio` | Browse the database in Drizzle Studio |

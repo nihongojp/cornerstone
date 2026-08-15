@@ -2,7 +2,7 @@
 
 ## 1. App Overview
 
-**Cornerstone** (branded as **"Nihon-Go!"**) is a comprehensive full-stack educational application designed to teach Japanese language and culture. The platform provides interactive lessons focused on Japanese prefectures, cultural facts, vocabulary, and language mastery through gamified learning experiences.
+**Cornerstone** (codename for the **NihonGo** nonprofit's Japanese language learning platform) is a comprehensive full-stack educational application designed to teach Japanese language and culture. The platform provides interactive lessons focused on Japanese prefectures, cultural facts, vocabulary, and language mastery through gamified learning experiences.
 
 ### Core Purpose
 - **Japanese Language Learning**: Users progress through structured lessons covering vocabulary, characters, and pronunciation

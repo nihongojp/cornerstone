@@ -12,7 +12,7 @@ The repo root **is** the app. `src/` is the Next project; `npm` commands run fro
 root.
 
 `client/` and `server/` are the retired CRA + Express + MongoDB app, kept only so the
-cutover stays reversible, and deleted at [CUTOVER.md](CUTOVER.md) step 9. Nothing in
+cutover stays reversible, and deleted at [CUTOVER.md](CUTOVER.md) step 10. Nothing in
 them runs, and nothing new should be added to them. When a request names a file, check
 which side of that line it falls on before editing — the two trees contain
 same-named components that are not interchangeable.

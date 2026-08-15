@@ -81,6 +81,19 @@ The Neon GitHub integration can create the first two for you.
 Also worth doing in the Neon console once the app is live: mark `production` as
 a **protected branch**, which blocks deletion and can restrict connections.
 
+Rather than doing the above by hand, run the wizard — it opens each console
+page, tells you exactly what to copy, sets the secrets and the variable, walks
+the branch protection and the `production` GitHub Environment, and finishes by
+dispatching `migrate-production` to prove the credentials work:
+
+```bash
+./scripts/wizard-neon-ci.sh
+```
+
+Setting repository secrets, variables and Environments needs **repo admin**; the
+wizard checks up front and, if you do not have it, still collects every value and
+prints exactly what a repo admin has to apply.
+
 ## Local development
 
 There is no local Postgres. Every developer works against a Neon branch, which
@@ -124,9 +137,9 @@ npm run db:branch:rm -- rehearsal-cutover
 ```
 
 Note that forking `production` no longer gives you an empty database — it is
-migrated (partly; see [CUTOVER.md](../CUTOVER.md) step 1). If what you need is a
-branch that starts empty the way a brand-new environment does, drop the schemas
-after forking:
+migrated, though only partly (see [CUTOVER.md](../CUTOVER.md) step 5). If what
+you need is a branch that starts empty the way a brand-new environment does,
+drop the schemas after forking:
 
 ```sql
 DROP SCHEMA IF EXISTS payload CASCADE;

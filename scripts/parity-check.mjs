@@ -28,9 +28,51 @@
  * database, or with a wide-open admin bootstrap, renders all 36 routes exactly
  * as a good one does. The CMS section (see CMS, further down) covers that, and
  * prints its own count so the 36 stays comparable with earlier runs.
+ *
+ * ── Getting past Vercel's auth wall ─────────────────────────────────────────
+ *
+ * Vercel Authentication at the Standard Protection scope (#32) covers every
+ * preview URL and the `*.vercel.app` production one. Against those, a run with
+ * no credentials never reaches the app at all: Vercel answers 401 before Next
+ * sees the request, so all 36 routes fail identically and the report reads as
+ * "this deployment is broken" when it means "the checker could not get in".
+ *
+ * So every request carries `x-vercel-protection-bypass` when
+ * VERCEL_AUTOMATION_BYPASS_SECRET is set, and none of them carry it when it is
+ * not — an empty header would be a credential that fails rather than an absent
+ * one. Nothing changes for the two targets that were never walled: localhost,
+ * and the custom production domain, which Standard Protection deliberately
+ * leaves public.
+ *
+ * The secret lives in `.env.local` because that is where #32's wizard writes
+ * it, and this script reads process.env rather than loading any env file. The
+ * npm script bridges that with `--env-file-if-exists`, so `npm run parity`
+ * picks the secret up without anyone having to re-export it by hand. Running
+ * `node scripts/parity-check.mjs` directly skips that bridge — export the
+ * variable yourself, or go through npm. A shell variable still wins over the
+ * file, which is what makes a one-off override work.
  */
 
 const BASE = process.argv[2] || "http://localhost:3000";
+
+/*
+ * Empty counts as absent: a wizard that wrote the key but not the value leaves
+ * `VERCEL_AUTOMATION_BYPASS_SECRET=` in .env.local, and sending that header
+ * empty would earn the same 401 as sending nothing while looking like it had
+ * been configured.
+ */
+const BYPASS_SECRET = process.env.VERCEL_AUTOMATION_BYPASS_SECRET || "";
+
+/**
+ * Headers for one request. Every fetch in this file goes through here, so the
+ * bypass cannot be on some requests and missing from others — a half-walled run
+ * is harder to read than a fully walled one.
+ */
+function headers(extra = {}) {
+  const base = { ...extra };
+  if (BYPASS_SECRET) base["x-vercel-protection-bypass"] = BYPASS_SECRET;
+  return base;
+}
 
 /*
  * `.invalid` is reserved by RFC 2606 and can never be a real domain, so a
@@ -132,11 +174,11 @@ async function authRequest(path, { method = "POST", body, cookie } = {}) {
   try {
     return await fetch(`${BASE}/api/auth/${path}`, {
       method,
-      headers: {
+      headers: headers({
         "Content-Type": "application/json",
         Origin: BASE,
         ...(cookie ? { cookie } : {}),
-      },
+      }),
       body: body === undefined ? undefined : JSON.stringify(body),
       redirect: "manual",
     });
@@ -168,6 +210,23 @@ function printDetail(line) {
   if (line) console.error(line);
 }
 
+/*
+ * A 401 from a deployment we have no bypass for is Vercel's auth wall, not the
+ * app rejecting anything — the request never got that far. Saying so here is
+ * the difference between a two-minute fix and an afternoon spent debugging a
+ * deployment that was fine all along, which is the failure this whole feature
+ * exists to prevent.
+ */
+function printWallHint(status) {
+  if (status !== 401 || BYPASS_SECRET) return;
+  console.error(
+    "\n  A 401 on the first request usually means Vercel Authentication answered\n" +
+      "  instead of the app — preview URLs and *.vercel.app are protected (#32).\n" +
+      "  Set VERCEL_AUTOMATION_BYPASS_SECRET (Vercel → Settings → Deployment\n" +
+      "  Protection → Protection Bypass for Automation) and run it again."
+  );
+}
+
 async function signUpFixture() {
   const res = await authRequest("sign-up/email", {
     body: {
@@ -191,6 +250,7 @@ async function signUpFixture() {
     );
   }
   printDetail(await detail(res));
+  printWallHint(res.status);
   console.error(
     "\n  If this target does not accept signups, point the check at an existing\n" +
       "  account instead: PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity"
@@ -208,6 +268,7 @@ async function signIn() {
         : "  The fixture account was created but could not sign in — that should not happen."
     );
     printDetail(await detail(res));
+    printWallHint(res.status);
     process.exit(2);
   }
   return (res.headers.getSetCookie?.() ?? [])
@@ -243,7 +304,7 @@ async function removeFixture(cookie) {
 
 async function visit(path, cookie) {
   const res = await fetch(`${BASE}${path}`, {
-    headers: cookie ? { cookie } : {},
+    headers: headers(cookie ? { cookie } : {}),
     redirect: "manual",
   });
   const location = res.headers.get("location");
@@ -393,7 +454,10 @@ async function checkAdminBoots() {
  */
 async function checkBootstrapClosed() {
   const label = "admin bootstrap closed";
-  const res = await fetch(`${BASE}/api/${CMS.adminCollection}/init`, { redirect: "manual" });
+  const res = await fetch(`${BASE}/api/${CMS.adminCollection}/init`, {
+    headers: headers(),
+    redirect: "manual",
+  });
   if (!res.ok) {
     recordCms(label, false, `GET /api/${CMS.adminCollection}/init returned ${res.status}`);
     return;

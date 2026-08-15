@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "parity": "node scripts/parity-check.mjs",
+    "parity": "node --env-file-if-exists=.env.local scripts/parity-check.mjs",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
