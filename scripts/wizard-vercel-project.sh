@@ -193,6 +193,15 @@ ENV_FILE=".env.local"
 # Set on Vercel for BOTH environments, per CUTOVER.md step 3.
 TARGETS=(production preview)
 
+# Production only. BETTER_AUTH_URL pins better-auth's baseURL, and trustedOrigins
+# defaults to exactly that origin — so setting it on Preview makes every preview
+# reject its own sign-in POST with 403 INVALID_ORIGIN, because the request comes
+# from *.vercel.app and not from the production domain. Left unset, better-auth
+# derives the origin per request from x-forwarded-host, which is what Vercel
+# recommends under Standard Protection and works for both the deployment URL and
+# the *-git-* branch alias.
+PRODUCTION_ONLY=(BETTER_AUTH_URL)
+
 # Never set on Vercel. Airtable and REVALIDATE_SECRET went with #20; MONGODB_URI
 # exists only for the local migration script.
 FORBIDDEN=(AIRTABLE_API_KEY AIRTABLE_BASE_ID REVALIDATE_SECRET MONGODB_URI)
@@ -227,17 +236,21 @@ die() {
   exit 1
 }
 
-# vercel_env NAME VALUE [sensitive] — upsert into Production and Preview.
+# vercel_env NAME VALUE [sensitive] [target...] — upsert into Production and
+# Preview, or into just the targets named after the sensitivity argument.
 # The value goes in over stdin, never as an argv, so it stays out of ps and out
 # of your shell history. --force makes a re-run an update rather than an error.
 vercel_env() {
   local name="$1" value="$2" sensitive="${3:-}" target ok=yes flags
+  if (( $# >= 3 )); then shift 3; else shift $#; fi
+  local targets=("$@")
+  (( ${#targets[@]} == 0 )) && targets=("${TARGETS[@]}")
   if [[ -z "$value" ]]; then
     manual "$name not set on Vercel (no value captured)" \
       "vercel env add $name production"
     return
   fi
-  for target in "${TARGETS[@]}"; do
+  for target in "${targets[@]}"; do
     flags=(--force -y)
     [[ "$sensitive" == sensitive ]] && flags+=(--sensitive)
     if printf '%s' "$value" | vercel env add "$name" "$target" "${flags[@]}" >/dev/null 2>&1; then
@@ -390,9 +403,13 @@ say "when this does not match the domain actually being served."
 printf '\n'
 note "Before DNS this is the Vercel deployment URL; CUTOVER.md step 7 resets it"
 note "to the final domain and redeploys. Either is fine now."
+printf '\n'
+note "Production only, on purpose. A preview served from *.vercel.app with this"
+note "set to the production domain answers 403 INVALID_ORIGIN on sign-in; unset,"
+note "better-auth reads the origin off each request instead."
 ask_with_default BETTER_AUTH_URL "Public origin (https://…, no trailing slash):" \
   "https://learn.nihongojp.com"
-vercel_env BETTER_AUTH_URL "$BETTER_AUTH_URL"
+vercel_env BETTER_AUTH_URL "$BETTER_AUTH_URL" "" production
 pause
 
 # ── 6 ─────────────────────────────────────────────────────────────────────
@@ -457,8 +474,9 @@ pause
 
 # ── 9 ─────────────────────────────────────────────────────────────────────
 stage "Audit — the variable list is the post-pivot one"
-say "Two assertions: everything required is present in both environments, and"
-say "nothing retired is."
+say "Three assertions: everything required is present in both environments,"
+say "nothing retired is, and the production-only variables are absent from"
+say "Preview — a stray BETTER_AUTH_URL there breaks sign-in on every preview."
 printf '\n'
 AUDIT_FAILED=no
 for target in "${TARGETS[@]}"; do
@@ -470,6 +488,19 @@ for target in "${TARGETS[@]}"; do
     continue
   fi
   for want in "${REQUIRED[@]}"; do
+    # Required in production, and required to be absent from preview.
+    if [[ "$target" != production ]] \
+       && printf '%s\n' "${PRODUCTION_ONLY[@]}" | grep -qx "$want"; then
+      if grep -qx "$want" <<<"$names"; then
+        printf '    %s✗%s %s must NOT be set here — previews answer 403 on sign-in\n' \
+          "$RED" "$RESET" "$want"
+        AUDIT_FAILED=yes
+        manual "$want is set on Vercel ($target)" "vercel env rm $want $target"
+      else
+        printf '    %s✓%s %s absent (correct for %s)\n' "$GREEN" "$RESET" "$want" "$target"
+      fi
+      continue
+    fi
     if grep -qx "$want" <<<"$names"; then
       printf '    %s✓%s %s\n' "$GREEN" "$RESET" "$want"
     else

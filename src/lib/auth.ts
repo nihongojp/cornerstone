@@ -10,11 +10,18 @@ if (!secret) {
   throw new Error("BETTER_AUTH_SECRET is not set — see .env.example");
 }
 
+// Production pins the origin via BETTER_AUTH_URL. Everywhere else — previews
+// above all — returns undefined on purpose, so better-auth derives the origin
+// from each request's x-forwarded-host instead.
+//
+// Not VERCEL_URL: that is the immutable per-deployment hostname, but the link
+// people open from a PR is the *-git-* branch alias, and trustedOrigins defaults
+// to exactly baseURL, so pinning the wrong one of the two answers 403
+// INVALID_ORIGIN on sign-in. Vercel says the same thing for its own reason —
+// under Standard Protection neither VERCEL_URL nor VERCEL_BRANCH_URL is publicly
+// reachable, and requests should target the domain the user actually asked for.
 function resolveBaseURL(): string | undefined {
-  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
-  // Vercel preview deployments get a generated hostname.
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return undefined;
+  return process.env.BETTER_AUTH_URL || undefined;
 }
 
 async function sendResetPasswordEmail(to: string, url: string) {

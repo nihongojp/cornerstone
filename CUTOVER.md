@@ -119,21 +119,27 @@ Protection → Standard Protection). Preview and `*.vercel.app` URLs then sit be
 Vercel's auth wall, which is what keeps Payload's unauthenticated first-user form
 unreachable between this step and step 6 (#32).
 
-Environment variables — set for Production *and* Preview. This list is
-`.env.example` minus `MONGODB_URI`; there is nothing else to set and nothing here to
-skip:
+Environment variables — set for Production *and* Preview, except where marked. This
+list is `.env.example` minus `MONGODB_URI`; there is nothing else to set and nothing
+here to skip:
 
 ```
 DATABASE_URL                  = <the pooled production URL from step 1>
 PAYLOAD_SECRET                = <openssl rand -base64 32>   ← fresh; required
 BLOB_READ_WRITE_TOKEN         = set for you when Blob storage is added
 BETTER_AUTH_SECRET            = <openssl rand -base64 32>   ← fresh, not your local one
-BETTER_AUTH_URL               = https://<the production domain>
+BETTER_AUTH_URL               = https://<the production domain>   ← Production ONLY
 RESEND_API_KEY                = <resend key>
 EMAIL_FROM                    = noreply@<your-verified-domain>
 PRONUNCIATION_SERVICE_URL     = https://<service-url>
 PRONUNCIATION_SERVICE_SECRET  = <the secret from step 2>
 ```
+
+`BETTER_AUTH_URL` is the one exception, and setting it on Preview is not a harmless
+extra: better-auth's `trustedOrigins` defaults to exactly this origin, so a preview
+served from `*.vercel.app` rejects its own sign-in POST with 403 `INVALID_ORIGIN`.
+Left unset outside production, the origin is read from each request instead, which
+works for both the deployment URL and the `*-git-*` branch alias.
 
 `PAYLOAD_SECRET` is **required — the app does not boot without it.** There is no silent
 fallback: with it unset, Payload fails to initialize, so `/admin` 500s and every page
