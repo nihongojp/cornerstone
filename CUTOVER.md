@@ -115,30 +115,17 @@ await fetch("https://<your-domain>/api/revalidate?secret=<REVALIDATE_SECRET>", {
 
 Locally, with `.env.local` pointing `DATABASE_URL` at **Neon** and `MONGODB_URI` at production Mongo (including the `/Cornerstone` database name — without it you get an empty `test` database).
 
-Dry run first:
-
-```bash
-npm run migrate:users -- --dry-run
-npm run migrate:progress -- --dry-run
-```
-
-Then for real, **in this order** (progress depends on users existing):
-
 ```bash
 npm run migrate:content    # Mongo → Airtable; ends with a round-trip verification
-npm run migrate:users      # → Postgres, bcrypt hashes preserved
-npm run migrate:progress   # → Postgres
 ```
 
-All three are idempotent — safe to re-run.
+It is idempotent — safe to re-run.
 
 **Expected output**, based on the rehearsal:
 
 | Script | Expect |
 |---|---|
 | content | 9 lessons, 3 grammar lessons, 8 resources, 19 achievements · "All records round-tripped cleanly" |
-| users | 3 migrated, 2 skipped (test accounts) |
-| progress | 19 migrated, 4 skipped (users that no longer exist) |
 
 If content reports any problem, **stop** — do not proceed until it round-trips cleanly.
 
@@ -158,8 +145,6 @@ npm run parity https://<your-domain>
 
 Expect **36/36**. Then by hand:
 
-- [ ] Sign in as a **real migrated user with their existing password** — the single most important check
-- [ ] Their progress appears; a lesson resumes where they left off
 - [ ] Sign up as a new user, sign out, sign back in
 - [ ] Password reset: request it, receive the email, complete it, sign in with the new password
 - [ ] Play a grammar lesson end to end; Save & Exit, reopen, confirm it resumes at the same exercise

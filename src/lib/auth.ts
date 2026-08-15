@@ -1,7 +1,5 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { verifyPassword as verifyScrypt } from "better-auth/crypto";
-import { compare as compareBcrypt } from "bcryptjs";
 import { Resend } from "resend";
 import { db, schema } from "./db";
 
@@ -50,19 +48,6 @@ export const auth = betterAuth({
     // The signup screen has always returned the user to the login tab with
     // "Account created. Please log in." Auto sign-in would contradict that copy.
     autoSignIn: false,
-    /*
-     * Accounts migrated from MongoDB carry bcrypt hashes (written by the old
-     * Mongoose pre-save hook), while anything created or changed here uses
-     * Better Auth's scrypt. Branching on the bcrypt "$2" prefix lets both
-     * coexist, so migrated users keep signing in with their existing password
-     * and never see a forced reset.
-     */
-    password: {
-      verify: async ({ hash, password }) =>
-        hash.startsWith("$2")
-          ? compareBcrypt(password, hash)
-          : verifyScrypt({ hash, password }),
-    },
     sendResetPassword: async ({ user, url }) => {
       await sendResetPasswordEmail(user.email, url);
     },

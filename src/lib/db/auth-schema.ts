@@ -54,9 +54,8 @@ export const account = pgTable("account", {
   accessTokenExpiresAt: timestamp("access_token_expires_at"),
   refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
   scope: text("scope"),
-  // For the "credential" provider this holds the password hash. Accounts
-  // migrated from MongoDB keep their bcrypt hashes here — see the custom
-  // password.verify in auth.ts.
+  // For the "credential" provider this holds the password hash, always
+  // Better Auth's native scrypt.
   password: text("password"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
