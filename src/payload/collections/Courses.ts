@@ -1,5 +1,7 @@
 import type { CollectionConfig } from "payload";
 
+import { revalidateCourse, revalidateCourseDelete } from "../hooks/revalidate";
+
 /*
  * A course is an ordered track of lessons. It replaces the old `nextSlug`
  * linked list: "what comes next" is now `course` + `lessons.order`, which an
@@ -15,6 +17,10 @@ export const Courses: CollectionConfig = {
     description: "Tracks that group lessons into an ordered sequence.",
   },
   access: { read: () => true },
+  hooks: {
+    afterChange: [revalidateCourse],
+    afterDelete: [revalidateCourseDelete],
+  },
   versions: { drafts: true },
   fields: [
     { name: "title", type: "text", required: true },

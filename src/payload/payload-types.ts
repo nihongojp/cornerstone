@@ -177,6 +177,10 @@ export interface Lesson {
    */
   slug: string;
   /**
+   * Which player renders this lesson, and which list it appears in. Step-through lessons play one component per screen at /newlesson/<slug>; flashcard lessons open with a deck and then run their exercises at /lesson/<slug>, and are the only ones pinned to the dashboard map. Pick the family your components come from — mixing families in one lesson will not render.
+   */
+  format: 'step' | 'flashcard';
+  /**
    * Which track this lesson belongs to.
    */
   course?: (number | null) | Course;
@@ -705,9 +709,9 @@ export interface Resource {
         itemId: string;
         title: string;
         /**
-         * Absolute URL. Opens in a new tab.
+         * Absolute URL. Opens in a new tab. Optional on purpose: an entry with a title and description but no link yet is a real state the site already handles — it renders as "(No URL)" — and it keeps a planned resource visible as a to-do instead of losing the note.
          */
-        url: string;
+        url?: string | null;
         description?: string | null;
         id?: string | null;
       }[]
@@ -887,6 +891,7 @@ export interface CoursesSelect<T extends boolean = true> {
 export interface LessonsSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  format?: T;
   course?: T;
   order?: T;
   cardTitle?: T;

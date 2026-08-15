@@ -895,6 +895,8 @@ async function main() {
       // Legacy lessons have no generated batches, so there is nothing to
       // shuffle — and their exercise order is authored.
       shuffleExercises: false,
+      // The old `lessons` collection is exactly the flashcard-player family.
+      format: "flashcard" as const,
       exercises,
       prefecture: str(doc.prefecture),
       tags: strArray(doc.tags) ?? [],
@@ -935,6 +937,8 @@ async function main() {
       // The expansion was baked in source order; shuffling generated groups
       // is now the player's job.
       shuffleExercises: true,
+      // The old `newlessons` collection is exactly the step-through family.
+      format: "step" as const,
       exercises,
       tags: strArray(doc.tags) ?? [],
       sourceId: id,

@@ -27,6 +27,8 @@ export type UpNextLesson = {
   title: string;
   version?: string;
   prefecture?: string;
+  /** Where to resume — the two lesson formats play on different paths. */
+  href: string;
   lastStep: number;
   accuracyPct?: number;
   status: ProgressStatus;

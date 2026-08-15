@@ -1,5 +1,5 @@
 import Resources from "../../../../pages-client/Resources";
-import { getResources } from "../../../../lib/airtable/content";
+import { getResources } from "../../../../lib/content/content";
 
 export default async function Page() {
   const groups = await getResources();

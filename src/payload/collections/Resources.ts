@@ -1,5 +1,7 @@
 import type { CollectionConfig } from "payload";
 
+import { revalidateResources, revalidateResourcesDelete } from "../hooks/revalidate";
+
 /*
  * The /resources page: a handful of named groups, each a list of links.
  *
@@ -18,6 +20,10 @@ export const Resources: CollectionConfig = {
     description: "Link collections shown on the Resources page, grouped by category.",
   },
   access: { read: () => true },
+  hooks: {
+    afterChange: [revalidateResources],
+    afterDelete: [revalidateResourcesDelete],
+  },
   versions: { drafts: true },
   fields: [
     {

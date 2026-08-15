@@ -17,6 +17,13 @@ resources        media (uploads → Vercel Blob)        cms_admins (admin login)
 - **`lessons`** — one collection for both old Mongo collections, legacy
   `lessons` and `newlessons`. Display field is `title`; `newlessons` called it
   `lesson` and the import renames it. Drafts replace the old `isActive`.
+  **`format`** is what survives of the split between the two: `flashcard`
+  lessons play at `/lesson/<slug>` and are the only ones pinned to the
+  dashboard map, `step` lessons play at `/newlesson/<slug>`, and the two lists
+  on `/new-lessons` are the two values. It is a stored field rather than
+  something derived because the course a lesson sits in is a product decision
+  an editor can change, and deriving it from the blocks present would force
+  every list query to load every lesson's exercises (#20).
 - **`exercises`** — an array field on the lesson, not a collection. An exercise
   belongs to exactly one lesson, is order-sensitive, and has no independent
   lifecycle.
@@ -43,6 +50,29 @@ Deliberately absent: `checkpointPool` (derived at render, #27), `nextSlug`
 (course order replaces it), item `number` (unreliable — array position is the
 order), and `isActive` (draft/publish).
 
+## How the app reads it
+
+Everything goes through `src/lib/content/content.ts`, which keeps the five
+signatures the app has had since the Express controllers — `listLessons`,
+`getLessonBySlug`, `listNewLessons`, `getNewLessonBySlug`, `getResources` —
+plus `getLessonRoute` for resuming, which spans both formats and returns the
+`href` of the player a lesson actually belongs to. `adapters.ts` flattens
+exercises → components back to the flat `items[]` / `flashcards[]` +
+`exercises[]` shapes in `src/lib/types/lessons.ts`; while one-component-per-
+exercise holds, that flattening is item-for-item, so step counts and `stepKey`
+resume are unchanged. `nextSlug` is synthesised from course order.
+
+Reads use Payload's **local API** — an in-process query, not HTTP — so there is
+no `fetch` for Next to cache and each lookup is wrapped in `unstable_cache`
+with the tags in `tags.ts`. The collection hooks in
+`src/payload/hooks/revalidate.ts` drop those tags on every save, so a published
+edit is live on the next request; the one-hour `revalidate` is only a backstop
+for a missed hook. There is no inbound revalidation webhook and no shared
+secret — that was Airtable's arrangement, and Payload runs in this process.
+
+Only published documents are read (`_status`), so an unpublished lesson is
+invisible to the site even though `/admin` shows it.
+
 ## Media
 
 Component media fields are **plain URL strings**, not `upload` relationships.
@@ -60,6 +90,12 @@ npm run payload:migrate                 # apply (checks imports first)
 npm run payload:migrate:status
 npm run payload:types                   # regenerate src/payload/payload-types.ts
 ```
+
+**These need Node 24.** On Node 22 every one of them dies loading the config
+with `ERR_VM_MODULE_LINK_FAILURE: request for '@payloadcms/drizzle' is from a
+module not been linked`, which reads like a broken dependency and is not —
+`fnm use 24` (or `nvm`) and re-run. Next itself is unaffected, so `npm run dev`
+and `npm run build` work on either.
 
 Order matters on a fresh database: **`npm run db:migrate` first**, then
 `npm run payload:migrate`. Payload never issues `CREATE SCHEMA`, so

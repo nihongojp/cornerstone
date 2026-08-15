@@ -2,11 +2,18 @@ import type { CollectionConfig } from "payload";
 
 import { grammarBlocks } from "../blocks/grammar";
 import { escapeHatchBlocks, legacyBlocks } from "../blocks/legacy";
+import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
 
 /*
  * One `lessons` collection replaces both Mongo collections — legacy `lessons`
  * (prefecture/hiragana) and `newlessons` (grammar). The display field is
  * `title`; `newlessons` called it `lesson`, and the rename happens at import.
+ *
+ * `format` is what survives of that split. The two players are two different
+ * renderers on two URL families, so which one a lesson belongs to has to be
+ * stated rather than guessed — deriving it from the course would weld product
+ * structure to rendering, and deriving it from the blocks present would make
+ * every list query load every lesson's exercises (#20).
  *
  * Shape: lesson → `exercises` (ordered array) → `components` (blocks).
  * `exercises` is an array field rather than its own collection on purpose — an
@@ -37,6 +44,10 @@ export const Lessons: CollectionConfig = {
     description: "Every lesson, from both of the old lesson systems.",
   },
   access: { read: () => true },
+  hooks: {
+    afterChange: [revalidateLesson],
+    afterDelete: [revalidateLessonDelete],
+  },
   defaultSort: "order",
   // Replaces the old `isActive` flag: unpublished lessons are drafts.
   versions: { drafts: true },
@@ -59,6 +70,26 @@ export const Lessons: CollectionConfig = {
           "URL segment and the key learner progress is recorded against. A database foreign " +
           "key cascades renames into existing progress rows, but bookmarked lesson URLs still " +
           "break — rename rarely.",
+      },
+    },
+    {
+      name: "format",
+      type: "select",
+      required: true,
+      index: true,
+      defaultValue: "step",
+      options: [
+        { label: "Step-through lesson (grammar player)", value: "step" },
+        { label: "Flashcard lesson (prefecture player)", value: "flashcard" },
+      ],
+      admin: {
+        position: "sidebar",
+        description:
+          "Which player renders this lesson, and which list it appears in. Step-through lessons " +
+          "play one component per screen at /newlesson/<slug>; flashcard lessons open with a deck " +
+          "and then run their exercises at /lesson/<slug>, and are the only ones pinned to the " +
+          "dashboard map. Pick the family your components come from — mixing families in one " +
+          "lesson will not render.",
       },
     },
     {

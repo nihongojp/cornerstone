@@ -567,7 +567,7 @@ const Dashboard = ({ allLessons }: { allLessons: LessonListItem[] }) => {
 
                 <Box
                   component={Link}
-                  href={`/lesson/${upNext.slug}`}
+                  href={upNext.href}
                   aria-label={`Resume ${upNext.title}`}
                   sx={{
                     mt: 1.75,

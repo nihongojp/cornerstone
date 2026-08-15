@@ -1,5 +1,5 @@
 import NewLessonsListPage from "../../../../../pages-client/NewLessonsListPage";
-import { listLessons, listNewLessons } from "../../../../../lib/airtable/content";
+import { listLessons, listNewLessons } from "../../../../../lib/content/content";
 
 export default async function Page() {
   // Fetched independently so a failure in one source still shows the other's

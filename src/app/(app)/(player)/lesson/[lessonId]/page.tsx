@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import LessonPlayer from "../../../../../pages-client/LessonPlayer";
-import { getLessonBySlug } from "../../../../../lib/airtable/content";
+import { getLessonBySlug } from "../../../../../lib/content/content";
 
 export default async function Page({
   params,
