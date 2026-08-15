@@ -151,14 +151,22 @@ can survive; the script prints the address when it fails to clean up. To use an
 existing account and have it create nothing, run it as
 `PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity https://<your-domain>`.
 
-Expect **36/36**. Then by hand:
+Expect **36/36**, then **4/4** in the CMS block below it. The CMS block is the
+one that catches a deployment serving nothing: it asserts that `/admin` renders
+Payload's login screen, that at least one `cms_admins` account exists — so the
+unauthenticated first-user bootstrap is shut — and that `/resources` and a known
+lesson come back with their actual content, not merely a 200.
+
+A failing bootstrap line means `npm run payload:seed-admins` has not been run
+against this environment; a failing content line means the import has not.
+
+Then by hand:
 
 - [ ] Sign up as a new user, sign out, sign back in
 - [ ] Password reset: request it, receive the email, complete it, sign in with the new password
 - [ ] Play a grammar lesson end to end; Save & Exit, reopen, confirm it resumes at the same exercise
 - [ ] Pronunciation check on `l1-v1` returns a score (only lesson with real reference audio)
 - [ ] Dashboard map renders; clicking a prefecture lists its lessons
-- [ ] `/resources` shows 8 categories
 
 ---
 

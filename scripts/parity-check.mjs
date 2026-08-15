@@ -20,6 +20,14 @@
  * exactly as it found it, whether that is localhost, a preview deploy, or
  * production. Set PARITY_EMAIL and PARITY_PASSWORD to use an existing account
  * instead, and it will neither create nor delete anything.
+ *
+ * ── The CMS is checked separately ───────────────────────────────────────────
+ *
+ * The route table below only asks whether each URL renders. That is silent
+ * about the half of the stack the pivot introduced: a deployment with an empty
+ * database, or with a wide-open admin bootstrap, renders all 36 routes exactly
+ * as a good one does. The CMS section (see CMS, further down) covers that, and
+ * prints its own count so the 36 stays comparable with earlier runs.
  */
 
 const BASE = process.argv[2] || "http://localhost:3000";
@@ -69,6 +77,53 @@ const ROUTES = [
 
 const HEADER_MARK = "Nihon-Go!";
 const FOOTER_MARK = "All Rights Reserved";
+
+/*
+ * ── What the CMS section expects ────────────────────────────────────────────
+ *
+ * Every value here is an assertion about *content*, not about status codes.
+ * That distinction is the whole point of this section: an empty database
+ * serves /resources with a 200 and nothing on it, so "returned 200" is exactly
+ * the check that would miss the failure this is here to catch.
+ *
+ * Eight resource groups is the volume the import already gates on — EXPECTED in
+ * scripts/migrate/01-content-to-payload.ts, from the survey in MIGRATION_PLAN.md.
+ * Their names, and the lesson marks, are transcribed from the imported content
+ * itself. If content is deliberately added or renamed, these move with it; that
+ * they have to be edited by hand is the feature, not the friction.
+ */
+const CMS = {
+  /*
+   * Payload appends this to every admin <title> (admin.meta.titleSuffix in
+   * src/payload.config.ts). Matching on it proves *our* Payload config booted,
+   * rather than that something answered at /admin.
+   */
+  adminTitle: "Login — Nihon-Go! CMS",
+
+  /* The collection backing the admin login — CmsAdmins.slug. */
+  adminCollection: "cms_admins",
+
+  /*
+   * The pages that have to come back with something on them, and the body text
+   * that can only be there if Payload returned a document.
+   *
+   * For the lesson those marks are the five characters of its first flashcard
+   * deck and the prompt of one of its exercises. Its title is deliberately not
+   * among them — "Lesson 1" is too generic to prove anything.
+   */
+  content: [
+    {
+      path: "/resources",
+      unit: "categories",
+      marks: ["Reading", "Podcasts", "Writing", "Organizations", "Shows", "Videos", "Textbooks", "News"],
+    },
+    {
+      path: "/lesson/hiragana-l1-v1-hokkaido",
+      unit: "content marks",
+      marks: ["あ/ア", "い/イ", "う/ウ", "え/エ", "お/オ", "Listen and choose the character you hear"],
+    },
+  ],
+};
 
 async function authRequest(path, { method = "POST", body, cookie } = {}) {
   try {
@@ -242,6 +297,110 @@ async function check(route, signedIn, cookie) {
   rows.push(`  ${ok ? "✓" : "✗"} [${state}] ${route.path.padEnd(34)} ${note}`);
 }
 
+// ── The CMS ──────────────────────────────────────────────────────────────────
+
+const cmsRows = [];
+let cmsFailures = 0;
+
+/**
+ * Records one CMS result. `note` says what was true when it passed as well as
+ * what was wrong when it did not: "renders" tells you nothing you could act on
+ * at 3am during a cutover, whereas "8/8 categories" does.
+ */
+function recordCms(label, ok, note) {
+  if (!ok) cmsFailures++;
+  cmsRows.push(`  ${ok ? "✓" : "✗"} ${label.padEnd(40)} ${note}`);
+}
+
+/**
+ * Asserts that a page renders, and that every one of `marks` appears in what it
+ * rendered — the second half being the part a status code cannot tell you.
+ *
+ * The failure note names the marks that were absent rather than only counting
+ * them, because "missing Podcasts, News" and "missing all eight" are different
+ * problems: one is a content edit, the other is an empty database.
+ *
+ * Scope, honestly: both pages hand their content to a client component, so a
+ * mark can be matched in the serialised RSC payload rather than in rendered
+ * markup. That is enough to prove Payload returned the document — which is
+ * what this section claims — but it is not a claim about what a human sees.
+ * The manual pass in CUTOVER.md still covers that.
+ */
+async function checkContent({ path, unit, marks }, cookie) {
+  const label = `${path} content`;
+  const got = await visit(path, cookie);
+  if (got.status !== 200) {
+    recordCms(label, false, `expected 200, got ${describe(got)}`);
+    return;
+  }
+
+  const absent = marks.filter((m) => !got.body.includes(m));
+  const found = marks.length - absent.length;
+  recordCms(
+    label,
+    absent.length === 0,
+    absent.length === 0
+      ? `${found}/${marks.length} ${unit}`
+      : `200 but only ${found}/${marks.length} ${unit} — missing ${absent.join(", ")}`
+  );
+}
+
+/*
+ * The admin is mounted and boots. A 5xx here is the signature of the two ways
+ * the admin dies on a fresh environment — PAYLOAD_SECRET unset, or the payload
+ * schema never migrated — neither of which any CRA route would notice.
+ *
+ * /admin itself always answers 200: it renders the admin shell and then routes
+ * to a view on the client, so its status says nothing. /admin/login is rendered
+ * on the server, which is why the assertion lands there.
+ */
+async function checkAdmin() {
+  const got = await visit("/admin/login");
+  if (got.status !== 200) {
+    recordCms("/admin/login", false, `expected 200, got ${describe(got)}`);
+    return;
+  }
+  const ok = got.body.includes(CMS.adminTitle);
+  recordCms(
+    "/admin/login",
+    ok,
+    ok ? "Payload login screen" : `200 but no "${CMS.adminTitle}" — is this Payload's admin?`
+  );
+}
+
+/*
+ * The bootstrap window is shut (#32).
+ *
+ * While zero cms_admins rows exist, Payload offers first-user creation to
+ * anyone who reaches /admin, unauthenticated — one form submission away from a
+ * stranger owning the CMS. Payload publishes exactly this as `initialized`, so
+ * the check is a straight read rather than an inference from a rendered page.
+ */
+async function checkBootstrapClosed() {
+  const label = "admin bootstrap closed";
+  const res = await fetch(`${BASE}/api/${CMS.adminCollection}/init`, { redirect: "manual" });
+  if (!res.ok) {
+    recordCms(label, false, `GET /api/${CMS.adminCollection}/init returned ${res.status}`);
+    return;
+  }
+
+  let initialized;
+  try {
+    ({ initialized } = await res.json());
+  } catch {
+    recordCms(label, false, "init did not return JSON");
+    return;
+  }
+
+  recordCms(
+    label,
+    initialized === true,
+    initialized === true
+      ? `a ${CMS.adminCollection} account exists`
+      : "NO admin account — /admin offers first-user creation to anyone. Run `npm run payload:seed-admins`"
+  );
+}
+
 console.log(`Parity check against ${BASE}`);
 console.log(
   SUPPLIED_FIXTURE
@@ -260,6 +419,22 @@ try {
     // A redirect that ignores auth only needs checking once.
     if (route.guard !== "redirect") await check(route, true, cookie);
   }
+
+  /*
+   * The CMS section runs here, inside the try, because the lesson page is
+   * behind auth and needs the fixture session — which the `finally` is about
+   * to take away.
+   *
+   * The two content pages fail differently on an empty database, which is why
+   * both are checked: /resources still answers 200 with nothing on it, while
+   * the lesson redirects to /dashboard once its slug resolves to nothing. The
+   * lesson is therefore covered twice, here and in the route table; that is
+   * deliberate, so that both halves of "there is no content" get reported
+   * under the heading that explains what to do about it.
+   */
+  await checkAdmin();
+  await checkBootstrapClosed();
+  for (const page of CMS.content) await checkContent(page, cookie);
 } finally {
   await removeFixture(cookie);
 }
@@ -269,4 +444,12 @@ console.log(
   `\n${rows.length - failures}/${rows.length} checks passed` +
     (failures ? ` — ${failures} FAILED` : " — full parity with the CRA route table")
 );
-process.exit(failures ? 1 : 0);
+
+console.log("\nCMS");
+console.log(cmsRows.join("\n"));
+console.log(
+  `\n${cmsRows.length - cmsFailures}/${cmsRows.length} CMS checks passed` +
+    (cmsFailures ? ` — ${cmsFailures} FAILED` : " — admin is up and content is served by Payload")
+);
+
+process.exit(failures || cmsFailures ? 1 : 0);
