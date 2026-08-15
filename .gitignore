@@ -62,7 +62,9 @@ server/.model-cache/
 
 # Next.js
 .next/
-out/
+# Anchored: this is Next's export directory at the repo root. Unanchored it
+# also swallowed scripts/migrate/out/, which holds committed audit artifacts.
+/out/
 .vercel
 *.tsbuildinfo
 next-env.d.ts
