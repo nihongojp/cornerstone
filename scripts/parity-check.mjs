@@ -7,10 +7,35 @@
  * table, the RequireAuth/PublicOnly wrappers, and the hideHeader/hideFooter
  * rules. This exists so parity is re-checkable after any change, rather than
  * being a one-off click-through.
+ *
+ * ── The signed-in half needs an account ─────────────────────────────────────
+ *
+ * It used to be a hardcoded `hanako@example.com`, left over from the migrated
+ * MongoDB users. Legacy user migration was dropped (#22), so that account does
+ * not exist in a fresh environment and the signed-in half failed everywhere
+ * except the one machine where somebody had created it by hand (#28).
+ *
+ * So the check now brings its own. By default it signs up a throwaway account
+ * over the public API, uses it, and deletes it again — leaving the target
+ * exactly as it found it, whether that is localhost, a preview deploy, or
+ * production. Set PARITY_EMAIL and PARITY_PASSWORD to use an existing account
+ * instead, and it will neither create nor delete anything.
  */
 
 const BASE = process.argv[2] || "http://localhost:3000";
-const CREDENTIALS = { email: "hanako@example.com", password: "momiji-newpass-2244" };
+
+/*
+ * `.invalid` is reserved by RFC 2606 and can never be a real domain, so a
+ * leaked fixture address cannot mail a stranger. The random suffix keeps
+ * concurrent runs — CI and a laptop against the same preview — from colliding.
+ */
+const SUPPLIED_FIXTURE = Boolean(process.env.PARITY_EMAIL && process.env.PARITY_PASSWORD);
+const CREDENTIALS = SUPPLIED_FIXTURE
+  ? { email: process.env.PARITY_EMAIL, password: process.env.PARITY_PASSWORD }
+  : {
+      email: `parity-${crypto.randomUUID().slice(0, 8)}@parity-check.invalid`,
+      password: `parity-${crypto.randomUUID()}`,
+    };
 
 // chrome: "both" = Header + Footer, "header" = Header only, "none" = bare
 const ROUTES = [
@@ -45,13 +70,16 @@ const ROUTES = [
 const HEADER_MARK = "Nihon-Go!";
 const FOOTER_MARK = "All Rights Reserved";
 
-async function signIn() {
-  let res;
+async function authRequest(path, { method = "POST", body, cookie } = {}) {
   try {
-    res = await fetch(`${BASE}/api/auth/sign-in/email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Origin: BASE },
-      body: JSON.stringify(CREDENTIALS),
+    return await fetch(`${BASE}/api/auth/${path}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        Origin: BASE,
+        ...(cookie ? { cookie } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
       redirect: "manual",
     });
   } catch (err) {
@@ -59,17 +87,100 @@ async function signIn() {
     console.error(`  ${err instanceof Error ? err.message : err}`);
     process.exit(2);
   }
-  if (!res.ok) {
+}
+
+/**
+ * Body text as a printable line, for error messages. Returns "" when there is
+ * nothing to show — a 500 from better-auth often has an empty body — so the
+ * caller can skip the line instead of printing a blank one. Never throws: this
+ * only runs on the failure path.
+ */
+async function detail(res) {
+  let body = "";
+  try {
+    body = (await res.text()).trim().slice(0, 300);
+  } catch {
+    return "";
+  }
+  return body ? `  ${body}` : "";
+}
+
+/** Prints a detail line only when there is one. */
+function printDetail(line) {
+  if (line) console.error(line);
+}
+
+async function signUpFixture() {
+  const res = await authRequest("sign-up/email", {
+    body: {
+      email: CREDENTIALS.email,
+      password: CREDENTIALS.password,
+      name: "Parity Check",
+      firstName: "Parity",
+      lastName: "Check",
+    },
+  });
+  if (res.ok) return;
+
+  // A 500 here is almost always an unmigrated database — better-auth querying a
+  // `user` table that does not exist yet. Worth naming, because the raw error
+  // never reaches this script.
+  console.error(`Could not create the parity fixture account (${res.status}).`);
+  if (res.status >= 500) {
     console.error(
-      `Sign-in failed (${res.status}). The signed-in half of the check needs an account:\n` +
-        `  ${CREDENTIALS.email}\n` +
-        `Create it, or edit CREDENTIALS at the top of this script.`
+      "  A 5xx here usually means the database has no auth tables yet.\n" +
+        "  Run `npm run db:migrate` (and `npm run payload:migrate`) against this environment."
     );
+  }
+  printDetail(await detail(res));
+  console.error(
+    "\n  If this target does not accept signups, point the check at an existing\n" +
+      "  account instead: PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity"
+  );
+  process.exit(2);
+}
+
+async function signIn() {
+  const res = await authRequest("sign-in/email", { body: CREDENTIALS });
+  if (!res.ok) {
+    console.error(`Sign-in failed (${res.status}) for ${CREDENTIALS.email}.`);
+    console.error(
+      SUPPLIED_FIXTURE
+        ? "  PARITY_EMAIL / PARITY_PASSWORD do not match an account on this target."
+        : "  The fixture account was created but could not sign in — that should not happen."
+    );
+    printDetail(await detail(res));
     process.exit(2);
   }
   return (res.headers.getSetCookie?.() ?? [])
     .map((c) => c.split(";")[0])
     .join("; ");
+}
+
+/*
+ * Removes the throwaway account. `delete-user` accepts the password, which
+ * skips better-auth's session-freshness check, so this works however long the
+ * run took. An account supplied through the environment is never touched.
+ *
+ * A failure here is reported but does not fail the run: the parity result is
+ * about the routes, and a leftover fixture is a tidiness problem, not a
+ * regression. It prints the address so it can be removed by hand.
+ */
+async function removeFixture(cookie) {
+  if (SUPPLIED_FIXTURE) return;
+
+  const res = await authRequest("delete-user", {
+    method: "POST",
+    body: { password: CREDENTIALS.password },
+    cookie,
+  });
+
+  if (!res.ok) {
+    console.warn(
+      `\n⚠ Could not delete the parity fixture account (${res.status}).\n` +
+        `  Remove it by hand: ${CREDENTIALS.email}`
+    );
+  }
 }
 
 async function visit(path, cookie) {
@@ -131,13 +242,26 @@ async function check(route, signedIn, cookie) {
   rows.push(`  ${ok ? "✓" : "✗"} [${state}] ${route.path.padEnd(34)} ${note}`);
 }
 
-const cookie = await signIn();
-console.log(`Parity check against ${BASE}\n`);
+console.log(`Parity check against ${BASE}`);
+console.log(
+  SUPPLIED_FIXTURE
+    ? `Signing in as ${CREDENTIALS.email} (from PARITY_EMAIL)\n`
+    : `Creating a throwaway account for the signed-in half: ${CREDENTIALS.email}\n`
+);
 
-for (const route of ROUTES) {
-  await check(route, false, cookie);
-  // A redirect that ignores auth only needs checking once.
-  if (route.guard !== "redirect") await check(route, true, cookie);
+if (!SUPPLIED_FIXTURE) await signUpFixture();
+const cookie = await signIn();
+
+// finally, not just the happy path: a failed assertion must not leave the
+// fixture behind, or the next run against this target starts dirty.
+try {
+  for (const route of ROUTES) {
+    await check(route, false, cookie);
+    // A redirect that ignores auth only needs checking once.
+    if (route.guard !== "redirect") await check(route, true, cookie);
+  }
+} finally {
+  await removeFixture(cookie);
 }
 
 console.log(rows.join("\n"));

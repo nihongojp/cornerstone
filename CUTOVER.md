@@ -143,6 +143,14 @@ Add the domain in Vercel and update DNS. Set `BETTER_AUTH_URL` to the final doma
 npm run parity https://<your-domain>
 ```
 
+The signed-in half of the check needs an account, so the run **signs up a
+throwaway user over the public API and deletes it again** — including here,
+against production. It is named `parity-<random>@parity-check.invalid`, and
+`.invalid` can never be a real domain. If the run is interrupted the account
+can survive; the script prints the address when it fails to clean up. To use an
+existing account and have it create nothing, run it as
+`PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity https://<your-domain>`.
+
 Expect **36/36**. Then by hand:
 
 - [ ] Sign up as a new user, sign out, sign back in
