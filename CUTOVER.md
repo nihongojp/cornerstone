@@ -7,8 +7,8 @@ infrastructure, moving the content, and switching the domain. The old stack keep
 running untouched the whole time, which is what makes this reversible.
 
 **Do it when nobody is authoring content.** Step 4 starts a freeze that lasts until step
-9 passes; how long that actually takes is measured in the rehearsal (#33) and recorded
-here — see [The freeze window](#the-freeze-window).
+9 passes — **estimate ~2 hours**, not yet measured against a rehearsal. See
+[The freeze window](#the-freeze-window).
 
 **Production domain: `cornerstone.nihongojp.com` — provisional.** The subdomain name is
 an unsettled product-naming question. Renaming it costs a DNS record, a
@@ -231,11 +231,12 @@ additions and deletions, which are the edits that matter most here.)
 
 The freeze runs from here to the end of step 9.
 
-> **Measured duration: not yet recorded.** The rehearsal on a throwaway Neon branch
-> (#33) produces this number; until it does, do not promise Sachi a figure. What is
-> known: steps 5, 6 and 8 are minutes each, step 7 is the only one whose runtime scales
-> with content, and step 9's by-hand checklist is the long pole. Update this line with
-> the rehearsal's measurement before running the real cutover.
+> **Estimate ~2 hours — not yet measured.** Steps 5, 6 and 8 are minutes each, step 7 is
+> the only one whose runtime scales with content, and step 9's by-hand checklist is the
+> long pole. This is the figure to give Sachi, with the caveat that it is an estimate.
+>
+> The rehearsal on a throwaway Neon branch (#33) is what measures it. If it comes back
+> wildly different, correct this line as part of #33.
 
 ---
 
