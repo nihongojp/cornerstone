@@ -76,3 +76,6 @@ next-env.d.ts
 # Agent worktrees and scratch planning files
 .claude/worktrees/
 .scratch/
+
+# Playwright MCP page snapshots (agent browser testing)
+.playwright-mcp/
