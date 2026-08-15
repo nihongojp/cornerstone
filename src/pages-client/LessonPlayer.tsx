@@ -19,6 +19,8 @@ import BugReportOutlinedIcon from "@mui/icons-material/BugReportOutlined";
 import { useRouter } from "next/navigation";
 
 import Flips from "../components/Flips";
+import CharacterSpotlight from "../components/CharacterSpotlight";
+import { kanaStrokeOrder } from "../data/kanaStrokeOrder";
 import AudioMatch from "../components/AudioMatch";
 import DragDrop from "../components/DragDrop";
 import DotMatch from "../components/MatchDots";
@@ -207,6 +209,7 @@ function stepLabelFromKey(key: string): string {
   if (key.includes("matchAudioLetter")) return "Audio Match";
   if (key.includes("vocabulary_drag_drop")) return "Drag & Drop";
   if (key.toLowerCase().includes("factbreak")) return "Fun Fact";
+  if (key.includes("spotlight-hiragana")) return "Hiragana";
   return "Exercise";
 }
 
@@ -271,6 +274,30 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
     const isV1 = String((lesson as any).version || "").trim().toUpperCase() === "V1";
 
     if (flashcards.length) {
+      // Each hiragana with a stroke-order reference image gets its own
+      // spotlight step before the flashcards review, in introduction order.
+      // Characters without an image are skipped rather than shown with a
+      // text-only fallback.
+      flashcards
+        .map((raw) => splitPair(raw).hiragana)
+        .filter(Boolean)
+        .forEach((ch, idx) => {
+          const strokeOrder = kanaStrokeOrder[ch];
+          if (!strokeOrder) return;
+          out.push({
+            key: `spotlight-hiragana-${idx}`,
+            graded: false,
+            comp: () => (
+              <CharacterSpotlight
+                character={ch}
+                script="Hiragana"
+                imageUrl={strokeOrder.imageUrl}
+                strokes={strokeOrder.strokes}
+              />
+            ),
+          });
+        });
+
       out.push({
         key: "flips",
         graded: true,
