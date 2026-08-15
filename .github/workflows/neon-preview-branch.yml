@@ -8,8 +8,14 @@ name: Neon preview branch
 #   secret   NEON_API_KEY
 #   variable NEON_PROJECT_ID
 #
-# Until those exist the workflow is inert — it will fail fast on the first step
-# rather than doing anything to a database.
+# Both jobs are gated on NEON_PROJECT_ID, so until it is set they skip rather
+# than run. That keeps the workflow from touching a database before it is
+# configured, without failing every pull request in the meantime — a check
+# that is permanently red is a check people stop reading.
+#
+# (The gate is on the variable, not the secret: `secrets` is not available in a
+# job-level `if`, but `vars` is. Setting one without the other still fails, in
+# the step that needs the missing value.)
 
 on:
   pull_request:
@@ -21,7 +27,7 @@ concurrency:
 
 jobs:
   create:
-    if: github.event.action != 'closed'
+    if: vars.NEON_PROJECT_ID != '' && github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -66,7 +72,7 @@ jobs:
           npm run build
 
   delete:
-    if: github.event.action == 'closed'
+    if: vars.NEON_PROJECT_ID != '' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
       - name: Delete the PR's Neon branch
