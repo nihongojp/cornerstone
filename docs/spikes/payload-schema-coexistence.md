@@ -121,7 +121,7 @@ be minted outside Postgres (offline authoring, cross-environment content sync).
    is a drizzle-kit migration `0000` containing `CREATE SCHEMA IF NOT EXISTS payload;`,
    so ordering is explicit (drizzle first, then Payload).
 
-2. **Generated migration files do not load under Node 22's native type stripping.**
+2. **Generated migration files do not load under Node's native type stripping.** (Found on Node 22; the project has since moved to **Node 24, where type stripping is enabled by default rather than behind a flag** — so this is now the default failure mode, not an opt-in one. The codemod is mandatory.)
    Payload emits `import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'`
    — a value import of two types. `payload migrate` dies with
    `SyntaxError: ... does not provide an export named 'MigrateDownArgs'`.

@@ -10,7 +10,7 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 
 ## Quickstart
 
-You need **Node 20.9+** (22 recommended) and a **Postgres** database (local or [Neon](https://neon.tech)).
+You need **Node 24** (pinned in `.nvmrc` and `engines`; Vercel's current default) and a **Postgres** database (local or [Neon](https://neon.tech)).
 
 ```bash
 git clone https://github.com/Sachi2631/Cornerstone.git

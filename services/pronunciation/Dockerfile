@@ -2,7 +2,7 @@
 
 # Debian-based (not alpine): onnxruntime-node and the ffmpeg-static binary are
 # prebuilt against glibc and will not run on musl.
-FROM node:22-bookworm-slim AS build
+FROM node:24-bookworm-slim AS build
 WORKDIR /app
 
 # Install with scripts enabled — ffmpeg-static downloads its binary and
@@ -26,7 +26,7 @@ RUN node scripts/prefetch-model.js
 # onnxruntime .so files) exactly as installed, instead of reinstalling them.
 RUN npm prune --omit=dev
 
-FROM node:22-bookworm-slim
+FROM node:24-bookworm-slim
 ENV NODE_ENV=production
 ENV PORT=5055
 WORKDIR /app

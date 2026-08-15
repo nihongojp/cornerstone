@@ -1,6 +1,9 @@
 {
   "name": "cornerstone-pronunciation",
   "version": "1.0.0",
+  "engines": {
+    "node": "24.x"
+  },
   "private": true,
   "description": "Standalone phoneme-level pronunciation scoring service (wav2vec2 CTC + ffmpeg).",
   "main": "dist/server.js",
