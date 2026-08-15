@@ -91,3 +91,13 @@ Client side: `client/src/services/pronunciation.ts` posts the recording as `mult
 ## Cursor rules
 
 `.cursor/rules/always-work-on-master.mdc` (applies to all agents in this repo): always work on `master`; never check out `cursor/forgot-password-page` unless explicitly asked; if switched there by tooling, switch back to `master` immediately; prefer merging needed work into `master` over continuing on that branch.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues (Sachi2631/Cornerstone) via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` + `docs/adr/` at the repo root (created lazily by /domain-modeling). See `docs/agents/domain.md`.

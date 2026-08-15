@@ -70,3 +70,7 @@ next-env.d.ts
 # Claude Code (keep .claude/launch.json tracked — it defines how to run the dev server)
 .claude/settings.local.json
 .claude/*.local.json
+
+# Agent worktrees and scratch planning files
+.claude/worktrees/
+.scratch/
