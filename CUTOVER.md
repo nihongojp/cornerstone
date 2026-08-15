@@ -152,10 +152,15 @@ existing account and have it create nothing, run it as
 `PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity https://<your-domain>`.
 
 Expect **36/36**, then **4/4** in the CMS block below it. The CMS block is the
-one that catches a deployment serving nothing: it asserts that `/admin` renders
-Payload's login screen, that at least one `cms_admins` account exists — so the
+one that catches a deployment serving nothing: it asserts that the Payload admin
+boots at all, that at least one `cms_admins` account exists — so the
 unauthenticated first-user bootstrap is shut — and that `/resources` and a known
 lesson come back with their actual content, not merely a 200.
+
+The bootstrap line is the one to read for that second property. An admin with
+the bootstrap still open serves the create-first-user screen at `/admin/login`
+with a 200 and a `Login — …` title, indistinguishable over HTTP from the real
+login screen, so only that line can tell you which you have.
 
 A failing bootstrap line means `npm run payload:seed-admins` has not been run
 against this environment; a failing content line means the import has not.

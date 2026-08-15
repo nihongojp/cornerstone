@@ -97,8 +97,11 @@ const CMS = {
    * Payload appends this to every admin <title> (admin.meta.titleSuffix in
    * src/payload.config.ts). Matching on it proves *our* Payload config booted,
    * rather than that something answered at /admin.
+   *
+   * The suffix, not the whole title: which view the admin is showing cannot be
+   * read off the HTML — see checkAdminBoots.
    */
-  adminTitle: "Login — Nihon-Go! CMS",
+  adminTitleSuffix: "— Nihon-Go! CMS",
 
   /* The collection backing the admin login — CmsAdmins.slug. */
   adminCollection: "cms_admins",
@@ -346,25 +349,37 @@ async function checkContent({ path, unit, marks }, cookie) {
 }
 
 /*
- * The admin is mounted and boots. A 5xx here is the signature of the two ways
- * the admin dies on a fresh environment — PAYLOAD_SECRET unset, or the payload
- * schema never migrated — neither of which any CRA route would notice.
+ * The admin is mounted and boots — and that is the whole claim, deliberately.
  *
- * /admin itself always answers 200: it renders the admin shell and then routes
- * to a view on the client, so its status says nothing. /admin/login is rendered
- * on the server, which is why the assertion lands there.
+ * A 5xx here is the signature of the two ways the admin dies on a fresh
+ * environment: PAYLOAD_SECRET unset, or the payload schema never migrated.
+ * Verified, not assumed — with the secret blank this route answers 500 while
+ * still emitting the right <title>, which is why status is tested first.
+ *
+ * Which view the admin is showing cannot be asserted from here. Payload sends
+ * an unbootstrapped admin to create-first-user through `redirect()` inside the
+ * server component (@payloadcms/next Root/index.js), and Next answers that
+ * with 200 plus a client-side navigation rather than a 3xx — so the login and
+ * create-first-user screens are indistinguishable over HTTP: same status, same
+ * "Login — …" title, and both screens' strings present in either body because
+ * they ship in one bundle. Asserting "this is the login screen" from the HTML
+ * would be a check that passes on a deployment showing the bootstrap form.
+ * That distinction is checkBootstrapClosed's job, and it reads it from
+ * Payload's own `initialized` flag instead of guessing at markup.
  */
-async function checkAdmin() {
+async function checkAdminBoots() {
   const got = await visit("/admin/login");
   if (got.status !== 200) {
-    recordCms("/admin/login", false, `expected 200, got ${describe(got)}`);
+    recordCms("/admin boots", false, `expected 200, got ${describe(got)}`);
     return;
   }
-  const ok = got.body.includes(CMS.adminTitle);
+  const ok = got.body.includes(CMS.adminTitleSuffix);
   recordCms(
-    "/admin/login",
+    "/admin boots",
     ok,
-    ok ? "Payload login screen" : `200 but no "${CMS.adminTitle}" — is this Payload's admin?`
+    ok
+      ? "Payload admin renders"
+      : `200 but no "${CMS.adminTitleSuffix}" — is this Payload's admin?`
   );
 }
 
@@ -432,7 +447,7 @@ try {
    * deliberate, so that both halves of "there is no content" get reported
    * under the heading that explains what to do about it.
    */
-  await checkAdmin();
+  await checkAdminBoots();
   await checkBootstrapClosed();
   for (const page of CMS.content) await checkContent(page, cookie);
 } finally {
