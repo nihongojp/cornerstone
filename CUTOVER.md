@@ -187,7 +187,9 @@ environments, so 20 dashboard entries — run the wizard:
 It imports and links the project, pushes every variable above to Production and
 Preview over the CLI, audits that the retired names are absent and the required
 ones present, reads the build log to confirm Node 24.x, checks `/admin` meets
-the protection wall rather than Payload, and probes the deployed preview.
+the protection wall rather than Payload, and finishes by running `npm run
+parity` against the deployment — which reaches it because the wizard captures
+the Protection Bypass for Automation secret into `.env.local` on the way past.
 
 ---
 

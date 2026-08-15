@@ -563,13 +563,17 @@ else
 fi
 rm -f "/tmp/wiz-admin.$$"
 printf '\n'
-say "Protection has a cost: the checks in stage 12 now meet that same wall."
-say "The Protection Bypass for Automation secret is the way through."
+say "Protection has a cost: npm run parity now meets that same wall, and a"
+say "uniform 401 on all 36 routes reads as a broken deployment rather than a"
+say "walled one. The Protection Bypass for Automation secret is the way"
+say "through, and stage 12 depends on it — do not skip this."
 open_url "https://vercel.com/dashboard"
 step "Settings → Deployment Protection → Protection Bypass for Automation."
 step "Copy the secret (the #32 wizard may already have saved it)."
 ask_secret VERCEL_AUTOMATION_BYPASS_SECRET "Paste the bypass secret (Enter to skip):"
 if [[ -n "$VERCEL_AUTOMATION_BYPASS_SECRET" ]]; then
+  # Into .env.local specifically: `npm run parity` loads that file with
+  # --env-file-if-exists, so writing it here is what lets stage 12 through.
   write_env VERCEL_AUTOMATION_BYPASS_SECRET "$VERCEL_AUTOMATION_BYPASS_SECRET"
 else
   warn "no bypass secret — stage 12 will only be able to see the auth wall"
@@ -578,56 +582,48 @@ pause
 
 # ── 12 ────────────────────────────────────────────────────────────────────
 stage "Verify the preview"
-say "Targeted probes, each carrying the bypass header so they reach the app"
-say "rather than the protection wall."
+say "npm run parity is the verification. It covers the 36 routes in both auth"
+say "states, signs up a throwaway learner and removes it again, and asserts the"
+say "CMS block: /admin boots, the bootstrap window is shut, and /resources and a"
+say "known lesson actually render content rather than a 200 with nothing on it."
 printf '\n'
-
-code=$(probe "/")
-if [[ "$code" == "200" ]]; then
-  printf '  %s✓%s homepage 200\n' "$GREEN" "$RESET"
+note "It reaches the protected deployment because it sends"
+note "x-vercel-protection-bypass whenever VERCEL_AUTOMATION_BYPASS_SECRET is"
+note "set, and 'npm run parity' loads .env.local via --env-file-if-exists — so"
+note "the secret stage 11 just wrote is picked up with nothing to re-export."
+printf '\n'
+if [[ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]]; then
+  warn "No bypass secret was captured in stage 11, so every route will answer"
+  warn "401 and the run will read as a broken deployment rather than a walled"
+  warn "one. Go back and get it before trusting this result."
+  printf '\n'
+fi
+if confirm "Run npm run parity against $DEPLOY_URL?"; then
+  if npm run parity "$DEPLOY_URL"; then
+    printf '\n  %s✓%s parity passed — routes, signup and the CMS block\n' "$GREEN" "$RESET"
+  else
+    printf '\n'
+    manual "parity did not pass against $DEPLOY_URL" \
+      "read the per-route output above; npm run parity $DEPLOY_URL to re-run"
+  fi
 else
-  printf '  %s✗%s homepage returned %s\n' "$RED" "$RESET" "$code"
-  manual "the preview homepage does not load" "check the runtime logs in Vercel"
+  manual "preview not verified with parity" "npm run parity $DEPLOY_URL"
 fi
 
-code=$(probe "/resources")
-if [[ "$code" == "200" ]] && grep -q "Podcasts" "/tmp/wiz-probe.$$" 2>/dev/null; then
-  printf '  %s✓%s /resources 200 and populated\n' "$GREEN" "$RESET"
-elif [[ "$code" == "200" ]]; then
-  printf '  %s✗%s /resources 200 but EMPTY — an unmigrated database serves\n' "$RED" "$RESET"
-  printf '      a 200 with nothing on it, which is exactly this failure.\n'
-  manual "/resources renders empty" "run the content migration (CUTOVER.md step 6)"
-else
-  printf '  %s✗%s /resources returned %s\n' "$RED" "$RESET" "$code"
-fi
-
-# 401 = the route is reachable and rejecting an unauthenticated caller, which is
-# what it should do. 503 is the failure this criterion is about: the route
-# answering before it ever reaches the container, because its env vars are unset.
+printf '\n'
+say "One thing parity does not cover — the pronunciation proxy:"
+# 401 is the route working: it rejects an unauthenticated caller before proxying.
+# 503 is the failure this criterion is about — the route answering from its own
+# missing configuration, without the container ever being reached.
 code=$(probe "/api/pronunciation/check")
 case "$code" in
-  503) printf '  %s✗%s pronunciation 503 — the app has no service configured\n' "$RED" "$RESET"
+  503) printf '  %s✗%s 503 — the app has no pronunciation service configured\n' "$RED" "$RESET"
        manual "pronunciation endpoint 503s" \
          "PRONUNCIATION_SERVICE_URL/_SECRET missing on Vercel, or the deploy predates them" ;;
-  401|400|405) printf '  %s✓%s pronunciation reachable (HTTP %s, not 503)\n' "$GREEN" "$RESET" "$code" ;;
-  *)   printf '  %s·%s pronunciation returned %s\n' "$YELLOW" "$RESET" "$code" ;;
+  401|400|405) printf '  %s✓%s reachable (HTTP %s, not 503)\n' "$GREEN" "$RESET" "$code" ;;
+  *)   printf '  %s·%s returned %s\n' "$YELLOW" "$RESET" "$code" ;;
 esac
 rm -f "/tmp/wiz-probe.$$"
-
-printf '\n'
-say "Signup is the one thing worth doing by hand — it is the criterion that"
-say "matters most and the one a status code cannot prove."
-open_url "${DEPLOY_URL%/}/signup"
-step "Create an account. You will meet the Vercel auth wall first; sign in"
-step "  with your Vercel account, then the app's own signup form loads."
-confirm "Did a signup complete?" \
-  || manual "learner signup not verified on the preview" "sign up manually on $DEPLOY_URL"
-printf '\n'
-note "npm run parity <url> covers the routes, the CMS and the bootstrap flag"
-note "far more thoroughly than these probes — but it sends no bypass header, so"
-note "it cannot reach a protected deployment. Standard Protection leaves custom"
-note "production domains public, so the full run happens at CUTOVER.md step 8,"
-note "against the real domain, once DNS is switched."
 pause
 
 finish
