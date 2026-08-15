@@ -319,6 +319,45 @@ The workflow's `Show pending Payload migrations` step runs *before* the two migr
 steps, so on a fresh branch it lists everything as pending and may error on the absent
 `payload` schema. That is diagnostic output, not a result — read the two migration steps'
 own exit status, and the `psql` check above, for whether it worked.
+### Verify the Vercel auth wall after migrations
+
+This is the check the protection wizard asks you to repeat after step 5. Before
+migrations, a protected deployment can only prove that Vercel intercepts `/admin`; after
+migrations, the bypassed request must also prove that the Payload admin and its
+`cms_admins` table are reachable.
+
+Use the deployment URL and the bypass secret saved by
+`./scripts/wizard-vercel-protection.sh` in `.env.local`:
+
+```bash
+set -a; source .env.local; set +a
+admin_url="${VERCEL_DEPLOYMENT_URL%/}/admin"
+init_url="${VERCEL_DEPLOYMENT_URL%/}/api/cms_admins/init"
+
+# Without the bypass, Vercel must still answer before Payload.
+curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' "$admin_url"
+
+# With the bypass, the migrated deployment must reach Payload.
+curl -sS -H "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET" \
+  "$admin_url" | grep -F 'Nihon-Go! CMS'
+curl -sS -H "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET" \
+  "$init_url"
+```
+
+Expect the first command to return Vercel's auth wall (`401`, or a `307` redirect to
+`vercel.com/sso-api`). The admin response with the bypass must contain
+`Nihon-Go! CMS`, proving the request reached this Payload instance rather than merely
+some deployment answering at the URL. Immediately after step 5,
+`/api/cms_admins/init` should return `{"initialized":false}` — the table exists, but step
+6 has not seeded an account yet. Run the protection check again after step 6 and expect
+`{"initialized":true}`.
+
+A `200` or Payload first-user page **without** the bypass means Deployment Protection is
+not covering this URL. A `401` **with** the bypass means the secret is missing, stale, or
+the request is going to a different deployment. A `500` from the bypassed request means
+the deployment's environment does not match the migrated database (usually
+`PAYLOAD_SECRET` or `DATABASE_URL`). Do not continue until the unauthenticated wall
+still passes and the bypassed request reaches Payload.
 
 ---
 
@@ -375,11 +414,15 @@ they are in 1Password.
 **Verify:**
 
 ```bash
-curl https://<deployment-url>/api/cms_admins/init
+set -a; source .env.local; set +a
+curl -sS \
+  -H "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET" \
+  "${VERCEL_DEPLOYMENT_URL%/}/api/cms_admins/init"
 ```
 
 Expect `{"initialized":true}`. `false` means the window is still open. Step 9's parity
-check asserts this too, but do not wait until then to find out.
+check asserts this too, but do not wait until then to find out. The bypass header is
+required here because Standard Protection still covers the `*.vercel.app` URL.
 
 > **`/admin`'s "Forgot password?" link does not work, and it fails silently.** With no
 > email adapter Payload returns `200 {"message":"Success"}` and sends nothing, so an
