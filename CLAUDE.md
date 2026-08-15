@@ -88,9 +88,6 @@ Several exercise/placeholder component pairs exist for the two lesson systems an
 
 Client side: `client/src/services/pronunciation.ts` posts the recording as `multipart/form-data` (overriding the shared axios instance's default JSON content-type) to this endpoint; `client/src/components/PronunciationExercise.tsx` is the consumer, paired with `SelfRecordButton.tsx` for capture. This is new-lesson-system-only content — no legacy-lesson equivalent exists.
 
-## Cursor rules
-
-`.cursor/rules/always-work-on-master.mdc` (applies to all agents in this repo): always work on `master`; never check out `cursor/forgot-password-page` unless explicitly asked; if switched there by tooling, switch back to `master` immediately; prefer merging needed work into `master` over continuing on that branch.
 
 ## Agent skills
 
