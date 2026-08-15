@@ -15,7 +15,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "migrate:survey": "tsx scripts/migrate/00-survey.ts",
-    "migrate:content": "tsx scripts/migrate/01-content-to-airtable.ts"
+    "migrate:content": "tsx scripts/migrate/01-content-to-airtable.ts",
+    "content:validate": "tsx scripts/validate-content.ts"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
@@ -37,7 +38,8 @@
     "react-calendar": "^5.1.0",
     "react-dom": "^19.0.0",
     "resend": "^6.19.0",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",
