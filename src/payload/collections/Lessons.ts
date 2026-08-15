@@ -2,6 +2,7 @@ import type { CollectionConfig } from "payload";
 
 import { grammarBlocks } from "../blocks/grammar";
 import { escapeHatchBlocks, legacyBlocks } from "../blocks/legacy";
+import { guardLessonDelete } from "../hooks/guardLessonDelete";
 import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
 
 /*
@@ -45,6 +46,7 @@ export const Lessons: CollectionConfig = {
   },
   access: { read: () => true },
   hooks: {
+    beforeDelete: [guardLessonDelete],
     afterChange: [revalidateLesson],
     afterDelete: [revalidateLessonDelete],
   },

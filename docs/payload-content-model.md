@@ -73,6 +73,29 @@ secret — that was Airtable's arrangement, and Payload runs in this process.
 Only published documents are read (`_status`), so an unpublished lesson is
 invisible to the site even though `/admin` shows it.
 
+## The progress foreign key
+
+`public.user_progress.lesson_id` holds a lesson **slug** and carries a real FK
+to `payload.lessons(slug)`, `ON UPDATE CASCADE ON DELETE RESTRICT` (#11, #21).
+It crosses the schema boundary, so neither generator emits it — it is
+hand-written in `drizzle/0002_user_progress_lesson_fk.sql`, and that file is
+the only place it exists. Consequences worth knowing:
+
+- **Renaming a slug rewrites progress rows automatically.** Bookmarked lesson
+  URLs still break, so renames stay rare by convention.
+- **Deleting a lesson anyone has progress on is refused.** The `beforeDelete`
+  hook on Lessons turns that into a readable message telling the editor to
+  unpublish instead; the constraint is what makes it true regardless.
+- **Postgres will not let a migration drop `lessons_slug_idx` or the `slug`
+  column** while the FK exists — a Payload migration that tried would fail
+  loudly rather than silently dropping the constraint. Verified, not assumed.
+- **Anything writing progress must write the canonical slug.** Both player
+  routes also resolve a legacy Mongo id, so the pages pass `lesson.slug` to
+  the players rather than the URL segment; passing the segment writes a
+  `lesson_id` the FK rejects.
+- Progress against a **draft** lesson is fine — the FK asks that the lesson
+  exist, not that it be published.
+
 ## Media
 
 Component media fields are **plain URL strings**, not `upload` relationships.

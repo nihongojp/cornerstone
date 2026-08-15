@@ -16,6 +16,16 @@ export * from "./auth-schema";
  * `lessonId` holds a lesson SLUG (not a database id) — that's what the Mongo
  * model stored and what both lesson players send.
  *
+ * It carries a foreign key to `payload.lessons(slug)`, ON UPDATE CASCADE and
+ * ON DELETE RESTRICT (#11, #21) — but you will not find it below. The target
+ * is Payload's table in another schema, invisible to `schema.ts`, so the
+ * constraint lives in a hand-written migration:
+ * `drizzle/0002_user_progress_lesson_fk.sql`. `drizzle-kit generate` cannot
+ * see it and will never re-emit it; `drizzle-kit push` would propose dropping
+ * it, which is why there is no `db:push` script. Renaming a lesson slug
+ * rewrites these rows automatically; deleting a lesson anyone has progress on
+ * is refused.
+ *
  * `stepKey` is a content-derived resume key. The grammar player reshuffles its
  * exercises on every visit (client/src/utils/expandLessonItems.ts), so a raw
  * step index would resume at the wrong exercise; the key identifies the item by
