@@ -7,7 +7,7 @@ import { getSession } from "../../../../lib/session";
 /*
  * Replaces POST /api/progress from server/src/routes/progressRoutes.ts.
  *
- * The session check here is the real gate — the middleware only checks that a
+ * The session check here is the real gate — the proxy only checks that a
  * cookie exists. userId always comes from the session, never the request body,
  * so a caller can't write progress onto someone else's account.
  */

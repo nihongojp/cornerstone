@@ -9,8 +9,9 @@ export async function getSession() {
 }
 
 /**
- * The real auth boundary for protected pages — the middleware only checks that
- * a cookie exists. Replaces the Express requireAuth middleware for page loads.
+ * The real auth boundary for protected pages — the proxy (src/proxy.ts) only
+ * checks that a cookie exists. Replaces the Express requireAuth middleware for
+ * page loads.
  */
 export async function requireSession() {
   const session = await getSession();

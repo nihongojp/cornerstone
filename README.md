@@ -86,7 +86,7 @@ Four things are worth knowing up front:
 
 - **One database, two schemas, two migration systems.** Drizzle owns `public` (auth tables, `user_progress`); Payload owns `payload` (all content). A cross-schema foreign key ties `user_progress` to `lessons(slug)`. Always migrate Drizzle first.
 - **Content lives in Payload, in that same database.** Lessons are authored at `/admin`. There is no external CMS, no webhook and no shared secret: the collection hooks in `src/payload/hooks/revalidate.ts` drop the affected cache tags in-process on every save, because Payload runs inside the app. A one-hour expiry covers anything a hook misses.
-- **Sessions are httpOnly cookies.** There is no token in `localStorage` and no `Authorization` header to attach — same-origin requests just work. `src/middleware.ts` only checks that a cookie exists; the real boundary is `requireSession()` in the route-group layouts.
+- **Sessions are httpOnly cookies.** There is no token in `localStorage` and no `Authorization` header to attach — same-origin requests just work. `src/proxy.ts` (Next 16's name for middleware) only checks that a cookie exists; the real boundary is `requireSession()` in the route-group layouts.
 - **Pronunciation scoring runs in its own container** (`services/pronunciation/`), because the ML model can't fit in a serverless function. The app proxies to it.
 
 ---

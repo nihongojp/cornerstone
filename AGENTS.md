@@ -80,10 +80,14 @@ Exercise components are likewise format-specific and not 1:1 interchangeable.
 ### Auth: cookie sessions, enforced server-side
 
 Better Auth issues httpOnly cookie sessions — no token in `localStorage`, no
-`Authorization` header to attach. `src/middleware.ts` is an optimistic gate: it checks
-only that a cookie *exists*, because validating means a database call. The real
-boundary is `requireSession()` from `src/lib/session.ts`, called in the
-`(protected)`, `(dashboard)` and `(player)` layouts and in route handlers.
+`Authorization` header to attach. `src/proxy.ts` is an optimistic gate: it checks only
+that a cookie *exists*, because validating means a database call. The real boundary is
+`requireSession()` from `src/lib/session.ts`, called in the `(protected)`,
+`(dashboard)` and `(player)` layouts and in route handlers.
+
+`proxy.ts` is Next 16's name for what used to be `middleware.ts` — same position, same
+runtime, same `config.matcher`, exported function named `proxy`. Write new code against
+that name.
 
 Route groups carry both the auth rule and the chrome: `(site)` has Header + Footer,
 `(dashboard)` drops the Footer, `(player)` has none. A new page inherits its group's
