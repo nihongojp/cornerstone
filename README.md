@@ -66,6 +66,11 @@ The `LC_ALL=C` is not optional — without it PostgreSQL 18 on macOS dies at sta
 | `npm run db:generate` | Generate a SQL migration after editing the Drizzle schema |
 | `npm run db:migrate` | Apply pending migrations |
 | `npm run db:studio` | Browse the database in Drizzle Studio |
+| `npm run payload:migrate` | Apply pending Payload migrations — always *after* `db:migrate` |
+| `npm run payload:seed-admins` | Create the CMS admin accounts; idempotent, safe to re-run |
+
+The `payload:*` commands need Node 24 and have their own rules — see
+[docs/payload-content-model.md](docs/payload-content-model.md).
 
 Data migration scripts (one-off, need `MONGODB_URI`) are covered in [CUTOVER.md](CUTOVER.md).
 
@@ -142,6 +147,7 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 |---|---|
 | **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** | You're new, or you knew the old CRA/Express app |
 | [CUTOVER.md](CUTOVER.md) | Running the production cutover |
+| [docs/payload-content-model.md](docs/payload-content-model.md) | Working on CMS content, Payload migrations, or admin accounts |
 | [MIGRATION_PLAN.md](MIGRATION_PLAN.md) | You want the decisions and their rationale |
 | `services/pronunciation/README.md` | Working on pronunciation scoring |
 | [App_Overview.md](App_Overview.md) | Historical — describes the pre-migration app |

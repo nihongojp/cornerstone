@@ -182,6 +182,31 @@ Nothing is written to disk and nothing is emailed — Payload has no email
 adapter and is not getting one; Resend stays wired to Better Auth. Deliver
 through 1Password and have each person change it at `/admin` on first sign-in.
 
+### When a password is lost
+
+**The "Forgot password?" link on `/admin` does not work, and it fails
+silently.** With no email adapter the endpoint returns `200
+{"message":"Success"}` and the server logs `Email attempted without being
+configured` — the person waits for a mail that will never arrive. Do not send
+anyone there. Recover in this order instead:
+
+1. **Another admin resets it.** Any signed-in admin can open the locked-out
+   person under **Settings → CMS admins** and set a new password. No database
+   access needed; this is the normal path.
+2. **Nobody can sign in.** `forgot-password` does mint a real token even though
+   it cannot deliver it, so with database access you can finish the flow by
+   hand. Have them click the link, then:
+
+   ```sql
+   select email, reset_password_token, reset_password_expiration
+   from payload.cms_admins;
+   ```
+
+   Open `/admin/reset/<token>` before the expiry, which is one hour.
+3. **Last resort:** delete that one row and re-run the seeder for a fresh
+   password. Delete only the account being replaced — removing *every* row
+   reopens the unauthenticated `create-first-user` screen described below.
+
 **Seed immediately after the first deploy of a new environment, before the
 content import.** While zero `cms_admins` rows exist, Payload serves an
 unauthenticated `create-first-user` form at `/admin` to anyone who finds the
