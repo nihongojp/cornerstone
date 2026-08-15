@@ -2,15 +2,15 @@
 
 A web app for learning Japanese — prefecture-based lessons, kana and vocabulary exercises, pronunciation scoring, and cultural content.
 
-**Stack:** Next.js (App Router) · React 19 · TypeScript · MUI 6 · Better Auth · Postgres (Drizzle) · Airtable · deployed on Vercel.
+**Stack:** Next.js (App Router) · React 19 · TypeScript · MUI 6 · Better Auth · Payload CMS · Postgres on Neon (Drizzle + Payload) · deployed on Vercel.
 
-> **Migrating from the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until cutover. Start with **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** — it maps every old concept to its replacement.
+> **Migrating from the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](CUTOVER.md) step 9 — nothing in them runs. [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the old concepts to their replacements, but predates the move off Airtable, so trust this file and the code over it on anything content-related.
 
 ---
 
 ## Quickstart
 
-You need **Node 24** (pinned in `.nvmrc` and `engines`; Vercel's current default) and a **Postgres** database (local or [Neon](https://neon.tech)).
+You need **Node 24** (pinned in `.nvmrc` and `engines`; Vercel's current default) and a database branch.
 
 ```bash
 git clone https://github.com/Sachi2631/Cornerstone.git
@@ -19,39 +19,31 @@ npm install
 cp .env.example .env.local
 ```
 
-Now fill in `.env.local`. The two you can't skip:
+**There is no local Postgres.** Every developer works against a Neon branch, so local schema behaviour matches production's exactly — see [docs/database-workflow.md](docs/database-workflow.md). Point `DATABASE_URL` at the shared `development` branch (never at `production`); its connection string is in the Neon console, or:
 
 ```bash
-# Any Postgres URL. Local example:
-DATABASE_URL=postgresql://localhost:5432/cornerstone_dev
-
-# Required — the app refuses to boot without it:
-BETTER_AUTH_SECRET=   # generate with: openssl rand -base64 32
+npm run db:branch:url development
 ```
 
-Create the tables and start:
+Then fill in the three secrets you can't skip:
 
 ```bash
-npm run db:migrate
+DATABASE_URL=          # pooled URL for the development branch
+BETTER_AUTH_SECRET=    # openssl rand -base64 32 — the app refuses to boot without it
+PAYLOAD_SECRET=        # openssl rand -base64 32 — the CMS admin 500s without it
+```
+
+Create the tables and start. **The order matters**: Payload never issues `CREATE SCHEMA`, so Drizzle has to go first.
+
+```bash
+npm run db:migrate       # public schema — auth tables, user_progress, and CREATE SCHEMA payload
+npm run payload:migrate   # the payload schema — all content
 npm run dev
 ```
 
 Open http://localhost:3000. Sign up on `/auth` and you're in.
 
-Lessons come from Airtable, so lesson pages will be empty until you add `AIRTABLE_API_KEY` and `AIRTABLE_BASE_ID` (see [Environment](#environment)). Everything else — auth, profile, the map, the static pages — works without it.
-
-<details>
-<summary><b>Running Postgres locally on macOS</b></summary>
-
-```bash
-brew install postgresql@18
-LC_ALL=C /opt/homebrew/opt/postgresql@18/bin/pg_ctl \
-  -D /opt/homebrew/var/postgresql@18 -l /tmp/pg.log start
-createdb cornerstone_dev
-```
-
-The `LC_ALL=C` is not optional — without it PostgreSQL 18 on macOS dies at startup with *"postmaster became multithreaded during startup"*.
-</details>
+Content comes from Payload in the same database, so a freshly migrated branch has empty lesson pages until content is imported ([CUTOVER.md](CUTOVER.md) step 6) — branching from `development` instead gets you a copy that already has it. To sign in to `/admin`, run `npm run payload:seed-admins` first; until at least one admin exists, Payload serves an unauthenticated first-user form there.
 
 ---
 
@@ -62,7 +54,7 @@ The `LC_ALL=C` is not optional — without it PostgreSQL 18 on macOS dies at sta
 | `npm run dev` | Dev server on :3000 |
 | `npm run build` / `npm start` | Production build / serve it |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run parity` | Verifies every route's guard and chrome against the original app's route table |
+| `npm run parity [url]` | Verifies every route's guard and chrome against the original app's route table, then that the CMS is up and serving real content |
 | `npm run db:generate` | Generate a SQL migration after editing the Drizzle schema |
 | `npm run db:migrate` | Apply pending migrations |
 | `npm run db:studio` | Browse the database in Drizzle Studio |
@@ -84,16 +76,17 @@ Browser
   ├── Pages ─────────── Next.js App Router (src/app)
   │                       server components fetch, client components render
   │
-  ├── Auth ──────────── Better Auth → Postgres          (httpOnly cookie sessions)
-  ├── Lesson content ── Airtable  (cached, 5 min)        (authors edit in Airtable)
-  ├── Progress ──────── Postgres via Drizzle
+  ├── Auth ──────────── Better Auth → Postgres  public   (httpOnly cookie sessions)
+  ├── Lesson content ── Payload CMS  → Postgres payload  (authors edit at /admin)
+  ├── Progress ──────── Drizzle      → Postgres public
   └── Pronunciation ─── Next route → container service   (wav2vec2 + ffmpeg)
 ```
 
-Three things are worth knowing up front:
+Four things are worth knowing up front:
 
-- **Content lives in Airtable, not the database.** Lessons are authored in the "Cornerstone Content" base. Editing a record there updates the site within seconds via a revalidation webhook.
-- **Sessions are httpOnly cookies.** There is no token in `localStorage` and no `Authorization` header to attach — same-origin requests just work.
+- **One database, two schemas, two migration systems.** Drizzle owns `public` (auth tables, `user_progress`); Payload owns `payload` (all content). A cross-schema foreign key ties `user_progress` to `lessons(slug)`. Always migrate Drizzle first.
+- **Content lives in Payload, in that same database.** Lessons are authored at `/admin`. There is no external CMS, no webhook and no shared secret: the collection hooks in `src/payload/hooks/revalidate.ts` drop the affected cache tags in-process on every save, because Payload runs inside the app. A one-hour expiry covers anything a hook misses.
+- **Sessions are httpOnly cookies.** There is no token in `localStorage` and no `Authorization` header to attach — same-origin requests just work. `src/middleware.ts` only checks that a cookie exists; the real boundary is `requireSession()` in the route-group layouts.
 - **Pronunciation scoring runs in its own container** (`services/pronunciation/`), because the ML model can't fit in a serverless function. The app proxies to it.
 
 ---
@@ -102,22 +95,31 @@ Three things are worth knowing up front:
 
 ```
 src/
-  app/              Routes. Folders in (parens) are route groups — they set
-                    layout/auth rules without appearing in the URL.
-    (site)/         Header + Footer
-      (public-only)/  signed-out only  → signed-in users get redirected away
-      (protected)/    signed-in only   → signed-out users get sent to /auth
-    (dashboard)/    Header, no Footer
-    (player)/       No chrome — the lesson players
-    api/            Route handlers (auth, progress, pronunciation, revalidate)
+  app/
+    (app)/          The site itself. Folders in (parens) are route groups —
+                    they set layout/auth rules without appearing in the URL.
+      (site)/         Header + Footer
+        (public-only)/  signed-out only  → signed-in users get redirected away
+        (protected)/    signed-in only   → signed-out users get sent to /auth
+      (dashboard)/    Header, no Footer
+      (player)/       No chrome — the two lesson players
+      api/            Route handlers (auth, progress, pronunciation)
+    (payload)/      The CMS admin at /admin and Payload's REST/GraphQL API.
+                    Generated by Payload — don't hand-edit.
   components/       Shared UI + all exercise components
   pages-client/     Page bodies as client components
-  lib/              auth, db, airtable, types, API clients
+  lib/
+    content/        The content API — the only module that reads from Payload
+    db/             Drizzle schema + connection
+    auth.ts         Better Auth config; session.ts is the page-level guard
+  payload/          Collections, blocks, hooks, and Payload's migrations
   utils/            Lesson expansion + media resolution (pure logic)
-scripts/            Parity checker + one-off data migrations
+  payload.config.ts
+drizzle/            Migrations for the public schema
+scripts/            Parity checker, Payload tooling, one-off data migrations
 services/
   pronunciation/    Standalone ML scoring container
-client/  server/    The OLD CRA + Express apps. Deleted at cutover.
+client/  server/    The OLD CRA + Express apps. Nothing here runs; deleted at cutover.
 ```
 
 ---
@@ -128,14 +130,16 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 
 | Variable | Needed for | Notes |
 |---|---|---|
-| `DATABASE_URL` | always | Neon pooled URL in production; any Postgres locally |
+| `DATABASE_URL` | always | Pooled Neon URL. The driver switches on the host, so any Postgres URL works |
 | `BETTER_AUTH_SECRET` | always | No fallback by design — boot fails without it |
+| `PAYLOAD_SECRET` | the CMS | `/admin` and Payload's REST API 500 without it. Rotating it drops every admin session |
 | `BETTER_AUTH_URL` | production | Optional locally; Vercel infers from `VERCEL_URL` |
-| `AIRTABLE_API_KEY` / `AIRTABLE_BASE_ID` | lesson content | Read scope is enough for the app |
+| `BLOB_READ_WRITE_TOKEN` | CMS media | Set for you when Blob storage is added to the Vercel project. Empty locally falls back to the filesystem |
 | `RESEND_API_KEY` / `EMAIL_FROM` | password reset emails | Without them, dev prints the reset link to the server console |
-| `REVALIDATE_SECRET` | Airtable → live updates | Shared with the Airtable automation |
 | `PRONUNCIATION_SERVICE_URL` / `_SECRET` | pronunciation scoring | See `services/pronunciation/README.md` |
 | `MONGODB_URI` | migration scripts only | **Never set this on Vercel** |
+
+`AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID` and `REVALIDATE_SECRET` are gone — delete them from any `.env.local` or Vercel environment that still has them.
 
 `.env.local` is gitignored. Never commit real secrets.
 
@@ -145,9 +149,11 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 
 | Doc | Read it when |
 |---|---|
-| **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** | You're new, or you knew the old CRA/Express app |
-| [CUTOVER.md](CUTOVER.md) | Running the production cutover |
+| [docs/database-workflow.md](docs/database-workflow.md) | Touching the schema, or setting up your branch |
 | [docs/payload-content-model.md](docs/payload-content-model.md) | Working on CMS content, Payload migrations, or admin accounts |
+| [CUTOVER.md](CUTOVER.md) | Running the production cutover |
 | [MIGRATION_PLAN.md](MIGRATION_PLAN.md) | You want the decisions and their rationale |
 | `services/pronunciation/README.md` | Working on pronunciation scoring |
+| [AGENTS.md](AGENTS.md) | You're a coding agent, or want the same orientation in brief |
+| [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) | You knew the old CRA/Express app — **stale on content**, written while it was still Airtable |
 | [App_Overview.md](App_Overview.md) | Historical — describes the pre-migration app |
