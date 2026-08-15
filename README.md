@@ -132,7 +132,7 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 
 | Variable | Needed for | Notes |
 |---|---|---|
-| `DATABASE_URL` | always | Pooled Neon URL. The driver switches on the host, so any Postgres URL works |
+| `DATABASE_URL` | always | Pooled Neon URL. The driver switches on the host, so any Postgres URL works. On Vercel set it for Production only — Preview's is injected per deployment by the Neon integration |
 | `BETTER_AUTH_SECRET` | always | No fallback by design — boot fails without it |
 | `PAYLOAD_SECRET` | the CMS | `/admin` and Payload's REST API 500 without it. Rotating it drops every admin session |
 | `BETTER_AUTH_URL` | production | Production only. Optional locally, and must stay unset on Preview — pinned to the production domain it makes previews 403 their own sign-in |

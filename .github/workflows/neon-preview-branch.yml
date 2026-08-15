@@ -4,6 +4,11 @@ name: Neon preview branch
 # deleted when the PR closes. Migrations run against the branch, so a PR that
 # breaks a migration fails here rather than on merge.
 #
+# This branch is a test fixture: its connection string never leaves the runner,
+# and no deployment ever reads it. The deployed Vercel preview gets its own
+# `preview/<git-branch>` from the Neon-managed Vercel integration. Do not wire
+# this branch into Vercel — see docs/database-workflow.md.
+#
 # Requires (see docs/database-workflow.md):
 #   secret   NEON_API_KEY
 #   variable NEON_PROJECT_ID

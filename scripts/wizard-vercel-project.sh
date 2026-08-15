@@ -193,14 +193,26 @@ ENV_FILE=".env.local"
 # Set on Vercel for BOTH environments, per CUTOVER.md step 3.
 TARGETS=(production preview)
 
-# Production only. BETTER_AUTH_URL pins better-auth's baseURL, and trustedOrigins
-# defaults to exactly that origin — so setting it on Preview makes every preview
-# reject its own sign-in POST with 403 INVALID_ORIGIN, because the request comes
-# from *.vercel.app and not from the production domain. Left unset, better-auth
-# derives the origin per request from x-forwarded-host, which is what Vercel
-# recommends under Standard Protection and works for both the deployment URL and
-# the *-git-* branch alias.
-PRODUCTION_ONLY=(BETTER_AUTH_URL)
+# Required in Production, and required to be ABSENT from Preview. Both of these
+# are supplied per-deployment on Preview instead — one by better-auth reading the
+# request, one by the Neon integration — and a static Preview value silently
+# overrides that with a production value.
+PRODUCTION_ONLY=(BETTER_AUTH_URL DATABASE_URL)
+
+why_production_only() {
+  case "$1" in
+    BETTER_AUTH_URL)
+      # trustedOrigins defaults to exactly baseURL, so pinning the production
+      # domain makes a preview served from *.vercel.app reject its own sign-in.
+      echo "previews answer 403 INVALID_ORIGIN on sign-in" ;;
+    DATABASE_URL)
+      # The Neon integration injects a per-deployment branch URL; a static one
+      # here wins instead, and previews write to the production database.
+      echo "previews would read and write the production database" ;;
+    *)
+      echo "must not be set for preview" ;;
+  esac
+}
 
 # Never set on Vercel. Airtable and REVALIDATE_SECRET went with #20; MONGODB_URI
 # exists only for the local migration script.
@@ -381,9 +393,14 @@ vercel_env BETTER_AUTH_SECRET "$BETTER_AUTH_SECRET" sensitive
 pause
 
 # ── 4 ─────────────────────────────────────────────────────────────────────
-stage "DATABASE_URL"
+stage "DATABASE_URL — production only"
 say "The POOLED connection string for the Neon 'production' branch — the same"
 say "one #36 set as PRODUCTION_DATABASE_URL. A pooled host contains '-pooler'."
+printf '\n'
+note "Production only. Preview's DATABASE_URL comes from the Neon integration in"
+note "the next stage, which injects a per-deployment branch. Setting a static one"
+note "here would point every preview at the production database, where a preview"
+note "sign-up writes a real row into public.user."
 open_url "https://console.neon.tech/app/projects/bold-bar-07861256/branches"
 step "Select the 'production' branch."
 step "In Connection details, turn ON 'Pooled connection'."
@@ -393,7 +410,41 @@ if [[ -n "$DATABASE_URL" && "$DATABASE_URL" != *"-pooler."* ]]; then
   warn "that does not look pooled — a pooled Neon host contains '-pooler'."
   confirm "Use it anyway?" || DATABASE_URL=""
 fi
-vercel_env DATABASE_URL "$DATABASE_URL" sensitive
+vercel_env DATABASE_URL "$DATABASE_URL" sensitive production
+pause
+
+# ── 4b ────────────────────────────────────────────────────────────────────
+stage "Neon integration — where previews get their database"
+say "Each preview deployment needs its own database branch. Without this, the"
+say "only DATABASE_URL Preview could have is production's."
+printf '\n'
+warn "Pick the Neon-MANAGED integration, not the Vercel-managed one."
+note "The Vercel-managed ('Neon Postgres' provisioned through Vercel) flavour"
+note "creates a new Neon project. It cannot attach to an existing one, and this"
+note "project already exists as bold-bar-07861256 with production's data in it."
+printf '\n'
+open_url "https://console.neon.tech/app/projects/bold-bar-07861256/integrations"
+step "Integrations → Vercel → Install from Vercel Marketplace."
+step "In Vercel, choose 'Link Existing Neon Account' — NOT a new project."
+step "Scope it to the cornerstone Vercel project."
+step "Select Neon project bold-bar-07861256, its database, and the role."
+step "Enable automatic branch cleanup so a merged PR's branch goes away."
+step "Connect, then Done."
+printf '\n'
+say "It then creates a branch named preview/<git-branch> per preview deployment"
+say "and injects DATABASE_URL into that deployment. Because it is injected per"
+say "deployment rather than stored on the project, it will not show up in"
+say "'vercel env ls preview' — stage 9 checks for its absence there, not its"
+say "presence."
+printf '\n'
+note "This is separate from the preview/pr-<n> branches that"
+note ".github/workflows/neon-preview-branch.yml creates. Those exist to prove a"
+note "migration applies; they never serve a deployment. Two branches per PR is"
+note "expected, and both are billed storage until the PR closes."
+printf '\n'
+confirm "Is the Neon-managed integration connected?" \
+  || manual "Neon Vercel integration not connected" \
+       "previews will have no DATABASE_URL and will fail to build"
 pause
 
 # ── 5 ─────────────────────────────────────────────────────────────────────
@@ -476,7 +527,9 @@ pause
 stage "Audit — the variable list is the post-pivot one"
 say "Three assertions: everything required is present in both environments,"
 say "nothing retired is, and the production-only variables are absent from"
-say "Preview — a stray BETTER_AUTH_URL there breaks sign-in on every preview."
+say "Preview. That last one is not tidiness — a static BETTER_AUTH_URL there"
+say "breaks sign-in on every preview, and a static DATABASE_URL points them at"
+say "the production database."
 printf '\n'
 AUDIT_FAILED=no
 for target in "${TARGETS[@]}"; do
@@ -492,8 +545,8 @@ for target in "${TARGETS[@]}"; do
     if [[ "$target" != production ]] \
        && printf '%s\n' "${PRODUCTION_ONLY[@]}" | grep -qx "$want"; then
       if grep -qx "$want" <<<"$names"; then
-        printf '    %s✗%s %s must NOT be set here — previews answer 403 on sign-in\n' \
-          "$RED" "$RESET" "$want"
+        printf '    %s✗%s %s must NOT be set here — %s\n' \
+          "$RED" "$RESET" "$want" "$(why_production_only "$want")"
         AUDIT_FAILED=yes
         manual "$want is set on Vercel ($target)" "vercel env rm $want $target"
       else

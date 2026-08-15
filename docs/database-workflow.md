@@ -7,8 +7,15 @@ plus short-lived ones per pull request.
 |---|---|---|
 | `production` (default) | what the deployed app uses | **only** the migrate-production workflow |
 | `development` | shared local-dev database | developers, via `.env.local` |
-| `preview/pr-<n>` | one per PR, auto-created and auto-deleted | CI |
+| `preview/pr-<n>` | one per PR, proves migrations apply | CI |
+| `preview/<git-branch>` | one per preview deployment, what that preview reads | the Neon Vercel integration |
 | `ticket-*`, `spike-*` | throwaway, created by hand with an expiry | whoever made it |
+
+The two `preview/*` schemes are different things with similar names, and a PR
+with a deployment has one of each. `preview/pr-<n>` exists so a broken migration
+fails the PR; it never serves traffic. `preview/<git-branch>` is what the
+deployed preview actually connects to. Both are billed storage until the PR
+closes.
 
 **Never point `.env.local` at `production`.** Local development uses
 `development`; the connection string is in the Neon console under that branch.
@@ -51,6 +58,22 @@ constraint that is not in `schema.ts`.
 typechecks and builds. The branch is deleted when the PR closes. A migration
 that fails to apply therefore fails the PR, not the merge.
 
+That branch is a test fixture and nothing else — its connection string never
+leaves the Actions runner. **The deployed preview gets its database from the
+Neon-managed Vercel integration instead**, which creates `preview/<git-branch>`
+per preview deployment and injects `DATABASE_URL` into that deployment.
+
+Because the integration injects it per deployment rather than storing it on the
+project, `DATABASE_URL` does not appear in `vercel env ls preview`, and it must
+**not** be set there by hand: a static Preview value overrides the injected one,
+and then every preview reads and writes `production` — a sign-up on a preview
+becomes a real row in `public.user`. `scripts/wizard-vercel-project.sh` pushes
+`DATABASE_URL` to Production only and its stage 9 audit asserts the absence.
+
+Use the **Neon-managed** integration, not the Vercel-managed one. The
+Vercel-managed flavour provisions a *new* Neon project and cannot attach to an
+existing one, and this project already exists with production's data in it.
+
 ## Merging
 
 `.github/workflows/migrate-production.yml` runs on push to `master`/`main` when
@@ -77,6 +100,13 @@ Not yet done — these are required before either workflow does anything:
 | secret | `BETTER_AUTH_SECRET` | only needed for the preview build step |
 
 The Neon GitHub integration can create the first two for you.
+
+Separately from these, the **Neon-managed Vercel integration** has to be connected
+once, or preview deployments have no `DATABASE_URL` and fail to build. It is
+stage 4b of `scripts/wizard-vercel-project.sh`; the console page is
+Integrations → Vercel in the Neon project, and the flow to pick in Vercel is
+"Link Existing Neon Account". Enable automatic branch cleanup while you are there
+so a merged PR's `preview/<git-branch>` goes away with the Git branch.
 
 Also worth doing in the Neon console once the app is live: mark `production` as
 a **protected branch**, which blocks deletion and can restrict connections.

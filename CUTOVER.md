@@ -124,7 +124,7 @@ list is `.env.example` minus `MONGODB_URI`; there is nothing else to set and not
 here to skip:
 
 ```
-DATABASE_URL                  = <the pooled production URL from step 1>
+DATABASE_URL                  = <the pooled production URL from step 1>   ← Production ONLY
 PAYLOAD_SECRET                = <openssl rand -base64 32>   ← fresh; required
 BLOB_READ_WRITE_TOKEN         = set for you when Blob storage is added
 BETTER_AUTH_SECRET            = <openssl rand -base64 32>   ← fresh, not your local one
@@ -135,11 +135,17 @@ PRONUNCIATION_SERVICE_URL     = https://<service-url>
 PRONUNCIATION_SERVICE_SECRET  = <the secret from step 2>
 ```
 
-`BETTER_AUTH_URL` is the one exception, and setting it on Preview is not a harmless
-extra: better-auth's `trustedOrigins` defaults to exactly this origin, so a preview
-served from `*.vercel.app` rejects its own sign-in POST with 403 `INVALID_ORIGIN`.
-Left unset outside production, the origin is read from each request instead, which
-works for both the deployment URL and the `*-git-*` branch alias.
+The two marked **Production ONLY** are supplied per-deployment on Preview instead, and
+a static Preview value silently overrides that:
+
+- `BETTER_AUTH_URL` — better-auth's `trustedOrigins` defaults to exactly this origin, so
+  a preview served from `*.vercel.app` rejects its own sign-in POST with 403
+  `INVALID_ORIGIN`. Unset, the origin is read from each request, which works for both
+  the deployment URL and the `*-git-*` branch alias.
+- `DATABASE_URL` — the Neon-managed Vercel integration injects a per-deployment
+  `preview/<git-branch>`. Set statically, every preview reads and writes the production
+  database, so a preview sign-up becomes a real row in `public.user`. See
+  [docs/database-workflow.md](docs/database-workflow.md).
 
 `PAYLOAD_SECRET` is **required — the app does not boot without it.** There is no silent
 fallback: with it unset, Payload fails to initialize, so `/admin` 500s and every page
