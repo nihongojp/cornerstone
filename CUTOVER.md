@@ -216,6 +216,28 @@ this point is lost unless step 7 is re-run.
 
 From here on, Payload is the source of truth for content — `/admin` on the new site.
 
+**Steps 4 through 7 are one continuous sitting (#40), and one wizard drives all four:**
+
+```bash
+./scripts/wizard-production-data-run.sh
+```
+
+It confirms the course set with you before anything is frozen, announces the freeze and
+records the high-water mark below, dispatches step 5's workflow and verifies the schema
+with `psql` rather than trusting the run's own log, seeds step 6's admins and holds the
+printed passwords until they are in 1Password, then runs step 7 and refuses to continue
+unless the round-trip verification passes. It stops before DNS — step 8 is a separate
+decision, and the wizard checks that you have not made it.
+
+Steps 6 and 7 need `.env.local` pointed at production, which this runbook otherwise
+forbids outright. The wizard copies the file aside, points it at production for exactly
+those two stages, and moves it back on the way out — including on Ctrl-C. While it is
+armed it says so on screen, and it means it: do not run `npm run dev`, `db:studio` or
+anything else against `.env.local` in another terminal until it restores.
+
+Read steps 4–7 anyway. The wizard follows them, it does not replace them, and it reads
+this runbook's own seed-before-import ordering at startup rather than assuming it.
+
 Nothing has to be wired up for edits to appear: the collection hooks in
 `src/payload/hooks/revalidate.ts` drop the affected cache tags in-process on every save
 and delete, because Payload runs inside the app. There is no webhook, no automation and
