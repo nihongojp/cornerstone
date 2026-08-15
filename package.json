@@ -23,7 +23,11 @@
     "payload:check-migrations": "node scripts/payload/fix-migration-imports.mjs --check",
     "migrate:survey": "tsx scripts/migrate/00-survey.ts",
     "migrate:content": "node --import tsx/esm scripts/migrate/01-content-to-payload.ts",
-    "content:validate": "tsx scripts/validate-content.ts"
+    "content:validate": "tsx scripts/validate-content.ts",
+    "db:branch:new": "neonctl branches create --project-id bold-bar-07861256 --parent production --name",
+    "db:branch:reset": "neonctl branches reset --project-id bold-bar-07861256 --parent",
+    "db:branch:url": "neonctl connection-string --project-id bold-bar-07861256 --pooled --branch",
+    "db:branch:ls": "neonctl branches list --project-id bold-bar-07861256"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

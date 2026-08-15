@@ -73,15 +73,77 @@ The Neon GitHub integration can create the first two for you.
 Also worth doing in the Neon console once the app is live: mark `production` as
 a **protected branch**, which blocks deletion and can restrict connections.
 
-## Local setup
+## Local development
+
+There is no local Postgres. Every developer works against a Neon branch, which
+is what makes local schema behaviour match production's exactly — a branch is a
+copy-on-write fork, so it starts with production's real schema instead of an
+approximation of it.
+
+### Which branch should I use?
+
+Start on **`development`**, the shared branch. Move to your own branch the
+moment you are about to change the schema — a migration you apply to the shared
+branch lands on everyone else's app too, usually while they are mid-task.
+
+```bash
+npm run db:branch:new -- dev-justin        # forks from production
+npm run db:branch:url -- dev-justin        # pooled connection string
+# paste it into .env.local as DATABASE_URL, then:
+npm run db:migrate && npm run payload:migrate
+```
+
+Per-developer branches are long-lived; name them `dev-<name>` so they are
+obviously not throwaways. `npm run db:branch:ls` lists everything.
+
+### Throwaway branches
+
+For a spike, an experiment, or an agent that needs somewhere destructive to
+work, create a branch **with an expiry** so it cleans itself up:
+
+```bash
+neonctl branches create --project-id bold-bar-07861256 --parent production \
+  --name spike-thing --expires-at 2026-09-01T00:00:00Z
+```
+
+A branch with an expiry cannot itself have children — fork from `production`
+instead of from another temporary branch.
+
+### Refreshing a stale branch
+
+Do not hand-repair drift. Reset from the parent and re-apply migrations:
+
+```bash
+npm run db:branch:reset -- dev-justin
+npm run db:migrate && npm run payload:migrate
+npm run migrate:content        # if you want content too
+```
+
+### First-run setup
 
 ```bash
 cp .env.example .env.local        # then fill in the values
-# DATABASE_URL -> the `development` branch connection string (pooled)
-npm run db:migrate
-npm run payload:migrate
+# DATABASE_URL -> your branch's POOLED connection string (the host has -pooler)
+npm run db:migrate                # public schema + CREATE SCHEMA payload
+npm run payload:migrate           # everything inside the payload schema
+npm run migrate:content           # optional: real lesson content from Mongo
+npm run dev
 ```
 
 `PAYLOAD_SECRET` must be set locally or Payload fails to initialise and every
 `/admin` and `/api/*` Payload route returns
 `"There was an error initializing Payload"`.
+
+`neonctl` needs `neonctl auth` once (it is already installed here at 2.36.0).
+
+### Things that will bite you
+
+- **Use the pooled connection string** (`-pooler` in the host) for the app. The
+  direct host is only worth reaching for if a tool misbehaves; both work for
+  migrations, which the spike verified.
+- **Branches scale to zero** after ~5 minutes idle, so the first query after a
+  break takes ~0.5–2s. That is not your code being slow.
+- **Storage is billed per branch-GB even while suspended**, so delete branches
+  you have finished with. `npm run db:branch:ls` shows what exists.
+- **Never point `.env.local` at `production`.** If you need production data,
+  fork it into a branch and use that.
