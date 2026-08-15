@@ -154,6 +154,41 @@ chains it; `npm run payload:migrate` runs it in `--check` mode first and
 refuses to migrate if an unfixed file slipped in. Wire that check into any
 deploy pipeline that runs migrations.
 
+## Admin accounts
+
+`cms_admins` is the admin login, and it is deliberately not the learner table —
+Better Auth owns learners in `public.user`. Accounts are created by script, not
+by hand:
+
+```bash
+npm run payload:seed-admins                                # the committed roster
+npm run payload:seed-admins -- "Ryoko <ryoko@example.com>" # plus someone else, once
+```
+
+It runs against whatever `DATABASE_URL` points at, and it is idempotent by
+email: an account that already exists is left completely alone — name, password
+and `updatedAt` included — so it is safe to re-run after a partial failure, or
+against an environment where only some of the team have accounts. It refuses to
+start at all without `PAYLOAD_SECRET` or `DATABASE_URL`, exiting 2 before it
+loads Payload rather than dying somewhere inside `buildConfig`.
+
+**Adding a permanent editor is one line** in `ROSTER` at the top of
+`scripts/payload/seed-admins.ts`, then a re-run; everyone already there is
+skipped. The command-line form is for someone whose address is not settled
+enough to commit, and behaves identically otherwise.
+
+New accounts get a generated 24-character password printed to stdout **once**.
+Nothing is written to disk and nothing is emailed — Payload has no email
+adapter and is not getting one; Resend stays wired to Better Auth. Deliver
+through 1Password and have each person change it at `/admin` on first sign-in.
+
+**Seed immediately after the first deploy of a new environment, before the
+content import.** While zero `cms_admins` rows exist, Payload serves an
+unauthenticated `create-first-user` form at `/admin` to anyone who finds the
+URL; the first account closes it permanently (`/api/cms_admins/init` flips to
+`{"initialized":true}` and `first-register` starts returning 403). That window
+is the whole of #32.
+
 ## Do not
 
 - **Do not set `push: true`**, in any environment. One boot with it writes a

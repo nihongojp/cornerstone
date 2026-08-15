@@ -21,6 +21,7 @@
     "payload:migrate:create": "npm run payload -- migrate:create && npm run payload:fix-migrations",
     "payload:fix-migrations": "node scripts/payload/fix-migration-imports.mjs",
     "payload:check-migrations": "node scripts/payload/fix-migration-imports.mjs --check",
+    "payload:seed-admins": "node --import tsx/esm scripts/payload/seed-admins.ts",
     "migrate:survey": "tsx scripts/migrate/00-survey.ts",
     "migrate:content": "node --import tsx/esm scripts/migrate/01-content-to-payload.ts",
     "content:validate": "tsx scripts/validate-content.ts",
