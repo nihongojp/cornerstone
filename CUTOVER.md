@@ -11,15 +11,12 @@ running untouched the whole time, which is what makes this reversible.
 the window really costs is one approval click, DNS, and step 9's by-hand checklist — see
 [The freeze window](#the-freeze-window).
 
-**Production domain: `cornerstone.nihongojp.com` — provisional.** The subdomain name is
-an unsettled product-naming question. Renaming it costs a DNS record, a
-`BETTER_AUTH_URL` change and a redeploy today; once learners have bookmarks and saved
-password-manager entries it costs those plus a redirect that has to stay up
-indefinitely. If the name is going to change, change it before step 8.
-
-Because it is provisional, the steps below write it as `<the production domain>` rather
-than repeating it — so a rename is this one paragraph and step 8, not a search across the
-runbook.
+**Production domain: `learn.nihongojp.com`.** The `nihongojp.com` apex stays free for the
+marketing landing page. The steps below write the domain as `<the production domain>`
+rather than repeating it, so a rename would be this one paragraph and step 8 rather than
+a search across the runbook — but treat the name as settled: once learners have bookmarks
+and saved password-manager entries, changing it costs a redirect that has to stay up
+indefinitely, plus every existing session (cookies are host-scoped).
 
 ---
 
@@ -497,7 +494,7 @@ reports a problem, **stop.** Do not proceed to step 8 until it passes.
 
 ## 8. Point the domain at Vercel
 
-Add `cornerstone.nihongojp.com` in Vercel and update DNS. Confirm `BETTER_AUTH_URL` is
+Add `learn.nihongojp.com` in Vercel and update DNS. Confirm `BETTER_AUTH_URL` is
 the final domain, then redeploy so the change takes effect.
 
 **This is the point of no easy return** — see [Rollback](#rollback).

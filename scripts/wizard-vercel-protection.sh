@@ -228,7 +228,7 @@ note "the surface exposed between now and DNS, and it is on every plan, Hobby"
 note "included — no upgrade needed."
 printf '\n'
 warn "Do not pick 'All Deployments'. It needs Pro, and it would also wall off"
-warn "cornerstone.nihongojp.com once DNS is switched, so learners would meet a"
+warn "learn.nihongojp.com once DNS is switched, so learners would meet a"
 warn "Vercel login instead of the site."
 printf '\n'
 if ! confirm "Saved, with the scope set to 'Standard Protection'?"; then

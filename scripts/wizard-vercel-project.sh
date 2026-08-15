@@ -391,7 +391,7 @@ printf '\n'
 note "Before DNS this is the Vercel deployment URL; CUTOVER.md step 7 resets it"
 note "to the final domain and redeploys. Either is fine now."
 ask_with_default BETTER_AUTH_URL "Public origin (https://…, no trailing slash):" \
-  "https://cornerstone.nihongojp.com"
+  "https://learn.nihongojp.com"
 vercel_env BETTER_AUTH_URL "$BETTER_AUTH_URL"
 pause
 
