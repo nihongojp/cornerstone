@@ -592,13 +592,23 @@ note "x-vercel-protection-bypass whenever VERCEL_AUTOMATION_BYPASS_SECRET is"
 note "set, and 'npm run parity' loads .env.local via --env-file-if-exists — so"
 note "the secret stage 11 just wrote is picked up with nothing to re-export."
 printf '\n'
+warn "ORDER MATTERS. Parity signs up a learner and asserts content, so it can"
+warn "only pass once the database has a schema and content is imported."
+note "  In CUTOVER.md terms that is after step 5 (migrations) and step 7"
+note "  (content import). If you are running this wizard at step 3 — creating"
+note "  the project for the first time — answer NO below: sign-up 500s against"
+note "  an unmigrated database and /resources is legitimately empty. Nothing is"
+note "  wrong with the deployment; the data is not there yet."
+note "  Re-run this wizard after step 7 to verify the preview, or let step 9"
+note "  cover it against the real domain."
+printf '\n'
 if [[ -z "${VERCEL_AUTOMATION_BYPASS_SECRET:-}" ]]; then
   warn "No bypass secret was captured in stage 11, so every route will answer"
   warn "401 and the run will read as a broken deployment rather than a walled"
   warn "one. Go back and get it before trusting this result."
   printf '\n'
 fi
-if confirm "Run npm run parity against $DEPLOY_URL?"; then
+if confirm "Has the database been migrated AND content imported? Run parity now?"; then
   if npm run parity "$DEPLOY_URL"; then
     printf '\n  %s✓%s parity passed — routes, signup and the CMS block\n' "$GREEN" "$RESET"
   else
@@ -607,7 +617,8 @@ if confirm "Run npm run parity against $DEPLOY_URL?"; then
       "read the per-route output above; npm run parity $DEPLOY_URL to re-run"
   fi
 else
-  manual "preview not verified with parity" "npm run parity $DEPLOY_URL"
+  SKIPPED+=("parity not run — expected at CUTOVER step 3; re-run after step 7: npm run parity $DEPLOY_URL")
+  note "Recorded for later. That is the right answer at step 3."
 fi
 
 printf '\n'
@@ -621,6 +632,10 @@ case "$code" in
        manual "pronunciation endpoint 503s" \
          "PRONUNCIATION_SERVICE_URL/_SECRET missing on Vercel, or the deploy predates them" ;;
   401|400|405) printf '  %s✓%s reachable (HTTP %s, not 503)\n' "$GREEN" "$RESET" "$code" ;;
+  # The route calls getSession() before it proxies, so an unmigrated database
+  # fails there rather than at the pronunciation config this stage is testing.
+  500) printf '  %s·%s 500 — expected before migrations run; re-check after\n' "$YELLOW" "$RESET"
+       printf '      CUTOVER step 5, when getSession() has a schema to read\n' ;;
   *)   printf '  %s·%s returned %s\n' "$YELLOW" "$RESET" "$code" ;;
 esac
 rm -f "/tmp/wiz-probe.$$"

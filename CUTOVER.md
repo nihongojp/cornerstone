@@ -186,10 +186,16 @@ environments, so 20 dashboard entries — run the wizard:
 
 It imports and links the project, pushes every variable above to Production and
 Preview over the CLI, audits that the retired names are absent and the required
-ones present, reads the build log to confirm Node 24.x, checks `/admin` meets
-the protection wall rather than Payload, and finishes by running `npm run
-parity` against the deployment — which reaches it because the wizard captures
-the Protection Bypass for Automation secret into `.env.local` on the way past.
+ones present, reads the build log to confirm Node 24.x, and runs the same
+`/admin` auth-wall check as above. It also captures the Protection Bypass for
+Automation secret into `.env.local`, which is what lets `npm run parity` reach a
+protected deployment later.
+
+Its last stage offers to run `npm run parity`. **Say no when you are here at
+step 3** — for the reason directly above, sign-up 500s and there is no content
+until steps 5 and 7. The wizard says so at that prompt. Re-run it after step 7
+if you want parity against the preview; step 9 runs it against the real domain
+either way.
 
 ---
 
