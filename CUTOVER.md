@@ -177,6 +177,18 @@ in step 9, against the real domain, once there is something to sign up into.
 If the **build itself** fails reading content, that is the same cause: pages are
 prerendered at build time and read Payload in-process. Run step 5, then redeploy.
 
+Rather than doing this step by hand — it is ~10 variables across two
+environments, so 20 dashboard entries — run the wizard:
+
+```bash
+./scripts/wizard-vercel-project.sh
+```
+
+It imports and links the project, pushes every variable above to Production and
+Preview over the CLI, audits that the retired names are absent and the required
+ones present, reads the build log to confirm Node 24.x, checks `/admin` meets
+the protection wall rather than Payload, and probes the deployed preview.
+
 ---
 
 ## 4. Announce the content freeze
