@@ -1,0 +1,77 @@
+name: Neon preview branch
+
+# One ephemeral Neon branch per pull request, created from `production` and
+# deleted when the PR closes. Migrations run against the branch, so a PR that
+# breaks a migration fails here rather than on merge.
+#
+# Requires (see docs/database-workflow.md):
+#   secret   NEON_API_KEY
+#   variable NEON_PROJECT_ID
+#
+# Until those exist the workflow is inert — it will fail fast on the first step
+# rather than doing anything to a database.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+concurrency:
+  group: neon-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  create:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Create Neon branch for this PR
+        id: branch
+        uses: neondatabase/create-branch-action@v5
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.pull_request.number }}
+          parent: production
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - run: npm ci
+
+      # Order matters: the drizzle migration creates the `payload` schema that
+      # Payload's own migration then populates. See docs/database-workflow.md.
+      - name: Run drizzle migrations
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+        run: npm run db:migrate
+
+      - name: Run Payload migrations
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: npm run payload:migrate
+
+      - name: Typecheck and build
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: http://localhost:3000
+        run: |
+          npm run typecheck
+          npm run build
+
+  delete:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the PR's Neon branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: preview/pr-${{ github.event.pull_request.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}
