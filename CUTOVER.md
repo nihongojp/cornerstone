@@ -232,9 +232,9 @@ additions and deletions, which are the edits that matter most here.)
 
 The freeze runs from here to the end of step 9.
 
-**Measured 2026-08-15 (#33).** The sequence was rehearsed end to end on a throwaway Neon
-branch forked from `production` and wiped to an empty database, so these are timings for
-a run that starts with nothing:
+**Measured 2026-08-15 (#33).** The sequence was rehearsed end to end, in this order, on a
+throwaway Neon branch forked from `production` and wiped to an empty database, so these
+are timings for a run that starts with nothing:
 
 | Step | Command | Empty branch | Re-run |
 |---|---|---|---|
@@ -290,14 +290,16 @@ order, for the reason given in step 1. Doing it here rather than in Vercel's bui
 deliberate: a Vercel build can run more than once per deploy and runs for previews too,
 so migrations belong in one gated place.
 
-**`production` is already part-way through this, so expect an asymmetric run.** As of
-2026-08-15 its drizzle journal is complete but Payload has applied only
-`20260815_071846_initial_content_model` of three — `lessons.format` and the
-`user_progress → lessons(slug)` foreign key are both absent there. `db:migrate` will
-therefore report nothing to do while `payload:migrate` applies the remaining two. That
-asymmetry is expected, not a failure; what would be a failure is `db:migrate` doing
-nothing *and* `payload:migrate` doing nothing, which means the workflow never reached
-the database.
+**Do not assume `production` is unmigrated — check first, this drifts.** As of
+2026-08-15 its drizzle journal was complete but Payload had applied only 1 of 3
+migrations, so `db:migrate` reported nothing to do while `payload:migrate` applied the
+rest. That kind of asymmetric run is expected here, not a failure — what would be a
+failure is *both* commands finding nothing to do, which means the workflow never
+reached the database. For the live state rather than that snapshot:
+
+```bash
+npm run payload:migrate:status
+```
 
 **Verify:**
 

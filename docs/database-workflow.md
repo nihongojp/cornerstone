@@ -136,10 +136,11 @@ To delete one early, or to clean up a branch created without an expiry:
 npm run db:branch:rm -- rehearsal-cutover
 ```
 
-Note that forking `production` no longer gives you an empty database — it is
-migrated, though only partly (see [CUTOVER.md](../CUTOVER.md) step 5). If what
-you need is a branch that starts empty the way a brand-new environment does,
-drop the schemas after forking:
+Note that forking `production` no longer gives you an empty database — it has some
+migrations applied. (Run `npm run payload:migrate:status` for the live answer; do not
+trust a comment for this, it goes stale the next time someone runs step 5.) If what you
+need is a branch that starts empty the way a brand-new environment does, drop the
+schemas after forking:
 
 ```sql
 DROP SCHEMA IF EXISTS payload CASCADE;
@@ -148,8 +149,19 @@ DROP SCHEMA IF EXISTS public CASCADE;
 CREATE SCHEMA public;
 ```
 
-Only ever against a throwaway branch. Check the host in your `DATABASE_URL`
-against `npm run db:branch:url` before running it.
+This drops every Better Auth account and all content on whatever branch you point it
+at — on `production` that is unrecoverable outside Neon's point-in-time restore.
+**Only ever run it against a throwaway branch you just created**, and confirm you're on
+it before running: `db:branch:rm` (above) now refuses `production` and `development` by
+name, but this raw SQL has no such guard — it goes through `psql`, not `npm run`. Check
+the branch, not just the host: `npm run db:branch:url -- <name>` and compare the
+`-pooler` hostname it prints against what's in your `DATABASE_URL`.
+
+The two migration commands are what get a wiped branch back into a runnable state:
+
+```bash
+npm run db:migrate && npm run payload:migrate
+```
 
 ### Refreshing a stale branch
 
