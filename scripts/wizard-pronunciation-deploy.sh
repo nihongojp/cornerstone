@@ -490,7 +490,7 @@ printf '\n'
 note "Optional, and NOT required by issue #37: to have Cloud Build redeploy on"
 note "every push, open the service in the console and use 'Connect to repo'."
 note "That installs the Cloud Build GitHub App, which needs ADMIN on"
-note "Sachi2631/Cornerstone — set Source location to $SERVICE_DIR/Dockerfile."
+note "nihongojp/cornerstone — set Source location to $SERVICE_DIR/Dockerfile."
 pause
 
 # ── 9 ─────────────────────────────────────────────────────────────────────

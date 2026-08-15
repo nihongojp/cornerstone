@@ -46,4 +46,4 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 
 ## Active wayfinder maps
 
-- **Payload pivot** — issue [#7](https://github.com/Sachi2631/Cornerstone/issues/7) (migrated 2026-08-14 from `.scratch/payload-pivot/`, which remains as a read-only archive). Cutover runbook ticket: [#23](https://github.com/Sachi2631/Cornerstone/issues/23); migration status tracker: [#24](https://github.com/Sachi2631/Cornerstone/issues/24).
+- **Payload pivot** — issue [#7](https://github.com/nihongojp/cornerstone/issues/7) (migrated 2026-08-14 from `.scratch/payload-pivot/`, which remains as a read-only archive). Cutover runbook ticket: [#23](https://github.com/nihongojp/cornerstone/issues/23); migration status tracker: [#24](https://github.com/nihongojp/cornerstone/issues/24).

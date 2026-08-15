@@ -13,8 +13,8 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 You need **Node 24** (pinned in `.nvmrc` and `engines`; Vercel's current default) and a database branch.
 
 ```bash
-git clone https://github.com/Sachi2631/Cornerstone.git
-cd Cornerstone
+git clone https://github.com/nihongojp/cornerstone.git
+cd cornerstone
 npm install
 cp .env.example .env.local
 ```

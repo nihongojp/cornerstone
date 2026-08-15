@@ -191,7 +191,7 @@ TOTAL_STAGES=9
 # development secret as the default for a production one.
 ENV_FILE=/dev/null
 
-REPO="Sachi2631/Cornerstone"
+REPO="nihongojp/cornerstone"
 NEON_PROJECT_ID_DEFAULT="bold-bar-07861256"   # docs/database-workflow.md
 
 # ── Local helpers (authored, not library) ─────────────────────────────────

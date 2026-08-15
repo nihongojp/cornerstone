@@ -315,7 +315,7 @@ if confirm "Does the Vercel project already exist? (from the #32 protection wiza
   say "Good — we will link to it rather than create it."
 else
   open_url "https://vercel.com/new"
-  step "Import Sachi2631/Cornerstone."
+  step "Import nihongojp/cornerstone."
   step "Framework Preset: Next.js."
   step "Root Directory: .   (the repo root, NOT client/)"
   step "Do NOT add environment variables in the import screen — stages 3-8 do"

@@ -199,7 +199,7 @@ say "cms_admins record exists, whoever reaches /admin can make themselves a full
 say "CMS admin. We protect the project before it can ever serve that page."
 printf '\n'
 open_url "https://vercel.com/new"
-step "Import Sachi2631/Cornerstone."
+step "Import nihongojp/cornerstone."
 step "Framework Preset: Next.js."
 step "Root Directory: .  (the repo root, NOT client/)."
 step "Do NOT add environment variables yet — those are CUTOVER.md step 3."
