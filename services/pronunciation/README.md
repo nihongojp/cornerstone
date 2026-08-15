@@ -131,3 +131,21 @@ Any always-on container host works — Railway, Render, Fly.io, Cloud Run
   Next.js app, and point the platform's health check at `GET /health`.
 - do not expose it publicly if you can avoid it — the shared secret is the
   only access control here.
+
+### The wizard
+
+Rather than doing the above by hand, run this from the **repository root**:
+
+```bash
+./scripts/wizard-pronunciation-deploy.sh
+```
+
+It builds the image, confirms `onnxruntime-node`'s native bindings load inside
+the final image, boots the container locally and waits for
+`/health` → `modelReady:true` before it deploys anything, then deploys to Cloud
+Run with 2GB, `--min-instances=1` and `--no-cpu-throttling`, re-runs both checks
+against the deployed URL, and writes `PRONUNCIATION_SERVICE_URL` and
+`PRONUNCIATION_SERVICE_SECRET` to `.env.local` for the Vercel handover.
+
+Finding a native-binding failure locally is cheap; finding it during the cutover
+window is not, which is why the local smoke test runs before the deploy.
