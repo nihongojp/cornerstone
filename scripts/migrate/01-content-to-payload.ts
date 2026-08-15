@@ -125,8 +125,10 @@ type Report = {
   droppedFields: Array<{ lesson: string; index: number; field: string; value: string }>;
   /** Placeholder sentinels turned into absent values. */
   placeholderDrops: Array<{ lesson: string; index: number; field: string }>;
-  /** Resource links with no URL — Payload requires one, so they cannot import. */
+  /** Resource links dropped outright — no id or no title, so nothing to carry. */
   droppedResourceLinks: Array<{ group: string; itemId: string; title: string }>;
+  /** Imported, but with no URL yet — authoring notes awaiting a real link. */
+  urlLessResourceLinks: Array<{ group: string; itemId: string; title: string }>;
 };
 
 const report: Report = {
@@ -135,6 +137,7 @@ const report: Report = {
   droppedFields: [],
   placeholderDrops: [],
   droppedResourceLinks: [],
+  urlLessResourceLinks: [],
 };
 
 // ── Small helpers ─────────────────────────────────────────────────────────────
@@ -954,15 +957,22 @@ async function main() {
       const url = str(item.url);
       const itemId = str(item.id) ?? str(item.itemId);
       const title = str(item.title);
-      if (!url || !itemId || !title) {
-        // A link with no URL is not a link, and `url` is required on the
-        // block. Reported so the gap is visible, like placeholder media.
+      if (!itemId || !title) {
+        // No id or no title means there is nothing to carry across. A missing
+        // *url* is fine — see below.
         report.droppedResourceLinks.push({
           group: category,
           itemId: itemId ?? "(no id)",
           title: title ?? "(no title)",
         });
         continue;
+      }
+      // A link with no URL still imports. `url` is optional on the block
+      // because the site already renders these as "(No URL)", and the title +
+      // description are the authoring note someone will replace with the real
+      // resource — losing them would mean recovering them from a Mongo dump.
+      if (!url) {
+        report.urlLessResourceLinks.push({ group: category, itemId, title });
       }
       items.push({ itemId, title, url, description: str(item.description) });
     }
@@ -995,8 +1005,15 @@ async function main() {
     }
   }
 
+  if (report.urlLessResourceLinks.length) {
+    console.log(
+      `\n📝 Resource links imported without a URL (kept as authoring notes): ${report.urlLessResourceLinks.length}`
+    );
+    for (const d of report.urlLessResourceLinks) console.log(`  ${d.group} / ${d.itemId} — ${d.title}`);
+  }
+
   if (report.droppedResourceLinks.length) {
-    console.log(`\n⚠️  Resource links skipped (no URL — the field is required): ${report.droppedResourceLinks.length}`);
+    console.log(`\n⚠️  Resource links skipped (no id or title): ${report.droppedResourceLinks.length}`);
     for (const d of report.droppedResourceLinks) console.log(`  ${d.group} / ${d.itemId} — ${d.title}`);
   }
 

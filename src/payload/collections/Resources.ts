@@ -44,8 +44,10 @@ export const Resources: CollectionConfig = {
         {
           name: "url",
           type: "text",
-          required: true,
-          admin: { description: "Absolute URL. Opens in a new tab." },
+          admin: {
+            description:
+              "Absolute URL. Opens in a new tab. Optional on purpose: an entry with a title and description but no link yet is a real state the site already handles — it renders as \"(No URL)\" — and it keeps a planned resource visible as a to-do instead of losing the note.",
+          },
         },
         { name: "description", type: "textarea" },
       ],
