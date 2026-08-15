@@ -4,12 +4,12 @@
  *   npx tsx scripts/migrate/00-survey.ts
  *
  * Read-only. Answers the question MIGRATION_EVALUATION.md left open — how much
- * real content actually exists — and sizes the JSON bodies against Airtable's
- * long-text limit so migration 01 can't be surprised.
+ * real content actually exists. The JSON body sizes it prints were originally
+ * measured against Airtable's long-text limit; Airtable is retired (#26) and
+ * Payload stores content as real fields, so they are now just a sense of scale.
  */
 import { config } from "dotenv";
 import { connectMongo } from "./lib/mongo";
-import { MAX_LONG_TEXT } from "./lib/airtable";
 
 config({ path: ".env.local" });
 
@@ -57,7 +57,6 @@ async function main() {
           `cards=${String(flashcards).padStart(3)} ex=${String(exercises).padStart(3)} ` +
           `active=${doc.isActive !== false ? "y" : "n"} json=${size}`
       );
-      if (size > MAX_LONG_TEXT) console.log(`      ⚠️  exercises JSON exceeds the Airtable long-text limit`);
     }
 
     console.log("\n── NewLessons (grammar) ──");
@@ -80,7 +79,6 @@ async function main() {
       console.log(
         `      ${Object.entries(types).map(([t, n]) => `${t}:${n}`).join("  ") || "(no items)"}`
       );
-      if (size > MAX_LONG_TEXT) console.log(`      ⚠️  items JSON exceeds the Airtable long-text limit`);
     }
 
     console.log("\n── Resources ──");

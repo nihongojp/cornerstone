@@ -9,14 +9,35 @@ import {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function shuffled<T>(arr: T[]): T[] {
+/**
+ * How a generated batch gets ordered. Injectable because this function has two
+ * callers with opposite needs: the player wants a fresh random order on every
+ * visit, and the content import (#19) needs the expansion to be a pure
+ * function of its input so re-running it produces byte-identical content.
+ */
+export type ShuffleFn = <T>(items: T[]) => T[];
+
+/** The default: a fresh Fisher–Yates order per batch, per call. */
+export const randomShuffle: ShuffleFn = <T,>(arr: T[]): T[] => {
   const out = [...arr];
   for (let i = out.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [out[i], out[j]] = [out[j], out[i]];
   }
   return out;
-}
+};
+
+/**
+ * Keeps source order. Used by the import so the stored sequence is
+ * deterministic; shuffling is a render-time concern from then on (the
+ * `shuffleExercises` flag on the lesson).
+ */
+export const identityShuffle: ShuffleFn = <T,>(arr: T[]): T[] => [...arr];
+
+export type ExpandOptions = {
+  /** Defaults to `randomShuffle` — the player's historical behaviour. */
+  shuffle?: ShuffleFn;
+};
 
 // A term available as a multiple-choice image option — the phrase plus
 // whatever image is already associated with it elsewhere in the lesson.
@@ -172,7 +193,8 @@ function resolveDragDrop(
   number: number,
   registry: TermMediaRegistry,
   checkpointPool: ChoiceCandidate[],
-  manualItems: ManualDragDrop[]
+  manualItems: ManualDragDrop[],
+  shuffle: ShuffleFn
 ): NewLessonItem {
   const manual = manualItems.find((m) => sameTerm(m.term, phrase));
   if (!manual) return makeDragDrop(phrase, number, registry, checkpointPool);
@@ -189,7 +211,7 @@ function resolveDragDrop(
     // Shuffled once here (not at render time) so the tile bank order is
     // fresh every lesson visit but stable for the whole attempt — matches
     // every other batch in this file.
-    ...(Array.isArray(manual.raw.options) ? { options: shuffled(manual.raw.options) } : {}),
+    ...(Array.isArray(manual.raw.options) ? { options: shuffle(manual.raw.options) } : {}),
   } as unknown as NewLessonItem;
 }
 
@@ -224,6 +246,9 @@ function computeFullCheckpointPositions(totalCheckpoints: number): Set<number> {
  * - Each batch is independently (re-)shuffled on every call, so term order
  *   differs batch to batch and from the introduction order. Batches always
  *   appear in this order: match-audio → pronunciation → drag & drop.
+ *   Pass `{ shuffle: identityShuffle }` to make the whole expansion
+ *   deterministic — that is what the content import does, so re-running it
+ *   cannot produce a spurious diff.
  * - Any hand-authored matchAudioExercise items already in the source are
  *   dropped once a checkpoint has been seen, since they're now always
  *   regenerated above; items of that type appearing before the first
@@ -240,7 +265,11 @@ function computeFullCheckpointPositions(totalCheckpoints: number): Set<number> {
  * - Everything else — pages, info breaks, life-useful facts — passes
  *   through completely unchanged, in its original position.
  */
-export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
+export function expandLessonItems(
+  items: NewLessonItem[],
+  options: ExpandOptions = {}
+): NewLessonItem[] {
+  const shuffle = options.shuffle ?? randomShuffle;
   // Built once from the raw, un-expanded items so media entered anywhere in
   // the lesson (a page's video/audio, a hand-authored matching-exercise dot,
   // etc.) is available to every other item that references the same term —
@@ -286,13 +315,13 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
       i++;
 
       const poolForThisCheckpoint = currentPool;
-      shuffled(currentTerms).forEach((phrase, idx) => {
+      shuffle(currentTerms).forEach((phrase, idx) => {
         result.push(makeMatchAudio(phrase, idx + 1, registry, poolForThisCheckpoint));
       });
 
       if (isFull) {
         const termsToCover = termsSinceLastFull;
-        shuffled(termsToCover).forEach((phrase, idx) => {
+        shuffle(termsToCover).forEach((phrase, idx) => {
           result.push(resolvePronunciation(phrase, idx + 1, registry, manualPronunciationItems));
         });
 
@@ -308,8 +337,10 @@ export function expandLessonItems(items: NewLessonItem[]): NewLessonItem[] {
           ? buildCheckpointPool(manualOptions, registry)
           : poolForThisCheckpoint;
 
-        shuffled(termsToCover).forEach((phrase, idx) => {
-          result.push(resolveDragDrop(phrase, idx + 1, registry, dragDropPool, manualDragDropItems));
+        shuffle(termsToCover).forEach((phrase, idx) => {
+          result.push(
+            resolveDragDrop(phrase, idx + 1, registry, dragDropPool, manualDragDropItems, shuffle)
+          );
         });
         termsSinceLastFull = []; // now covered by a full checkpoint
       }
