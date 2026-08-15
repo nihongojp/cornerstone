@@ -32,6 +32,14 @@ Always run them in that order — `npm run db:migrate` then
 `npm run payload:migrate`. A fresh database fails the other way round with
 `schema "payload" does not exist`.
 
+The cross-schema foreign key from `public.user_progress` to `payload.lessons`
+is therefore a **Payload** migration, not a drizzle one, even though it alters
+a `public` table: Payload runs second, so that is the first moment both sides
+of it exist. Putting it in drizzle made a fresh database unmigratable (#44) —
+drizzle applies its whole pending set in one transaction, so the failing FK
+took `CREATE SCHEMA payload` down with it and `db:migrate` exited 1 against an
+empty database, printing nothing.
+
 Never run `drizzle-kit push` against any branch that has the cross-schema
 foreign key: it diffs against the live database and can propose dropping a
 constraint that is not in `schema.ts`.
@@ -125,7 +133,7 @@ npm run migrate:content        # if you want content too
 cp .env.example .env.local        # then fill in the values
 # DATABASE_URL -> your branch's POOLED connection string (the host has -pooler)
 npm run db:migrate                # public schema + CREATE SCHEMA payload
-npm run payload:migrate           # everything inside the payload schema
+npm run payload:migrate           # the payload schema, and the cross-schema FK
 npm run migrate:content           # optional: real lesson content from Mongo
 npm run dev
 ```

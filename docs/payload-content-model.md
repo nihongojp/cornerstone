@@ -78,8 +78,19 @@ invisible to the site even though `/admin` shows it.
 `public.user_progress.lesson_id` holds a lesson **slug** and carries a real FK
 to `payload.lessons(slug)`, `ON UPDATE CASCADE ON DELETE RESTRICT` (#11, #21).
 It crosses the schema boundary, so neither generator emits it — it is
-hand-written in `drizzle/0002_user_progress_lesson_fk.sql`, and that file is
-the only place it exists. Consequences worth knowing:
+hand-written in `src/payload/migrations/20260815_120000_user_progress_lesson_fk.ts`,
+and that file is the only place it exists.
+
+It lives in a *Payload* migration despite altering a `public` table, because
+that is the first point in the documented order at which both sides of the
+constraint exist. It was a drizzle migration until #44, where a fresh database
+could not be migrated at all: `payload.lessons` does not exist when drizzle
+runs, and because drizzle applies its whole pending set in one transaction, the
+failure rolled back the `CREATE SCHEMA payload` that Payload needed next. The
+migration is guarded on `pg_constraint`, so it is a no-op on every database
+that already had the constraint from the old `drizzle/0002`.
+
+Consequences worth knowing:
 
 - **Renaming a slug rewrites progress rows automatically.** Bookmarked lesson
   URLs still break, so renames stay rare by convention.
