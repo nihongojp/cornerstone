@@ -55,6 +55,8 @@ Content comes from Payload in the same database, so a freshly migrated branch ha
 | `npm run build` / `npm start` | Production build / serve it |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run parity [url]` | Verifies every route's guard and chrome against the original app's route table, then that the CMS is up and serving real content |
+
+Against a Vercel **preview** or `*.vercel.app` URL, `npm run parity` needs `VERCEL_AUTOMATION_BYPASS_SECRET` in `.env.local` or the environment — those URLs sit behind Vercel Authentication, and without it the run measures the auth wall instead of the app. Localhost and the custom production domain need nothing.
 | `npm run db:generate` | Generate a SQL migration after editing the Drizzle schema |
 | `npm run db:migrate` | Apply pending migrations |
 | `npm run db:studio` | Browse the database in Drizzle Studio |

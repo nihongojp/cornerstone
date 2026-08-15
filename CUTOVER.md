@@ -193,6 +193,13 @@ Add the domain in Vercel and update DNS. Set `BETTER_AUTH_URL` to the final doma
 npm run parity https://<your-domain>
 ```
 
+Against the custom domain this needs nothing extra — Standard Protection leaves
+custom production domains public. Running it earlier against the **preview** or
+`*.vercel.app` URL does need `VERCEL_AUTOMATION_BYPASS_SECRET` (Vercel →
+Settings → Deployment Protection → Protection Bypass for Automation) in
+`.env.local`; without it Vercel Authentication answers 401 and the run measures
+the auth wall rather than the deployment. The script says so when it sees a 401.
+
 The signed-in half of the check needs an account, so the run **signs up a
 throwaway user over the public API and deletes it again** — including here,
 against production. It is named `parity-<random>@parity-check.invalid`, and
