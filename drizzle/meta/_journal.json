@@ -8,6 +8,13 @@
       "when": 1786573477084,
       "tag": "0000_outstanding_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786778070964,
+      "tag": "0001_create_payload_schema",
+      "breakpoints": true
     }
   ]
 }
