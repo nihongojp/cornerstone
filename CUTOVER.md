@@ -6,6 +6,26 @@ Everything in phases P0–P5 is built and verified. What's left is provisioning 
 
 **Expect ~2 hours**, most of it waiting on provisioning. Do it when nobody is authoring content.
 
+**The authoring outage inside those two hours is much shorter.** The whole
+sequence was rehearsed end to end on a throwaway Neon branch on 2026-08-15
+(#33), starting from a genuinely empty database. The commands took under a
+minute of machine time between them:
+
+| Command | Empty branch | Re-run |
+|---|---|---|
+| `npm run db:migrate` | 2s | — |
+| `npm run payload:migrate` | 4s | — |
+| `npm run migrate:content` | 12s | 17s |
+| `npm run payload:seed-admins` | 3s | 1s |
+| `npm run parity` | 2s | — |
+
+Measured against a Neon branch from a laptop, so a production run over the same
+pooled connection should land in the same range. What they exclude is every
+human part: reading the import's verification output, checking the counts
+against the table in step 6, deciding whether to continue. **Budget 15 minutes
+for the freeze in step 5 and tell Sachi half an hour.** The scripts are not the
+slow part of this.
+
 ---
 
 ## Before you start
@@ -31,6 +51,14 @@ There is no Airtable step any more. Content lives in Payload, in the same Neon d
 ## 1. Provision Postgres
 
 Create the Neon database and copy the **pooled** connection string (it has `-pooler` in the host).
+
+The Neon project already exists (`cornerstone`, `bold-bar-07861256`) and its
+`production` branch is **partly migrated**: as of 2026-08-15 drizzle is fully
+applied but Payload has only `20260815_071846_initial_content_model` of three,
+so `lessons.format` and the `user_progress → lessons` foreign key are both
+missing there. Expect `db:migrate` to report nothing to do and `payload:migrate`
+to apply the remaining two. That is the normal path, not a problem — but it does
+mean step 1 is not a no-op and cannot be skipped.
 
 Two migration systems share this database: drizzle-kit owns the `public` schema (auth + `user_progress`), Payload owns the `payload` schema. See [docs/database-workflow.md](docs/database-workflow.md).
 
@@ -128,7 +156,9 @@ It creates the committed roster in `scripts/payload/seed-admins.ts`, printing a 
 npm run payload:seed-admins -- "Ryoko <ryoko@example.com>"
 ```
 
-Idempotent by email — an existing account is left completely alone, so it is safe to re-run after a partial failure.
+Idempotent by email — an existing account is left completely alone, so it is safe to re-run after a partial failure. Rehearsed in #33: a second run prints `0 created, 2 already existed` and exits 0.
+
+The committed roster is **two** people today, Justin and Sachi. Dev and Ryoko are a commented-out line each in that file, waiting on confirmed addresses — if they need access on the day, pass them on the command line as above rather than editing the roster mid-cutover.
 
 **Verify:**
 
@@ -146,6 +176,12 @@ The "Forgot password?" link on `/admin` **does not work and fails silently** —
 ## 5. Announce the content freeze
 
 Tell anyone who authors lessons to **stop editing in MongoDB Compass**. Any edit after this point is lost unless you re-run step 6.
+
+This is the start of the authoring outage. It ends when step 6 reports
+`VERIFICATION PASSED` — the admin accounts were already seeded in step 4, so
+there is nothing else to wait for. Rehearsed, step 6 is ~15 seconds of machine
+time; the window is however long you take to read its output and believe it.
+Fifteen minutes is a fair promise, half an hour a safe one.
 
 From here on, Payload is the source of truth for content — `/admin` on the new site.
 
@@ -266,6 +302,8 @@ After step 9 it gets harder — that's why decommissioning is last and the dump 
 | Build fails reading content | `DATABASE_URL` or `PAYLOAD_SECRET` missing on Vercel — pages are prerendered at build and read Payload in-process |
 | Every page 500s | `BETTER_AUTH_SECRET` or `DATABASE_URL` missing. Deliberate: no silent fallback |
 | Sign-in works, session doesn't persist | `BETTER_AUTH_URL` doesn't match the real domain |
+| `parity` exits 2 at the fixture account, `INVALID_ORIGIN` (403) | The check sends `Origin:` set to the URL you passed it, and better-auth trusts only `BETTER_AUTH_URL`. Those two have to be the same origin — port included |
+| `parity` passes 36/36 against something you didn't deploy | It checks whatever answers that URL, and a server already holding the port answers instead of the one you just started. Locally, confirm the process on the port is yours before believing a pass |
 | Reset emails never arrive | Resend domain not verified, or `EMAIL_FROM` isn't on that domain |
 | `/admin` offers to create the first user | Step 4 never ran against this environment. Do it now |
 | `/admin` 500s | `PAYLOAD_SECRET` unset, or the `payload` schema was never migrated |

@@ -117,6 +117,27 @@ neonctl branches create --project-id bold-bar-07861256 --parent production \
 A branch with an expiry cannot itself have children — fork from `production`
 instead of from another temporary branch.
 
+To delete one early, or to clean up a branch created without an expiry:
+
+```bash
+npm run db:branch:rm -- rehearsal-cutover
+```
+
+Note that forking `production` no longer gives you an empty database — it is
+migrated (partly; see [CUTOVER.md](../CUTOVER.md) step 1). If what you need is a
+branch that starts empty the way a brand-new environment does, drop the schemas
+after forking:
+
+```sql
+DROP SCHEMA IF EXISTS payload CASCADE;
+DROP SCHEMA IF EXISTS drizzle CASCADE;
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+```
+
+Only ever against a throwaway branch. Check the host in your `DATABASE_URL`
+against `npm run db:branch:url` before running it.
+
 ### Refreshing a stale branch
 
 Do not hand-repair drift. Reset from the parent and re-apply migrations:
