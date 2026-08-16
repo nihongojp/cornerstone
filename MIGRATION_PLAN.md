@@ -1,5 +1,29 @@
 # Cornerstone: CRA + Express → Next.js on Vercel
 
+> ## Historical — the original plan, not current instruction
+>
+> The migration this plan describes has shipped. Production runs the Next.js app on
+> Vercel at `learn.nihongojp.com`. This file is kept as the **decision record**: what
+> was chosen, why, and what the survey of the old data found. It is not a description
+> of the code as it stands.
+>
+> **For the stack that is actually running**, read [README.md](README.md),
+> [AGENTS.md](AGENTS.md) and [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md).
+>
+> **Two decisions below were reversed after this plan was written**, so any section
+> resting on them is superseded. Each is flagged inline:
+>
+> | Superseded | What actually happened |
+> |---|---|
+> | **Airtable as the content backend** — [§ Airtable content layer](#airtable-content-layer), the Airtable half of [§ Migration scripts](#migration-scripts-scriptsmigrate-run-via-npx-tsx-raw-mongodb-driver-idempotent), and the `AIRTABLE_*` / `REVALIDATE_SECRET` entries in [§ Env vars](#env-vars-vercel--envlocal) | Airtable was replaced by **Payload CMS** in the same Postgres database (#20). No external CMS, no webhook, no shared secret. See [docs/payload-content-model.md](docs/payload-content-model.md) |
+> | **Migrating the old MongoDB user accounts** — the bcrypt-import parts of [§ Better Auth](#better-auth) and script `02-users-to-postgres` | Dropped (#22). Every account in Postgres was created by Better Auth; there is no legacy-hash verification path. Anyone from the old app signs up again |
+>
+> Everything else — the Postgres/Drizzle shape, the auth model, the two-player port
+> mechanics, the pronunciation carve-out, the risks — held, and shipped as described.
+>
+> Two follow-ups recorded here as deferred are **still open**: Tailwind adoption and
+> the japan.geojson TopoJSON conversion.
+
 ## Context
 
 Cornerstone (Japanese learning app) is a two-package repo: `client/` (CRA/react-scripts 5, React 19, TS pinned 4.9, MUI 6, react-router v7, ~11k LOC) and `server/` (Express 4 + Mongoose 8 with working JWT auth, users, and per-user lesson progress, ~1.5k LOC). CRA is dead tooling, the deploy path (GitHub Pages via `mv build/* ../docs`) is broken, and the existing auth has serious holes: `POST /api/auth/reset-password` lets anyone take over any account with just an email (verified `authController.ts:151`), `JWT_SECRET` falls back to `"devsecret"`, JWT lives in localStorage, CORS reflects any origin, and lesson write endpoints are unauthenticated.
@@ -64,6 +88,12 @@ Drizzle over Prisma: Better Auth CLI generates the Drizzle auth schema (`user`/`
 
 ## Better Auth
 
+> **Partly superseded (#22).** The auth model shipped as described, with one exception:
+> **user migration was dropped.** The "Imported bcrypt hashes" bullet below did not
+> ship — there is no custom `password.verify`, no `$2` branch, and no legacy hashes in
+> Postgres. Every account was created by Better Auth using scrypt; anyone from the old
+> app signs up again.
+
 - `secret: process.env.BETTER_AUTH_SECRET` with **no fallback** (kills devsecret); sessions 7d in httpOnly cookies (kills localStorage JWT); `cookieCache` on.
 - **Imported bcrypt hashes**: custom `emailAndPassword.password.verify` — if hash starts with `$2` → `bcryptjs.compare`, else default scrypt. New/changed passwords get scrypt. No forced resets.
 - **Password reset**: Better Auth tokenized email flow via Resend (`sendResetPassword`) + new `/reset-password` page. The account-takeover endpoint ceases to exist.
@@ -89,6 +119,14 @@ Media is uneven and matters for P3: `l1-v1` has 30 real media URLs, but `l2-v1` 
 - 3 of the 7 users referenced by progress rows no longer exist, so those rows are skipped.
 
 ## Airtable content layer
+
+> **Superseded (#20).** None of this shipped. Content lives in **Payload CMS**, in the
+> `payload` schema of the same Neon database as everything else — read through
+> `src/lib/content/content.ts` via Payload's in-process local API, with explicit
+> `unstable_cache` tags invalidated by collection hooks. There is no Airtable base, no
+> `/api/revalidate` route, and no `REVALIDATE_SECRET`. The two lesson collections
+> described below also became one `lessons` collection with a `format` field. Current
+> shape: [docs/payload-content-model.md](docs/payload-content-model.md).
 
 **Schema — hybrid**: real fields for filterable metadata, JSON-in-long-text for lesson bodies. (Linked-records-per-item rejected: `NewLesson.items[]` is heterogeneous, nested, order-sensitive, and `termMedia.ts` assumes whole-lesson JSON; a JSON field in Airtable's expanded view matches today's Compass authoring model with a better UI.)
 
@@ -128,17 +166,35 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 ## Migration scripts (`scripts/migrate/`, run via `npx tsx`, raw mongodb driver, idempotent)
 
+> **Partly superseded.** Script 01 became `01-content-to-payload.ts` — same job, Payload
+> instead of Airtable (#20). Scripts 02 and 03 were **dropped with user migration**
+> (#22); no accounts or progress rows were carried over from Mongo. What actually ran in
+> production is [CUTOVER.md](CUTOVER.md) steps 5–7.
+
 1. **01-content-to-airtable**: read `lessons`/`newlessons`/`resources`; PATCH with `performUpsert` merging on Slug/ResourceId, batches of 10, ≥300ms sleep (<5 req/s). Assert JSON bodies <95k chars (Airtable long-text limit; escape hatch: split Items/Items2). Ends with verify pass: re-fetch, parse, deep-compare vs Mongo, print diffs.
 2. **02-users-to-postgres** (skips test accounts and the legacy capitalised `User` collection — see the survey section): `user.id` = **Mongo `_id` hex** (makes script 03 trivial + idempotent), name/firstName/lastName/role/email, `emailVerified: true`; `account` row `{providerId: "credential", password: <bcrypt hash verbatim>}`. **Legacy plaintext passwords** (old login tolerated them, `authController.ts:92-104`): bcrypt-hash during import or those users can never log in. `onConflictDoNothing`, log skips.
 3. **03-progress-to-postgres**: `userprogresses` → `user_progress` (userId = same hex), `onConflictDoUpdate` on (user_id, lesson_id) keeping newer updatedAt; skip rows whose user wasn't migrated; print counts.
 
 ## Env vars (Vercel + `.env.local`)
 
+> **Superseded.** `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID` and `REVALIDATE_SECRET` were
+> never part of the shipped app; `PAYLOAD_SECRET` was added. The current list, documented
+> inline, is [`.env.example`](.env.example) — with a summary table in
+> [README.md § Environment](README.md#environment).
+
 `DATABASE_URL` (Neon pooled), `BETTER_AUTH_SECRET` (no fallback), `BETTER_AUTH_URL`, `AIRTABLE_API_KEY` (PAT, read scope; write only during migration), `AIRTABLE_BASE_ID`, `RESEND_API_KEY`, `EMAIL_FROM`, `REVALIDATE_SECRET`, `BLOB_READ_WRITE_TOKEN` (auto), `PRONUNCIATION_SERVICE_URL` + `PRONUNCIATION_SERVICE_SECRET` (Next → pronunciation service), `MONGODB_URI` (**local only**, scripts).
 
 ## Phases (each ends deployable; old stack runs in parallel until cutover)
 
-> **Progress**: ✅ **P0–P5 complete.**
+> **Progress**: ✅ **P0–P7 complete — the migration is done.** The log below was written
+> as the phases landed and stops at P5; P6 (cutover) has since run, and P7 shipped as
+> [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md). Note that P2's "Airtable serving real
+> migrated content" was later redone against Payload (#20), and the user/progress
+> migration in P4 was dropped (#22). P6's `.cursor/rules/always-work-on-master.mdc` no
+> longer exists — the rule was removed rather than rewritten, and `.cursor/rules/`
+> now carries the new stack's orientation instead.
+>
+> ✅ **P0–P5 complete.**
 > - P0 (db5e1f5) — Next 16 scaffold + public pages ported.
 > - P1 (77864b8) — Drizzle schema + Better Auth, all flows verified against local Postgres incl. legacy-bcrypt login and cross-origin CSRF rejection.
 > - P2 (653a584, e971466) — Airtable serving real migrated content: 9 lessons, 3 grammar lessons, 8 resource categories, 19 achievements. Round-trip verified and idempotent.
@@ -148,7 +204,7 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 >
 > - P5 (70e4f48) — parity pass. `node scripts/parity-check.mjs` transcribes the CRA route table into an executable check: **36/36 pass** — all 19 routes, every guard in both auth states, header/footer visibility on all three chrome variants. No leftovers (zero react-router / services / axios / localStorage-token / debug references), nothing missed (the 7 unported files are comment-only stubs plus two unreferenced components), all 15 routes render server-side clean, and content counts match end to end.
 >
-> **Next up: P6** — cutover. Needs the deployment credentials below. **P7** (the developer migration guide) is written last, after cutover.
+> ~~**Next up: P6** — cutover. Needs the deployment credentials below. **P7** (the developer migration guide) is written last, after cutover.~~ *(Both have since happened: P6 ran — see [CUTOVER.md](CUTOVER.md) — and P7 shipped as [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md).)*
 >
 > Local dev DB: `postgresql://localhost:5432/cornerstone_dev` (start with `LC_ALL=C pg_ctl -D /opt/homebrew/var/postgresql@18 start` — the `LC_ALL` is required on PG18/macOS). Dev login: hanako@example.com.
 >

@@ -4,7 +4,7 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 
 **Stack:** Next.js (App Router) · React 19 · TypeScript · MUI 6 · Better Auth · Payload CMS · Postgres on Neon (Drizzle + Payload) · deployed on Vercel.
 
-> **Migrating from the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](CUTOVER.md) step 10 — nothing in them runs. [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the old concepts to their replacements, but predates the move off Airtable, so trust this file and the code over it on anything content-related.
+> **Knew the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](CUTOVER.md) step 10 deletes them (#42) — nothing in them runs, and they contain same-named components that are *not* interchangeable with the live ones. [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the old concepts to their replacements.
 
 ---
 
@@ -149,13 +149,21 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 
 ## Documentation
 
+**Current — these describe the running app:**
+
 | Doc | Read it when |
 |---|---|
 | [docs/database-workflow.md](docs/database-workflow.md) | Touching the schema, or setting up your branch |
 | [docs/payload-content-model.md](docs/payload-content-model.md) | Working on CMS content, Payload migrations, or admin accounts |
-| [CUTOVER.md](CUTOVER.md) | Running the production cutover |
-| [MIGRATION_PLAN.md](MIGRATION_PLAN.md) | You want the decisions and their rationale |
-| `services/pronunciation/README.md` | Working on pronunciation scoring |
+| [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) | The developer guide — how each subsystem works, common tasks, gotchas. Also maps old→new if you knew the CRA/Express app |
 | [AGENTS.md](AGENTS.md) | You're a coding agent, or want the same orientation in brief |
-| [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) | You knew the old CRA/Express app — **stale on content**, written while it was still Airtable |
-| [App_Overview.md](App_Overview.md) | Historical — describes the pre-migration app |
+| `services/pronunciation/README.md` | Working on pronunciation scoring |
+
+**Historical — kept as the record, not as instruction.** Each opens with a banner saying what in it is superseded:
+
+| Doc | What it is |
+|---|---|
+| [MIGRATION_PLAN.md](MIGRATION_PLAN.md) | The original plan: decisions and rationale. Its Airtable and user-migration sections were reversed |
+| [CUTOVER.md](CUTOVER.md) | The runbook for how production was built. Steps 1–9 have run; only step 10 and the rollback notes are still live |
+| [App_Overview.md](App_Overview.md) | The pre-migration MERN app. Useful only for its feature/content inventory |
+| [MIGRATION_EVALUATION.md](MIGRATION_EVALUATION.md) | A pre-decision Vite-vs-Next evaluation, resolved against its own tentative recommendation |

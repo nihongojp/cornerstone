@@ -1,6 +1,19 @@
-# Build Tooling Migration — Evaluation (OPEN)
+# Build Tooling Migration — Evaluation (RESOLVED)
 
-## Prerequisite open question (decide this FIRST)
+> ## Historical — a decision that was made, and made differently
+>
+> This was written before the migration to weigh **Vite vs Next.js**, and it tentatively
+> recommended Vite. **That is not what happened.** The prerequisite question — is the app
+> worth modernizing — was answered yes, and the call went to **Next.js on Vercel**: enough
+> of the checklist below came true, in particular retiring the standalone Express server,
+> leaving GitHub Pages, and wanting server-side route gating with cookie/SSR auth as a
+> first-class requirement. All three shipped.
+>
+> Nothing here is open, and nothing here is instruction. The decision and its rationale
+> live in [MIGRATION_PLAN.md](MIGRATION_PLAN.md); the stack that resulted is described in
+> [README.md](README.md).
+
+## Prerequisite open question (decided: yes — and the answer went to Next, not Vite)
 
 **Is this app worth maintaining/modernizing at all?**
 
@@ -16,14 +29,17 @@ What to assess when we pick this up:
 - How much **backend data/modeling + seed data** is real.
 - Overall: is there enough here to justify maintaining, or is a clean rebuild lower-risk?
 
-No answer yet. The migration question below is **downstream** of this — only relevant if we decide the app is worth keeping.
+~~No answer yet.~~ **Answered: yes, worth keeping.** The survey found real content —
+9 prefecture lessons, 3 grammar lessons, 8 resource categories, working exercise
+components — and it was migrated rather than rebuilt.
 
 ---
 
-Status: **To revisit / evaluate.** No decision made yet.
+~~Status: **To revisit / evaluate.** No decision made yet.~~
+**Status: decided — Next.js.** See the banner at the top of this file.
 Question: Migrate the client off Create React App to **Vite** (latest), or go further to **Next.js**?
 
-This note captures the analysis so far so we can pick it back up with context.
+This note captures the analysis as it stood before that decision.
 
 ---
 
@@ -53,15 +69,16 @@ The one real frontend security weakness is **JWT in `localStorage` (XSS-exposed)
 
 ## "Is Next worth it?" — checklist to evaluate on revisit
 
-Lean Next **only if several of these become true**:
+Lean Next **only if several of these become true**. Scored as they actually landed:
 
 - [ ] We need real SEO / link previews on public content pages (and SSG via a Vite prerender plugin isn't enough).
-- [ ] We want to consolidate to one repo/runtime and retire the standalone Express server.
-- [ ] We're willing to leave GitHub Pages for Vercel/Node (incl. cost + deploy pipeline).
-- [ ] We want server-side route gating + cookie/SSR auth as a first-class requirement.
-- [ ] We're okay paying the MUI App-Router SSR integration tax.
+- [x] We want to consolidate to one repo/runtime and retire the standalone Express server.
+- [x] We're willing to leave GitHub Pages for Vercel/Node (incl. cost + deploy pipeline).
+- [x] We want server-side route gating + cookie/SSR auth as a first-class requirement.
+- [x] We're okay paying the MUI App-Router SSR integration tax.
 
-If most stay unchecked, **Vite is the right call.**
+~~If most stay unchecked, **Vite is the right call.**~~ Four of the five became true,
+which is what carried the decision to Next.
 
 ## Tentative recommendation
 

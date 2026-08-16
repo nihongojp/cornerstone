@@ -12,17 +12,40 @@ The repo root **is** the app. `src/` is the Next project; `npm` commands run fro
 root.
 
 `client/` and `server/` are the retired CRA + Express + MongoDB app, kept only so the
-cutover stays reversible, and deleted at [CUTOVER.md](CUTOVER.md) step 10. Nothing in
-them runs, and nothing new should be added to them. When a request names a file, check
+cutover stays reversible, and deleted at [CUTOVER.md](CUTOVER.md) step 10 (#42, still
+open). Nothing in them runs, and nothing new should be added to them. When a request
+names a file, check
 which side of that line it falls on before editing — the two trees contain
 same-named components that are not interchangeable.
 
-**Three docs describe a stack that no longer exists.** Read the code before trusting
-them: `App_Overview.md` (pre-migration, historical by its own admission),
-`MIGRATION_GUIDE.md` and `README.md` (both still say lesson content comes from
-Airtable). Airtable is gone: no dependency, no `/api/revalidate` route, no `AIRTABLE_*`
-in `.env.example`, and the only mentions left in `src/` are historical comments.
-Content comes from Payload.
+**Which docs are current, and which are history.** Every historical document opens with
+a status banner saying what in it is superseded — if a file has one, read it before the
+body.
+
+Current, and safe to follow:
+
+- [README.md](README.md) and this file — the orientation
+- [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) — the developer guide. Despite the name it
+  was written after the pivot and describes the running stack; only its old→new
+  mapping sections are historical
+- [docs/database-workflow.md](docs/database-workflow.md),
+  [docs/payload-content-model.md](docs/payload-content-model.md),
+  `services/pronunciation/README.md`
+
+History — read for the record, not as instruction:
+
+- [MIGRATION_PLAN.md](MIGRATION_PLAN.md) — the original plan. Its Airtable and
+  user-migration sections were reversed and are flagged inline
+- [App_Overview.md](App_Overview.md) — the pre-migration MERN app
+- [MIGRATION_EVALUATION.md](MIGRATION_EVALUATION.md) — a pre-decision evaluation,
+  resolved against its own tentative recommendation
+- [CUTOVER.md](CUTOVER.md) — the runbook. Mostly executed, but **partly live**: step 10
+  (decommission) and its rollback notes are still instruction. Its banner says which
+
+Airtable was a mid-migration content backend and is gone: no dependency, no
+`/api/revalidate` route, no live `AIRTABLE_*` or `REVALIDATE_SECRET` anywhere (the names
+survive in `.env.example` only in a comment telling you to delete them), and the only
+mentions left in `src/` are historical comments. Content comes from Payload.
 
 ## Commands
 

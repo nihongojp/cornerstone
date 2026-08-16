@@ -1,0 +1,45 @@
+---
+description: What Nihon-Go! actually is — the running stack, and the traps in this repo
+globs:
+alwaysApply: true
+---
+
+# Nihon-Go! (Cornerstone) — the stack that is running
+
+**Next.js App Router · React 19 · TypeScript · MUI 6 · Better Auth · Payload CMS ·
+Postgres on Neon (Drizzle + Payload) · Vercel.**
+
+The repo root **is** the app. `src/` is the Next project; `npm` commands run from the
+root.
+
+**Read [AGENTS.md](mdc:AGENTS.md) before writing code.** It is the full orientation —
+architecture, the content module, auth, the Payload admin, and which of this repo's
+docs are historical. This file only carries the traps that bite before you get there.
+
+## Four traps
+
+- **`client/` and `server/` are dead.** They are the retired CRA + Express + MongoDB
+  app, kept only so the cutover stays reversible, deleted at
+  [CUTOVER.md](mdc:CUTOVER.md) step 10 (#42). Nothing in them runs, and they contain
+  **same-named components that are not interchangeable** with the live ones in `src/`.
+  Check which tree a filename belongs to before editing it.
+
+- **Lessons are one collection, two players.** A `lessons` document's `format` field
+  decides: `flashcard` → `/lesson/<slug>`, the prefecture player; `step` →
+  `/newlesson/<slug>`, the grammar player. When a request says "lesson", establish
+  which format it means before picking files — the exercise components are
+  format-specific and **not 1:1 interchangeable**.
+
+- **Migration order is fixed.** `npm run db:migrate` before `npm run payload:migrate` —
+  Payload never issues `CREATE SCHEMA`, so Drizzle has to create `payload` first. There
+  is also no local Postgres: every developer works against a **Neon branch**. See
+  [docs/database-workflow.md](mdc:docs/database-workflow.md).
+
+- **Airtable is gone.** It was a mid-migration content backend, replaced by Payload.
+  No dependency, no `/api/revalidate` route, no live `AIRTABLE_*` or
+  `REVALIDATE_SECRET`. Any doc or comment saying otherwise is history.
+
+## Verifying a change
+
+There is no test suite. `npm run typecheck` plus `npm run parity [url]` are the check,
+and both must pass before calling something done. Node 24, pinned in `.nvmrc`.

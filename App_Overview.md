@@ -1,5 +1,21 @@
 # Cornerstone - App Overview
 
+> ## Historical — describes the app before the migration
+>
+> Everything below documents the **retired** Create React App + Express + MongoDB stack:
+> `client/`, `server/`, Mongoose models, JWT in `localStorage`, and the `/api/lessons`
+> and `/api/newlessons` routes. None of it runs. The setup instructions, env vars and
+> directory tour in particular will send you to the wrong files — the two trees contain
+> same-named components that are not interchangeable.
+>
+> **The app today** is Next.js App Router at the repo root, with Better Auth, Payload
+> CMS and Postgres on Neon. Start at [README.md](README.md); [AGENTS.md](AGENTS.md) is
+> the same orientation in brief, and [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the
+> old concepts here onto their replacements.
+>
+> This file is kept for the **feature and content inventory** — sections 1 and 3, which
+> describe what the app teaches and which exercises exist. That part is still true.
+
 ## 1. App Overview
 
 **Cornerstone** (codename for the **NihonGo** nonprofit's Japanese language learning platform) is a comprehensive full-stack educational application designed to teach Japanese language and culture. The platform provides interactive lessons focused on Japanese prefectures, cultural facts, vocabulary, and language mastery through gamified learning experiences.

@@ -4,7 +4,9 @@ For everyone working on Nihon-Go! — whether you knew the old app or you're sta
 
 The app moved from **Create React App + Express + MongoDB** to **Next.js on Vercel + Better Auth + Payload CMS + Postgres**. If you learned the old codebase, most of your knowledge still applies: the components, the exercises, the lesson logic are all the same code. What changed is where things *run* and where data *comes from*.
 
-> Content briefly lived in Airtable during the migration and no longer does — it is in Payload, in the same Postgres database as everything else. If you find a doc or a comment that says otherwise, it predates that move.
+> **Status: current.** Despite the filename, this describes the stack that is running. It was written after the migration shipped, so §2 and §4–§7 are live reference. §1 and §3 are *historical by design* — they exist to bridge from the old app, and the "Old" columns describe code that no longer runs (it is in `client/` and `server/` until #42 deletes them).
+>
+> Content briefly lived in Airtable mid-migration and no longer does — it is in Payload, in the same Postgres database as everything else (#20). Old MongoDB accounts were not migrated (#22). Any doc or comment saying otherwise predates those decisions; [MIGRATION_PLAN.md](MIGRATION_PLAN.md) is the superseded record of both.
 
 **Contents**
 

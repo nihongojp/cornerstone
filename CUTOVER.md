@@ -1,5 +1,39 @@
 # Cutover Runbook
 
+> ## Executed — history, not a pending checklist
+>
+> **The cutover has happened.** Production is live at **`learn.nihongojp.com`**, served
+> by Vercel from this repo — verified: `x-powered-by: Next.js, Payload`, the Neon
+> `production` branch behind it, and `/api/cms_admins/init` reporting
+> `initialized: true`, so steps 3, 5, 6, 7 and 8 all ran. The content freeze is over.
+>
+> **Do not work through the steps below as instructions.** Re-running the data-run
+> steps would import content on top of live production data.
+>
+> Two things here are still live instruction, and only these:
+>
+> - **Step 10 (Decommission)** — deliberately last, and not yet done: `client/` and
+>   `server/` are still in the tree (#42). Its mandatory `mongodump` and 30-day
+>   read-only window still apply when it happens.
+> - **[Rollback](#rollback)** and **[If something breaks](#if-something-breaks)** —
+>   reference for operating what is now running.
+>
+> **Tracker caveat:** the cutover issues #37, #39, #40 and #41 are still open even
+> though production is serving. Treat the deployment as the source of truth over the
+> tracker, but step 2 (the pronunciation container) is the one piece not confirmable
+> from the outside — `POST /api/pronunciation/check` correctly returns 401 without a
+> session, which proves the Next route exists, not that the container behind it is up.
+>
+> The runbook is kept because it records **how production was actually built** — which
+> secrets exist and why, why the migration order is fixed, and what the freeze cost. For
+> day-to-day work, read [README.md](README.md), [AGENTS.md](AGENTS.md) and
+> [docs/database-workflow.md](docs/database-workflow.md) instead.
+
+---
+
+*The rest of this file is preserved as written, in the pending tense it was executed
+from. Read it as a record of the plan that ran, not as a list of things to do.*
+
 Taking Nihon-Go! from the old CRA + Express + MongoDB stack to production on Vercel.
 
 Everything the app needs is built and verified. What's left is provisioning
