@@ -11,11 +11,13 @@ Postgres on Neon (Drizzle + Payload) · Vercel.
 The repo root **is** the app. `src/` is the Next project; `npm` commands run from the
 root.
 
-`client/` and `server/` are the retired CRA + Express + MongoDB app, kept only so the
-cutover stays reversible, and deleted at [CUTOVER.md](docs/CUTOVER.md) step 10 (#42,
-still open). Nothing in them runs, and nothing new should be added to them. When a
-request names a file, check which side of that line it falls on before editing — the
-two trees contain same-named components that are not interchangeable.
+**There is only one application here now.** The retired CRA + Express + MongoDB app
+that used to sit in `client/` and `server/` was removed at
+[CUTOVER.md](docs/CUTOVER.md) step 10 (#42), once the final `mongodump` was taken. If
+you are looking for a component that a comment or an old doc says lives under
+`client/src/`, it is in git history — not the working tree, and not somewhere to be
+restored to without a reason. Provenance comments across `src/` still name those old
+paths deliberately; they record where a file came from.
 
 **Which docs are current, and which are history.** Every historical document opens with
 a status banner saying what in it is superseded — if a file has one, read it before the

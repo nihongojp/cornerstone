@@ -4,7 +4,7 @@ For everyone working on Nihon-Go! — whether you knew the old app or you're sta
 
 The app moved from **Create React App + Express + MongoDB** to **Next.js on Vercel + Better Auth + Payload CMS + Postgres**. If you learned the old codebase, most of your knowledge still applies: the components, the exercises, the lesson logic are all the same code. What changed is where things *run* and where data *comes from*.
 
-> **Status: current.** Despite the filename, this describes the stack that is running. It was written after the migration shipped, so §2 and §4–§7 are live reference. §1 and §3 are *historical by design* — they exist to bridge from the old app, and the "Old" columns describe code that no longer runs (it is in `client/` and `server/` until #42 deletes them).
+> **Status: current.** Despite the filename, this describes the stack that is running. It was written after the migration shipped, so §2 and §4–§7 are live reference. §1 and §3 are *historical by design* — they exist to bridge from the old app, and the "Old" columns describe code that has since been deleted from the repo (#42); it lives on only in git history.
 >
 > Content briefly lived in Airtable mid-migration and no longer does — it is in Payload, in the same Postgres database as everything else (#20). Old MongoDB accounts were not migrated (#22). Any doc or comment saying otherwise predates those decisions; [MIGRATION_PLAN.md](MIGRATION_PLAN.md) is the superseded record of both.
 
@@ -257,7 +257,7 @@ useEffect(() => { setItems(expandLessonItems(lesson.items ?? [])); }, [lesson]);
 
 **Emotion/SSR problems only appear in production builds.** If styles look wrong, test with `npm run build && npm start`, not `npm run dev`.
 
-**`npm install` from the repo root.** Running it inside `client/` or `server/` pollutes the old apps' dependencies.
+**`npm install` from the repo root.** There is only one `package.json` now — the old `client/` and `server/` ones went with those trees (#42).
 
 ---
 

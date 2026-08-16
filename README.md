@@ -4,7 +4,7 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 
 **Stack:** Next.js (App Router) · React 19 · TypeScript · MUI 6 · Better Auth · Payload CMS · Postgres on Neon (Drizzle + Payload) · deployed on Vercel.
 
-> **Knew the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](docs/CUTOVER.md) step 10 deletes them (#42) — nothing in them runs, and they contain same-named components that are *not* interchangeable with the live ones. [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) maps the old concepts to their replacements.
+> **Knew the old stack?** The app used to be Create React App + Express + MongoDB, in `client/` and `server/`. Both were removed at [cutover](docs/CUTOVER.md) step 10 (#42) — this repo is now one application. [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) maps the old concepts to their replacements; the deleted code is in git history if you need it.
 
 ---
 
@@ -121,7 +121,6 @@ drizzle/            Migrations for the public schema
 scripts/            Parity checker, Payload tooling, one-off data migrations
 services/
   pronunciation/    Standalone ML scoring container
-client/  server/    The OLD CRA + Express apps. Nothing here runs; deleted at cutover.
 ```
 
 ---
@@ -167,5 +166,6 @@ Everything lives in [`docs/`](docs/) except this file and [AGENTS.md](AGENTS.md)
 |---|---|
 | [MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) | The original plan: decisions and rationale. Its Airtable and user-migration sections were reversed |
 | [CUTOVER.md](docs/CUTOVER.md) | The runbook for how production was built. The cutover has happened; only step 10 (decommission) and the rollback notes are still live |
+| [DECOMMISSION.md](docs/DECOMMISSION.md) | What was retired at cutover, the final mongodump, and the date the 30-day MongoDB window ends |
 | [App_Overview.md](docs/App_Overview.md) | The pre-migration MERN app. Useful only for its feature/content inventory |
 | [MIGRATION_EVALUATION.md](docs/MIGRATION_EVALUATION.md) | A pre-decision Vite-vs-Next evaluation, resolved against its own tentative recommendation |

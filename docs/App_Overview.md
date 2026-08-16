@@ -4,9 +4,10 @@
 >
 > Everything below documents the **retired** Create React App + Express + MongoDB stack:
 > `client/`, `server/`, Mongoose models, JWT in `localStorage`, and the `/api/lessons`
-> and `/api/newlessons` routes. None of it runs. The setup instructions, env vars and
-> directory tour in particular will send you to the wrong files — the two trees contain
-> same-named components that are not interchangeable.
+> and `/api/newlessons` routes. None of it runs, and as of #42 none of it is even in
+> the repository — those trees were deleted after the cutover and survive only in git
+> history. Every path this file names is therefore a dead path. The setup
+> instructions, env vars and directory tour describe an app you cannot check out.
 >
 > **The app today** is Next.js App Router at the repo root, with Better Auth, Payload
 > CMS and Postgres on Neon. Start at [README.md](../README.md); [AGENTS.md](../AGENTS.md) is

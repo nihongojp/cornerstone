@@ -18,11 +18,11 @@ docs are historical. This file only carries the traps that bite before you get t
 
 ## Four traps
 
-- **`client/` and `server/` are dead.** They are the retired CRA + Express + MongoDB
-  app, kept only so the cutover stays reversible, deleted at
-  [CUTOVER.md](mdc:docs/CUTOVER.md) step 10 (#42). Nothing in them runs, and they contain
-  **same-named components that are not interchangeable** with the live ones in `src/`.
-  Check which tree a filename belongs to before editing it.
+- **There is only one app here.** The old CRA + Express + MongoDB tree (`client/`,
+  `server/`) was deleted at [CUTOVER.md](mdc:docs/CUTOVER.md) step 10 (#42). Comments
+  across `src/` still name paths like `client/src/services/api.ts` — that is
+  deliberate provenance, not a live reference. Those files exist only in git history;
+  don't restore them, and don't create anything under `client/` or `server/`.
 
 - **Lessons are one collection, two players.** A `lessons` document's `format` field
   decides: `flashcard` → `/lesson/<slug>`, the prefecture player; `step` →

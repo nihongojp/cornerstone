@@ -10,13 +10,18 @@
 > **Do not work through the steps below as instructions.** Re-running the data-run
 > steps would import content on top of live production data.
 >
-> Two things here are still live instruction, and only these:
+> **Step 10 (Decommission) has now run too** (#42), in the order it demanded: the final
+> `mongodump` was taken first, to `~/cornerstone-mongo-final-backup` — outside the repo
+> and off the old host — and verified non-empty (12 collections; `lessons.bson` 2 docs,
+> matching the import's own volume gate). `client/` and `server/` are out of the
+> repository. The **30-day read-only window ends 2026-09-15**; until then the Mongo
+> cluster is the last independent check on anything the import got wrong.
 >
-> - **Step 10 (Decommission)** — deliberately last, and not yet done: `client/` and
->   `server/` are still in the tree (#42). Its mandatory `mongodump` and 30-day
->   read-only window still apply when it happens.
-> - **[Rollback](#rollback)** and **[If something breaks](#if-something-breaks)** —
->   reference for operating what is now running.
+> Still outstanding from step 10, and not things this repo can do: shutting down the
+> old Express host, setting Mongo read-only, and rotating the Mongo credential.
+>
+> **[Rollback](#rollback)** and **[If something breaks](#if-something-breaks)** remain
+> useful reference for operating what is now running.
 >
 > **Tracker caveat:** the cutover issues #37, #39, #40 and #41 are still open even
 > though production is serving. Treat the deployment as the source of truth over the

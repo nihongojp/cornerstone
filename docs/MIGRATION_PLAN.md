@@ -247,9 +247,18 @@ All migration work happens on `feature/nextjs-vercel-migration` (created, fast-f
 
 ## Key reference files
 
-- [client/src/App.tsx](../client/src/App.tsx) — routes, guards, header/footer rules the route groups replicate
-- [client/src/pages/NewLessonPage.tsx](../client/src/pages/NewLessonPage.tsx) — stepKey resume + shuffle constraint
-- [client/src/services/api.ts](../client/src/services/api.ts) — axios/token layer being deleted
-- [client/src/utils/expandLessonItems.ts](../client/src/utils/expandLessonItems.ts) + [termMedia.ts](../client/src/utils/termMedia.ts) — port unchanged
-- [server/src/models/NewLesson.ts](../server/src/models/NewLesson.ts) — the schemaless items[] contract Airtable JSON must preserve
-- [server/src/controllers/authController.ts](../server/src/controllers/authController.ts) — bcrypt + plaintext-legacy handling the import script must honor
+**These paths no longer exist.** `client/` and `server/` were deleted at
+[CUTOVER.md](CUTOVER.md) step 10 (#42). They are listed unlinked, as the record of what
+the port was read from; to actually open one, go through git history:
+
+```bash
+git log --all --oneline -- client/src/App.tsx
+git show <sha>:client/src/App.tsx
+```
+
+- `client/src/App.tsx` — routes, guards, header/footer rules the route groups replicate
+- `client/src/pages/NewLessonPage.tsx` — stepKey resume + shuffle constraint
+- `client/src/services/api.ts` — axios/token layer being deleted
+- `client/src/utils/expandLessonItems.ts` + `termMedia.ts` — port unchanged
+- `server/src/models/NewLesson.ts` — the schemaless items[] contract Airtable JSON must preserve
+- `server/src/controllers/authController.ts` — bcrypt + plaintext-legacy handling the import script must honor
