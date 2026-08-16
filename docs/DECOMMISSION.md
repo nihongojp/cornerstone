@@ -30,12 +30,15 @@ serving Next.js + Payload on `learn.nihongojp.com`, CMS admins seeded, and
 `npm run parity` reporting 36/36 plus 4/4 CMS — so the ticket was treated as passed in
 substance.
 
-**One thing was never confirmed from outside**: the pronunciation container (CUTOVER
-step 2). `POST /api/pronunciation/check` returns 401 without a session, which proves
-the Next route exists, not that the container behind it is up. The scoring code itself
-was extracted to `services/pronunciation/` long before this removal, so nothing was
-lost by deleting `server/` — but if pronunciation turns out to be down, that is the
-thread to pull, and #37 is still open.
+One thing could not be confirmed from outside at the time — the pronunciation container
+(CUTOVER step 2), since `POST /api/pronunciation/check` returns 401 without a session,
+which proves the Next route exists rather than that the container behind it is up.
+**That has since been checked by hand**: a real pronunciation check on `l1-v1`, the only
+lesson with reference audio, returns a score. The container is up and every part of
+step 2 is accounted for.
+
+(#37 remains open as tracker bookkeeping rather than outstanding work — as do #39, #40
+and #41. Treat the deployment as the source of truth over the tracker.)
 
 ## The backup
 
