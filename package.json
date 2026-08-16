@@ -44,6 +44,7 @@
     "@payloadcms/db-postgres": "3.88.0",
     "@payloadcms/next": "3.88.0",
     "@payloadcms/storage-vercel-blob": "3.88.0",
+    "@vercel/analytics": "^2.0.1",
     "better-auth": "^1.6.29",
     "d3": "^7.9.0",
     "drizzle-orm": "^0.45.2",
