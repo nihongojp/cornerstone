@@ -430,34 +430,69 @@ fi
 pause
 
 # ── 9 ─────────────────────────────────────────────────────────────────────
-stage "Verify — dispatch migrate-production"
-say "This proves the credentials work. The workflow prints pending Payload"
-say "migrations BEFORE it applies anything, so the status step is the real"
-say "check; if it reports nothing pending, applying is a no-op."
+stage "Verify — dispatch migrate-production (optional)"
+say "Everything above is already set. This last stage only *proves* it, by"
+say "running the workflow once. The workflow prints pending Payload migrations"
+say "BEFORE it applies anything, so the status step is the real check; if it"
+say "reports nothing pending, applying is a no-op."
 printf '\n'
-if [[ "${REVIEWER_CHOICE}" == required* ]]; then
-  warn "You set a required reviewer, so the run will pause for approval —"
-  warn "approve it in the Actions UI when prompted."
+say "Skipping it is a normal choice — the credentials are set either way, and"
+say "the next pull request exercises them through the preview workflow."
+printf '\n'
+
+# workflow_dispatch always runs the DEFAULT branch's copy of the workflow, so
+# the file has to exist there. On a repo whose migration branch has not merged
+# yet it does not, and `gh workflow run` fails with a "could not find any
+# workflows named…" that reads like a credential problem. Detect it instead.
+DEFAULT_BRANCH="$(gh api "repos/$REPO" --jq .default_branch 2>/dev/null || echo main)"
+WORKFLOW_ON_DEFAULT=no
+if gh api "repos/$REPO/contents/.github/workflows/migrate-production.yml?ref=$DEFAULT_BRANCH" \
+     >/dev/null 2>&1; then
+  WORKFLOW_ON_DEFAULT=yes
 fi
-printf '\n'
-if confirm "Dispatch 'Migrate production database' now?"; then
-  if gh workflow run migrate-production.yml >/dev/null 2>&1; then
-    printf '  %s✓%s dispatched — watching the run\n\n' "$GREEN" "$RESET"
-    sleep 5
-    gh run watch "$(gh run list --workflow=migrate-production.yml --limit 1 --json databaseId --jq '.[0].databaseId')" \
-      || warn "watch ended early — check: gh run list --workflow=migrate-production.yml"
-  else
-    manual "migrate-production was not dispatched" \
-      "gh workflow run migrate-production.yml"
-  fi
+
+if [[ "$WORKFLOW_ON_DEFAULT" == no ]]; then
+  note "Not available yet: .github/workflows/migrate-production.yml is not on"
+  note "'$DEFAULT_BRANCH'. A workflow_dispatch runs the default branch's copy, so there"
+  note "is nothing to dispatch until the migration branch merges."
+  printf '\n'
+  note "This is expected before the merge and says nothing about the values you"
+  note "just set. After merging:"
+  note "  gh workflow run migrate-production.yml && gh run watch"
+  SKIPPED+=("verify migrate-production — rerun after '$DEFAULT_BRANCH' has the workflow: gh workflow run migrate-production.yml")
 else
-  manual "migrate-production not verified" "gh workflow run migrate-production.yml"
+  if [[ "${REVIEWER_CHOICE}" == required* ]]; then
+    warn "You set a required reviewer, so the run will pause for approval —"
+    warn "approve it in the Actions UI when prompted."
+    printf '\n'
+  fi
+  if confirm "Dispatch 'Migrate production database' now?"; then
+    DISPATCH_ERR="$(gh workflow run migrate-production.yml 2>&1 >/dev/null)" && DISPATCH_OK=yes || DISPATCH_OK=no
+    if [[ "$DISPATCH_OK" == yes ]]; then
+      printf '  %s✓%s dispatched — watching the run\n\n' "$GREEN" "$RESET"
+      sleep 5
+      gh run watch "$(gh run list --workflow=migrate-production.yml --limit 1 --json databaseId --jq '.[0].databaseId')" \
+        || warn "watch ended early — check: gh run list --workflow=migrate-production.yml"
+    else
+      [[ -n "$DISPATCH_ERR" ]] && note "gh said: $DISPATCH_ERR"
+      manual "migrate-production was not dispatched" \
+        "gh workflow run migrate-production.yml"
+    fi
+  else
+    note "Skipped by choice — nothing is wrong. Run it whenever you want:"
+    note "  gh workflow run migrate-production.yml && gh run watch"
+  fi
 fi
 pause
 
 finish
 
-note "Next: open a pull request. It should create a preview/pr-<n> Neon branch,"
-note "run both migration systems in order, typecheck and build — then delete the"
-note "branch when the PR closes. Watch it with: gh run list --workflow=neon-preview-branch.yml"
+note "Next: push to a pull request. Its 'Neon preview branch' run should now"
+note "actually create preview/pr-<n>, run both migration systems in order,"
+note "typecheck and build — then delete the branch when the PR closes."
+note "Watch it with: gh run list --workflow=neon-preview-branch.yml"
+printf '\n'
+note "That workflow runs from the pull request's own branch, so it starts working"
+note "as soon as NEON_PROJECT_ID exists — no merge required. Before this wizard"
+note "ran, every one of its runs reported 'skipped' on that missing variable."
 printf '\n'
