@@ -9,7 +9,7 @@
 > same-named components that are not interchangeable.
 >
 > **The app today** is Next.js App Router at the repo root, with Better Auth, Payload
-> CMS and Postgres on Neon. Start at [README.md](README.md); [AGENTS.md](AGENTS.md) is
+> CMS and Postgres on Neon. Start at [README.md](../README.md); [AGENTS.md](../AGENTS.md) is
 > the same orientation in brief, and [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the
 > old concepts here onto their replacements.
 >

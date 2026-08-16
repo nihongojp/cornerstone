@@ -11,7 +11,7 @@
 >
 > Nothing here is open, and nothing here is instruction. The decision and its rationale
 > live in [MIGRATION_PLAN.md](MIGRATION_PLAN.md); the stack that resulted is described in
-> [README.md](README.md).
+> [README.md](../README.md).
 
 ## Prerequisite open question (decided: yes — and the answer went to Next, not Vite)
 

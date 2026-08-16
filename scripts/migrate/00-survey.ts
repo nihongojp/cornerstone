@@ -3,7 +3,7 @@
  *
  *   npx tsx scripts/migrate/00-survey.ts
  *
- * Read-only. Answers the question MIGRATION_EVALUATION.md left open — how much
+ * Read-only. Answers the question docs/MIGRATION_EVALUATION.md left open — how much
  * real content actually exists. The JSON body sizes it prints were originally
  * measured against Airtable's long-text limit; Airtable is retired (#26) and
  * Payload stores content as real fields, so they are now just a sense of scale.

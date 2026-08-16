@@ -4,7 +4,7 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 
 **Stack:** Next.js (App Router) · React 19 · TypeScript · MUI 6 · Better Auth · Payload CMS · Postgres on Neon (Drizzle + Payload) · deployed on Vercel.
 
-> **Knew the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](CUTOVER.md) step 10 deletes them (#42) — nothing in them runs, and they contain same-named components that are *not* interchangeable with the live ones. [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) maps the old concepts to their replacements.
+> **Knew the old stack?** The app used to be Create React App + Express + MongoDB. Those still live in `client/` and `server/` until [cutover](docs/CUTOVER.md) step 10 deletes them (#42) — nothing in them runs, and they contain same-named components that are *not* interchangeable with the live ones. [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) maps the old concepts to their replacements.
 
 ---
 
@@ -43,7 +43,7 @@ npm run dev
 
 Open http://localhost:3000. Sign up on `/auth` and you're in.
 
-Content comes from Payload in the same database, so a freshly migrated branch has empty lesson pages until content is imported ([CUTOVER.md](CUTOVER.md) step 7) — branching from `development` instead gets you a copy that already has it. To sign in to `/admin`, run `npm run payload:seed-admins` first; until at least one admin exists, Payload serves an unauthenticated first-user form there.
+Content comes from Payload in the same database, so a freshly migrated branch has empty lesson pages until content is imported ([CUTOVER.md](docs/CUTOVER.md) step 7) — branching from `development` instead gets you a copy that already has it. To sign in to `/admin`, run `npm run payload:seed-admins` first; until at least one admin exists, Payload serves an unauthenticated first-user form there.
 
 ---
 
@@ -66,7 +66,7 @@ Against a Vercel **preview** or `*.vercel.app` URL, `npm run parity` needs `VERC
 The `payload:*` commands need Node 24 and have their own rules — see
 [docs/payload-content-model.md](docs/payload-content-model.md).
 
-Data migration scripts (one-off, need `MONGODB_URI`) are covered in [CUTOVER.md](CUTOVER.md).
+Data migration scripts (one-off, need `MONGODB_URI`) are covered in [CUTOVER.md](docs/CUTOVER.md).
 
 ---
 
@@ -149,13 +149,15 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 
 ## Documentation
 
+Everything lives in [`docs/`](docs/) except this file and [AGENTS.md](AGENTS.md).
+
 **Current — these describe the running app:**
 
 | Doc | Read it when |
 |---|---|
-| [docs/database-workflow.md](docs/database-workflow.md) | Touching the schema, or setting up your branch |
-| [docs/payload-content-model.md](docs/payload-content-model.md) | Working on CMS content, Payload migrations, or admin accounts |
-| [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) | The developer guide — how each subsystem works, common tasks, gotchas. Also maps old→new if you knew the CRA/Express app |
+| [database-workflow.md](docs/database-workflow.md) | Touching the schema, or setting up your branch |
+| [payload-content-model.md](docs/payload-content-model.md) | Working on CMS content, Payload migrations, or admin accounts |
+| [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) | The developer guide — how each subsystem works, common tasks, gotchas. Also maps old→new if you knew the CRA/Express app |
 | [AGENTS.md](AGENTS.md) | You're a coding agent, or want the same orientation in brief |
 | `services/pronunciation/README.md` | Working on pronunciation scoring |
 
@@ -163,7 +165,7 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 
 | Doc | What it is |
 |---|---|
-| [MIGRATION_PLAN.md](MIGRATION_PLAN.md) | The original plan: decisions and rationale. Its Airtable and user-migration sections were reversed |
-| [CUTOVER.md](CUTOVER.md) | The runbook for how production was built. Steps 1–9 have run; only step 10 and the rollback notes are still live |
-| [App_Overview.md](App_Overview.md) | The pre-migration MERN app. Useful only for its feature/content inventory |
-| [MIGRATION_EVALUATION.md](MIGRATION_EVALUATION.md) | A pre-decision Vite-vs-Next evaluation, resolved against its own tentative recommendation |
+| [MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) | The original plan: decisions and rationale. Its Airtable and user-migration sections were reversed |
+| [CUTOVER.md](docs/CUTOVER.md) | The runbook for how production was built. The cutover has happened; only step 10 (decommission) and the rollback notes are still live |
+| [App_Overview.md](docs/App_Overview.md) | The pre-migration MERN app. Useful only for its feature/content inventory |
+| [MIGRATION_EVALUATION.md](docs/MIGRATION_EVALUATION.md) | A pre-decision Vite-vs-Next evaluation, resolved against its own tentative recommendation |

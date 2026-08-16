@@ -20,7 +20,7 @@ docs are historical. This file only carries the traps that bite before you get t
 
 - **`client/` and `server/` are dead.** They are the retired CRA + Express + MongoDB
   app, kept only so the cutover stays reversible, deleted at
-  [CUTOVER.md](mdc:CUTOVER.md) step 10 (#42). Nothing in them runs, and they contain
+  [CUTOVER.md](mdc:docs/CUTOVER.md) step 10 (#42). Nothing in them runs, and they contain
   **same-named components that are not interchangeable** with the live ones in `src/`.
   Check which tree a filename belongs to before editing it.
 

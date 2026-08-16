@@ -26,8 +26,8 @@
 >
 > The runbook is kept because it records **how production was actually built** — which
 > secrets exist and why, why the migration order is fixed, and what the freeze cost. For
-> day-to-day work, read [README.md](README.md), [AGENTS.md](AGENTS.md) and
-> [docs/database-workflow.md](docs/database-workflow.md) instead.
+> day-to-day work, read [README.md](../README.md), [AGENTS.md](../AGENTS.md) and
+> [docs/database-workflow.md](database-workflow.md) instead.
 
 ---
 
@@ -60,12 +60,12 @@ Collect these. Step 3 onward is blocked without them.
 
 | What | Where from | Cost |
 |---|---|---|
-| Neon project `cornerstone` (`bold-bar-07861256`), `production` branch | already exists — [docs/database-workflow.md](docs/database-workflow.md) | free tier fine |
+| Neon project `cornerstone` (`bold-bar-07861256`), `production` branch | already exists — [docs/database-workflow.md](database-workflow.md) | free tier fine |
 | Vercel project | [vercel.com](https://vercel.com) | free tier fine |
 | Vercel Blob store | the Vercel project's **Storage** tab | free tier fine |
 | Resend API key + verified sender | [resend.com](https://resend.com) | free tier fine |
 | Container host for pronunciation | Railway / Render / Fly.io | **~$5–20/mo** |
-| GitHub Actions secrets on this repo | [docs/database-workflow.md](docs/database-workflow.md) § One-time setup | — |
+| GitHub Actions secrets on this repo | [docs/database-workflow.md](database-workflow.md) § One-time setup | — |
 
 The container host is the only recurring cost, and the only piece that can't be free —
 it needs ~2GB RAM and must stay warm.
@@ -106,7 +106,7 @@ of it exist. That order is baked into step 5's workflow — you don't run it by 
 
 While you're in the Neon console: mark `production` as a **protected branch**, which
 blocks deletion and can restrict connections. Recommended in
-[docs/database-workflow.md](docs/database-workflow.md) § One-time setup; not a gate on
+[docs/database-workflow.md](database-workflow.md) § One-time setup; not a gate on
 any later step here.
 
 **Never point `.env.local` at `production`.** Steps 6 and 7 are the two deliberate
@@ -179,7 +179,7 @@ a static Preview value silently overrides that:
 - `DATABASE_URL` — the Neon-managed Vercel integration injects a per-deployment
   `preview/<git-branch>`. Set statically, every preview reads and writes the production
   database, so a preview sign-up becomes a real row in `public.user`. See
-  [docs/database-workflow.md](docs/database-workflow.md).
+  [docs/database-workflow.md](database-workflow.md).
 
 `PAYLOAD_SECRET` is **required — the app does not boot without it.** There is no silent
 fallback: with it unset, Payload fails to initialize, so `/admin` 500s and every page
@@ -345,7 +345,7 @@ gh workflow run migrate-production.yml
 gh run watch
 ```
 
-It needs the repo secrets from [docs/database-workflow.md](docs/database-workflow.md) —
+It needs the repo secrets from [docs/database-workflow.md](database-workflow.md) —
 `PRODUCTION_DATABASE_URL` (pooled, `production` branch) and `PAYLOAD_SECRET` (the same
 value you set on Vercel in step 3). It targets the `production` GitHub Environment, so
 required reviewers there turn each run into an explicit human approval.
@@ -496,7 +496,7 @@ required here because Standard Protection still covers the `*.vercel.app` URL.
 > or, with database access, read `reset_password_token` from `payload.cms_admins` and
 > open `/admin/reset/<token>` within the hour; or delete that one row and re-seed.
 > Deleting *every* row reopens `create-first-user`. See
-> [docs/payload-content-model.md](docs/payload-content-model.md#when-a-password-is-lost).
+> [docs/payload-content-model.md](payload-content-model.md#when-a-password-is-lost).
 
 ---
 

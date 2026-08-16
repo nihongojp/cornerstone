@@ -129,7 +129,7 @@ const FOOTER_MARK = "All Rights Reserved";
  * the check that would miss the failure this is here to catch.
  *
  * Eight resource groups is the volume the import already gates on — EXPECTED in
- * scripts/migrate/01-content-to-payload.ts, from the survey in MIGRATION_PLAN.md.
+ * scripts/migrate/01-content-to-payload.ts, from the survey in docs/MIGRATION_PLAN.md.
  * Their names, and the lesson marks, are transcribed from the imported content
  * itself. If content is deliberately added or renamed, these move with it; that
  * they have to be edited by hand is the feature, not the friction.
@@ -388,7 +388,7 @@ function recordCms(label, ok, note) {
  * mark can be matched in the serialised RSC payload rather than in rendered
  * markup. That is enough to prove Payload returned the document — which is
  * what this section claims — but it is not a claim about what a human sees.
- * The manual pass in CUTOVER.md still covers that.
+ * The manual pass in docs/CUTOVER.md still covers that.
  */
 async function checkContent({ path, unit, marks }, cookie) {
   const label = `${path} content`;

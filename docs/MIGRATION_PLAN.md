@@ -7,15 +7,15 @@
 > was chosen, why, and what the survey of the old data found. It is not a description
 > of the code as it stands.
 >
-> **For the stack that is actually running**, read [README.md](README.md),
-> [AGENTS.md](AGENTS.md) and [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md).
+> **For the stack that is actually running**, read [README.md](../README.md),
+> [AGENTS.md](../AGENTS.md) and [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md).
 >
 > **Two decisions below were reversed after this plan was written**, so any section
 > resting on them is superseded. Each is flagged inline:
 >
 > | Superseded | What actually happened |
 > |---|---|
-> | **Airtable as the content backend** — [§ Airtable content layer](#airtable-content-layer), the Airtable half of [§ Migration scripts](#migration-scripts-scriptsmigrate-run-via-npx-tsx-raw-mongodb-driver-idempotent), and the `AIRTABLE_*` / `REVALIDATE_SECRET` entries in [§ Env vars](#env-vars-vercel--envlocal) | Airtable was replaced by **Payload CMS** in the same Postgres database (#20). No external CMS, no webhook, no shared secret. See [docs/payload-content-model.md](docs/payload-content-model.md) |
+> | **Airtable as the content backend** — [§ Airtable content layer](#airtable-content-layer), the Airtable half of [§ Migration scripts](#migration-scripts-scriptsmigrate-run-via-npx-tsx-raw-mongodb-driver-idempotent), and the `AIRTABLE_*` / `REVALIDATE_SECRET` entries in [§ Env vars](#env-vars-vercel--envlocal) | Airtable was replaced by **Payload CMS** in the same Postgres database (#20). No external CMS, no webhook, no shared secret. See [docs/payload-content-model.md](payload-content-model.md) |
 > | **Migrating the old MongoDB user accounts** — the bcrypt-import parts of [§ Better Auth](#better-auth) and script `02-users-to-postgres` | Dropped (#22). Every account in Postgres was created by Better Auth; there is no legacy-hash verification path. Anyone from the old app signs up again |
 >
 > Everything else — the Postgres/Drizzle shape, the auth model, the two-player port
@@ -126,7 +126,7 @@ Media is uneven and matters for P3: `l1-v1` has 30 real media URLs, but `l2-v1` 
 > `unstable_cache` tags invalidated by collection hooks. There is no Airtable base, no
 > `/api/revalidate` route, and no `REVALIDATE_SECRET`. The two lesson collections
 > described below also became one `lessons` collection with a `format` field. Current
-> shape: [docs/payload-content-model.md](docs/payload-content-model.md).
+> shape: [docs/payload-content-model.md](payload-content-model.md).
 
 **Schema — hybrid**: real fields for filterable metadata, JSON-in-long-text for lesson bodies. (Linked-records-per-item rejected: `NewLesson.items[]` is heterogeneous, nested, order-sensitive, and `termMedia.ts` assumes whole-lesson JSON; a JSON field in Airtable's expanded view matches today's Compass authoring model with a better UI.)
 
@@ -179,8 +179,8 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 
 > **Superseded.** `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID` and `REVALIDATE_SECRET` were
 > never part of the shipped app; `PAYLOAD_SECRET` was added. The current list, documented
-> inline, is [`.env.example`](.env.example) — with a summary table in
-> [README.md § Environment](README.md#environment).
+> inline, is [`.env.example`](../.env.example) — with a summary table in
+> [README.md § Environment](../README.md#environment).
 
 `DATABASE_URL` (Neon pooled), `BETTER_AUTH_SECRET` (no fallback), `BETTER_AUTH_URL`, `AIRTABLE_API_KEY` (PAT, read scope; write only during migration), `AIRTABLE_BASE_ID`, `RESEND_API_KEY`, `EMAIL_FROM`, `REVALIDATE_SECRET`, `BLOB_READ_WRITE_TOKEN` (auto), `PRONUNCIATION_SERVICE_URL` + `PRONUNCIATION_SERVICE_SECRET` (Next → pronunciation service), `MONGODB_URI` (**local only**, scripts).
 
@@ -247,9 +247,9 @@ All migration work happens on `feature/nextjs-vercel-migration` (created, fast-f
 
 ## Key reference files
 
-- [client/src/App.tsx](client/src/App.tsx) — routes, guards, header/footer rules the route groups replicate
-- [client/src/pages/NewLessonPage.tsx](client/src/pages/NewLessonPage.tsx) — stepKey resume + shuffle constraint
-- [client/src/services/api.ts](client/src/services/api.ts) — axios/token layer being deleted
-- [client/src/utils/expandLessonItems.ts](client/src/utils/expandLessonItems.ts) + [termMedia.ts](client/src/utils/termMedia.ts) — port unchanged
-- [server/src/models/NewLesson.ts](server/src/models/NewLesson.ts) — the schemaless items[] contract Airtable JSON must preserve
-- [server/src/controllers/authController.ts](server/src/controllers/authController.ts) — bcrypt + plaintext-legacy handling the import script must honor
+- [client/src/App.tsx](../client/src/App.tsx) — routes, guards, header/footer rules the route groups replicate
+- [client/src/pages/NewLessonPage.tsx](../client/src/pages/NewLessonPage.tsx) — stepKey resume + shuffle constraint
+- [client/src/services/api.ts](../client/src/services/api.ts) — axios/token layer being deleted
+- [client/src/utils/expandLessonItems.ts](../client/src/utils/expandLessonItems.ts) + [termMedia.ts](../client/src/utils/termMedia.ts) — port unchanged
+- [server/src/models/NewLesson.ts](../server/src/models/NewLesson.ts) — the schemaless items[] contract Airtable JSON must preserve
+- [server/src/controllers/authController.ts](../server/src/controllers/authController.ts) — bcrypt + plaintext-legacy handling the import script must honor
