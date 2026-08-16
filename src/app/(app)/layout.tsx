@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import ThemeRegistry from "../../components/ThemeRegistry";
 import "./globals.css";
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AppRouterCacheProvider>
           <ThemeRegistry>{children}</ThemeRegistry>
         </AppRouterCacheProvider>
+        <Analytics />
       </body>
     </html>
   );
