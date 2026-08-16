@@ -15,7 +15,7 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 > yours to supply, and finishes by verifying the environment actually works. The
 > manual steps are below either way.
 
-You need **Node 24** (pinned in `.nvmrc` and `engines`; Vercel's current default) and a database branch.
+You need **Node 24 LTS** (`.nvmrc` says `24`; `engines` floors it at 24.11.0, where the line went LTS) and a database branch.
 
 ```bash
 git clone https://github.com/nihongojp/cornerstone.git

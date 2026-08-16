@@ -52,12 +52,11 @@ have not this session. Say roughly this, then begin stage 0:
 node -v && npm -v && git rev-parse --show-toplevel && cat .nvmrc
 ```
 
-**Node must match `.nvmrc` (24).** `package.json` currently declares
-`engines.node: ">=22.23.1"`, which is looser and disagrees with both `.nvmrc`
-and the docs — treat `.nvmrc` as authoritative and do not "fix" `package.json`
-as part of onboarding. On the wrong major, the tell is usually Payload:
-migration files fail to load under Node 24's type stripping rules, and older
-Node fails elsewhere.
+**Node must be 24 LTS.** `.nvmrc` says `24`; `package.json` floors it at
+`>=24.11.0`, the release where the 24 line went LTS (Krypton, npm 11.6.1). On
+an older major, `npm install` prints `EBADENGINE` and the `payload:*` commands
+die loading the config — Node 24 enables type stripping by default, and the
+generated migration files depend on that.
 
 If Node is wrong, offer the fix for their version manager rather than picking
 one: `nvm use` (reads `.nvmrc`), `fnm use`, `mise use node@24`, or `asdf install`.

@@ -61,7 +61,8 @@ mentions left in `src/` are historical comments. Content comes from Payload.
   `npm run parity [url]`, which checks all 36 routes in both auth states and then
   asserts the CMS is up and serving real content. Both must pass before you call
   something done.
-- **Node 24**, pinned in `.nvmrc` and `engines`.
+- **Node 24 LTS**, pinned in `.nvmrc` and floored at 24.11.0 in `engines`. CI
+  reads `.nvmrc` via `node-version-file`, so that file is the one to change.
 - `npm run dev` rewrites the managed block at the bottom of this file. Leave it alone
   and the tree stays clean.
 
