@@ -65,7 +65,8 @@ type Admin = { name: string; email: string };
 const ROSTER: Admin[] = [
   { name: "Justin Lee", email: "me@jlee.cool" },
   { name: "Sachi", email: "2631sachi@gmail.com" },
-  // Dev and Ryoko: add a line each once their addresses are confirmed.
+  { name: "Ryoko", email: "tsunoryoko@gmail.com" },
+  // Dev: add a line once the address is confirmed.
 ];
 
 // ── Passwords ─────────────────────────────────────────────────────────────────
