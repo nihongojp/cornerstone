@@ -443,24 +443,55 @@ vercel_env BETTER_AUTH_SECRET "$BETTER_AUTH_SECRET" sensitive
 pause
 
 # ── 4 ─────────────────────────────────────────────────────────────────────
-stage "DATABASE_URL — production only"
-say "The POOLED connection string for the Neon 'production' branch — the same"
-say "one #36 set as PRODUCTION_DATABASE_URL. A pooled host contains '-pooler'."
+stage "DATABASE_URL — production only, and usually not yours to set"
+say "The Neon integration owns this one. It maps the Vercel production branch to"
+say "the Neon Default branch, so when its DATABASE_URL checkbox is on it pushes a"
+say "pooled production string here itself — and this stage has nothing to do."
 printf '\n'
-note "Production only. Preview's DATABASE_URL comes from the Neon integration in"
-note "the next stage, which injects a per-deployment branch. Setting a static one"
-note "here would point every preview at the production database, where a preview"
-note "sign-up writes a real row into public.user."
-open_url "https://console.neon.tech/app/projects/bold-bar-07861256/branches"
-step "Select the 'production' branch."
-step "In Connection details, turn ON 'Pooled connection'."
-step "Copy the connection string."
-ask_secret DATABASE_URL "Paste the pooled production connection string:"
-if [[ -n "$DATABASE_URL" && "$DATABASE_URL" != *"-pooler."* ]]; then
-  warn "that does not look pooled — a pooled Neon host contains '-pooler'."
-  confirm "Use it anyway?" || DATABASE_URL=""
+note "Production only either way. Preview's comes from the same integration,"
+note "scoped to a git branch; a static Preview value would point every preview at"
+note "the production database, where a sign-up writes a real row into public.user."
+printf '\n'
+
+# The wizard used to paste this in unconditionally, with --force. That now
+# overwrites an integration-owned variable with a hand-copied one, and the
+# integration stops being the thing that keeps it correct. Only ask when it is
+# genuinely missing.
+DATABASE_URL=""
+prod_db_owner=$(env_field "$(vercel_env_rows production)" DATABASE_URL 3)
+if [[ -n "$prod_db_owner" && "$prod_db_owner" != "-" ]]; then
+  printf '  %s✓%s already set by the Neon integration (%s) — leaving it alone\n' \
+    "$GREEN" "$RESET" "$prod_db_owner"
+elif [[ -n "$prod_db_owner" ]]; then
+  printf '  %s·%s already set, but no integration owns it. Nothing will keep it\n' \
+    "$YELLOW" "$RESET"
+  printf '    current if the role is rotated. Stage 9 checks where it points.\n'
+else
+  warn "Production has no DATABASE_URL, which means the integration is not"
+  warn "connected yet or its DATABASE_URL variable is switched off."
+  printf '\n'
+  note "If it is not connected at all, the next stage walks that; come back here"
+  note "afterwards. If it is connected, the checkbox is the fix:"
+  note "Turning it on there is better than pasting one here — the integration"
+  note "keeps it correct afterwards. Toggling the checkbox off and on re-pushes"
+  note "the whole set, which is also how you repair this later."
+  open_url "https://console.neon.tech/app/projects/bold-bar-07861256/integrations"
+  step "Vercel integration → Settings → tick DATABASE_URL and DATABASE_URL_UNPOOLED."
+  if ! confirm "Did that give Production a DATABASE_URL?"; then
+    printf '\n'
+    say "Falling back to a hand-copied string. A pooled host contains '-pooler'."
+    open_url "https://console.neon.tech/app/projects/bold-bar-07861256/branches"
+    step "Select the 'production' branch."
+    step "In Connection details, turn ON 'Pooled connection'."
+    step "Copy the connection string."
+    ask_secret DATABASE_URL "Paste the pooled production connection string:"
+    if [[ -n "$DATABASE_URL" && "$DATABASE_URL" != *"-pooler."* ]]; then
+      warn "that does not look pooled — a pooled Neon host contains '-pooler'."
+      confirm "Use it anyway?" || DATABASE_URL=""
+    fi
+    vercel_env DATABASE_URL "$DATABASE_URL" sensitive production
+  fi
 fi
-vercel_env DATABASE_URL "$DATABASE_URL" sensitive production
 pause
 
 # ── 4b ────────────────────────────────────────────────────────────────────

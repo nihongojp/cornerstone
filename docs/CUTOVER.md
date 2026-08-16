@@ -159,7 +159,7 @@ list is `.env.example` minus `MONGODB_URI`; there is nothing else to set and not
 here to skip:
 
 ```
-DATABASE_URL                  = <the pooled production URL from step 1>   ← Production ONLY
+DATABASE_URL                  = set for you by the Neon integration   ← Production ONLY
 PAYLOAD_SECRET                = <openssl rand -base64 32>   ← fresh; required
 BLOB_READ_WRITE_TOKEN         = set for you when Blob storage is added
 BETTER_AUTH_SECRET            = <openssl rand -base64 32>   ← fresh, not your local one
@@ -177,15 +177,17 @@ static Preview value silently overrides that:
   a preview served from `*.vercel.app` rejects its own sign-in POST with 403
   `INVALID_ORIGIN`. Unset, the origin is read from each request, which works for both
   the deployment URL and the `*-git-*` branch alias.
-- `DATABASE_URL` — the Neon-managed Vercel integration supplies Preview's, pointing at
-  `preview/<git-branch>`. Set statically here, every preview reads and writes the
-  production database instead, so a preview sign-up becomes a real row in `public.user`.
+- `DATABASE_URL` — the Neon-managed Vercel integration supplies both: Production's from
+  the Neon Default branch, Preview's from `preview/<git-branch>`. Set a Preview one
+  statically and every preview reads and writes the production database instead, so a
+  preview sign-up becomes a real row in `public.user`.
 
-  The integration's variables are *stored on the project*, scoped to a git branch, so
-  `DATABASE_URL` and `DATABASE_URL_UNPOOLED` under Preview in `vercel env ls` are
-  normal — what marks the fault is a Preview `DATABASE_URL` that is not git-branch-scoped,
-  or one whose host is production's. See
-  [docs/database-workflow.md](database-workflow.md) for how to tell them apart.
+  The integration's variables are *stored on the project*, Preview's scoped to a git
+  branch, so `DATABASE_URL` and `DATABASE_URL_UNPOOLED` in `vercel env ls` are normal —
+  what marks the fault is a Preview `DATABASE_URL` that is not git-branch-scoped, or one
+  whose host is production's. If Production's is missing entirely, its checkbox is off in
+  Neon → Integrations → Vercel → Settings; toggling it re-pushes the set. See
+  [docs/database-workflow.md](database-workflow.md).
 
 `PAYLOAD_SECRET` is **required — the app does not boot without it.** There is no silent
 fallback: with it unset, Payload fails to initialize, so `/admin` 500s and every page

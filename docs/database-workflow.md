@@ -73,6 +73,19 @@ DATABASE_URL           Encrypted   Preview (feature/nextjs-vercel-migration)
 DATABASE_URL_UNPOOLED  Encrypted   Preview (feature/nextjs-vercel-migration)
 ```
 
+**It owns Production's pair too**, mapping the Vercel production branch to the
+Neon Default branch (`production`), unscoped. So all four rows carry the
+integration's `configurationId`, and the wizard no longer pushes a hand-copied
+production string over the top of one.
+
+Both pairs are controlled by checkboxes in the Neon console, under **Integrations
+→ Vercel → Settings → Vercel environment variables**. If Production's
+`DATABASE_URL` is missing, that box is off, not something the wizard failed to
+do — and **toggling it off and back on re-pushes the whole set**, which is the
+repair. Leave `PGHOST`/`PGUSER`/`PGPASSWORD` and the rest unticked; nothing here
+reads them. The Branches tab of the same dialog is where automatic cleanup of
+obsolete preview branches is switched on.
+
 Neon's documentation describes these as injected per deployment and *not*
 visible in the project's environment-variable settings. That is not what happens
 here: the pair above is stored, git-branch-scoped, and carries the integration's
@@ -154,11 +167,13 @@ Not yet done — these are required before either workflow does anything:
 The Neon GitHub integration can create the first two for you.
 
 Separately from these, the **Neon-managed Vercel integration** has to be connected
-once, or preview deployments have no `DATABASE_URL` and fail to build. It is
-stage 4b of `scripts/wizard-vercel-project.sh`; the console page is
-Integrations → Vercel in the Neon project, and the flow to pick in Vercel is
-"Link Existing Neon Account". Enable automatic branch cleanup while you are there
-so a merged PR's `preview/<git-branch>` goes away with the Git branch.
+once, or neither production nor preview deployments have a `DATABASE_URL` and
+they fail to build. It is stage 4b of `scripts/wizard-vercel-project.sh`; the
+console page is Integrations → Vercel in the Neon project, and the flow to pick
+in Vercel is "Link Existing Neon Account". While you are in that dialog, on
+Settings tick `DATABASE_URL` and `DATABASE_URL_UNPOOLED` and nothing else, and on
+Branches enable automatic cleanup so a merged PR's `preview/<git-branch>` goes
+away with the Git branch.
 
 Also worth doing in the Neon console once the app is live: mark `production` as
 a **protected branch**, which blocks deletion and can restrict connections.
