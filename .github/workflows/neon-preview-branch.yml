@@ -57,18 +57,18 @@ jobs:
       # Payload's own migration then populates. See docs/database-workflow.md.
       - name: Run drizzle migrations
         env:
-          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_with_pooler }}
         run: npm run db:migrate
 
       - name: Run Payload migrations
         env:
-          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_with_pooler }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
         run: npm run payload:migrate
 
       - name: Typecheck and build
         env:
-          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_with_pooler }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL: http://localhost:3000
