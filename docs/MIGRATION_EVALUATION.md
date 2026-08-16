@@ -45,7 +45,11 @@ This note captures the analysis as it stood before that decision.
 
 ## Decisive architecture facts
 
-These constraints drive the whole decision:
+These constraints drove the decision **at the time this was written**. Every one of
+them has since stopped being true: the paths named below (`server/src/...`,
+`client/src/...`) were deleted at cutover (#42), and the auth model described as
+"today" — JWT in `localStorage` — was replaced by httpOnly cookie sessions. Read the
+present tense here as 2025, not now.
 
 - **Frontend is a static SPA.** CRA (`react-scripts` 5.0.1); build deploys via `mv build/* ../docs` → GitHub Pages (static hosting).
 - **Backend is a separate, already-secured API.** Express + MongoDB, JWT auth enforced server-side in `server/src/middleware/requireAuth.ts`; bcrypt + login/signup/me/changePassword in `server/src/controllers/authController.ts`.

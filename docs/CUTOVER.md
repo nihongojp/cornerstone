@@ -10,15 +10,11 @@
 > **Do not work through the steps below as instructions.** Re-running the data-run
 > steps would import content on top of live production data.
 >
-> **Step 10 (Decommission) has now run too** (#42), in the order it demanded: the final
-> `mongodump` was taken first, to `~/cornerstone-mongo-final-backup` — outside the repo
-> and off the old host — and verified non-empty (12 collections; `lessons.bson` 2 docs,
-> matching the import's own volume gate). `client/` and `server/` are out of the
-> repository. The **30-day read-only window ends 2026-09-15**; until then the Mongo
-> cluster is the last independent check on anything the import got wrong.
->
-> Still outstanding from step 10, and not things this repo can do: shutting down the
-> old Express host, setting Mongo read-only, and rotating the Mongo credential.
+> **Step 10 (Decommission) has now run too** (#42), in the order it demanded — dump
+> first, then removal. `client/` and `server/` are out of the repository.
+> **[DECOMMISSION.md](DECOMMISSION.md) is the record**: where the backup lives, what it
+> contains, the date the 30-day window ends, and the infrastructure work still
+> outstanding (host shutdown, read-only, credential rotation).
 >
 > **[Rollback](#rollback)** and **[If something breaks](#if-something-breaks)** remain
 > useful reference for operating what is now running.
@@ -638,21 +634,35 @@ The freeze ends here.
 
 ## 10. Decommission
 
+> **This step has run (#42, 2026-08-16).** The record of what actually happened — the
+> backup location, its verified contents, and the outstanding infrastructure work — is
+> [DECOMMISSION.md](DECOMMISSION.md). Two details below were changed in execution and
+> the text is corrected to match; don't follow the original version if you find it in
+> git history.
+
 Only after everything above passes.
 
 **Take the dump first.** It is what makes step 8's rollback survivable at all once the
-old stack is gone:
+old stack is gone. Write it **outside the repository** — a backup of real user records
+must never become a committed file, and its survival must not depend on the thing being
+decommissioned:
 
 ```bash
-mongodump --uri="$MONGODB_URI" --out=./mongo-final-backup
+mongodump --uri="$MONGODB_URI" --out="$HOME/cornerstone-mongo-final-backup"
 ```
 
-**Keep MongoDB read-only for 30 days.** Then:
+**Then remove the trees.** The removal does *not* wait for the 30-day window: the two
+are independent. The window protects the *data* (Mongo stays readable until
+2026-09-15, in case the import got something wrong); the removal only affects the
+*repo*, and is reversible from git at any time.
 
 ```bash
 git rm -r client server
 git commit -m "task: remove the CRA client and Express server after cutover"
 ```
+
+**Keep MongoDB read-only for those 30 days**, then drop the cluster — and rotate the
+credential regardless, since read access to real user records is still access.
 
 Also: shut down the old Express host, and fix the docs that still describe the old stack
 (#43).

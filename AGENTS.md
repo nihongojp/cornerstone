@@ -29,9 +29,11 @@ Current, and safe to follow:
 - [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) — the developer guide. Despite the name it
   was written after the pivot and describes the running stack; only its old→new
   mapping sections are historical
-- [docs/database-workflow.md](docs/database-workflow.md),
-  [docs/payload-content-model.md](docs/payload-content-model.md),
+- [database-workflow.md](docs/database-workflow.md),
+  [payload-content-model.md](docs/payload-content-model.md),
   `services/pronunciation/README.md`
+- [DECOMMISSION.md](docs/DECOMMISSION.md) — what the cutover retired, where the final
+  `mongodump` lives, and the date the 30-day MongoDB window ends (2026-09-15)
 
 History — read for the record, not as instruction:
 
@@ -40,9 +42,9 @@ History — read for the record, not as instruction:
 - [App_Overview.md](docs/App_Overview.md) — the pre-migration MERN app
 - [MIGRATION_EVALUATION.md](docs/MIGRATION_EVALUATION.md) — a pre-decision evaluation,
   resolved against its own tentative recommendation
-- [CUTOVER.md](docs/CUTOVER.md) — the runbook. Mostly executed, but **partly live**:
-  step 10 (decommission) and its rollback notes are still instruction. Its banner says
-  which
+- [CUTOVER.md](docs/CUTOVER.md) — the runbook, now fully executed including step 10
+  (#42). Its rollback notes remain useful reference; the step bodies are history. Read
+  its banner before the body — some step text still reads in the pending tense
 
 Airtable was a mid-migration content backend and is gone: no dependency, no
 `/api/revalidate` route, no live `AIRTABLE_*` or `REVALIDATE_SECRET` anywhere (the names

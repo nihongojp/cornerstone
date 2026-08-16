@@ -9,17 +9,38 @@ actually find.
 | | |
 |---|---|
 | Final `mongodump` taken | **2026-08-16** |
-| **30-day read-only window ends** | **2026-09-15** |
+| Cluster set read-only | **not yet — fill this in** |
+| **30-day window ends** | **2026-09-15 (provisional)** |
 
-Until 2026-09-15, the MongoDB cluster is the last independent check on the content
-import. It was read once, imported into Payload, and never read again — so if the
-import got something wrong, this window is what catches it. Do not drop the cluster
-before that date.
+The window is the last independent check on the content import: Mongo was read once,
+imported into Payload, and never read again, so if the import got something wrong this
+is what catches it. Do not drop the cluster before the end date.
+
+**The provisional date counts 30 days from the dump, which is the earliest it could
+possibly end.** The window that actually matters runs from the day the cluster goes
+read-only — until then the data can still change underneath you, which is the thing the
+window exists to prevent. If read-only lands a week late, this date is a week early.
+When you set it, put the real date in the table above and strike "provisional".
+
+## The #41 question
+
+This decommission proceeded while **#41 (verify production) was still open**, as a
+deliberate call rather than an oversight. Production was verified directly — Vercel
+serving Next.js + Payload on `learn.nihongojp.com`, CMS admins seeded, and
+`npm run parity` reporting 36/36 plus 4/4 CMS — so the ticket was treated as passed in
+substance.
+
+**One thing was never confirmed from outside**: the pronunciation container (CUTOVER
+step 2). `POST /api/pronunciation/check` returns 401 without a session, which proves
+the Next route exists, not that the container behind it is up. The scoring code itself
+was extracted to `services/pronunciation/` long before this removal, so nothing was
+lost by deleting `server/` — but if pronunciation turns out to be down, that is the
+thread to pull, and #37 is still open.
 
 ## The backup
 
-Taken with `mongodump` from the `Cornerstone` database on
-`cluster0.jssui.mongodb.net`, to a path outside both the repository and the old host:
+Taken with `mongodump` from the `Cornerstone` database (connection string in
+`MONGODB_URI`), to a path outside both the repository and the old host:
 
 ```
 ~/cornerstone-mongo-final-backup/Cornerstone/
@@ -72,3 +93,10 @@ These are infrastructure and credential actions, not repository changes:
 
 The credential rotation is worth doing even though the cluster is going read-only —
 read access to real user records is still access.
+
+**Rotation is also what retires `scripts/migrate/`.** Those scripts (`migrate:survey`,
+`migrate:content`) and the `MONGODB_URI` entry in `.env.example` still work today and
+are still accurate; they stop working the moment the credential changes. That is the
+intended end state — they were one-off imports — but nothing else in the repo says so,
+so treat this as the notice. Once rotated, they are readable history like everything
+else here.
