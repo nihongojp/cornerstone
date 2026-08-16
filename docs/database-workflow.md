@@ -9,7 +9,7 @@ plus short-lived ones per pull request.
 | `development` | shared local-dev database | developers, via `.env.local` |
 | `dev/<name>` | one per developer, long-lived | that developer, via `.env.local` |
 | `preview/pr-<n>` | one per PR, proves migrations apply | CI |
-| `preview/<git-branch>` | one per preview deployment, what that preview reads | the Neon Vercel integration |
+| `preview/<git-branch>` | one per deployed git branch, what its previews read | the Neon Vercel integration |
 | `ticket-*`, `spike-*` | throwaway, created by hand with an expiry | whoever made it |
 
 The two `preview/*` schemes are different things with similar names, and a PR
@@ -62,16 +62,57 @@ that fails to apply therefore fails the PR, not the merge.
 That branch is a test fixture and nothing else — its connection string never
 leaves the Actions runner. **The deployed preview gets its database from the
 Neon-managed Vercel integration instead**, which creates `preview/<git-branch>`
-per preview deployment and injects `DATABASE_URL` into that deployment.
+the first time a git branch is deployed.
 
-Because the integration injects it per deployment rather than storing it on the
-project, `DATABASE_URL` does not appear in `vercel env ls preview`, and it must
-**not** be set there by hand: a static Preview value overrides the injected one,
-and then every preview reads and writes `production` — a sign-up on a preview
-becomes a real row in `public.user`. `scripts/wizard-vercel-project.sh` pushes
-`DATABASE_URL` to Production only and its stage 9 audit asserts the absence.
+The integration then **stores `DATABASE_URL` and `DATABASE_URL_UNPOOLED` on the
+Vercel project, scoped to that one git branch**, so they do show up in
+`vercel env ls preview`, with the branch in parentheses:
 
-The same applies to Vercel's **Development** environment, for a different reason.
+```
+DATABASE_URL           Encrypted   Preview (feature/nextjs-vercel-migration)
+DATABASE_URL_UNPOOLED  Encrypted   Preview (feature/nextjs-vercel-migration)
+```
+
+Neon's documentation describes these as injected per deployment and *not*
+visible in the project's environment-variable settings. That is not what happens
+here: the pair above is stored, git-branch-scoped, and carries the integration's
+`configurationId` in `vercel env ls preview --format json`. `DATABASE_URL_UNPOOLED`
+is the giveaway that it came from the integration — nothing in this repo sets it.
+
+So a `DATABASE_URL` under Preview is **not** by itself a fault. What matters is
+where the value points:
+
+| what `vercel env ls preview` shows | verdict |
+|---|---|
+| nothing | fine — that git branch has not been deployed yet |
+| scoped to a git branch, resolving to `preview/<that-branch>` | fine — the integration created it |
+| scoped to a git branch, resolving to production's host | the bug |
+| no git branch, i.e. Preview-wide | the bug — every preview would share one database |
+
+The bug case is a static Preview value overriding the integration, after which
+every preview reads and writes `production` and a sign-up on a preview becomes a
+real row in `public.user`. `scripts/wizard-vercel-project.sh` pushes
+`DATABASE_URL` to Production only, and its stage 9 audit resolves Preview's value
+and compares its host against production's rather than asserting the variable is
+absent.
+
+To check by hand, compare hosts rather than eyeballing the string: two branches
+of one Neon project differ only in the endpoint id at the front of the host, and
+the dashboard renders the value as Encrypted regardless.
+
+```bash
+neonctl connection-string production --project-id bold-bar-07861256
+```
+
+Then pull Preview's value **to a throwaway path** — see the Development warning
+below for why the path matters — and compare:
+
+```bash
+tmp=$(mktemp) && vercel env pull "$tmp" --environment=preview --git-branch=<branch> -y >/dev/null && grep '^DATABASE_URL=' "$tmp"; rm -f "$tmp"
+```
+
+A separate warning applies to Vercel's **Development** environment, for a
+different reason.
 The integration will offer to manage a branch for it; do not let it. Nothing here
 runs through Vercel locally — `npm run dev` reads `.env.local` directly — so the
 only thing a Development-scoped `DATABASE_URL` can do is get picked up by

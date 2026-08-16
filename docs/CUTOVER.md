@@ -170,17 +170,22 @@ PRONUNCIATION_SERVICE_URL     = https://<service-url>
 PRONUNCIATION_SERVICE_SECRET  = <the secret from step 2>
 ```
 
-The two marked **Production ONLY** are supplied per-deployment on Preview instead, and
-a static Preview value silently overrides that:
+The two marked **Production ONLY** are supplied on Preview by something else, and a
+static Preview value silently overrides that:
 
 - `BETTER_AUTH_URL` — better-auth's `trustedOrigins` defaults to exactly this origin, so
   a preview served from `*.vercel.app` rejects its own sign-in POST with 403
   `INVALID_ORIGIN`. Unset, the origin is read from each request, which works for both
   the deployment URL and the `*-git-*` branch alias.
-- `DATABASE_URL` — the Neon-managed Vercel integration injects a per-deployment
-  `preview/<git-branch>`. Set statically, every preview reads and writes the production
-  database, so a preview sign-up becomes a real row in `public.user`. See
-  [docs/database-workflow.md](database-workflow.md).
+- `DATABASE_URL` — the Neon-managed Vercel integration supplies Preview's, pointing at
+  `preview/<git-branch>`. Set statically here, every preview reads and writes the
+  production database instead, so a preview sign-up becomes a real row in `public.user`.
+
+  The integration's variables are *stored on the project*, scoped to a git branch, so
+  `DATABASE_URL` and `DATABASE_URL_UNPOOLED` under Preview in `vercel env ls` are
+  normal — what marks the fault is a Preview `DATABASE_URL` that is not git-branch-scoped,
+  or one whose host is production's. See
+  [docs/database-workflow.md](database-workflow.md) for how to tell them apart.
 
 `PAYLOAD_SECRET` is **required — the app does not boot without it.** There is no silent
 fallback: with it unset, Payload fails to initialize, so `/admin` 500s and every page
@@ -231,7 +236,9 @@ environments, so 20 dashboard entries — run the wizard:
 
 It imports and links the project, pushes every variable above to Production and
 Preview over the CLI, audits that the retired names are absent and the required
-ones present, reads the build log to confirm Node 24.x, and runs the same
+ones present — resolving Preview's `DATABASE_URL` and checking it answers on a
+preview Neon branch rather than production's host — reads the build log to
+confirm Node 24.x, and runs the same
 `/admin` auth-wall check as above. It also captures the Protection Bypass for
 Automation secret into `.env.local`, which is what lets `npm run parity` reach a
 protected deployment later.

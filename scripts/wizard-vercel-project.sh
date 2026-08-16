@@ -193,11 +193,10 @@ ENV_FILE=".env.local"
 # Set on Vercel for BOTH environments, per CUTOVER.md step 3.
 TARGETS=(production preview)
 
-# Required in Production, and required to be ABSENT from Preview. Both of these
-# are supplied per-deployment on Preview instead — one by better-auth reading the
-# request, one by the Neon integration — and a static Preview value silently
-# overrides that with a production value.
-PRODUCTION_ONLY=(BETTER_AUTH_URL DATABASE_URL)
+# Required in Production, and required to be ABSENT from Preview. better-auth
+# reads the origin off each request when this is unset, so any stored Preview
+# value is a production value silently overriding that.
+PRODUCTION_ONLY=(BETTER_AUTH_URL)
 
 why_production_only() {
   case "$1" in
@@ -205,14 +204,19 @@ why_production_only() {
       # trustedOrigins defaults to exactly baseURL, so pinning the production
       # domain makes a preview served from *.vercel.app reject its own sign-in.
       echo "previews answer 403 INVALID_ORIGIN on sign-in" ;;
-    DATABASE_URL)
-      # The Neon integration injects a per-deployment branch URL; a static one
-      # here wins instead, and previews write to the production database.
-      echo "previews would read and write the production database" ;;
     *)
       echo "must not be set for preview" ;;
   esac
 }
+
+# Required in Production, and on Preview owned by the Neon integration rather
+# than by this wizard. The integration DOES store these on the project, scoped
+# to one git branch, so a value showing up in `vercel env ls preview` is normal
+# and not by itself the bug. What distinguishes the two cases is the value: an
+# integration-created variable resolves to that branch's own preview/<branch>
+# Neon branch, a static Preview-wide override resolves to production's. So the
+# audit compares hosts instead of asserting absence.
+PREVIEW_FROM_INTEGRATION=(DATABASE_URL)
 
 # Never set on Vercel. Airtable and REVALIDATE_SECRET went with #20; MONGODB_URI
 # exists only for the local migration script.
@@ -279,16 +283,62 @@ vercel_env() {
   fi
 }
 
-# vercel_env_names TARGET — names currently defined for that environment.
-vercel_env_names() {
+# vercel_env_rows TARGET — one tab-separated row per variable defined for that
+# environment: NAME, git branch, owning integration. The branch is "-" for a
+# whole-environment variable and the owner is "-" when the value was set by hand
+# rather than by an installed integration. `vercel env ls` renders neither
+# column usefully — the branch only as a parenthetical, the owner not at all —
+# so read the JSON, which is where configurationId lives.
+vercel_env_rows() {
   vercel env ls "$1" --format json 2>/dev/null \
     | node -e "
         let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{
           try{const j=JSON.parse(s);
             const rows=Array.isArray(j)?j:(j.envs||j.environmentVariables||[]);
-            console.log(rows.map(r=>r.key||r.name).filter(Boolean).join('\n'));
+            console.log(rows.filter(r=>r.key||r.name).map(r=>
+              [r.key||r.name, r.gitBranch||'-', r.configurationId||'-'].join('\t')
+            ).join('\n'));
           }catch{ }
         });" 2>/dev/null || true
+}
+
+# vercel_env_names TARGET — names currently defined for that environment.
+vercel_env_names() {
+  vercel_env_rows "$1" | cut -f1
+}
+
+# env_field ROWS NAME COLUMN — read column 2 (git branch) or 3 (integration)
+# out of vercel_env_rows output for one variable.
+env_field() {
+  printf '%s\n' "$1" | awk -F'\t' -v k="$2" -v c="$3" '$1==k{print $c; exit}'
+}
+
+# db_host VALUE — the hostname out of a Postgres URL, with any '-pooler' stripped
+# so a pooled and a direct string for one Neon branch compare equal.
+db_host() {
+  local value="${1//\"/}" host
+  case "$value" in postgres://*|postgresql://*) ;; *) return 0 ;; esac
+  host=$(sed -E 's#^postgres(ql)?://[^@]*@([^/?]+).*#\2#' <<<"$value")
+  printf '%s' "${host/-pooler./.}"
+}
+
+# neon_host TARGET [GIT_BRANCH] — the DATABASE_URL host a deployment in that
+# scope would actually get. Empty when there is nothing to read.
+#
+# This pulls to a temp file and deletes it. Never point `vercel env pull` at
+# $ENV_FILE: it overwrites the file wholesale, and .env.local here is a
+# hand-maintained developer file holding a per-developer Neon branch.
+neon_host() {
+  local target="$1" branch="${2:-}" tmp value='' args
+  tmp=$(mktemp -t cornerstone-env) || return 0
+  args=(env pull "$tmp" "--environment=$target" -y)
+  [[ -n "$branch" && "$branch" != "-" ]] && args+=("--git-branch=$branch")
+  if vercel "${args[@]}" >/dev/null 2>&1; then
+    value=$(grep -m1 '^DATABASE_URL=' "$tmp" | cut -d= -f2-)
+  fi
+  rm -f "$tmp"
+  [[ -n "$value" ]] && db_host "$value"
+  return 0
 }
 
 # probe PATH — GET against the deployment, carrying the bypass when we have one.
@@ -431,11 +481,14 @@ step "Select Neon project bold-bar-07861256, its database, and the role."
 step "Enable automatic branch cleanup so a merged PR's branch goes away."
 step "Connect, then Done."
 printf '\n'
-say "It then creates a branch named preview/<git-branch> per preview deployment"
-say "and injects DATABASE_URL into that deployment. Because it is injected per"
-say "deployment rather than stored on the project, it will not show up in"
-say "'vercel env ls preview' — stage 9 checks for its absence there, not its"
-say "presence."
+say "It then creates a branch named preview/<git-branch> the first time that git"
+say "branch is deployed, and stores DATABASE_URL and DATABASE_URL_UNPOOLED on the"
+say "Vercel project scoped to that one git branch."
+printf '\n'
+note "So a DATABASE_URL under Preview in 'vercel env ls' is expected, not a fault."
+note "Stage 9 tells the two cases apart by value: an integration-created one"
+note "resolves to that branch's own preview/<git-branch> Neon branch, and a static"
+note "Preview-wide override resolves to production's host."
 printf '\n'
 note "This is separate from the preview/pr-<n> branches that"
 note ".github/workflows/neon-preview-branch.yml creates. Those exist to prove a"
@@ -525,22 +578,83 @@ pause
 
 # ── 9 ─────────────────────────────────────────────────────────────────────
 stage "Audit — the variable list is the post-pivot one"
-say "Three assertions: everything required is present in both environments,"
-say "nothing retired is, and the production-only variables are absent from"
-say "Preview. That last one is not tidiness — a static BETTER_AUTH_URL there"
-say "breaks sign-in on every preview, and a static DATABASE_URL points them at"
-say "the production database."
+say "Four assertions: everything required is present in both environments,"
+say "nothing retired is, BETTER_AUTH_URL is absent from Preview, and Preview's"
+say "DATABASE_URL — if one is stored at all — resolves to a preview Neon branch"
+say "rather than production's."
+printf '\n'
+note "That last one is a value check, not a presence check. The Neon integration"
+note "stores a git-branch-scoped DATABASE_URL on the project, so seeing one under"
+note "Preview is normal; what is not normal is one that answers on production's"
+note "host, where a preview sign-up writes a real row into public.user."
 printf '\n'
 AUDIT_FAILED=no
+
+# Resolved once, and compared against rather than merely eyeballed: two Neon
+# branches of one project differ only in the endpoint id at the front of the
+# host, which is easy to misread and impossible to read at all when the value
+# is Encrypted or Sensitive in the dashboard.
+PROD_DB_HOST=$(neon_host production)
+# Falls back to the string stage 4 captured, which is the same production URL —
+# needed because on a first run Production's value may not be readable back yet.
+[[ -n "$PROD_DB_HOST" ]] || PROD_DB_HOST=$(db_host "${DATABASE_URL:-}")
+if [[ -z "$PROD_DB_HOST" ]]; then
+  note "could not resolve production's database host, so the Preview check below"
+  note "reports what it found rather than passing judgement on it."
+  printf '\n'
+fi
+
 for target in "${TARGETS[@]}"; do
   printf '  %s%s%s\n' "$BOLD" "$target" "$RESET"
-  names=$(vercel_env_names "$target")
+  rows=$(vercel_env_rows "$target")
+  names=$(printf '%s\n' "$rows" | cut -f1)
   if [[ -z "$names" ]]; then
     warn "  could not read the variable list for $target"
     AUDIT_FAILED=yes
     continue
   fi
   for want in "${REQUIRED[@]}"; do
+    # Owned by the Neon integration on Preview: judged by where it points.
+    if [[ "$target" != production ]] \
+       && printf '%s\n' "${PREVIEW_FROM_INTEGRATION[@]}" | grep -qx "$want"; then
+      if ! grep -qx "$want" <<<"$names"; then
+        # Nothing stored yet is the state before this git branch has ever had a
+        # preview deployment — the integration writes the pair on its first one.
+        printf '    %s·%s %s not stored for any branch yet — expected until the\n' \
+          "$YELLOW" "$RESET" "$want"
+        printf '      integration has deployed one; a failure if it never appears\n'
+        continue
+      fi
+      branch=$(env_field "$rows" "$want" 2)
+      owner=$(env_field "$rows" "$want" 3)
+      if [[ "$branch" == "-" ]]; then
+        printf '    %s✗%s %s is set Preview-wide, not per git branch — every\n' \
+          "$RED" "$RESET" "$want"
+        printf '      preview would share it, which is the static override\n'
+        AUDIT_FAILED=yes
+        manual "$want is set Preview-wide on Vercel" "vercel env rm $want preview"
+        continue
+      fi
+      host=$(neon_host preview "$branch")
+      if [[ -z "$host" || -z "$PROD_DB_HOST" ]]; then
+        warn "  could not resolve $want for branch $branch — check it by hand"
+      elif [[ "$host" == "$PROD_DB_HOST" ]]; then
+        printf '    %s✗%s %s (branch %s) resolves to PRODUCTION — %s\n' \
+          "$RED" "$RESET" "$want" "$branch" "$host"
+        AUDIT_FAILED=yes
+        manual "$want for branch $branch points at the production database" \
+          "vercel env rm $want preview --git-branch $branch, then redeploy that branch"
+      else
+        printf '    %s✓%s %s (branch %s) resolves to %s, not production\n' \
+          "$GREEN" "$RESET" "$want" "$branch" "$host"
+        if [[ "$owner" == "-" ]]; then
+          printf '      %s·%s no integration owns it — set by hand, so nothing will\n' \
+            "$YELLOW" "$RESET"
+          printf '        rotate or remove it when the git branch goes away\n'
+        fi
+      fi
+      continue
+    fi
     # Required in production, and required to be absent from preview.
     if [[ "$target" != production ]] \
        && printf '%s\n' "${PRODUCTION_ONLY[@]}" | grep -qx "$want"; then
