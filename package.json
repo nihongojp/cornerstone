@@ -1,6 +1,81 @@
 {
-  "name": "Cornerstone",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {}
+  "name": "cornerstone",
+  "version": "2.0.0",
+  "engines": {
+    "node": ">=22.23.1",
+    "npm": ">=10.9.8"
+  },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "parity": "node --env-file-if-exists=.env.local scripts/parity-check.mjs",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "payload": "node --import tsx/esm node_modules/payload/bin.js --disable-transpile",
+    "payload:types": "npm run payload -- generate:types",
+    "payload:migrate": "npm run payload:check-migrations && npm run payload -- migrate",
+    "payload:migrate:status": "npm run payload -- migrate:status",
+    "payload:migrate:create": "npm run payload -- migrate:create && npm run payload:fix-migrations",
+    "payload:fix-migrations": "node scripts/payload/fix-migration-imports.mjs",
+    "payload:check-migrations": "node scripts/payload/fix-migration-imports.mjs --check",
+    "payload:seed-admins": "node --import tsx/esm scripts/payload/seed-admins.ts",
+    "migrate:survey": "tsx scripts/migrate/00-survey.ts",
+    "migrate:content": "node --import tsx/esm scripts/migrate/01-content-to-payload.ts",
+    "content:validate": "tsx scripts/validate-content.ts",
+    "db:branch:new": "neonctl branches create --project-id bold-bar-07861256 --parent production --name",
+    "db:branch:reset": "neonctl branches reset --project-id bold-bar-07861256 --parent",
+    "db:branch:url": "neonctl connection-string --project-id bold-bar-07861256 --pooled --branch",
+    "db:branch:ls": "neonctl branches list --project-id bold-bar-07861256",
+    "db:branch:rm": "./scripts/neon-branch-rm.sh"
+  },
+  "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.4.11",
+    "@mui/material": "^6.4.11",
+    "@mui/material-nextjs": "^9.3.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "@payloadcms/db-postgres": "3.88.0",
+    "@payloadcms/next": "3.88.0",
+    "@payloadcms/storage-vercel-blob": "3.88.0",
+    "better-auth": "^1.6.29",
+    "d3": "^7.9.0",
+    "drizzle-orm": "^0.45.2",
+    "framer-motion": "^12.25.0",
+    "graphql": "^16.14.2",
+    "lucide-react": "^0.541.0",
+    "mongodb": "^7.5.0",
+    "next": "^16.3.0",
+    "payload": "3.88.0",
+    "pg": "^8.23.0",
+    "react": "^19.0.0",
+    "react-calendar": "^5.1.0",
+    "react-dom": "^19.0.0",
+    "resend": "^6.19.0",
+    "server-only": "^0.0.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/node": "^22.10.7",
+    "@types/pg": "^8.21.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.12",
+    "typescript": "^5.7.3"
+  },
+  "overrides": {
+    "dompurify": "^3.4.13",
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.25.12"
+    }
+  }
 }

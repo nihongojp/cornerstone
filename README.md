@@ -1,68 +1,171 @@
+# Nihon-Go!
 
-# MERNBase
+A web app for learning Japanese — prefecture-based lessons, kana and vocabulary exercises, pronunciation scoring, and cultural content.
 
-This project is a MERN Stack Template designed to provide a ready-to-use boilerplate for building full-stack web applications using MongoDB, Express, React, and Node.js. It serves as a foundation for developers to kickstart their projects without the hassle of setting up folder structures, installing dependencies, or configuring essential tools.
+**Stack:** Next.js (App Router) · React 19 · TypeScript · MUI 6 · Better Auth · Payload CMS · Postgres on Neon (Drizzle + Payload) · deployed on Vercel.
 
----
-
-# Who is this for?
-- Developers looking for a pre-configured MERN stack setup to save time and streamline the initial development process.
-- Students or learners who want a simple and structured starting point for practicing full-stack development.
-- Teams or freelancers building scalable web applications with React for the frontend and Node.js for the backend.
-
-## **Prerequisites**
-
-Before you begin, ensure you have the following installed on your machine:
-
-- [Node.js](https://nodejs.org/) (version 14.x or above)
-- [npm](https://www.npmjs.com/) (Node Package Manager)
-- [MongoDB Atlas](https://www.mongodb.com/atlas/database) or a local MongoDB instance
-- [Git](https://git-scm.com/)
+> **Knew the old stack?** The app used to be Create React App + Express + MongoDB, in `client/` and `server/`. Both were removed at [cutover](docs/CUTOVER.md) step 10 (#42) — this repo is now one application. [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) maps the old concepts to their replacements; the deleted code is in git history if you need it.
 
 ---
 
-## **Setup Instructions**
+## Quickstart
 
-### 1. Clone the repository:
-```bash
-git clone <repository-url>
-cd <repository-name>
-```
+You need **Node 24** (pinned in `.nvmrc` and `engines`; Vercel's current default) and a database branch.
 
-### 2. Navigate to folder directory and Install Dependencies (for both Client and Server)
 ```bash
-cd <repository-name>
-```
-```bash
+git clone https://github.com/nihongojp/cornerstone.git
+cd cornerstone
 npm install
+cp .env.example .env.local
 ```
 
-### 4. Create .env file in root folder
-```bash
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/mydatabase?retryWrites=true&w=majority
+**There is no local Postgres.** Every developer works against a Neon branch, so local schema behaviour matches production's exactly — see [docs/database-workflow.md](docs/database-workflow.md). Point `DATABASE_URL` at the shared `development` branch (never at `production`); its connection string is in the Neon console, or:
 
+```bash
+npm run db:branch:url development
+```
+
+Then fill in the three secrets you can't skip:
+
+```bash
+DATABASE_URL=          # pooled URL for the development branch
+BETTER_AUTH_SECRET=    # openssl rand -base64 32 — the app refuses to boot without it
+PAYLOAD_SECRET=        # openssl rand -base64 32 — the CMS admin 500s without it
+```
+
+Create the tables and start. **The order matters**: Payload never issues `CREATE SCHEMA`, so Drizzle has to go first.
+
+```bash
+npm run db:migrate       # public schema — auth tables, user_progress, and CREATE SCHEMA payload
+npm run payload:migrate   # the payload schema — all content
+npm run dev
+```
+
+Open http://localhost:3000. Sign up on `/auth` and you're in.
+
+Content comes from Payload in the same database, so a freshly migrated branch has empty lesson pages until content is imported ([CUTOVER.md](docs/CUTOVER.md) step 7) — branching from `development` instead gets you a copy that already has it. To sign in to `/admin`, run `npm run payload:seed-admins` first; until at least one admin exists, Payload serves an unauthenticated first-user form there.
+
+---
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Dev server on :3000 |
+| `npm run build` / `npm start` | Production build / serve it |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run parity [url]` | Verifies every route's guard and chrome against the original app's route table, then that the CMS is up and serving real content |
+
+Against a Vercel **preview** or `*.vercel.app` URL, `npm run parity` needs `VERCEL_AUTOMATION_BYPASS_SECRET` in `.env.local` or the environment — those URLs sit behind Vercel Authentication, and without it the run measures the auth wall instead of the app. Localhost and the custom production domain need nothing.
+| `npm run db:generate` | Generate a SQL migration after editing the Drizzle schema |
+| `npm run db:migrate` | Apply pending migrations |
+| `npm run db:studio` | Browse the database in Drizzle Studio |
+| `npm run payload:migrate` | Apply pending Payload migrations — always *after* `db:migrate` |
+| `npm run payload:seed-admins` | Create the CMS admin accounts; idempotent, safe to re-run |
+
+The `payload:*` commands need Node 24 and have their own rules — see
+[docs/payload-content-model.md](docs/payload-content-model.md).
+
+Data migration scripts (one-off, need `MONGODB_URI`) are covered in [CUTOVER.md](docs/CUTOVER.md).
+
+---
+
+## How it fits together
+
+```
+Browser
+  │
+  ├── Pages ─────────── Next.js App Router (src/app)
+  │                       server components fetch, client components render
+  │
+  ├── Auth ──────────── Better Auth → Postgres  public   (httpOnly cookie sessions)
+  ├── Lesson content ── Payload CMS  → Postgres payload  (authors edit at /admin)
+  ├── Progress ──────── Drizzle      → Postgres public
+  └── Pronunciation ─── Next route → container service   (wav2vec2 + ffmpeg)
+```
+
+Four things are worth knowing up front:
+
+- **One database, two schemas, two migration systems.** Drizzle owns `public` (auth tables, `user_progress`); Payload owns `payload` (all content). A cross-schema foreign key ties `user_progress` to `lessons(slug)`. Always migrate Drizzle first.
+- **Content lives in Payload, in that same database.** Lessons are authored at `/admin`. There is no external CMS, no webhook and no shared secret: the collection hooks in `src/payload/hooks/revalidate.ts` drop the affected cache tags in-process on every save, because Payload runs inside the app. A one-hour expiry covers anything a hook misses.
+- **Sessions are httpOnly cookies.** There is no token in `localStorage` and no `Authorization` header to attach — same-origin requests just work. `src/proxy.ts` (Next 16's name for middleware) only checks that a cookie exists; the real boundary is `requireSession()` in the route-group layouts.
+- **Pronunciation scoring runs in its own container** (`services/pronunciation/`), because the ML model can't fit in a serverless function. The app proxies to it.
+
+---
+
+## Repo layout
+
+```
+src/
+  app/
+    (app)/          The site itself. Folders in (parens) are route groups —
+                    they set layout/auth rules without appearing in the URL.
+      (site)/         Header + Footer
+        (public-only)/  signed-out only  → signed-in users get redirected away
+        (protected)/    signed-in only   → signed-out users get sent to /auth
+      (dashboard)/    Header, no Footer
+      (player)/       No chrome — the two lesson players
+      api/            Route handlers (auth, progress, pronunciation)
+    (payload)/      The CMS admin at /admin and Payload's REST/GraphQL API.
+                    Generated by Payload — don't hand-edit.
+  components/       Shared UI + all exercise components
+  pages-client/     Page bodies as client components
+  lib/
+    content/        The content API — the only module that reads from Payload
+    db/             Drizzle schema + connection
+    auth.ts         Better Auth config; session.ts is the page-level guard
+  payload/          Collections, blocks, hooks, and Payload's migrations
+  utils/            Lesson expansion + media resolution (pure logic)
+  payload.config.ts
+drizzle/            Migrations for the public schema
+scripts/            Parity checker, Payload tooling, one-off data migrations
+services/
+  pronunciation/    Standalone ML scoring container
 ```
 
 ---
 
-## **Run the Application**
+## Environment
 
-### 1. Start the Server
-```bash
-npm start
-```
+Everything is documented inline in [`.env.example`](.env.example). Summary:
 
-### 2. Access the API
-```bash
-http://localhost:5000
-```
+| Variable | Needed for | Notes |
+|---|---|---|
+| `DATABASE_URL` | always | Pooled Neon URL. The driver switches on the host, so any Postgres URL works. On Vercel set it for Production only — Preview's is injected per deployment by the Neon integration |
+| `BETTER_AUTH_SECRET` | always | No fallback by design — boot fails without it |
+| `PAYLOAD_SECRET` | the CMS | `/admin` and Payload's REST API 500 without it. Rotating it drops every admin session |
+| `BETTER_AUTH_URL` | production | Production only. Optional locally, and must stay unset on Preview — pinned to the production domain it makes previews 403 their own sign-in |
+| `BLOB_READ_WRITE_TOKEN` | CMS media | Set for you when Blob storage is added to the Vercel project. Empty locally falls back to the filesystem |
+| `RESEND_API_KEY` / `EMAIL_FROM` | password reset emails | Without them, dev prints the reset link to the server console |
+| `PRONUNCIATION_SERVICE_URL` / `_SECRET` | pronunciation scoring | See `services/pronunciation/README.md` |
+| `MONGODB_URI` | migration scripts only | **Never set this on Vercel** |
 
-### 3. Start the Client
-```bash
-npm start
-```
+`AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID` and `REVALIDATE_SECRET` are gone — delete them from any `.env.local` or Vercel environment that still has them.
 
-### 2. Access the API
-```bash
-http://localhost:3000
-```
+`.env.local` is gitignored. Never commit real secrets.
+
+---
+
+## Documentation
+
+Everything lives in [`docs/`](docs/) except this file and [AGENTS.md](AGENTS.md).
+
+**Current — these describe the running app:**
+
+| Doc | Read it when |
+|---|---|
+| [database-workflow.md](docs/database-workflow.md) | Touching the schema, or setting up your branch |
+| [payload-content-model.md](docs/payload-content-model.md) | Working on CMS content, Payload migrations, or admin accounts |
+| [MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) | The developer guide — how each subsystem works, common tasks, gotchas. Also maps old→new if you knew the CRA/Express app |
+| [AGENTS.md](AGENTS.md) | You're a coding agent, or want the same orientation in brief |
+| `services/pronunciation/README.md` | Working on pronunciation scoring |
+
+**Historical — kept as the record, not as instruction.** Each opens with a banner saying what in it is superseded:
+
+| Doc | What it is |
+|---|---|
+| [MIGRATION_PLAN.md](docs/MIGRATION_PLAN.md) | The original plan: decisions and rationale. Its Airtable and user-migration sections were reversed |
+| [CUTOVER.md](docs/CUTOVER.md) | The runbook for how production was built. The cutover has happened; only step 10 (decommission) and the rollback notes are still live |
+| [DECOMMISSION.md](docs/DECOMMISSION.md) | What was retired at cutover, the final mongodump, and the date the 30-day MongoDB window ends |
+| [App_Overview.md](docs/App_Overview.md) | The pre-migration MERN app. Useful only for its feature/content inventory |
+| [MIGRATION_EVALUATION.md](docs/MIGRATION_EVALUATION.md) | A pre-decision Vite-vs-Next evaluation, resolved against its own tentative recommendation |

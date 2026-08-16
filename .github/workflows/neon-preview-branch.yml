@@ -1,0 +1,88 @@
+name: Neon preview branch
+
+# One ephemeral Neon branch per pull request, created from `production` and
+# deleted when the PR closes. Migrations run against the branch, so a PR that
+# breaks a migration fails here rather than on merge.
+#
+# This branch is a test fixture: its connection string never leaves the runner,
+# and no deployment ever reads it. The deployed Vercel preview gets its own
+# `preview/<git-branch>` from the Neon-managed Vercel integration. Do not wire
+# this branch into Vercel — see docs/database-workflow.md.
+#
+# Requires (see docs/database-workflow.md):
+#   secret   NEON_API_KEY
+#   variable NEON_PROJECT_ID
+#
+# Both jobs are gated on NEON_PROJECT_ID, so until it is set they skip rather
+# than run. That keeps the workflow from touching a database before it is
+# configured, without failing every pull request in the meantime — a check
+# that is permanently red is a check people stop reading.
+#
+# (The gate is on the variable, not the secret: `secrets` is not available in a
+# job-level `if`, but `vars` is. Setting one without the other still fails, in
+# the step that needs the missing value.)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+concurrency:
+  group: neon-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  create:
+    if: vars.NEON_PROJECT_ID != '' && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Create Neon branch for this PR
+        id: branch
+        uses: neondatabase/create-branch-action@v5
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.pull_request.number }}
+          parent: production
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - run: npm ci
+
+      # Order matters: the drizzle migration creates the `payload` schema that
+      # Payload's own migration then populates. See docs/database-workflow.md.
+      - name: Run drizzle migrations
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+        run: npm run db:migrate
+
+      - name: Run Payload migrations
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: npm run payload:migrate
+
+      - name: Typecheck and build
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_pooled }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: http://localhost:3000
+        run: |
+          npm run typecheck
+          npm run build
+
+  delete:
+    if: vars.NEON_PROJECT_ID != '' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the PR's Neon branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: preview/pr-${{ github.event.pull_request.number }}
+          api_key: ${{ secrets.NEON_API_KEY }}

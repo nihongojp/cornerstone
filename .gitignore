@@ -7,9 +7,12 @@ yarn-error.log*
 # Environment variables
 .env
 .env.local
+.env*.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env*
+!.env.example
 
 # Logs
 logs
@@ -58,3 +61,23 @@ public/scripts/
 
 # Downloaded ML model weights (fetched on demand at runtime)
 server/.model-cache/
+
+# Next.js
+.next/
+# Anchored: this is Next's export directory at the repo root. Unanchored it
+# also swallowed scripts/migrate/out/, which holds committed audit artifacts.
+/out/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# Claude Code (keep .claude/launch.json tracked — it defines how to run the dev server)
+.claude/settings.local.json
+.claude/*.local.json
+
+# Agent worktrees and scratch planning files
+.claude/worktrees/
+.scratch/
+
+# Playwright MCP page snapshots (agent browser testing)
+.playwright-mcp/

@@ -1,0 +1,68 @@
+name: Migrate production database
+
+# Applies pending migrations to the Neon `production` branch when a PR merges.
+#
+# Deliberately NOT run by Vercel's build: a Vercel build can run more than once
+# per deploy and runs for previews too, so migrations belong in one gated place.
+#
+# The job targets the `production` GitHub Environment — add required reviewers
+# there if you want a human to approve each production migration. Without that,
+# merging is the approval.
+#
+# Requires (see docs/database-workflow.md):
+#   secret PRODUCTION_DATABASE_URL   pooled connection string, production branch
+#   secret PAYLOAD_SECRET
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - "drizzle/**"
+      - "src/payload/migrations/**"
+      - "src/lib/db/schema.ts"
+      - "src/payload.config.ts"
+      - ".github/workflows/migrate-production.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Payload's generated migration files must be `import type`-safe or they
+      # fail to load under Node 24's default type stripping. Fail here rather
+      # than half-way through migrating.
+      - name: Check migration files are load-safe
+        run: npm run payload:check-migrations
+
+      - name: Show pending Payload migrations
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: npm run payload:migrate:status
+
+      # Order matters: drizzle owns `public` and creates the `payload` schema;
+      # Payload then owns everything inside it.
+      - name: Run drizzle migrations
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: npm run db:migrate
+
+      - name: Run Payload migrations
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: npm run payload:migrate
