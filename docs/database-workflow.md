@@ -7,6 +7,7 @@ plus short-lived ones per pull request.
 |---|---|---|
 | `production` (default) | what the deployed app uses | **only** the migrate-production workflow |
 | `development` | shared local-dev database | developers, via `.env.local` |
+| `dev/<name>` | one per developer, long-lived | that developer, via `.env.local` |
 | `preview/pr-<n>` | one per PR, proves migrations apply | CI |
 | `preview/<git-branch>` | one per preview deployment, what that preview reads | the Neon Vercel integration |
 | `ticket-*`, `spike-*` | throwaway, created by hand with an expiry | whoever made it |
@@ -69,6 +70,16 @@ project, `DATABASE_URL` does not appear in `vercel env ls preview`, and it must
 and then every preview reads and writes `production` — a sign-up on a preview
 becomes a real row in `public.user`. `scripts/wizard-vercel-project.sh` pushes
 `DATABASE_URL` to Production only and its stage 9 audit asserts the absence.
+
+The same applies to Vercel's **Development** environment, for a different reason.
+The integration will offer to manage a branch for it; do not let it. Nothing here
+runs through Vercel locally — `npm run dev` reads `.env.local` directly — so the
+only thing a Development-scoped `DATABASE_URL` can do is get picked up by
+`vercel env pull`, which overwrites `.env.local` and silently points you at a
+branch that is not the one this document tells you to use. That branch also
+never receives migrations, so it drifts: when this was removed it had zero
+courses, zero lessons and was two Payload migrations behind, which presents as
+"all the content disappeared" rather than as a configuration mistake.
 
 Use the **Neon-managed** integration, not the Vercel-managed one. The
 Vercel-managed flavour provisions a *new* Neon project and cannot attach to an
@@ -138,14 +149,24 @@ moment you are about to change the schema — a migration you apply to the share
 branch lands on everyone else's app too, usually while they are mid-task.
 
 ```bash
-npm run db:branch:new -- dev-justin        # forks from production
-npm run db:branch:url -- dev-justin        # pooled connection string
+npm run db:branch:new -- dev/justin        # forks from production
+npm run db:branch:url -- dev/justin        # pooled connection string
 # paste it into .env.local as DATABASE_URL, then:
 npm run db:migrate && npm run payload:migrate
 ```
 
-Per-developer branches are long-lived; name them `dev-<name>` so they are
-obviously not throwaways. `npm run db:branch:ls` lists everything.
+Per-developer branches are long-lived; name them `dev/<name>` — Neon's own
+convention, and the slash groups them in the console the way `preview/*` already
+groups. `npm run db:branch:ls` lists everything. Refresh a stale one from
+production with `npm run db:branch:reset` rather than recreating it.
+
+Neon's guidance is a branch *per developer* rather than one shared branch; the
+shared `development` branch here is the "dedicated base branch" variant, which
+Neon also documents, and it is only appropriate while one person is running
+migrations. As soon as two people are, the shared branch stops being a
+convenience and becomes the thing that breaks both of their checkouts — the
+migration ordering in this repo is strict enough that a half-applied set is not
+a state anyone else can work around.
 
 ### Throwaway branches
 
