@@ -10,7 +10,12 @@ A web app for learning Japanese — prefecture-based lessons, kana and vocabular
 
 ## Quickstart
 
-You need **Node 24** (pinned in `.nvmrc` and `engines`; Vercel's current default) and a database branch.
+> **Setting up for the first time?** If you use Claude Code, run `/onboard-dev`
+> — it walks the whole setup interactively, stopping to ask wherever a value is
+> yours to supply, and finishes by verifying the environment actually works. The
+> manual steps are below either way.
+
+You need **Node 24 LTS** (`.nvmrc` says `24`; `engines` floors it at 24.11.0, where the line went LTS) and a database branch.
 
 ```bash
 git clone https://github.com/nihongojp/cornerstone.git
