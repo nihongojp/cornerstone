@@ -139,8 +139,10 @@ it over a shared secret. Scoring changes belong in that service, not in `src/`.
 
 ## Working agreements
 
-- **Issues** live in GitHub (`Sachi2631/Cornerstone`) via `gh` —
-  [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md).
+- **Issues** live in GitHub (`nihongojp/cornerstone`) via `gh` —
+  [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md). The old
+  `Sachi2631/Cornerstone` name still resolves by redirect; don't write it in new code
+  or docs.
 - **Domain docs** — `CONTEXT.md` and `docs/adr/`, created lazily by `/domain-modeling`.
   See [docs/agents/domain.md](docs/agents/domain.md).
 - This is an old first project carrying real content alongside accumulated dead code.

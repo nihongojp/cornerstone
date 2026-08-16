@@ -383,7 +383,7 @@ re-imports or user progress detaches.
 - \`_term\` — underscore-prefixed, an internal expander key, but it is the only
   identifying field on 24/24 \`dragAndDropExercise\` items.
 - Legacy \`title\` vs \`newlessons\` \`lesson\` for the display name (a known gap,
-  already flagged in \`CLAUDE.md\`).
+  already flagged in \`AGENTS.md\`).
 - \`matchingExercise.rows\` is free text describing UI layout
   (\`["audio buttons","image"]\`) — should be an enum, or dropped as presentation.
 - \`vocabulary_drag_drop.prompt\` is \`null\` in 3 records and absent in 47 —

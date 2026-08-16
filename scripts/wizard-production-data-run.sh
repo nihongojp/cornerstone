@@ -513,7 +513,7 @@ if confirm "Dispatch migrate-production.yml now?"; then
   printf '\n'
   say "It targets the 'production' GitHub Environment, so a required reviewer"
   say "has to approve it. That click is usually the longest part of the freeze."
-  open_url "https://github.com/Sachi2631/Cornerstone/actions/workflows/migrate-production.yml"
+  open_url "https://github.com/nihongojp/cornerstone/actions/workflows/migrate-production.yml"
   printf '\n'
   step "Approve the run if it is waiting on you."
   step "Watch it to completion (gh run watch, or the browser)."
@@ -776,7 +776,7 @@ say "Next, when you are ready: CUTOVER step 8 (DNS) and step 9 (verify"
 say "production). The freeze does not end until step 9's checklist passes."
 printf '\n'
 if have gh && confirm "Post a run summary as a comment on issue #40?"; then
-  if gh issue comment 40 --repo Sachi2631/Cornerstone --body \
+  if gh issue comment 40 --repo nihongojp/cornerstone --body \
 "Production data run executed: freeze announced, course set confirmed, migrations applied via \`migrate-production.yml\`, \`cms_admins\` seeded and passwords delivered out-of-band, content imported with the round-trip verification passing. DNS untouched — the old stack is still serving. Run artifacts: \`$RUN_DIR\`."
   then ok "commented on #40"
   else warn "comment failed — post it by hand"

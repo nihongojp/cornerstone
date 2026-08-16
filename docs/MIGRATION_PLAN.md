@@ -190,9 +190,11 @@ The pipeline (ffmpeg decode → wav2vec2-large q8 ONNX inference → phoneme ali
 > as the phases landed and stops at P5; P6 (cutover) has since run, and P7 shipped as
 > [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md). Note that P2's "Airtable serving real
 > migrated content" was later redone against Payload (#20), and the user/progress
-> migration in P4 was dropped (#22). P6's `.cursor/rules/always-work-on-master.mdc` no
-> longer exists — the rule was removed rather than rewritten, and `.cursor/rules/`
-> now carries the new stack's orientation instead.
+> migration in P4 was dropped (#22). Two P6 items landed differently than written:
+> `.cursor/rules/always-work-on-master.mdc` was removed rather than rewritten (and
+> `.cursor/rules/` now carries the new stack's orientation instead), and `CLAUDE.md`
+> was deleted rather than rewritten — Claude Code discovers `AGENTS.md` natively, so
+> the one-line `@AGENTS.md` shim it had become was redundant.
 >
 > ✅ **P0–P5 complete.**
 > - P0 (db5e1f5) — Next 16 scaffold + public pages ported.
