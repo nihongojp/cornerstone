@@ -26,27 +26,27 @@
                 {
                   "id": "6a80d50012409c84ac23213e",
                   "card": "あ/ア",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50012409c84ac23213f",
                   "card": "い/イ",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50012409c84ac232140",
                   "card": "う/ウ",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50012409c84ac232141",
                   "card": "え/エ",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50012409c84ac232142",
                   "card": "お/オ",
-                  "audioUrl": null
+                  "audio": null
                 }
               ],
               "blockType": "flashcardDeck"
@@ -88,7 +88,7 @@
               "id": "6a80d50012409c84ac232147",
               "exerciseId": "l1_am",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -112,7 +112,7 @@
               "id": "6a80d50012409c84ac232149",
               "exerciseId": "l1_am_2",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -136,7 +136,7 @@
               "id": "6a80d50012409c84ac23214b",
               "exerciseId": "l1_am_3",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -160,7 +160,7 @@
               "id": "6a80d50012409c84ac23214d",
               "exerciseId": "l1_am_4",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -184,7 +184,7 @@
               "id": "6a80d50012409c84ac23214f",
               "exerciseId": "l1_am_5",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -209,8 +209,7 @@
               "exerciseId": "l1_vocab_ao",
               "prompt": null,
               "correctAnswer": "あお",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": null,
               "blockName": null,
@@ -234,8 +233,7 @@
               "exerciseId": "l1_vocab_ue",
               "prompt": null,
               "correctAnswer": "うえ",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": null,
               "blockName": null,
@@ -259,8 +257,7 @@
               "exerciseId": "l1_vocab_au",
               "prompt": null,
               "correctAnswer": "あう",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": null,
               "blockName": null,
@@ -284,8 +281,7 @@
               "exerciseId": "l1_vocab_ooi",
               "prompt": null,
               "correctAnswer": "おおい",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": null,
               "blockName": null,
@@ -309,8 +305,7 @@
               "exerciseId": "l1_vocab_ao_bonus",
               "prompt": null,
               "correctAnswer": "あお",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": true,
               "blockName": null,
@@ -334,8 +329,7 @@
               "exerciseId": "l1_vocab_ue_bonus",
               "prompt": null,
               "correctAnswer": "うえ",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": true,
               "blockName": null,
@@ -359,8 +353,7 @@
               "exerciseId": "l1_vocab_au_bonus",
               "prompt": null,
               "correctAnswer": "あう",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": true,
               "blockName": null,
@@ -384,8 +377,7 @@
               "exerciseId": "l1_vocab_ooi_bonus",
               "prompt": null,
               "correctAnswer": "おおい",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": true,
               "blockName": null,
@@ -441,27 +433,27 @@
                 {
                   "id": "6a80d50212409c84ac232161",
                   "card": "か/カ",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50212409c84ac232162",
                   "card": "き/キ",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50212409c84ac232163",
                   "card": "く/ク",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50212409c84ac232164",
                   "card": "け/ケ",
-                  "audioUrl": null
+                  "audio": null
                 },
                 {
                   "id": "6a80d50212409c84ac232165",
                   "card": "こ/コ",
-                  "audioUrl": null
+                  "audio": null
                 }
               ],
               "blockType": "flashcardDeck"
@@ -503,7 +495,7 @@
               "id": "6a80d50212409c84ac23216a",
               "exerciseId": "l2_am",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -527,7 +519,7 @@
               "id": "6a80d50212409c84ac23216c",
               "exerciseId": "l2_am_2",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -551,7 +543,7 @@
               "id": "6a80d50212409c84ac23216e",
               "exerciseId": "l2_am_3",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -575,7 +567,7 @@
               "id": "6a80d50212409c84ac232170",
               "exerciseId": "l2_am_4",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -599,7 +591,7 @@
               "id": "6a80d50212409c84ac232172",
               "exerciseId": "l2_am_5",
               "prompt": "Listen and choose the character you hear",
-              "audioUrl": null,
+              "audio": null,
               "blockName": null,
               "blockType": "matchAudioLetter",
               "items": [
@@ -624,8 +616,7 @@
               "exerciseId": "l2_vocab_koke",
               "prompt": null,
               "correctAnswer": "こけ",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": null,
               "blockName": null,
@@ -649,8 +640,7 @@
               "exerciseId": "l2_vocab_ike",
               "prompt": null,
               "correctAnswer": "いけ",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": null,
               "blockName": null,
@@ -674,8 +664,7 @@
               "exerciseId": "l2_vocab_oke",
               "prompt": null,
               "correctAnswer": "おけ",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
               "image": null,
               "bonus": null,
               "blockName": null,
@@ -726,8 +715,14 @@
             {
               "id": "6a80d50312409c84ac23217a",
               "title": "Hajimemashite",
-              "videoUrl": "/api/media/file/Hajimemashite_cqfhtl.mp4",
-              "audioUrl": "/api/media/file/Hajimemashite_aodjal.m4a",
+              "video": {
+                "$ref": "Hajimemashite_cqfhtl.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Hajimemashite_aodjal.m4a",
+                "$collection": "media"
+              },
               "description": "Meeting first time, polite",
               "content": null,
               "blockName": null,
@@ -746,8 +741,14 @@
             {
               "id": "6a80d50312409c84ac23217c",
               "title": "Konnnichiwa",
-              "videoUrl": "/api/media/file/Konnnichiwa_so1c8p.mp4",
-              "audioUrl": "/api/media/file/Konnichiwa_putqgw.m4a",
+              "video": {
+                "$ref": "Konnnichiwa_so1c8p.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Konnichiwa_putqgw.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -766,8 +767,14 @@
             {
               "id": "6a80d50312409c84ac23217e",
               "title": "Ohayou gozaimasu",
-              "videoUrl": "/api/media/file/Ohayou_gozaimasu_d4iguz.mp4",
-              "audioUrl": "/api/media/file/Ohayou_Gozaimasu_i5zn0p.m4a",
+              "video": {
+                "$ref": "Ohayou_gozaimasu_d4iguz.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Ohayou_Gozaimasu_i5zn0p.m4a",
+                "$collection": "media"
+              },
               "description": "Polite",
               "content": null,
               "blockName": null,
@@ -786,8 +793,14 @@
             {
               "id": "6a80d50312409c84ac232180",
               "title": "Konnbannwa",
-              "videoUrl": "/api/media/file/Konnbannwa_kbmnhf.mp4",
-              "audioUrl": "/api/media/file/Konnwannwa_u3kvxq.m4a",
+              "video": {
+                "$ref": "Konnbannwa_kbmnhf.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Konnwannwa_u3kvxq.m4a",
+                "$collection": "media"
+              },
               "description": "Polite",
               "content": null,
               "blockName": null,
@@ -813,29 +826,53 @@
                   "id": "6a80d50312409c84ac232182",
                   "phrase": "Hajimemashite",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
-                  "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png"
+                  "audio": {
+                    "$ref": "New_Recording_37_xskjfk.m4a",
+                    "$collection": "media"
+                  },
+                  "image": {
+                    "$ref": "Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+                    "$collection": "media"
+                  }
                 },
                 {
                   "id": "6a80d50312409c84ac232183",
                   "phrase": "Konnnichiwa",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
-                  "imageUrl": "/api/media/file/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png"
+                  "audio": {
+                    "$ref": "Konnnichiha_R_bov8g7.m4a",
+                    "$collection": "media"
+                  },
+                  "image": {
+                    "$ref": "Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+                    "$collection": "media"
+                  }
                 },
                 {
                   "id": "6a80d50312409c84ac232184",
                   "phrase": "Ohayou gozaimasu",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
-                  "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png"
+                  "audio": {
+                    "$ref": "Ohayougozaimasu_R_r5go97.m4a",
+                    "$collection": "media"
+                  },
+                  "image": {
+                    "$ref": "Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+                    "$collection": "media"
+                  }
                 },
                 {
                   "id": "6a80d50312409c84ac232185",
                   "phrase": "Konnbannwa",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
-                  "imageUrl": "/api/media/file/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png"
+                  "audio": {
+                    "$ref": "Konnnichiha_ibgete.m4a",
+                    "$collection": "media"
+                  },
+                  "image": {
+                    "$ref": "Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+                    "$collection": "media"
+                  }
                 }
               ],
               "blockType": "matchingExercise",
@@ -854,8 +891,14 @@
             {
               "id": "6a80d50312409c84ac232188",
               "phrase": "Hajimemashite",
-              "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+              "audio": {
+                "$ref": "New_Recording_37_xskjfk.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -868,8 +911,14 @@
             {
               "id": "6a80d50312409c84ac23218a",
               "phrase": "Konnnichiwa",
-              "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+              "audio": {
+                "$ref": "Konnnichiha_R_bov8g7.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -882,8 +931,14 @@
             {
               "id": "6a80d50312409c84ac23218c",
               "phrase": "Ohayou gozaimasu",
-              "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+              "audio": {
+                "$ref": "Ohayougozaimasu_R_r5go97.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -896,8 +951,14 @@
             {
               "id": "6a80d50312409c84ac23218e",
               "phrase": "Konnbannwa",
-              "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+              "audio": {
+                "$ref": "Konnnichiha_ibgete.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -910,8 +971,11 @@
             {
               "id": "6a80d50312409c84ac232190",
               "title": "Sumimasen",
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Sumimasen_R_otzedy.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -930,8 +994,11 @@
             {
               "id": "6a80d50312409c84ac232192",
               "title": "Arigatougozaimasu",
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Arigatougozaimasu_R_hikobv.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -950,8 +1017,11 @@
             {
               "id": "6a80d50312409c84ac232194",
               "title": "Sayounara",
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Sayounara_R_nyjeau.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -977,22 +1047,31 @@
                   "id": "6a80d50312409c84ac232196",
                   "phrase": "Sumimasen",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
-                  "imageUrl": null
+                  "audio": {
+                    "$ref": "Sumimasen_R_otzedy.m4a",
+                    "$collection": "media"
+                  },
+                  "image": null
                 },
                 {
                   "id": "6a80d50312409c84ac232197",
                   "phrase": "Arigatougozaimasu",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
-                  "imageUrl": null
+                  "audio": {
+                    "$ref": "Arigatougozaimasu_R_hikobv.m4a",
+                    "$collection": "media"
+                  },
+                  "image": null
                 },
                 {
                   "id": "6a80d50312409c84ac232198",
                   "phrase": "Sayounara",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
-                  "imageUrl": null
+                  "audio": {
+                    "$ref": "Sayounara_R_nyjeau.m4a",
+                    "$collection": "media"
+                  },
+                  "image": null
                 }
               ],
               "blockType": "matchingExercise",
@@ -1011,8 +1090,11 @@
             {
               "id": "6a80d50312409c84ac23219b",
               "phrase": "Sumimasen",
-              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Sumimasen_R_otzedy.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1025,8 +1107,11 @@
             {
               "id": "6a80d50312409c84ac23219d",
               "phrase": "Arigatougozaimasu",
-              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Arigatougozaimasu_R_hikobv.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1039,8 +1124,11 @@
             {
               "id": "6a80d50312409c84ac23219f",
               "phrase": "Sayounara",
-              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Sayounara_R_nyjeau.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1054,8 +1142,14 @@
               "id": "6a80d50312409c84ac2321a1",
               "phrase": "Hajimemashite",
               "transcript": null,
-              "videoUrl": "/api/media/file/Hajimemashite_cqfhtl.mp4",
-              "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
+              "video": {
+                "$ref": "Hajimemashite_cqfhtl.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "New_Recording_37_xskjfk.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1069,8 +1163,14 @@
               "id": "6a80d50312409c84ac2321a3",
               "phrase": "Konnnichiwa",
               "transcript": null,
-              "videoUrl": "/api/media/file/Konnnichiwa_so1c8p.mp4",
-              "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
+              "video": {
+                "$ref": "Konnnichiwa_so1c8p.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Konnnichiha_R_bov8g7.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1084,8 +1184,14 @@
               "id": "6a80d50312409c84ac2321a5",
               "phrase": "Ohayou gozaimasu",
               "transcript": null,
-              "videoUrl": "/api/media/file/Ohayou_gozaimasu_d4iguz.mp4",
-              "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
+              "video": {
+                "$ref": "Ohayou_gozaimasu_d4iguz.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Ohayougozaimasu_R_r5go97.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1099,8 +1205,14 @@
               "id": "6a80d50312409c84ac2321a7",
               "phrase": "Konnbannwa",
               "transcript": null,
-              "videoUrl": "/api/media/file/Konnbannwa_kbmnhf.mp4",
-              "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
+              "video": {
+                "$ref": "Konnbannwa_kbmnhf.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Konnnichiha_ibgete.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1114,8 +1226,11 @@
               "id": "6a80d50312409c84ac2321a9",
               "phrase": "Sumimasen",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Sumimasen_R_otzedy.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1129,8 +1244,11 @@
               "id": "6a80d50312409c84ac2321ab",
               "phrase": "Arigatougozaimasu",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Arigatougozaimasu_R_hikobv.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1144,8 +1262,11 @@
               "id": "6a80d50312409c84ac2321ad",
               "phrase": "Sayounara",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Sayounara_R_nyjeau.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1158,8 +1279,14 @@
             {
               "id": "6a80d50312409c84ac2321af",
               "term": "Hajimemashite",
-              "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+              "audio": {
+                "$ref": "New_Recording_37_xskjfk.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "dragAndDropPuzzle",
               "correctSequence": [
@@ -1183,8 +1310,14 @@
             {
               "id": "6a80d50312409c84ac2321b1",
               "term": "Konnnichiwa",
-              "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+              "audio": {
+                "$ref": "Konnnichiha_R_bov8g7.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "dragAndDropPuzzle",
               "correctSequence": [
@@ -1209,8 +1342,14 @@
             {
               "id": "6a80d50312409c84ac2321b3",
               "term": "Ohayou gozaimasu",
-              "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+              "audio": {
+                "$ref": "Ohayougozaimasu_R_r5go97.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "dragAndDropPuzzle",
               "correctSequence": [
@@ -1235,8 +1374,14 @@
             {
               "id": "6a80d50312409c84ac2321b5",
               "term": "Konnbannwa",
-              "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
-              "imageUrl": "/api/media/file/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+              "audio": {
+                "$ref": "Konnnichiha_ibgete.m4a",
+                "$collection": "media"
+              },
+              "image": {
+                "$ref": "Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "dragAndDropPuzzle",
               "correctSequence": [
@@ -1261,8 +1406,11 @@
             {
               "id": "6a80d50312409c84ac2321b7",
               "term": "Sumimasen",
-              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Sumimasen_R_otzedy.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "dragAndDropPuzzle",
               "correctSequence": [
@@ -1286,8 +1434,11 @@
             {
               "id": "6a80d50312409c84ac2321b9",
               "term": "Arigatougozaimasu",
-              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Arigatougozaimasu_R_hikobv.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "dragAndDropPuzzle",
               "correctSequence": [
@@ -1312,8 +1463,11 @@
             {
               "id": "6a80d50312409c84ac2321bb",
               "term": "Sayounara",
-              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Sayounara_R_nyjeau.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "dragAndDropPuzzle",
               "correctSequence": [
@@ -1390,8 +1544,11 @@
             {
               "id": "6a80d50512409c84ac2321c1",
               "title": "Ogenki desuka",
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -1410,8 +1567,11 @@
             {
               "id": "6a80d50512409c84ac2321c3",
               "title": "Okagesama de",
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Okagesamade_R_oemvy4.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -1430,8 +1590,11 @@
             {
               "id": "6a80d50512409c84ac2321c5",
               "title": "Hai",
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Hai_R_diaf22.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -1450,8 +1613,11 @@
             {
               "id": "6a80d50512409c84ac2321c7",
               "title": "Iie",
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Iie_R_uxvz7f.m4a",
+                "$collection": "media"
+              },
               "description": null,
               "content": null,
               "blockName": null,
@@ -1519,43 +1685,55 @@
                   "id": "6a80d50512409c84ac2321cf",
                   "phrase": "Ogennki desuka",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
-                  "imageUrl": null
+                  "audio": {
+                    "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+                    "$collection": "media"
+                  },
+                  "image": null
                 },
                 {
                   "id": "6a80d50512409c84ac2321d0",
                   "phrase": "Okagesamade",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
-                  "imageUrl": null
+                  "audio": {
+                    "$ref": "Okagesamade_R_oemvy4.m4a",
+                    "$collection": "media"
+                  },
+                  "image": null
                 },
                 {
                   "id": "6a80d50512409c84ac2321d1",
                   "phrase": "Hai",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
-                  "imageUrl": null
+                  "audio": {
+                    "$ref": "Hai_R_diaf22.m4a",
+                    "$collection": "media"
+                  },
+                  "image": null
                 },
                 {
                   "id": "6a80d50512409c84ac2321d2",
                   "phrase": "iie",
                   "englishTranslation": null,
-                  "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
-                  "imageUrl": null
+                  "audio": {
+                    "$ref": "Iie_R_uxvz7f.m4a",
+                    "$collection": "media"
+                  },
+                  "image": null
                 },
                 {
                   "id": "6a80d50512409c84ac2321d3",
                   "phrase": "~ desu",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50512409c84ac2321d4",
                   "phrase": "~ desu ka",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 }
               ],
               "blockType": "matchingExercise",
@@ -1574,8 +1752,11 @@
             {
               "id": "6a80d50512409c84ac2321d7",
               "phrase": "Ogennki desuka",
-              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1588,8 +1769,11 @@
             {
               "id": "6a80d50512409c84ac2321d9",
               "phrase": "Okagesamade",
-              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Okagesamade_R_oemvy4.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1602,8 +1786,11 @@
             {
               "id": "6a80d50512409c84ac2321db",
               "phrase": "Hai",
-              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Hai_R_diaf22.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1616,8 +1803,11 @@
             {
               "id": "6a80d50512409c84ac2321dd",
               "phrase": "iie",
-              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Iie_R_uxvz7f.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1630,8 +1820,8 @@
             {
               "id": "6a80d50512409c84ac2321df",
               "phrase": "~ desu",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1644,8 +1834,8 @@
             {
               "id": "6a80d50512409c84ac2321e1",
               "phrase": "~ desu ka",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1716,15 +1906,15 @@
                   "id": "6a80d50512409c84ac2321ea",
                   "phrase": "PLACEHOLDER_PHRASE_SAN",
                   "englishTranslation": "PLACEHOLDER_TRANSLATION",
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50512409c84ac2321eb",
                   "phrase": "PLACEHOLDER_PHRASE_JIN",
                   "englishTranslation": "PLACEHOLDER_TRANSLATION",
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 }
               ],
               "blockType": "matchingExercise",
@@ -1740,8 +1930,8 @@
             {
               "id": "6a80d50512409c84ac2321ee",
               "phrase": "PLACEHOLDER_PHRASE_SAN",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1754,8 +1944,8 @@
             {
               "id": "6a80d50512409c84ac2321f0",
               "phrase": "PLACEHOLDER_PHRASE_JIN",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -1769,8 +1959,11 @@
               "id": "6a80d50512409c84ac2321f2",
               "phrase": "Ogennki desuka",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1784,8 +1977,11 @@
               "id": "6a80d50512409c84ac2321f4",
               "phrase": "Okagesamade",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Okagesamade_R_oemvy4.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1799,8 +1995,11 @@
               "id": "6a80d50512409c84ac2321f6",
               "phrase": "Hai",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Hai_R_diaf22.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1814,8 +2013,11 @@
               "id": "6a80d50512409c84ac2321f8",
               "phrase": "iie",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
+              "video": null,
+              "audio": {
+                "$ref": "Iie_R_uxvz7f.m4a",
+                "$collection": "media"
+              },
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1829,8 +2031,8 @@
               "id": "6a80d50512409c84ac2321fa",
               "phrase": "~ desu",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1844,8 +2046,8 @@
               "id": "6a80d50512409c84ac2321fc",
               "phrase": "~ desu ka",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1859,8 +2061,8 @@
               "id": "6a80d50512409c84ac2321fe",
               "phrase": "PLACEHOLDER_PHRASE_SAN",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1874,8 +2076,8 @@
               "id": "6a80d50512409c84ac232200",
               "phrase": "PLACEHOLDER_PHRASE_JIN",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -1888,8 +2090,11 @@
             {
               "id": "6a80d50512409c84ac232202",
               "term": "Ogennki desuka",
-              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -1902,8 +2107,11 @@
             {
               "id": "6a80d50512409c84ac232204",
               "term": "Okagesamade",
-              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Okagesamade_R_oemvy4.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -1916,8 +2124,11 @@
             {
               "id": "6a80d50512409c84ac232206",
               "term": "Hai",
-              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Hai_R_diaf22.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -1930,8 +2141,11 @@
             {
               "id": "6a80d50512409c84ac232208",
               "term": "iie",
-              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
-              "imageUrl": null,
+              "audio": {
+                "$ref": "Iie_R_uxvz7f.m4a",
+                "$collection": "media"
+              },
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -1944,8 +2158,8 @@
             {
               "id": "6a80d50512409c84ac23220a",
               "term": "~ desu",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -1958,8 +2172,8 @@
             {
               "id": "6a80d50512409c84ac23220c",
               "term": "~ desu ka",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -1972,8 +2186,8 @@
             {
               "id": "6a80d50512409c84ac23220e",
               "term": "PLACEHOLDER_PHRASE_SAN",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -1986,8 +2200,8 @@
             {
               "id": "6a80d50512409c84ac232210",
               "term": "PLACEHOLDER_PHRASE_JIN",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2020,44 +2234,44 @@
                 {
                   "id": "6a80d50512409c84ac232214",
                   "term": "Hajimemashite",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232215",
                   "term": "Konnichiwa",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232216",
                   "term": "Ohayou gozaimasu",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232217",
                   "term": "Konnbannwa",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232218",
                   "term": "Sumimasen",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232219",
                   "term": "Arigatougozaimasu",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac23221a",
                   "term": "Sayounara",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 }
               ],
               "blockType": "termsPage"
@@ -2079,26 +2293,38 @@
                 {
                   "id": "6a80d50512409c84ac23221d",
                   "term": "Ogennki desuka",
-                  "imageUrl": null,
-                  "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a"
+                  "image": null,
+                  "audio": {
+                    "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+                    "$collection": "media"
+                  }
                 },
                 {
                   "id": "6a80d50512409c84ac23221e",
                   "term": "Okagesama de",
-                  "imageUrl": null,
-                  "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a"
+                  "image": null,
+                  "audio": {
+                    "$ref": "Okagesamade_R_oemvy4.m4a",
+                    "$collection": "media"
+                  }
                 },
                 {
                   "id": "6a80d50512409c84ac23221f",
                   "term": "Hai",
-                  "imageUrl": null,
-                  "audioUrl": "/api/media/file/Hai_R_diaf22.m4a"
+                  "image": null,
+                  "audio": {
+                    "$ref": "Hai_R_diaf22.m4a",
+                    "$collection": "media"
+                  }
                 },
                 {
                   "id": "6a80d50512409c84ac232220",
                   "term": "iie",
-                  "imageUrl": null,
-                  "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a"
+                  "image": null,
+                  "audio": {
+                    "$ref": "Iie_R_uxvz7f.m4a",
+                    "$collection": "media"
+                  }
                 }
               ],
               "blockType": "termsPage"
@@ -2120,26 +2346,26 @@
                 {
                   "id": "6a80d50512409c84ac232223",
                   "term": "~ desu",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232224",
                   "term": "~ desu ka.",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232225",
                   "term": "~ san",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50512409c84ac232226",
                   "term": "~ jin",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 }
               ],
               "blockType": "termsPage"
@@ -2182,8 +2408,8 @@
             {
               "id": "6a80d50712409c84ac232229",
               "title": "Sumimasen, wakarimasen",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2202,8 +2428,8 @@
             {
               "id": "6a80d50712409c84ac23222b",
               "title": "Mouichido, onegaishimasu",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2223,8 +2449,8 @@
             {
               "id": "6a80d50712409c84ac23222d",
               "title": "Yukkuri, onegaishimasu",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2251,22 +2477,22 @@
                   "id": "6a80d50712409c84ac23222f",
                   "phrase": "Sumimasen, wakarimasen",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50712409c84ac232230",
                   "phrase": "Mouichido, onegaishimasu",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50712409c84ac232231",
                   "phrase": "Yukkuri, onegaishimasu",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 }
               ],
               "blockType": "matchingExercise",
@@ -2285,8 +2511,8 @@
             {
               "id": "6a80d50712409c84ac232234",
               "phrase": "Sumimasen, wakarimasen",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2299,8 +2525,8 @@
             {
               "id": "6a80d50712409c84ac232236",
               "phrase": "Mouichido, onegaishimasu",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2313,8 +2539,8 @@
             {
               "id": "6a80d50712409c84ac232238",
               "phrase": "Yukkuri, onegaishimasu",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2339,8 +2565,8 @@
             {
               "id": "6a80d50712409c84ac23223c",
               "title": "Kore",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2359,8 +2585,8 @@
             {
               "id": "6a80d50712409c84ac23223e",
               "title": "Sore",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2379,8 +2605,8 @@
             {
               "id": "6a80d50712409c84ac232240",
               "title": "Are",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2399,8 +2625,8 @@
             {
               "id": "6a80d50712409c84ac232242",
               "title": "dore",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2426,29 +2652,29 @@
                   "id": "6a80d50712409c84ac232244",
                   "phrase": "Kore",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50712409c84ac232245",
                   "phrase": "Sore",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50712409c84ac232246",
                   "phrase": "Are",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50712409c84ac232247",
                   "phrase": "Dore",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 }
               ],
               "blockType": "matchingExercise",
@@ -2467,8 +2693,8 @@
             {
               "id": "6a80d50712409c84ac23224a",
               "phrase": "Kore",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2481,8 +2707,8 @@
             {
               "id": "6a80d50712409c84ac23224c",
               "phrase": "Sore",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2495,8 +2721,8 @@
             {
               "id": "6a80d50712409c84ac23224e",
               "phrase": "Are",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2509,8 +2735,8 @@
             {
               "id": "6a80d50712409c84ac232250",
               "phrase": "Dore",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2535,8 +2761,8 @@
             {
               "id": "6a80d50712409c84ac232254",
               "title": "Kore ha nandesuka",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2555,8 +2781,8 @@
             {
               "id": "6a80d50712409c84ac232256",
               "title": "Sore ha nandesuka",
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "description": null,
               "content": null,
               "blockName": null,
@@ -2582,15 +2808,15 @@
                   "id": "6a80d50712409c84ac232258",
                   "phrase": "Kore ha nandesuka",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 },
                 {
                   "id": "6a80d50712409c84ac232259",
                   "phrase": "Sore ha nandesuka",
                   "englishTranslation": null,
-                  "audioUrl": null,
-                  "imageUrl": null
+                  "audio": null,
+                  "image": null
                 }
               ],
               "blockType": "matchingExercise",
@@ -2609,8 +2835,8 @@
             {
               "id": "6a80d50712409c84ac23225c",
               "phrase": "Kore ha nandesuka",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2623,8 +2849,8 @@
             {
               "id": "6a80d50712409c84ac23225e",
               "phrase": "Sore ha nandesuka",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "matchAudioExercise"
             }
@@ -2638,8 +2864,8 @@
               "id": "6a80d50712409c84ac232260",
               "phrase": "Sumimasen, wakarimasen",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2653,8 +2879,8 @@
               "id": "6a80d50712409c84ac232262",
               "phrase": "Mouichido, onegaishimasu",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2668,8 +2894,8 @@
               "id": "6a80d50712409c84ac232264",
               "phrase": "Yukkuri, onegaishimasu",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2683,8 +2909,8 @@
               "id": "6a80d50712409c84ac232266",
               "phrase": "Kore",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2698,8 +2924,8 @@
               "id": "6a80d50712409c84ac232268",
               "phrase": "Sore",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2713,8 +2939,8 @@
               "id": "6a80d50712409c84ac23226a",
               "phrase": "Are",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2728,8 +2954,8 @@
               "id": "6a80d50712409c84ac23226c",
               "phrase": "Dore",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2743,8 +2969,8 @@
               "id": "6a80d50712409c84ac23226e",
               "phrase": "Kore ha nandesuka",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2758,8 +2984,8 @@
               "id": "6a80d50712409c84ac232270",
               "phrase": "Sore ha nandesuka",
               "transcript": null,
-              "videoUrl": null,
-              "audioUrl": null,
+              "video": null,
+              "audio": null,
               "blockName": null,
               "blockType": "pronunciationExercise"
             }
@@ -2772,8 +2998,8 @@
             {
               "id": "6a80d50712409c84ac232272",
               "term": "Sumimasen, wakarimasen",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2786,8 +3012,8 @@
             {
               "id": "6a80d50712409c84ac232274",
               "term": "Mouichido, onegaishimasu",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2800,8 +3026,8 @@
             {
               "id": "6a80d50712409c84ac232276",
               "term": "Yukkuri, onegaishimasu",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2814,8 +3040,8 @@
             {
               "id": "6a80d50712409c84ac232278",
               "term": "Kore",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2828,8 +3054,8 @@
             {
               "id": "6a80d50712409c84ac23227a",
               "term": "Sore",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2842,8 +3068,8 @@
             {
               "id": "6a80d50712409c84ac23227c",
               "term": "Are",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2856,8 +3082,8 @@
             {
               "id": "6a80d50712409c84ac23227e",
               "term": "Dore",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2870,8 +3096,8 @@
             {
               "id": "6a80d50712409c84ac232280",
               "term": "Kore ha nandesuka",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2884,8 +3110,8 @@
             {
               "id": "6a80d50712409c84ac232282",
               "term": "Sore ha nandesuka",
-              "audioUrl": null,
-              "imageUrl": null,
+              "audio": null,
+              "image": null,
               "blockName": null,
               "blockType": "termMediaSeed"
             }
@@ -2918,20 +3144,20 @@
                 {
                   "id": "6a80d50712409c84ac232286",
                   "term": "Sumimasen, wakarimasen",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50712409c84ac232287",
                   "term": "Mouichido, onegaishimasu",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50712409c84ac232288",
                   "term": "Yukkuri, onegaishimasu",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 }
               ],
               "blockType": "termsPage"
@@ -2953,26 +3179,26 @@
                 {
                   "id": "6a80d50712409c84ac23228b",
                   "term": "Kore",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50712409c84ac23228c",
                   "term": "Sore",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50712409c84ac23228d",
                   "term": "Are",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50712409c84ac23228e",
                   "term": "dore",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 }
               ],
               "blockType": "termsPage"
@@ -2994,14 +3220,14 @@
                 {
                   "id": "6a80d50712409c84ac232291",
                   "term": "Kore ha nandesuka",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 },
                 {
                   "id": "6a80d50712409c84ac232292",
                   "term": "Sore ha nandesuka",
-                  "imageUrl": null,
-                  "audioUrl": null
+                  "image": null,
+                  "audio": null
                 }
               ],
               "blockType": "termsPage"

@@ -2,6 +2,8 @@
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
+import { LESSON_DEPTH } from "../../lib/content/depth";
+
 import LessonPlayer from "../LessonPlayer";
 import { toLessonDoc } from "../../lib/content/adapters";
 import type { Lesson } from "../../payload/payload-types";
@@ -9,7 +11,7 @@ import type { Lesson } from "../../payload/payload-types";
 /*
  * The Live Preview seam for the flashcard player. Same shape as
  * `NewLessonPreview` — see the note there for why the adapter runs on the
- * client and why `depth: 0` is enough.
+ * client and why the depth has to match the server read.
  */
 export default function LessonPreview({
   initialLesson,
@@ -21,7 +23,7 @@ export default function LessonPreview({
   const { data } = useLivePreview<Lesson>({
     initialData: initialLesson,
     serverURL,
-    depth: 0,
+    depth: LESSON_DEPTH,
   });
 
   const lesson = toLessonDoc(data);

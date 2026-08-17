@@ -1,6 +1,6 @@
 import type { Block } from "payload";
 
-import { audioUrl, imageUrl, mediaUrl } from "../fields/media";
+import { audioField, imageField } from "../fields/media";
 
 /*
  * Component blocks for the legacy prefecture/hiragana lesson family (the old
@@ -67,7 +67,7 @@ export const MatchAudioLetter: Block = {
       admin: { description: "Stable id — see the note on Connect the dots." },
     },
     { name: "prompt", type: "text" },
-    audioUrl("The clip the learner hears."),
+    audioField({ description: "The clip the learner hears." }),
     {
       name: "items",
       type: "text",
@@ -117,15 +117,16 @@ export const VocabularyDragDrop: Block = {
       required: true,
       admin: { description: "The assembled answer, as one string." },
     },
-    audioUrl(),
-    imageUrl(),
-    mediaUrl({
-      name: "image",
-      label: "Image URL (legacy alias)",
-      description:
-        "Back-compat alias some imported documents still use. Prefer Image URL above; " +
-        "only fill this in if you are matching an existing record.",
-    }),
+    audioField(),
+    /*
+     * There used to be a second field here, `image`, a back-compat alias for
+     * documents that spelled `imageUrl` that way. It is gone: no row in the
+     * content snapshot ever set it (nor `imageUrl`, on any of the 11 blocks of
+     * this type), and the upload rename would have collided the alias with the
+     * canonical field anyway. `DragDrop.tsx` still reads `imageUrl || image`;
+     * that fallback goes with the adapter in Phase 4.
+     */
+    imageField(),
     {
       name: "bonus",
       type: "checkbox",
@@ -184,7 +185,7 @@ export const FlashcardDeck: Block = {
           required: true,
           admin: { description: 'The card face, e.g. "あ/ア".' },
         },
-        audioUrl("Optional pronunciation for this card."),
+        audioField({ description: "Optional pronunciation for this card." }),
       ],
     },
   ],

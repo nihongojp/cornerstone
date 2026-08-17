@@ -1,4 +1,5 @@
 import type { Lesson, Resource } from "../../payload/payload-types";
+import { mediaSrc } from "./media";
 import type {
   LessonDoc,
   LessonExercise,
@@ -27,6 +28,18 @@ import type {
  * Fields Payload models as `T | null | undefined` are normalised to
  * `T | undefined`: the players check for absence, and a literal null reaching
  * something like `imageUrl` would render as a broken asset.
+ *
+ * Media is the one place the flattening now loses something. Storage holds an
+ * `upload` relationship to a `media` document — alt text, dimensions, resized
+ * variants — and the contract holds a URL string, so `mediaSrc` throws the rest
+ * away. That is the deal for this phase: the players stay untouched while the
+ * storage model changes underneath them. The alt text starts being used when
+ * the blocks render directly and this file goes away.
+ *
+ * This flattening is also why `depth` matters. An unpopulated relationship
+ * arrives as a bare id, `mediaSrc` returns undefined for it, and the lesson
+ * renders with no images and no error. `content.ts` sets the depth for the
+ * public path; the Live Preview wrappers set their own.
  *
  * Pure functions, and deliberately not marked `server-only` — they touch no
  * database, no environment and no secrets, which keeps them checkable outside
@@ -76,9 +89,9 @@ function blockToItem(block: Block): NewLessonItem {
       return {
         type: "page",
         title: block.title,
-        videoUrl: optText(block.videoUrl),
+        videoUrl: mediaSrc(block.video),
         videoForm: opt(block.videoForm),
-        audioUrl: optText(block.audioUrl),
+        audioUrl: mediaSrc(block.audio),
         description: optText(block.description),
         content: optText(block.content),
       };
@@ -89,8 +102,8 @@ function blockToItem(block: Block): NewLessonItem {
         format: optText(block.format),
         terms: list(block.terms).map((term) => ({
           term: term.term,
-          imageUrl: optText(term.imageUrl),
-          audioUrl: optText(term.audioUrl),
+          imageUrl: mediaSrc(term.image),
+          audioUrl: mediaSrc(term.audio),
         })),
         description: optText(block.description),
         content: optText(block.content),
@@ -120,8 +133,8 @@ function blockToItem(block: Block): NewLessonItem {
         items: list(block.items).map((item) => ({
           phrase: item.phrase,
           englishTranslation: optText(item.englishTranslation),
-          audioUrl: optText(item.audioUrl),
-          imageUrl: optText(item.imageUrl),
+          audioUrl: mediaSrc(item.audio),
+          imageUrl: mediaSrc(item.image),
         })),
         rows: opt(block.rows),
         dragDropOptions: opt(block.dragDropOptions),
@@ -134,30 +147,30 @@ function blockToItem(block: Block): NewLessonItem {
         _term: block.term,
         correctSequence: block.correctSequence,
         options: block.options,
-        audioUrl: optText(block.audioUrl),
-        imageUrl: optText(block.imageUrl),
+        audioUrl: mediaSrc(block.audio),
+        imageUrl: mediaSrc(block.image),
       };
     case "termMediaSeed":
       return {
         type: "dragAndDropExercise",
         _term: block.term,
-        audioUrl: optText(block.audioUrl),
-        imageUrl: optText(block.imageUrl),
+        audioUrl: mediaSrc(block.audio),
+        imageUrl: mediaSrc(block.image),
       };
     case "matchAudioExercise":
       return {
         type: "matchAudioExercise",
         phrase: block.phrase,
-        audioUrl: optText(block.audioUrl),
-        imageUrl: optText(block.imageUrl),
+        audioUrl: mediaSrc(block.audio),
+        imageUrl: mediaSrc(block.image),
       };
     case "pronunciationExercise":
       return {
         type: "pronunciationExercise",
         phrase: block.phrase,
         transcript: optText(block.transcript),
-        videoUrl: optText(block.videoUrl),
-        audioUrl: optText(block.audioUrl),
+        videoUrl: mediaSrc(block.video),
+        audioUrl: mediaSrc(block.audio),
       };
     case "infoBreak":
       return { type: "infoBreak", content: block.content };
@@ -190,7 +203,7 @@ function blockToLegacyExercise(block: Block): LessonExercise | null {
         exerciseId: block.exerciseId,
         items: block.items,
         correctAnswers: block.correctAnswers,
-        audioUrl: optText(block.audioUrl),
+        audioUrl: mediaSrc(block.audio),
         prompt: optText(block.prompt),
       };
     case "vocabularyDragDrop":
@@ -200,9 +213,8 @@ function blockToLegacyExercise(block: Block): LessonExercise | null {
         characterBank: block.characterBank,
         correctAnswer: block.correctAnswer,
         prompt: optText(block.prompt),
-        audioUrl: optText(block.audioUrl),
-        imageUrl: optText(block.imageUrl),
-        image: optText(block.image),
+        audioUrl: mediaSrc(block.audio),
+        imageUrl: mediaSrc(block.image),
         bonus: block.bonus === true ? true : undefined,
       };
     case "factBreak":
@@ -236,7 +248,7 @@ function flashcards(blocks: Block[]): { cards: string[]; audio: string[] } {
       cards.push(card.card);
       // Positional, because the contract's two arrays are index-coupled: a card
       // with no audio still has to occupy its slot.
-      audio.push(optText(card.audioUrl) ?? "");
+      audio.push(mediaSrc(card.audio) ?? "");
     }
   }
 

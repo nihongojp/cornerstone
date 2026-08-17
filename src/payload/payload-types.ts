@@ -269,17 +269,17 @@ export interface Lesson {
 export interface VideoPageBlock {
   title: string;
   /**
-   * The lesson video. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * The lesson video.
    */
-  videoUrl?: string | null;
+  video?: (number | null) | Media;
   /**
    * Free-text notes about the video's form, carried over from the source data. Purely descriptive — nothing renders off it.
    */
   videoForm?: string[] | null;
   /**
-   * Optional standalone audio for this page (stored as `audioURL` in the old data). Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * Optional standalone audio for this page (stored as `audioURL` in the old data).
    */
-  audioUrl?: string | null;
+  audio?: (number | null) | Media;
   /**
    * Optional sub-heading shown under the title.
    */
@@ -291,6 +291,61 @@ export interface VideoPageBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoPage';
+}
+/**
+ * Images, audio and video. Upload once here, then pick the file from the media field of whichever component needs it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * What the image shows, for screen readers. Required for images; leave empty for audio and video.
+   */
+  alt?: string | null;
+  /**
+   * Optional visible caption.
+   */
+  caption?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    wide?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -308,14 +363,8 @@ export interface TermsPageBlock {
   terms?:
     | {
         term: string;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        imageUrl?: string | null;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        audioUrl?: string | null;
+        image?: (number | null) | Media;
+        audio?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -393,14 +442,8 @@ export interface MatchingExerciseBlock {
     | {
         phrase: string;
         englishTranslation?: string | null;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        audioUrl?: string | null;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        imageUrl?: string | null;
+        audio?: (number | null) | Media;
+        image?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -434,14 +477,8 @@ export interface DragAndDropPuzzleBlock {
    * Every tile offered, including the wrong ones.
    */
   options: string[];
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
+  audio?: (number | null) | Media;
+  image?: (number | null) | Media;
   id?: string | null;
   blockName?: string | null;
   blockType: 'dragAndDropPuzzle';
@@ -455,14 +492,8 @@ export interface TermMediaSeedBlock {
    * Stored as `_term` in the source data.
    */
   term: string;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
+  audio?: (number | null) | Media;
+  image?: (number | null) | Media;
   id?: string | null;
   blockName?: string | null;
   blockType: 'termMediaSeed';
@@ -474,13 +505,10 @@ export interface TermMediaSeedBlock {
 export interface MatchAudioExerciseBlock {
   phrase: string;
   /**
-   * The clip the learner hears. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * The clip the learner hears.
    */
-  audioUrl?: string | null;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
+  audio?: (number | null) | Media;
+  image?: (number | null) | Media;
   id?: string | null;
   blockName?: string | null;
   blockType: 'matchAudioExercise';
@@ -496,13 +524,13 @@ export interface PronunciationExerciseBlock {
    */
   transcript?: string | null;
   /**
-   * Optional demonstration video. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * Optional demonstration video.
    */
-  videoUrl?: string | null;
+  video?: (number | null) | Media;
   /**
-   * Dedicated reference audio for scoring — NOT the video's audio track. Without it the pronunciation service has nothing to grade against. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * Dedicated reference audio for scoring — NOT the video's audio track. Without it the pronunciation service has nothing to grade against.
    */
-  audioUrl?: string | null;
+  audio?: (number | null) | Media;
   id?: string | null;
   blockName?: string | null;
   blockType: 'pronunciationExercise';
@@ -563,9 +591,9 @@ export interface MatchAudioLetterBlock {
   exerciseId: string;
   prompt?: string | null;
   /**
-   * The clip the learner hears. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * The clip the learner hears.
    */
-  audioUrl?: string | null;
+  audio?: (number | null) | Media;
   /**
    * Every letter offered.
    */
@@ -596,18 +624,8 @@ export interface VocabularyDragDropBlock {
    * The assembled answer, as one string.
    */
   correctAnswer: string;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
-  /**
-   * Back-compat alias some imported documents still use. Prefer Image URL above; only fill this in if you are matching an existing record. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  image?: string | null;
+  audio?: (number | null) | Media;
+  image?: (number | null) | Media;
   /**
    * V2+ bonus batch: hiragana tiles with no Japanese caption hint. Harder variant.
    */
@@ -651,9 +669,9 @@ export interface FlashcardDeckBlock {
          */
         card: string;
         /**
-         * Optional pronunciation for this card. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+         * Optional pronunciation for this card.
          */
-        audioUrl?: string | null;
+        audio?: (number | null) | Media;
         id?: string | null;
       }[]
     | null;
@@ -723,35 +741,6 @@ export interface Resource {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * Images, audio and video uploaded here. Copy a file's URL into the media field of whichever component needs it.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  /**
-   * What the image shows, for screen readers. Required for images; leave empty for audio and video.
-   */
-  alt?: string | null;
-  /**
-   * Optional visible caption.
-   */
-  caption?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * People who can sign in to this admin. Not learner accounts.
@@ -945,9 +934,9 @@ export interface LessonsSelect<T extends boolean = true> {
  */
 export interface VideoPageBlockSelect<T extends boolean = true> {
   title?: T;
-  videoUrl?: T;
+  video?: T;
   videoForm?: T;
-  audioUrl?: T;
+  audio?: T;
   description?: T;
   content?: T;
   id?: T;
@@ -964,8 +953,8 @@ export interface TermsPageBlockSelect<T extends boolean = true> {
     | T
     | {
         term?: T;
-        imageUrl?: T;
-        audioUrl?: T;
+        image?: T;
+        audio?: T;
         id?: T;
       };
   description?: T;
@@ -1013,8 +1002,8 @@ export interface MatchingExerciseBlockSelect<T extends boolean = true> {
     | {
         phrase?: T;
         englishTranslation?: T;
-        audioUrl?: T;
-        imageUrl?: T;
+        audio?: T;
+        image?: T;
         id?: T;
       };
   rows?: T;
@@ -1031,8 +1020,8 @@ export interface DragAndDropPuzzleBlockSelect<T extends boolean = true> {
   term?: T;
   correctSequence?: T;
   options?: T;
-  audioUrl?: T;
-  imageUrl?: T;
+  audio?: T;
+  image?: T;
   id?: T;
   blockName?: T;
 }
@@ -1042,8 +1031,8 @@ export interface DragAndDropPuzzleBlockSelect<T extends boolean = true> {
  */
 export interface TermMediaSeedBlockSelect<T extends boolean = true> {
   term?: T;
-  audioUrl?: T;
-  imageUrl?: T;
+  audio?: T;
+  image?: T;
   id?: T;
   blockName?: T;
 }
@@ -1053,8 +1042,8 @@ export interface TermMediaSeedBlockSelect<T extends boolean = true> {
  */
 export interface MatchAudioExerciseBlockSelect<T extends boolean = true> {
   phrase?: T;
-  audioUrl?: T;
-  imageUrl?: T;
+  audio?: T;
+  image?: T;
   id?: T;
   blockName?: T;
 }
@@ -1065,8 +1054,8 @@ export interface MatchAudioExerciseBlockSelect<T extends boolean = true> {
 export interface PronunciationExerciseBlockSelect<T extends boolean = true> {
   phrase?: T;
   transcript?: T;
-  videoUrl?: T;
-  audioUrl?: T;
+  video?: T;
+  audio?: T;
   id?: T;
   blockName?: T;
 }
@@ -1107,7 +1096,7 @@ export interface ConnectTheDotsBlockSelect<T extends boolean = true> {
 export interface MatchAudioLetterBlockSelect<T extends boolean = true> {
   exerciseId?: T;
   prompt?: T;
-  audioUrl?: T;
+  audio?: T;
   items?: T;
   correctAnswers?: T;
   id?: T;
@@ -1122,8 +1111,7 @@ export interface VocabularyDragDropBlockSelect<T extends boolean = true> {
   prompt?: T;
   characterBank?: T;
   correctAnswer?: T;
-  audioUrl?: T;
-  imageUrl?: T;
+  audio?: T;
   image?: T;
   bonus?: T;
   id?: T;
@@ -1151,7 +1139,7 @@ export interface FlashcardDeckBlockSelect<T extends boolean = true> {
     | T
     | {
         card?: T;
-        audioUrl?: T;
+        audio?: T;
         id?: T;
       };
   id?: T;
@@ -1206,6 +1194,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        wide?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

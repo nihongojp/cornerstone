@@ -167,6 +167,36 @@ const CMS = {
       unit: "content marks",
       marks: ["あ/ア", "い/イ", "う/ウ", "え/エ", "お/オ", "Listen and choose the character you hear"],
     },
+    /*
+     * The media check, and it has to be a step lesson: neither flashcard lesson
+     * references a single file, so the marks above could never have caught a
+     * media regression.
+     *
+     * Block media is an `upload` relationship now, and its failure mode is
+     * silence — too shallow a read `depth`, or an access rule that denies the
+     * populate, and every asset resolves to nothing while the page still
+     * renders and still returns 200. `/api/media/file/` is what a resolved
+     * relationship looks like once it reaches the HTML; the two filenames are
+     * specific so that a page which renders *some* media but has lost these
+     * still fails.
+     *
+     * A smoke check, not a proof. These lookups are wrapped in `unstable_cache`
+     * with an hour's revalidate, so a run right after a code change can be
+     * answered from a cache entry built before it — dropping the read depth to
+     * 0 and re-running this still passed. `npm run content:verify` is the
+     * deterministic one: it reads straight through Payload at the app's own
+     * depth, with no cache in front of it, and fails on every unpopulated
+     * upload.
+     */
+    {
+      path: "/newlesson/l1-v1",
+      unit: "media marks",
+      marks: [
+        "/api/media/file/",
+        "Hajimemashite_aodjal.m4a",
+        "Konnichiwa_putqgw.m4a",
+      ],
+    },
   ],
 };
 

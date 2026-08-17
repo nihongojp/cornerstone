@@ -4,6 +4,7 @@ import type { TypedUser, Where } from "payload";
 import { payloadClient } from "./payload";
 import { TAGS } from "./tags";
 import { lessonHref } from "./routes";
+import { LESSON_DEPTH, MEDIA_POPULATE } from "./depth";
 import {
   toLessonDoc,
   toLessonListItem,
@@ -67,9 +68,8 @@ async function findLessons(where: Where, limit = 0): Promise<Lesson[]> {
     collection: "lessons",
     where,
     limit,
-    // Blocks are stored inline, so nothing here needs a relationship resolved —
-    // `course` is only ever used as an id, by the next-lesson lookup below.
-    depth: 0,
+    depth: LESSON_DEPTH,
+    populate: MEDIA_POPULATE,
     sort: ["order", "createdAt"],
     overrideAccess: false,
     pagination: false,
@@ -161,6 +161,7 @@ async function nextSlugFor(lesson: Lesson): Promise<string | undefined> {
       order: { greater_than: lesson.order },
     }),
     limit: 1,
+    // Deliberately 0: this reads one field, `slug`. Nothing to populate.
     depth: 0,
     sort: "order",
     overrideAccess: false,
@@ -194,6 +195,7 @@ export const getResources = unstable_cache(
     const result = await payload.find({
       collection: "resources",
       where: PUBLISHED,
+      // Resources link out by URL and hold no uploads.
       depth: 0,
       sort: "createdAt",
       overrideAccess: false,
@@ -287,7 +289,10 @@ async function findDrafts(
     collection: "lessons",
     where,
     limit,
-    depth: 0,
+    // Same depth as the published path. If these drift, media renders on the
+    // site and vanishes in the preview panel, or the reverse.
+    depth: LESSON_DEPTH,
+    populate: MEDIA_POPULATE,
     draft: true,
     sort: ["order", "createdAt"],
     overrideAccess: false,
@@ -340,6 +345,7 @@ export async function getDraftNextSlug(
       order: { greater_than: lesson.order },
     }),
     limit: 1,
+    // Deliberately 0, as on the published path above.
     depth: 0,
     draft: true,
     sort: "order",

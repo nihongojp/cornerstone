@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { buildConfig } from "payload";
+import sharp from "sharp";
 
 import { vercelPrivateBlobStorage } from "./payload/storage/vercelPrivateBlob";
 import { livePreviewURL } from "./payload/preview";
@@ -92,5 +93,12 @@ export default buildConfig({
       token: process.env.BLOB_READ_WRITE_TOKEN,
     }),
   ],
-  sharp: undefined,
+  /*
+   * Payload does no image processing without this — no `imageSizes`, no
+   * `adminThumbnail`, so every Media row rendered as a bare id and every
+   * `<img>` on the site downloaded the full-resolution original. `withPayload`
+   * already lists sharp in `serverExternalPackages`, so it needs nothing in
+   * next.config.ts.
+   */
+  sharp,
 });

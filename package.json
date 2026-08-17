@@ -26,6 +26,7 @@
     "payload:seed-admins": "node --import tsx/esm scripts/payload/seed-admins.ts",
     "content:export": "node --import tsx/esm scripts/content/export.ts",
     "content:import": "node --import tsx/esm scripts/content/import.ts",
+    "content:verify": "node --import tsx/esm scripts/content/verify.ts",
     "migrate:survey": "tsx scripts/migrate/00-survey.ts",
     "migrate:survey:dump": "tsx scripts/migrate/00-survey.ts --dump",
     "migrate:content": "node --import tsx/esm scripts/migrate/01-content-to-payload.ts",
@@ -67,6 +68,7 @@
     "react-dom": "^19.0.0",
     "resend": "^6.19.0",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {

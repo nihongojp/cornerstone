@@ -29,6 +29,7 @@ export default function ResourcesPreview({
   const { data } = useLivePreview<Resource>({
     initialData: initialGroups[0] ?? ({} as Resource),
     serverURL,
+    // Resources link out by URL and hold no uploads — nothing to populate.
     depth: 0,
   });
 

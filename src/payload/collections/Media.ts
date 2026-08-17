@@ -12,13 +12,11 @@ import type { Access, CollectionConfig } from "payload";
  * a short-lived signed URL once that gate has passed. Loosening `read` to
  * `() => true` would undo the whole arrangement.
  *
- * Note what this collection is NOT: components do not hold `upload`
- * relationships to it. Every component media field is a plain URL string, which
- * still works here because Payload stores `url` as that gated route rather than
- * a blob URL. Upload here, copy the URL, paste it into the component.
- * Real upload relationships are now unblocked — the Cloudinary back catalogue
- * has been migrated across — but deliberately not taken; that is its own piece
- * of work, not a prerequisite for anything.
+ * Components hold real `upload` relationships to this collection — see
+ * `payload/fields/media.ts`. They used to hold URL strings copied out of the
+ * admin by hand; that is what made a missing asset a string convention
+ * ("PLACEHOLDER_AUDIO_URL") rather than an absent row, and what let a file be
+ * renamed out from under six blocks at once.
  */
 
 /*
@@ -34,7 +32,33 @@ import type { Access, CollectionConfig } from "payload";
  * `payload.config.ts` — `payload generate:types`, `payload migrate:create`, the
  * migrate scripts. Deferring it to request time keeps those paths clean.
  */
-const readMedia: Access = async ({ req }) => {
+/*
+ * `isReadingStaticFile` splits the two questions this gate used to answer with
+ * one word.
+ *
+ * Payload sets it only in `uploads/checkFileAccess.js`, the handler behind
+ * `/api/media/file/<filename>` — the bytes. Everywhere else it is false,
+ * including when Payload populates an `upload` relationship while reading a
+ * lesson. Before this distinction existed the gate said "no" to both, which was
+ * survivable while components held URL strings and nothing was ever populated.
+ * With real relationships it is not: `content.ts` reads with
+ * `overrideAccess: false`, the populate runs against a request carrying no
+ * learner cookie, and every populated upload comes back as `null`. Silently —
+ * no error, no log, just a lesson with no images.
+ *
+ * So: metadata is public, bytes are not. Someone unauthenticated can learn that
+ * a file called `arigato.png` exists, is 856×623, and has alt text. They still
+ * cannot fetch a pixel of it — the URL in that metadata is this same gated
+ * route, and it 403s. That is the right trade; the value was always in the
+ * bytes. The alternative, flipping `content.ts` to `overrideAccess: true`, is a
+ * much bigger hammer that also drops the published-only filter those reads lean
+ * on.
+ */
+const readMedia: Access = async ({ req, isReadingStaticFile }) => {
+  if (!isReadingStaticFile) {
+    return true;
+  }
+
   if (req.user) {
     return true;
   }
@@ -61,13 +85,36 @@ export const Media: CollectionConfig = {
   labels: { singular: "Media", plural: "Media" },
   admin: {
     group: "Content",
+    // Without `useAsTitle` every row in the list and every entry in an upload
+    // picker renders as a bare document id, which makes choosing a file a
+    // guessing game.
+    useAsTitle: "filename",
+    defaultColumns: ["filename", "alt", "mimeType", "filesize", "updatedAt"],
     description:
-      "Images, audio and video uploaded here. Copy a file's URL into the media field of " +
-      "whichever component needs it.",
+      "Images, audio and video. Upload once here, then pick the file from the media field " +
+      "of whichever component needs it.",
   },
   access: { read: readMedia },
   upload: {
     mimeTypes: ["image/*", "audio/*", "video/*"],
+    /*
+     * Sizes are generated at upload time, so everything already in the store
+     * has none — the whole Cloudinary back catalogue included. Consumers must
+     * fall back to the original; `resolveMedia` in `lib/content/media.ts` does.
+     *
+     * These reach the private Blob store without any change to
+     * `storage/vercelPrivateBlob.ts`: the cloud-storage plugin's
+     * `getIncomingFiles` already iterates `req.payloadUploadSizes` and uploads
+     * each variant through the same `handleUpload`.
+     */
+    imageSizes: [
+      { name: "thumbnail", width: 400, height: 300, position: "centre" },
+      { name: "card", width: 768 },
+      { name: "wide", width: 1600 },
+    ],
+    // Works because admins are `req.user`, which passes the bytes gate above.
+    adminThumbnail: "thumbnail",
+    focalPoint: true,
   },
   fields: [
     {
@@ -77,6 +124,18 @@ export const Media: CollectionConfig = {
         description:
           "What the image shows, for screen readers. Required for images; leave empty for " +
           "audio and video.",
+      },
+      /*
+       * Not `required: true`: that would demand alt text for every audio clip
+       * and video too, where it means nothing. The rule is "required for
+       * images", so it is expressed as a rule rather than as a description
+       * asking politely — which is what it was, and roughly half the catalogue
+       * has an empty alt as a result.
+       */
+      validate: (value: unknown, { data }: { data?: { mimeType?: string | null } }) => {
+        const isImage = String(data?.mimeType ?? "").startsWith("image/");
+        if (!isImage || (typeof value === "string" && value.trim())) return true;
+        return "Alt text is required for images.";
       },
     },
     {

@@ -1,6 +1,6 @@
 import type { Block } from "payload";
 
-import { audioUrl, imageUrl, videoUrl } from "../fields/media";
+import { audioField, imageField, videoField } from "../fields/media";
 
 /*
  * Component blocks for the grammar-lesson family (the old `newlessons`
@@ -20,7 +20,11 @@ import { audioUrl, imageUrl, videoUrl } from "../fields/media";
  *    `dragAndDropPuzzle` and `termMediaSeed`.
  *
  * Field names match the zod schemas except where Payload cannot express them:
- *  - `page.audioURL` is normalised to `audioUrl` (the casing everywhere else).
+ *  - Media fields are `image` / `audio` / `video`, `upload` relationships to
+ *    the `media` collection rather than the `imageUrl` / `audioUrl` / `videoUrl`
+ *    strings the zod schemas describe. (`page.audioURL` in the raw Mongo data
+ *    was already being normalised to `audioUrl` before that.) See
+ *    `payload/fields/media.ts`.
  *  - `dragAndDropExercise._term` becomes `term` — Payload reserves the
  *    underscore prefix for its own columns.
  *  - `number` is not modelled at all: it is present on ~40% of items and is
@@ -55,7 +59,7 @@ export const VideoPage: Block = {
   },
   fields: [
     { name: "title", type: "text", required: true },
-    videoUrl("The lesson video."),
+    videoField({ description: "The lesson video." }),
     {
       name: "videoForm",
       type: "text",
@@ -66,7 +70,7 @@ export const VideoPage: Block = {
           "Purely descriptive — nothing renders off it.",
       },
     },
-    audioUrl("Optional standalone audio for this page (stored as `audioURL` in the old data)."),
+    audioField({ description: "Optional standalone audio for this page (stored as `audioURL` in the old data)." }),
     ...PAGE_PROSE,
   ],
 };
@@ -94,8 +98,8 @@ export const TermsPage: Block = {
       },
       fields: [
         { name: "term", type: "text", required: true },
-        imageUrl(),
-        audioUrl(),
+        imageField(),
+        audioField(),
       ],
     },
     ...PAGE_PROSE,
@@ -159,8 +163,8 @@ export const MatchingExercise: Block = {
       fields: [
         { name: "phrase", type: "text", required: true },
         { name: "englishTranslation", type: "text" },
-        audioUrl(),
-        imageUrl(),
+        audioField(),
+        imageField(),
       ],
     },
     {
@@ -218,8 +222,8 @@ export const DragAndDropPuzzle: Block = {
       required: true,
       admin: { description: "Every tile offered, including the wrong ones." },
     },
-    audioUrl(),
-    imageUrl(),
+    audioField(),
+    imageField(),
   ],
 };
 
@@ -237,8 +241,8 @@ export const TermMediaSeed: Block = {
       required: true,
       admin: { description: "Stored as `_term` in the source data." },
     },
-    audioUrl(),
-    imageUrl(),
+    audioField(),
+    imageField(),
   ],
 };
 
@@ -249,8 +253,8 @@ export const MatchAudioExercise: Block = {
   admin: { group: "Grammar lesson" },
   fields: [
     { name: "phrase", type: "text", required: true },
-    audioUrl("The clip the learner hears."),
-    imageUrl(),
+    audioField({ description: "The clip the learner hears." }),
+    imageField(),
   ],
 };
 
@@ -266,11 +270,9 @@ export const PronunciationExercise: Block = {
       type: "textarea",
       admin: { description: "Longer display text. The player falls back to the phrase if empty." },
     },
-    videoUrl("Optional demonstration video."),
-    audioUrl(
-      "Dedicated reference audio for scoring — NOT the video's audio track. " +
-        "Without it the pronunciation service has nothing to grade against."
-    ),
+    videoField({ description: "Optional demonstration video." }),
+    audioField({ description: "Dedicated reference audio for scoring — NOT the video's audio track. " +
+        "Without it the pronunciation service has nothing to grade against." }),
   ],
 };
 

@@ -2,6 +2,8 @@
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
+import { LESSON_DEPTH } from "../../lib/content/depth";
+
 import NewLessonPlayer from "../NewLessonPlayer";
 import { toNewLessonDoc } from "../../lib/content/adapters";
 import type { Lesson } from "../../payload/payload-types";
@@ -15,9 +17,13 @@ import type { Lesson } from "../../payload/payload-types";
  * that — the very adapter the server path runs — puts the real player in front
  * of unsaved content without a second copy of the mapping to keep in step.
  *
- * `depth: 0` matches the server read. Nothing here needs populating: the only
- * relationship on a lesson is `course`, used as a bare id, and every media
- * field on a block is a plain URL string rather than an upload relation.
+ * `depth` matches the server read (`CONTENT_DEPTH` in `lib/content/content.ts`)
+ * and has to keep matching it. Block media is an `upload` relationship now, so
+ * at depth 0 every one of them streams back as a bare id, `mediaSrc` returns
+ * undefined, and the preview panel shows a lesson with no images or audio while
+ * the real page shows them fine — no error in either place. That divergence is
+ * the whole hazard of having a second read path, so when the server read goes
+ * deeper for Phase 2's block → term → media, this goes with it.
  */
 export default function NewLessonPreview({
   initialLesson,
@@ -41,7 +47,7 @@ export default function NewLessonPreview({
   const { data } = useLivePreview<Lesson>({
     initialData: initialLesson,
     serverURL,
-    depth: 0,
+    depth: LESSON_DEPTH,
   });
 
   const lesson = toNewLessonDoc(data, nextSlug);
