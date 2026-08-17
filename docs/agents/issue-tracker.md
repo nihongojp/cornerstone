@@ -47,3 +47,4 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 ## Active wayfinder maps
 
 - **Payload pivot** — issue [#7](https://github.com/nihongojp/cornerstone/issues/7) (migrated 2026-08-14 from `.scratch/payload-pivot/`, which remains as a read-only archive). Cutover runbook ticket: [#23](https://github.com/nihongojp/cornerstone/issues/23); migration status tracker: [#24](https://github.com/nihongojp/cornerstone/issues/24).
+- **Production-ready auth** — issue [#47](https://github.com/nihongojp/cornerstone/issues/47) (charted 2026-08-16). Takes Better Auth from email+password to passwordless-first (Google + magic link + email OTP) and sequences every remaining plugin into phases. Unusually, this map **carries Phase 1 execution** rather than planning only — the build ticket is [#55](https://github.com/nihongojp/cornerstone/issues/55).
