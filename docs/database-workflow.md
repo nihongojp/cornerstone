@@ -213,8 +213,12 @@ npm run db:migrate && npm run payload:migrate
 
 Per-developer branches are long-lived; name them `dev/<name>` — Neon's own
 convention, and the slash groups them in the console the way `preview/*` already
-groups. `npm run db:branch:ls` lists everything. Refresh a stale one from
-production with `npm run db:branch:reset` rather than recreating it.
+groups. That prefix is also what exempts them from the expiry `db:branch:new`
+otherwise applies (see Throwaway branches), so the name is load-bearing: call it
+`justin` rather than `dev/justin` and it will delete itself in three days.
+`npm run db:branch:ls` lists everything, with each branch's expiry. Refresh a
+stale one from production with `npm run db:branch:reset` rather than recreating
+it.
 
 Neon's guidance is a branch *per developer* rather than one shared branch; the
 shared `development` branch here is the "dedicated base branch" variant, which
@@ -227,15 +231,28 @@ a state anyone else can work around.
 ### Throwaway branches
 
 For a spike, an experiment, or an agent that needs somewhere destructive to
-work, create a branch **with an expiry** so it cleans itself up:
+work, `db:branch:new` already gives you an expiry — Neon deletes the branch, so
+forgetting is harmless:
 
 ```bash
-neonctl branches create --project-id bold-bar-07861256 --parent production \
-  --name spike-thing --expires-at 2026-09-01T00:00:00Z
+npm run db:branch:new -- rehearsal-cutover        # gone in 3 days
+npm run db:branch:new -- spike-thing --days 14
+npm run db:branch:new -- keep-me --keep           # opt out, no expiry
 ```
 
+`dev/*` names are exempt: those are the long-lived per-developer branches above,
+and expiring the one somebody's `.env.local` points at would be the destructive
+version of this problem. Refresh them with `db:branch:reset`.
+
+**This section used to tell you to pass `--expires-at` by hand**, while
+`db:branch:new` was one word and produced `Expires At: never`. Nobody passed it,
+including the agent that had read this page — when the convenient path and the
+correct path differ, the convention loses. The expiry is the default now, which
+is why this reads as an option rather than an instruction.
+
 A branch with an expiry cannot itself have children — fork from `production`
-instead of from another temporary branch.
+instead of from another temporary branch. That is the one real cost of the
+default, and the reason `--keep` exists.
 
 To delete one early, or to clean up a branch created without an expiry:
 

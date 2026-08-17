@@ -38,7 +38,7 @@
     "migrate:media-inventory": "tsx scripts/migrate/05-media-inventory.ts",
     "migrate:media-to-blob": "node --import tsx/esm scripts/migrate/06-cloudinary-to-blob.ts",
     "content:validate": "tsx scripts/validate-content.ts",
-    "db:branch:new": "neonctl branches create --project-id bold-bar-07861256 --parent production --name",
+    "db:branch:new": "./scripts/neon-branch-new.sh",
     "db:branch:reset": "neonctl branches reset --project-id bold-bar-07861256 --parent",
     "db:branch:url": "neonctl connection-string --project-id bold-bar-07861256 --pooled --branch",
     "db:branch:ls": "neonctl branches list --project-id bold-bar-07861256",
