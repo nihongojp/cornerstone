@@ -104,8 +104,16 @@ const ROUTES = [
 
   // Signed-out only — a signed-in user is bounced to /new-lessons.
   { path: "/auth", guard: "public-only", chrome: "both" },
-  { path: "/login", guard: "public-only", chrome: "both" },
-  { path: "/signup", guard: "public-only", chrome: "both" },
+
+  /*
+   * There is one sign-in surface now (#52), so these two only forward to it.
+   * They still sit inside the (public-only) group, which means a signed-in
+   * visitor is bounced to /new-lessons by the layout before the page's own
+   * redirect ever runs — the destination therefore depends on auth state,
+   * which "redirect" alone cannot express.
+   */
+  { path: "/login", guard: "public-only-redirect", to: "/auth", chrome: null },
+  { path: "/signup", guard: "public-only-redirect", to: "/auth?mode=signup", chrome: null },
 
   // Signed-in only — a signed-out user is bounced to /auth.
   { path: "/dashboard", guard: "protected", chrome: "header" },
@@ -113,6 +121,8 @@ const ROUTES = [
   { path: "/watch", guard: "protected", chrome: "both" },
   { path: "/talk", guard: "protected", chrome: "both" },
   { path: "/profile", guard: "protected", chrome: "both" },
+  // Where a brand-new account lands after proving its address (#55).
+  { path: "/welcome", guard: "protected", chrome: "both" },
   { path: "/lesson/hiragana-l1-v1-hokkaido", guard: "protected", chrome: "none" },
   { path: "/newlesson/l1-v1", guard: "protected", chrome: "none" },
 ];
@@ -269,6 +279,23 @@ async function signUpFixture() {
   });
   if (res.ok) return;
 
+  /*
+   * Password signup is closed (#55: `emailAndPassword.disableSignUp`), so this
+   * endpoint no longer creates anything — new accounts arrive by Google, magic
+   * link or one-time code, none of which this script can complete without a
+   * mailbox. The run therefore needs an account handed to it.
+   */
+  if (res.status === 400 || res.status === 403) {
+    console.error(
+      "\nThe parity fixture cannot be created: password signup is closed.\n\n" +
+        "  New accounts are created by Google, magic link or a one-time code, and\n" +
+        "  this script cannot open a mailbox. Point it at an existing, confirmed\n" +
+        "  account instead:\n\n" +
+        "    PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity\n"
+    );
+    process.exit(2);
+  }
+
   // A 500 here is almost always an unmigrated database — better-auth querying a
   // `user` table that does not exist yet. Worth naming, because the raw error
   // never reaches this script.
@@ -291,6 +318,26 @@ async function signUpFixture() {
 async function signIn() {
   const res = await authRequest("sign-in/email", { body: CREDENTIALS });
   if (!res.ok) {
+    /*
+     * Phase 1 turned on `requireEmailVerification` (#55), so a freshly created
+     * account cannot sign in until its address is confirmed — and this script
+     * only speaks HTTP, so it can never open the confirmation mail. Creating
+     * the fixture here therefore stopped being possible; the run needs an
+     * account that is already confirmed.
+     *
+     * Worth naming precisely, because the raw 403 reads like a wrong password.
+     */
+    if (res.status === 403) {
+      console.error(
+        `\nThe parity fixture cannot sign in: ${CREDENTIALS.email} is not confirmed.\n\n` +
+          "  Sign-in now requires a confirmed email address, and this script has no\n" +
+          "  way to open the confirmation link. Point it at an account that is\n" +
+          "  already confirmed:\n\n" +
+          "    PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity\n"
+      );
+      process.exit(2);
+    }
+
     console.error(`Sign-in failed (${res.status}) for ${CREDENTIALS.email}.`);
     console.error(
       SUPPLIED_FIXTURE
@@ -347,6 +394,9 @@ function expected(route, signedIn) {
   if (route.guard === "redirect") return { kind: "redirect", to: route.to };
   if (route.guard === "protected" && !signedIn) return { kind: "redirect", to: "/auth" };
   if (route.guard === "public-only" && signedIn) return { kind: "redirect", to: "/new-lessons" };
+  if (route.guard === "public-only-redirect") {
+    return { kind: "redirect", to: signedIn ? "/new-lessons" : route.to };
+  }
   return { kind: "render" };
 }
 
@@ -365,7 +415,17 @@ async function check(route, signedIn, cookie) {
   let ok, note;
 
   if (want.kind === "redirect") {
-    const target = got.location ? new URL(got.location, BASE).pathname : null;
+    /*
+     * Path only, unless the expectation names a query — /signup forwards to
+     * /auth?mode=signup, and comparing pathname alone would pass on a redirect
+     * that dropped the mode and quietly landed everyone on the Login side.
+     */
+    const url = got.location ? new URL(got.location, BASE) : null;
+    const target = url
+      ? want.to.includes("?")
+        ? `${url.pathname}${url.search}`
+        : url.pathname
+      : null;
     ok = got.status >= 300 && got.status < 400 && target === want.to;
     note = ok ? `→ ${want.to}` : `expected → ${want.to}, got ${describe(got)}`;
   } else {
