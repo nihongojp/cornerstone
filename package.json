@@ -44,7 +44,8 @@
     "db:branch:ls": "neonctl branches list --project-id bold-bar-07861256",
     "db:branch:rm": "./scripts/neon-branch-rm.sh",
     "content:migrate-blocks": "node --import tsx/esm scripts/content/migrate-to-library.ts",
-    "content:author-spotlights": "node --import tsx/esm scripts/content/author-spotlights.ts"
+    "content:author-spotlights": "node --import tsx/esm scripts/content/author-spotlights.ts",
+    "content:roundtrip": "./scripts/content/roundtrip.sh"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
