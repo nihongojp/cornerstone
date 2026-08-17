@@ -2,6 +2,7 @@ import * as migration_20260815_071846_initial_content_model from './20260815_071
 import * as migration_20260815_090103_lesson_format from './20260815_090103_lesson_format';
 import * as migration_20260815_120000_user_progress_lesson_fk from './20260815_120000_user_progress_lesson_fk';
 import * as migration_20260817_100401_media_upload_relationships from './20260817_100401_media_upload_relationships';
+import * as migration_20260817_103837_terms_collection from './20260817_103837_terms_collection';
 
 export const migrations = [
   {
@@ -22,6 +23,11 @@ export const migrations = [
   {
     up: migration_20260817_100401_media_upload_relationships.up,
     down: migration_20260817_100401_media_upload_relationships.down,
-    name: '20260817_100401_media_upload_relationships'
+    name: '20260817_100401_media_upload_relationships',
+  },
+  {
+    up: migration_20260817_103837_terms_collection.up,
+    down: migration_20260817_103837_terms_collection.down,
+    name: '20260817_103837_terms_collection'
   },
 ];

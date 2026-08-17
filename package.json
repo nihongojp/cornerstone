@@ -27,6 +27,7 @@
     "content:export": "node --import tsx/esm scripts/content/export.ts",
     "content:import": "node --import tsx/esm scripts/content/import.ts",
     "content:verify": "node --import tsx/esm scripts/content/verify.ts",
+    "content:derive-terms": "node --import tsx/esm scripts/content/derive-terms.ts",
     "migrate:survey": "tsx scripts/migrate/00-survey.ts",
     "migrate:survey:dump": "tsx scripts/migrate/00-survey.ts --dump",
     "migrate:content": "node --import tsx/esm scripts/migrate/01-content-to-payload.ts",

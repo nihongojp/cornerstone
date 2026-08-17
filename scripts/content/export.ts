@@ -135,30 +135,40 @@ async function main() {
 
   for (const collection of CONTENT_COLLECTIONS) {
     /*
-     * Two reads per collection. `draft: true` returns the latest saved state,
-     * which for a document with unpublished edits is not what the site serves;
-     * the second read gets the published version so both survive the round
-     * trip. Anything older than those two is not preserved — see lib/snapshot.
+     * Whether this collection has a draft/publish cycle at all. `terms` does
+     * not — see the note on its collection config — and querying `_status` on a
+     * collection without versions is a 400, not an empty result.
+     */
+    const hasDrafts = Boolean(payload.collections[collection]?.config.versions?.drafts);
+
+    /*
+     * Two reads for a collection with drafts. `draft: true` returns the latest
+     * saved state, which for a document with unpublished edits is not what the
+     * site serves; the second read gets the published version so both survive
+     * the round trip. Anything older than those two is not preserved — see
+     * lib/snapshot.
      */
     const latest = await payload.find({
       collection,
       depth: EXPORT_DEPTH,
-      draft: true,
+      ...(hasDrafts ? { draft: true } : {}),
       limit: 0,
       pagination: false,
       overrideAccess: true,
       sort: "createdAt",
     });
 
-    const published = await payload.find({
-      collection,
-      depth: EXPORT_DEPTH,
-      where: { _status: { equals: "published" } },
-      limit: 0,
-      pagination: false,
-      overrideAccess: true,
-      sort: "createdAt",
-    });
+    const published = hasDrafts
+      ? await payload.find({
+          collection,
+          depth: EXPORT_DEPTH,
+          where: { _status: { equals: "published" } },
+          limit: 0,
+          pagination: false,
+          overrideAccess: true,
+          sort: "createdAt",
+        })
+      : { docs: [] as typeof latest.docs };
 
     const publishedById = new Map(published.docs.map((doc) => [doc.id, doc]));
     const seen = new Map<string, string>();

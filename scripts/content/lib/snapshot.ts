@@ -28,8 +28,17 @@ import type { Field, Payload } from "payload";
  *    a database with an empty media catalogue is out of scope by design.
  */
 
-/** The collections a snapshot covers, in the order they must be imported. */
-export const CONTENT_COLLECTIONS = ["courses", "lessons", "resources"] as const;
+/**
+ * The collections a snapshot covers, in the order they must be imported —
+ * dependencies first, because a reference is resolved against what is already
+ * in. `terms` sits before `lessons` for the blocks that will point at it.
+ *
+ * Note the division of labour with `content/terms.json`: that file is the
+ * one-time *derivation* of a vocabulary from the legacy strings embedded in
+ * lessons (see `derive-terms.ts`). This snapshot is the ongoing backup of what
+ * the CMS holds now, terms included. Once seeded, the snapshot is the source.
+ */
+export const CONTENT_COLLECTIONS = ["courses", "terms", "lessons", "resources"] as const;
 export type ContentCollection = (typeof CONTENT_COLLECTIONS)[number];
 
 /**
@@ -43,6 +52,7 @@ export type ContentCollection = (typeof CONTENT_COLLECTIONS)[number];
  */
 export const NATURAL_KEY: Record<string, string> = {
   courses: "slug",
+  terms: "key",
   lessons: "slug",
   resources: "sourceId",
   media: "filename",

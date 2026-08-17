@@ -13,6 +13,7 @@ import { Courses } from "./payload/collections/Courses";
 import { Lessons } from "./payload/collections/Lessons";
 import { Media } from "./payload/collections/Media";
 import { Resources } from "./payload/collections/Resources";
+import { Terms } from "./payload/collections/Terms";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -66,7 +67,7 @@ export default buildConfig({
   // CmsAdmins is `admin.user` above — leaving it out of this list points the
   // admin panel at a collection that was never registered, which takes out
   // /admin login and `npm run payload:seed-admins` with it.
-  collections: [Courses, Lessons, Resources, Media, CmsAdmins],
+  collections: [Courses, Lessons, Terms, Resources, Media, CmsAdmins],
   db: postgresAdapter({
     schemaName: "payload",
     push: false,

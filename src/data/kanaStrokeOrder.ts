@@ -8,6 +8,17 @@
 // for a signed-in viewer. `scripts/migrate/06-cloudinary-to-blob.ts` moved them
 // off Cloudinary and holds the fixed list of source URLs — add new entries
 // there too, or a freshly seeded database will be missing the media rows.
+/*
+ * SUPERSEDED, still wired. This data now also lives in the `terms` collection —
+ * every kana term carries `strokes` and a `strokeOrder` upload, seeded from the
+ * table below by `scripts/content/derive-terms.ts`.
+ *
+ * It survives here because `LessonPlayer` still reads it directly, and the
+ * player only gets terms once blocks reference them by relationship (Phase 4).
+ * Until then the two copies can drift: the CMS is the one an editor can change,
+ * this one needs a deploy. If they disagree, the CMS is right. Delete this file
+ * with the flashcard player rewrite, not before.
+ */
 export type KanaStrokeOrder = { imageUrl: string; strokes: number };
 
 export const kanaStrokeOrder: Record<string, KanaStrokeOrder> = {

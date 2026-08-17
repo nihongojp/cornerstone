@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     courses: Course;
     lessons: Lesson;
+    terms: Term;
     resources: Resource;
     media: Media;
     cms_admins: CmsAdmin;
@@ -85,6 +86,7 @@ export interface Config {
   collectionsSelect: {
     courses: CoursesSelect<false> | CoursesSelect<true>;
     lessons: LessonsSelect<false> | LessonsSelect<true>;
+    terms: TermsSelect<false> | TermsSelect<true>;
     resources: ResourcesSelect<false> | ResourcesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     cms_admins: CmsAdminsSelect<false> | CmsAdminsSelect<true>;
@@ -705,6 +707,82 @@ export interface LegacyJsonBlock {
   blockType: 'legacyJson';
 }
 /**
+ * Words, phrases, kana and kanji. Author a term once here and reference it from lessons — its audio, image and readings then follow it everywhere.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "terms".
+ */
+export interface Term {
+  id: number;
+  /**
+   * Stable identifier, lowercase. Seeding and re-import match on this, so changing it creates a new term rather than renaming one.
+   */
+  key: string;
+  kind: 'vocab' | 'phrase' | 'kana' | 'kanji';
+  /**
+   * How this term is labelled in lists and pickers. Derived from the fields below.
+   */
+  display?: string | null;
+  /**
+   * The written form — 初めまして, あ, 食べる. Required for kana and kanji. Much of the imported catalogue has only romaji so far; filling this in is the backlog.
+   */
+  japanese?: string | null;
+  /**
+   * The katakana counterpart. This is what the old "あ/ア" strings encoded with a slash; how the pair is displayed is now the renderer's decision, not the data's.
+   */
+  katakana?: string | null;
+  /**
+   * Kana reading of the written form — はじめまして.
+   */
+  reading?: string | null;
+  /**
+   * Filled in automatically from the reading when left empty. Set it by hand to override.
+   */
+  romaji?: string | null;
+  /**
+   * The written form split into segments, each with its reading. Leave a segment's reading empty for okurigana and other parts that take no ruby: 食(た)+べる is two segments.
+   */
+  furigana?:
+    | {
+        /**
+         * The characters.
+         */
+        base: string;
+        /**
+         * Their reading, or empty for none.
+         */
+        ruby?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * English gloss.
+   */
+  meaning?: string | null;
+  partOfSpeech?: ('noun' | 'verb' | 'adjective' | 'adverb' | 'particle' | 'expression') | null;
+  jlpt?: ('N5' | 'N4' | 'N3' | 'N2' | 'N1') | null;
+  strokes?: number | null;
+  /**
+   * Stroke-order diagram. Replaces src/data/kanaStrokeOrder.ts, which hardcoded ten of these as media URLs in a TypeScript constant kept in sync with a migration script by hand.
+   */
+  strokeOrder?: (number | null) | Media;
+  /**
+   * Pronunciation. Referencing blocks read it from here.
+   */
+  audio?: (number | null) | Media;
+  /**
+   * A picture of the thing, for image-choice exercises.
+   */
+  image?: (number | null) | Media;
+  tags?: string[] | null;
+  /**
+   * Usage notes for the learner. Becomes rich text in the next phase, once Lexical is in.
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Link collections shown on the Resources page, grouped by category.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -804,6 +882,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'lessons';
         value: number | Lesson;
+      } | null)
+    | ({
+        relationTo: 'terms';
+        value: number | Term;
       } | null)
     | ({
         relationTo: 'resources';
@@ -1154,6 +1236,37 @@ export interface LegacyJsonBlockSelect<T extends boolean = true> {
   data?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "terms_select".
+ */
+export interface TermsSelect<T extends boolean = true> {
+  key?: T;
+  kind?: T;
+  display?: T;
+  japanese?: T;
+  katakana?: T;
+  reading?: T;
+  romaji?: T;
+  furigana?:
+    | T
+    | {
+        base?: T;
+        ruby?: T;
+        id?: T;
+      };
+  meaning?: T;
+  partOfSpeech?: T;
+  jlpt?: T;
+  strokes?: T;
+  strokeOrder?: T;
+  audio?: T;
+  image?: T;
+  tags?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

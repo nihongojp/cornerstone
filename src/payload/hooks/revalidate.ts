@@ -86,3 +86,23 @@ export const revalidateCourseDelete: CollectionAfterDeleteHook = ({ doc }) => {
   purge([TAGS.lessons, TAGS.newLessons]);
   return doc;
 };
+
+/*
+ * A term's audio, reading or image is read through whatever lesson references
+ * it, so editing one term can change any number of lessons — and there is no
+ * reverse index from a term back to them.
+ *
+ * Purging both lesson lists wholesale rather than building one: a term edit is
+ * rare and the lists rebuild in a single query each, while a reverse index
+ * would have to be maintained on every lesson write, which is not. If terms
+ * ever become high-churn this is the thing to make precise.
+ */
+export const revalidateTerm: CollectionAfterChangeHook = ({ doc }) => {
+  purge([TAGS.lessons, TAGS.newLessons]);
+  return doc;
+};
+
+export const revalidateTermDelete: CollectionAfterDeleteHook = ({ doc }) => {
+  purge([TAGS.lessons, TAGS.newLessons]);
+  return doc;
+};

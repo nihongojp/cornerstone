@@ -34,6 +34,7 @@ import path from "node:path";
 
 import {
   CONTENT_COLLECTIONS,
+  NATURAL_KEY,
   fromPortable,
   referencedMediaFilenames,
   type BrokenRef,
@@ -274,7 +275,7 @@ async function main() {
  * field it was derived from or the upsert silently creates a duplicate.
  */
 function naturalKeyField(collection: ContentCollection, entry: SnapshotDoc): string {
-  if (collection !== "resources") return "slug";
+  if (collection !== "resources") return NATURAL_KEY[collection];
   return typeof entry.latest.sourceId === "string" && entry.latest.sourceId ? "sourceId" : "category";
 }
 
