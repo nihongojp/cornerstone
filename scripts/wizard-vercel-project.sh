@@ -568,15 +568,20 @@ say "sets BLOB_READ_WRITE_TOKEN for you — this wizard never pushes it."
 printf '\n'
 open_url "https://vercel.com/dashboard/stores"
 step "Storage tab → Create → Blob."
+step "Choose PRIVATE access. This is the one irreversible choice here — a"
+step "  store's access mode cannot be changed after creation, and the app"
+step "  expects private: media is served through Payload's own auth-gated"
+step "  route, not from a public blob URL. A public store makes every course"
+step "  asset world-readable and hotlinkable."
 step "Connect it to the Cornerstone project."
 printf '\n'
 note "Without it, admin media uploads fail; the rest of the app is unaffected,"
 note "so this is not a reason to block the deploy."
-if confirm "Is Blob storage connected to the project?"; then
-  printf '  %s✓%s recorded — stage 9 checks the variable actually appeared\n' "$GREEN" "$RESET"
+if confirm "Is Blob storage connected to the project, with PRIVATE access?"; then
+  printf '  %s✓%s recorded — stage 9 checks the variable and the access mode\n' "$GREEN" "$RESET"
 else
   manual "Blob storage not connected — CMS media uploads will fail" \
-    "Vercel → Storage → Create → Blob → connect to the project"
+    "Vercel → Storage → Create → Blob → PRIVATE access → connect to the project"
 fi
 pause
 
@@ -710,6 +715,25 @@ for target in "${TARGETS[@]}"; do
     printf '    %s✓%s BLOB_READ_WRITE_TOKEN (set by the Blob integration)\n' "$GREEN" "$RESET"
   else
     printf '    %s·%s BLOB_READ_WRITE_TOKEN absent — CMS media uploads will fail\n' "$YELLOW" "$RESET"
+  fi
+  # Access mode is fixed at creation, so getting it wrong means recreating the
+  # store — worth asserting rather than discovering on the first upload.
+  # `vercel blob` writes its tables to stderr, hence 2>&1 rather than 2>/dev/null.
+  blob_store_id=$(vercel blob list-stores 2>&1 \
+    | awk '/^[[:space:]]*cornerstone[[:space:]]/ {print $2; exit}')
+  if [[ -n "$blob_store_id" ]]; then
+    mode=$(vercel blob get-store "$blob_store_id" 2>&1 | awk -F': ' '/^Access:/ {print $2; exit}')
+    case "$mode" in
+      Private)
+        printf '    %s✓%s Blob store access mode: Private\n' "$GREEN" "$RESET" ;;
+      "")
+        printf '    %s·%s could not read the Blob store access mode\n' "$YELLOW" "$RESET" ;;
+      *)
+        printf '    %s✗%s Blob store access mode is %s — the app expects Private\n' "$RED" "$RESET" "$mode"
+        AUDIT_FAILED=yes
+        manual "Blob store is $mode, not Private" \
+          "Access mode cannot be changed: create a new Private store, connect it, delete the old one" ;;
+    esac
   fi
   for bad in "${FORBIDDEN[@]}"; do
     if grep -qx "$bad" <<<"$names"; then

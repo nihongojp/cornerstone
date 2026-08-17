@@ -110,11 +110,31 @@ Consequences worth knowing:
 ## Media
 
 Component media fields are **plain URL strings**, not `upload` relationships.
-Existing Cloudinary URLs are grandfathered and carried across verbatim (#12).
-The `media` collection is for new uploads, backed by Vercel Blob — upload
-there, copy the URL, paste it into the component. Without
-`BLOB_READ_WRITE_TOKEN` the adapter silently falls back to local disk, which is
-fine locally and useless on Vercel.
+The `media` collection backs every asset — upload there, copy the URL, paste it
+into the component. Without `BLOB_READ_WRITE_TOKEN` the adapter silently falls
+back to local disk, which is fine locally and useless on Vercel.
+
+**Media is private and auth-gated.** The Blob store is created with private
+access, so a raw blob URL 401s to anyone without a token. What ends up in a
+component field is Payload's own route, `/api/media/file/<filename>`, which
+runs `Media.access.read` first — a valid better-auth session or a `cms_admins`
+login — and only then redirects to a short-lived signed URL. Two consequences
+worth knowing:
+
+- Signed-out requests for media get a **403**, including from anything
+  server-rendered that isn't carrying the user's cookie.
+- A signed URL is a bearer capability with no revocation, so it is deliberately
+  short-lived. Nothing should ever persist one.
+
+The store's access mode is fixed at creation, and the stock
+`@payloadcms/storage-vercel-blob` cannot talk to a private store at all; the
+adapter here is our own. See `src/payload/storage/vercelPrivateBlob.ts`.
+
+The Cloudinary back catalogue was migrated into this store by
+`scripts/migrate/06-cloudinary-to-blob.ts`; the grandfathering described in #12
+no longer applies to content, though the fields are still plain strings and can
+still hold an arbitrary absolute URL. Wiring components to real `upload`
+relationships is now unblocked but deliberately not done.
 
 ## Running the tooling
 

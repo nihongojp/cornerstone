@@ -2,8 +2,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import { buildConfig } from "payload";
+
+import { vercelPrivateBlobStorage } from "./payload/storage/vercelPrivateBlob";
 
 import { CmsAdmins } from "./payload/collections/CmsAdmins";
 import { Courses } from "./payload/collections/Courses";
@@ -49,8 +50,12 @@ export default buildConfig({
   },
   // Payload 3 declares storage adapters as plugins; v4 moves them to a
   // top-level `storage` key. Do not follow v4 docs here — we are pinned to 3.x.
+  //
+  // Our own adapter, not `@payloadcms/storage-vercel-blob`: the Blob store is
+  // private and that package can only speak `access: 'public'`. See
+  // `payload/storage/vercelPrivateBlob.ts` for the whole story.
   plugins: [
-    vercelBlobStorage({
+    vercelPrivateBlobStorage({
       collections: { [Media.slug]: true },
       // Keeps the adapter's own fields in the schema even when the token is
       // absent, so a developer without Blob access generates the same
