@@ -14,10 +14,13 @@
  * the address, but left the account briefly nameless.
  *
  * Type an email containing "old" to simulate a legacy account with a password.
+ * The strip at the bottom of the card jumps to the error and edge states,
+ * which have no other way to be reached without a real mailbox.
  */
 
 import React, { useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -35,7 +38,18 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { GoogleButton, OrDivider, StateReadout, fakeLookup, sleep } from "./stubs";
 
 type Mode = "login" | "signup";
-type Stage = "email" | "password" | "sent" | "otp" | "done";
+type Stage =
+  | "email"
+  | "password"
+  | "sent"
+  | "otp"
+  | "done"
+  /* Arrival states — reached by opening a link, never by clicking through. */
+  | "expired"
+  | "otherBrowser"
+  | "sendFailed";
+/* Conditions that annotate a screen rather than replacing it. */
+type Notice = null | "wrongCode" | "rateLimited" | "resent";
 
 /* Same asset the current AuthForm uses, so this reads as the existing app. */
 function Cat() {
@@ -50,9 +64,37 @@ function Cat() {
   );
 }
 
+function CodeField({
+  code,
+  setCode,
+  disabled,
+}: {
+  code: string;
+  setCode: (v: string) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <TextField
+      label="6-digit code"
+      fullWidth
+      autoFocus
+      disabled={disabled}
+      value={code}
+      onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+      slotProps={{
+        htmlInput: {
+          inputMode: "numeric",
+          style: { letterSpacing: "0.5em", fontSize: 22, textAlign: "center" },
+        },
+      }}
+    />
+  );
+}
+
 export default function AuthPrototype() {
   const [mode, setMode] = useState<Mode>("login");
   const [stage, setStage] = useState<Stage>("email");
+  const [notice, setNotice] = useState<Notice>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [first, setFirst] = useState("");
@@ -65,16 +107,21 @@ export default function AuthPrototype() {
   // about.
   const isNewAccount = fakeLookup(email) !== "has-password";
 
+  const go = (s: Stage, n: Notice = null) => {
+    setStage(s);
+    setNotice(n);
+  };
+
   const submitEmail = async () => {
     setBusy(true);
     await sleep();
     setBusy(false);
-    if (mode === "signup") return setStage("sent");
-    setStage(fakeLookup(email) === "has-password" ? "password" : "sent");
+    if (mode === "signup") return go("sent");
+    go(fakeLookup(email) === "has-password" ? "password" : "sent");
   };
 
   const reset = () => {
-    setStage("email");
+    go("email");
     setPassword("");
     setCode("");
   };
@@ -85,7 +132,17 @@ export default function AuthPrototype() {
     sent: mode === "login" ? "Welcome Back!" : "Create Account",
     otp: mode === "login" ? "Welcome Back!" : "Create Account",
     done: "You're in!",
+    expired: "That link expired",
+    otherBrowser: "One more step",
+    sendFailed: "We couldn't send that email",
   };
+
+  /* The back chevron is offered wherever there is a previous screen to return
+     to. Arrival states have none — the user got there from their inbox, not
+     from here — so they carry their own explicit way onward instead. */
+  const showBack = stage !== "email" && stage !== "done" && stage !== "expired";
+
+  const displayEmail = email || "your address";
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
@@ -100,10 +157,7 @@ export default function AuthPrototype() {
       >
         <Container maxWidth="xs">
           <Paper elevation={3} sx={{ px: 4, py: 5, borderRadius: 3, position: "relative" }}>
-            {/* One way back, everywhere. Returning to the email step is
-                implicitly how you use a different address. Not offered once
-                the account exists — there is nothing to go back to. */}
-            {stage !== "email" && stage !== "done" && (
+            {showBack && (
               <IconButton
                 aria-label="Back"
                 onClick={reset}
@@ -185,7 +239,7 @@ export default function AuthPrototype() {
             {stage === "password" && (
               <Box textAlign="center">
                 <Typography variant="body2" color="text.secondary" mb={2}>
-                  Signing in as <strong>{email}</strong>
+                  Signing in as <strong>{displayEmail}</strong>
                 </Typography>
                 <TextField
                   label="Password"
@@ -200,13 +254,13 @@ export default function AuthPrototype() {
                   size="large"
                   variant="contained"
                   disabled={!password}
-                  onClick={() => setStage("done")}
+                  onClick={() => go("done")}
                   sx={{ mt: 2, py: 1.25, textTransform: "none" }}
                 >
                   Sign in
                 </Button>
                 <Box mt={2}>
-                  <Link component="button" underline="hover" onClick={() => setStage("sent")}>
+                  <Link component="button" underline="hover" onClick={() => go("sent")}>
                     Email me a sign-in link instead
                   </Link>
                 </Box>
@@ -219,41 +273,47 @@ export default function AuthPrototype() {
                   Check your email
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  We sent a link to <strong>{email}</strong>.
+                  We sent a link to <strong>{displayEmail}</strong>.
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   It expires in 15 minutes.
                 </Typography>
 
+                {notice === "resent" && (
+                  <Alert severity="success" sx={{ mt: 2, textAlign: "left" }}>
+                    Sent again. Older links no longer work.
+                  </Alert>
+                )}
+
                 <Divider sx={{ mx: 3, mt: 3 }} />
 
                 {stage === "sent" ? (
                   <Box mt={2}>
-                    <Link component="button" underline="hover" onClick={() => setStage("otp")}>
+                    <Link component="button" underline="hover" onClick={() => go("otp")}>
                       Enter the 6-digit code instead
                     </Link>
                   </Box>
                 ) : (
                   <Box mt={2}>
-                    <TextField
-                      label="6-digit code"
-                      fullWidth
-                      autoFocus
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      slotProps={{
-                        htmlInput: {
-                          inputMode: "numeric",
-                          style: { letterSpacing: "0.5em", fontSize: 22, textAlign: "center" },
-                        },
-                      }}
-                    />
+                    <CodeField code={code} setCode={setCode} disabled={notice === "rateLimited"} />
+
+                    {notice === "wrongCode" && (
+                      <Alert severity="error" sx={{ mt: 2, textAlign: "left" }}>
+                        That code isn&apos;t right. Check the email and try again.
+                      </Alert>
+                    )}
+                    {notice === "rateLimited" && (
+                      <Alert severity="warning" sx={{ mt: 2, textAlign: "left" }}>
+                        Too many attempts. Try again in 5 minutes, or request a new link.
+                      </Alert>
+                    )}
+
                     <Button
                       fullWidth
                       size="large"
                       variant="contained"
-                      disabled={code.length !== 6}
-                      onClick={() => setStage("done")}
+                      disabled={code.length !== 6 || notice === "rateLimited"}
+                      onClick={() => go("done")}
                       sx={{ mt: 2, py: 1.25, textTransform: "none" }}
                     >
                       Sign in
@@ -263,8 +323,97 @@ export default function AuthPrototype() {
 
                 <Box mt={1}>
                   <Typography variant="caption" color="text.secondary">
-                    Didn&apos;t arrive? <Link component="button" underline="hover">Resend</Link>
+                    Didn&apos;t arrive?{" "}
+                    <Link
+                      component="button"
+                      underline="hover"
+                      onClick={() => setNotice("resent")}
+                    >
+                      Resend
+                    </Link>
                   </Typography>
+                </Box>
+              </Box>
+            )}
+
+            {/* Arrival state: the link was valid but is past its window. The
+                only useful action is a fresh one, so that is the primary
+                button rather than a link buried under an apology. */}
+            {stage === "expired" && (
+              <Box textAlign="center">
+                <Typography variant="body2" color="text.secondary">
+                  Sign-in links last 15 minutes. This one is older than that, so it
+                  won&apos;t work any more.
+                </Typography>
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="contained"
+                  onClick={() => go("sent", "resent")}
+                  sx={{ mt: 3, py: 1.25, textTransform: "none" }}
+                >
+                  Send a new link
+                </Button>
+                <Box mt={2}>
+                  <Link component="button" underline="hover" onClick={reset}>
+                    Use a different email
+                  </Link>
+                </Box>
+              </Box>
+            )}
+
+            {/* Arrival state: the link opened somewhere other than the browser
+                that asked for it. Leads with the code field rather than making
+                the user go and find it — the code is in the same email, and it
+                is the one credential that works from anywhere. */}
+            {stage === "otherBrowser" && (
+              <Box textAlign="center">
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  You opened this link in a different browser from the one that asked
+                  for it, so we can&apos;t sign you in automatically. The same email has
+                  a 6-digit code — that works anywhere.
+                </Typography>
+                <CodeField code={code} setCode={setCode} />
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="contained"
+                  disabled={code.length !== 6}
+                  onClick={() => go("done")}
+                  sx={{ mt: 2, py: 1.25, textTransform: "none" }}
+                >
+                  Sign in
+                </Button>
+              </Box>
+            )}
+
+            {/* The failure the map calls the real Phase 1 risk: under
+                passwordless, mail *is* the login system. Says plainly that the
+                problem is ours, and offers the paths that do not depend on
+                mail arriving. */}
+            {stage === "sendFailed" && (
+              <Box textAlign="center">
+                <Typography variant="body2" color="text.secondary">
+                  Something went wrong sending to <strong>{displayEmail}</strong>. This
+                  is on us, not you.
+                </Typography>
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="contained"
+                  onClick={() => go("sent")}
+                  sx={{ mt: 3, py: 1.25, textTransform: "none" }}
+                >
+                  Try again
+                </Button>
+                <Divider sx={{ mx: 3, mt: 3 }} />
+                <Box mt={2}>
+                  <GoogleButton label="Continue with Google instead" />
+                </Box>
+                <Box mt={2}>
+                  <Link component="button" underline="hover" onClick={reset}>
+                    Use a different email
+                  </Link>
                 </Box>
               </Box>
             )}
@@ -280,7 +429,7 @@ export default function AuthPrototype() {
                   size="large"
                   variant="outlined"
                   onClick={() => {
-                    setStage("email");
+                    go("email");
                     setEmail("");
                     setFirst("");
                     setLast("");
@@ -294,7 +443,38 @@ export default function AuthPrototype() {
               </Box>
             )}
 
-            <StateReadout state={{ mode, stage, email, isNewAccount: email ? isNewAccount : null, first }} />
+            <StateReadout
+              state={{ mode, stage, notice, email, isNewAccount: email ? isNewAccount : null }}
+            />
+
+            {/* PROTOTYPE SCAFFOLDING — the error states arrive from a mailbox,
+                so there is no way to click into them. Not part of the design. */}
+            <Box mt={1} sx={{ borderTop: "1px dashed #ccc", pt: 1 }}>
+              <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>
+                jump to:
+              </Typography>
+              <Box display="flex" flexWrap="wrap" gap={0.5}>
+                {(
+                  [
+                    ["expired link", () => go("expired")],
+                    ["other browser", () => go("otherBrowser")],
+                    ["send failed", () => go("sendFailed")],
+                    ["wrong code", () => go("otp", "wrongCode")],
+                    ["rate limited", () => go("otp", "rateLimited")],
+                  ] as const
+                ).map(([label, onClick]) => (
+                  <Button
+                    key={label}
+                    size="small"
+                    variant="outlined"
+                    onClick={onClick}
+                    sx={{ textTransform: "none", fontSize: 11, py: 0, minWidth: 0 }}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </Box>
+            </Box>
           </Paper>
         </Container>
       </Box>
