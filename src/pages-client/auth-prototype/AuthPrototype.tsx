@@ -2,13 +2,15 @@
 
 /* PROTOTYPE — throwaway. See #52.
  *
- * The chosen design: identifier-first (variant A), now with the Login / Sign Up
- * toggle restored from variant B.
+ * The chosen design: identifier-first, with the Login / Sign Up toggle carrying
+ * framing rather than mechanism. The email lookup still decides how you
+ * authenticate — a returning user who lands on Sign Up is signed in, not
+ * rejected. That invariant is the reason this design was chosen; if Sign Up
+ * ever starts *refusing* existing accounts, it has reverted to two flows.
  *
- * The toggle deliberately does NOT decide the auth mechanism — the email lookup
- * still does that, which is the whole point of identifier-first. What the toggle
- * carries is framing: heading copy, the cat, and the name fields that only
- * signup needs. A returning user who lands on Sign Up still gets signed in.
+ * Name is collected AFTER the user returns through the link, not before it is
+ * sent — so a new account exists briefly with no name, and the first thing
+ * anyone types is one field rather than three.
  *
  * Type an email containing "old" to simulate a legacy account with a password.
  */
@@ -32,7 +34,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { GoogleButton, OrDivider, StateReadout, fakeLookup, sleep } from "./stubs";
 
 type Mode = "login" | "signup";
-type Stage = "email" | "password" | "sent" | "otp";
+type Stage = "email" | "password" | "sent" | "otp" | "name" | "done";
 
 /* Same asset the current AuthForm uses, so this reads as the existing app. */
 function Cat() {
@@ -57,12 +59,14 @@ export default function AuthPrototype() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Stubbed: an address we have never seen is a new account, whichever side of
+  // the toggle the user happens to be on.
+  const isNewAccount = fakeLookup(email) !== "has-password";
+
   const submitEmail = async () => {
     setBusy(true);
     await sleep();
     setBusy(false);
-    // Signup always mails a link. Login resolves against the account, which is
-    // the identifier-first behaviour the toggle must not override.
     if (mode === "signup") return setStage("sent");
     setStage(fakeLookup(email) === "has-password" ? "password" : "sent");
   };
@@ -73,7 +77,14 @@ export default function AuthPrototype() {
     setCode("");
   };
 
-  const showCat = (stage === "email" && mode === "login") || stage === "otp";
+  const headings: Record<Stage, string> = {
+    email: mode === "login" ? "Welcome Back!" : "Create Account",
+    password: mode === "login" ? "Welcome Back!" : "Create Account",
+    sent: mode === "login" ? "Welcome Back!" : "Create Account",
+    otp: mode === "login" ? "Welcome Back!" : "Create Account",
+    name: "Almost there",
+    done: "You're in!",
+  };
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
@@ -89,8 +100,9 @@ export default function AuthPrototype() {
         <Container maxWidth="xs">
           <Paper elevation={3} sx={{ px: 4, py: 5, borderRadius: 3, position: "relative" }}>
             {/* One way back, everywhere. Returning to the email step is
-                implicitly how you use a different address. */}
-            {stage !== "email" && (
+                implicitly how you use a different address. Not offered once
+                the account exists — there is nothing to go back to. */}
+            {stage !== "email" && stage !== "name" && stage !== "done" && (
               <IconButton
                 aria-label="Back"
                 onClick={reset}
@@ -102,9 +114,9 @@ export default function AuthPrototype() {
             )}
 
             <Box textAlign="center" mb={3}>
-              {showCat && <Cat />}
+              <Cat />
               <Typography variant="h5" fontWeight="bold">
-                {mode === "login" ? "Welcome Back!" : "Create Account"}
+                {headings[stage]}
               </Typography>
             </Box>
 
@@ -130,23 +142,6 @@ export default function AuthPrototype() {
                   label={mode === "login" ? "Sign in with Google" : "Sign up with Google"}
                 />
                 <OrDivider />
-
-                {mode === "signup" && (
-                  <Box display="flex" gap={1} mb={1}>
-                    <TextField
-                      label="First name"
-                      fullWidth
-                      value={first}
-                      onChange={(e) => setFirst(e.target.value)}
-                    />
-                    <TextField
-                      label="Last name"
-                      fullWidth
-                      value={last}
-                      onChange={(e) => setLast(e.target.value)}
-                    />
-                  </Box>
-                )}
 
                 <TextField
                   label="Email"
@@ -187,6 +182,7 @@ export default function AuthPrototype() {
                   size="large"
                   variant="contained"
                   disabled={!password}
+                  onClick={() => setStage("done")}
                   sx={{ mt: 2, py: 1.25, textTransform: "none" }}
                 >
                   Sign in
@@ -239,6 +235,7 @@ export default function AuthPrototype() {
                       size="large"
                       variant="contained"
                       disabled={code.length !== 6}
+                      onClick={() => setStage(isNewAccount ? "name" : "done")}
                       sx={{ mt: 2, py: 1.25, textTransform: "none" }}
                     >
                       Sign in
@@ -254,7 +251,68 @@ export default function AuthPrototype() {
               </Box>
             )}
 
-            <StateReadout state={{ mode, stage, email, hasPassword: email ? fakeLookup(email) : null }} />
+            {/* Reached only after the link or code is verified — the account
+                already exists by this point, which is why there is no way back
+                and no way to skip past it. */}
+            {stage === "name" && (
+              <Box textAlign="center">
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  What should we call you?
+                </Typography>
+                <Box display="flex" gap={1}>
+                  <TextField
+                    label="First name"
+                    fullWidth
+                    autoFocus
+                    value={first}
+                    onChange={(e) => setFirst(e.target.value)}
+                  />
+                  <TextField
+                    label="Last name"
+                    fullWidth
+                    value={last}
+                    onChange={(e) => setLast(e.target.value)}
+                  />
+                </Box>
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="contained"
+                  disabled={!first}
+                  onClick={() => setStage("done")}
+                  sx={{ mt: 2, py: 1.25, textTransform: "none" }}
+                >
+                  Start learning
+                </Button>
+              </Box>
+            )}
+
+            {stage === "done" && (
+              <Box textAlign="center">
+                <Typography variant="body2" color="text.secondary">
+                  {first ? `Nice to meet you, ${first}.` : "Signed in."} This is where the
+                  app would take over.
+                </Typography>
+                <Button
+                  fullWidth
+                  size="large"
+                  variant="outlined"
+                  onClick={() => {
+                    setStage("email");
+                    setEmail("");
+                    setFirst("");
+                    setLast("");
+                    setCode("");
+                    setPassword("");
+                  }}
+                  sx={{ mt: 3, py: 1.25, textTransform: "none" }}
+                >
+                  Run it again
+                </Button>
+              </Box>
+            )}
+
+            <StateReadout state={{ mode, stage, email, isNewAccount: email ? isNewAccount : null, first }} />
           </Paper>
         </Container>
       </Box>
