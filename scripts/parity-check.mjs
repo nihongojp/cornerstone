@@ -249,6 +249,23 @@ async function signUpFixture() {
   });
   if (res.ok) return;
 
+  /*
+   * Password signup is closed (#55: `emailAndPassword.disableSignUp`), so this
+   * endpoint no longer creates anything — new accounts arrive by Google, magic
+   * link or one-time code, none of which this script can complete without a
+   * mailbox. The run therefore needs an account handed to it.
+   */
+  if (res.status === 400 || res.status === 403) {
+    console.error(
+      "\nThe parity fixture cannot be created: password signup is closed.\n\n" +
+        "  New accounts are created by Google, magic link or a one-time code, and\n" +
+        "  this script cannot open a mailbox. Point it at an existing, confirmed\n" +
+        "  account instead:\n\n" +
+        "    PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity\n"
+    );
+    process.exit(2);
+  }
+
   // A 500 here is almost always an unmigrated database — better-auth querying a
   // `user` table that does not exist yet. Worth naming, because the raw error
   // never reaches this script.

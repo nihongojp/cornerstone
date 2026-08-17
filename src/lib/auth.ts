@@ -108,6 +108,18 @@ export const auth = betterAuth({
      * the original drop-passwords-entirely decision (see #47 Notes).
      */
     enabled: true,
+    /*
+     * Closes `/sign-up/email`. Without it, "a new user is never offered a
+     * password" was UI copy only — the endpoint stayed open, so the cheapest
+     * possible signup (no inbox round trip, no Google account) was still there
+     * for anything calling the API directly. Bot signups are a founding reason
+     * this work exists, so leaving that path open while hardening everything
+     * around it made no sense.
+     *
+     * Passwords remain fully usable for accounts that already have one; this
+     * only stops new ones being created that way.
+     */
+    disableSignUp: true,
     autoSignIn: false,
     /*
      * Structural rather than hygiene, now that password signup is the one path
