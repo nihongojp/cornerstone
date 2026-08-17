@@ -51,6 +51,14 @@ type Stage =
 /* Conditions that annotate a screen rather than replacing it. */
 type Notice = null | "wrongCode" | "rateLimited" | "resent";
 
+/* MUI's default alert padding is generous for a card this narrow. */
+const alertSx = {
+  mt: 2,
+  textAlign: "left" as const,
+  px: 1.5,
+  "& .MuiAlert-icon": { mr: 1 },
+};
+
 /* Same asset the current AuthForm uses, so this reads as the existing app. */
 function Cat() {
   return (
@@ -280,7 +288,7 @@ export default function AuthPrototype() {
                 </Typography>
 
                 {notice === "resent" && (
-                  <Alert severity="success" sx={{ mt: 2, textAlign: "left" }}>
+                  <Alert severity="success" sx={alertSx}>
                     Sent again. Older links no longer work.
                   </Alert>
                 )}
@@ -298,13 +306,13 @@ export default function AuthPrototype() {
                     <CodeField code={code} setCode={setCode} disabled={notice === "rateLimited"} />
 
                     {notice === "wrongCode" && (
-                      <Alert severity="error" sx={{ mt: 2, textAlign: "left" }}>
-                        That code isn&apos;t right.
+                      <Alert severity="error" sx={alertSx}>
+                        That code didn&apos;t work.
                       </Alert>
                     )}
                     {notice === "rateLimited" && (
-                      <Alert severity="warning" sx={{ mt: 2, textAlign: "left" }}>
-                        Too many attempts. Try again in 5 minutes.
+                      <Alert severity="warning" sx={alertSx}>
+                        Too many attempts, try again in 5 minutes.
                       </Alert>
                     )}
 
