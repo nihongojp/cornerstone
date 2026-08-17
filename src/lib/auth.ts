@@ -61,8 +61,19 @@ function resolveBaseURL() {
    */
   const previewHostPattern = process.env.VERCEL_PREVIEW_HOST_PATTERN;
 
+  /*
+   * Any local port, not just 3000. This repo routinely has several worktrees
+   * open at once, so the second dev server gets 3001 and the third 3002 — and
+   * with a single hardcoded port those sessions cannot sign in at all.
+   * `localhost:*` matches the port but not a subdomain (`evil.localhost:3000`
+   * does not match), and it is development-only: a production build never adds
+   * it.
+   */
+  const localHosts =
+    process.env.NODE_ENV === "production" ? [] : ["localhost:*", "127.0.0.1:*"];
+
   const allowedHosts = [
-    "localhost:3000",
+    ...localHosts,
     ...(explicit ? [new URL(explicit).host] : []),
     ...(projectHost ? [projectHost] : []),
     ...(previewHostPattern ? [previewHostPattern] : []),

@@ -385,7 +385,17 @@ async function check(route, signedIn, cookie) {
   let ok, note;
 
   if (want.kind === "redirect") {
-    const target = got.location ? new URL(got.location, BASE).pathname : null;
+    /*
+     * Path only, unless the expectation names a query — /signup forwards to
+     * /auth?mode=signup, and comparing pathname alone would pass on a redirect
+     * that dropped the mode and quietly landed everyone on the Login side.
+     */
+    const url = got.location ? new URL(got.location, BASE) : null;
+    const target = url
+      ? want.to.includes("?")
+        ? `${url.pathname}${url.search}`
+        : url.pathname
+      : null;
     ok = got.status >= 300 && got.status < 400 && target === want.to;
     note = ok ? `→ ${want.to}` : `expected → ${want.to}, got ${describe(got)}`;
   } else {
