@@ -50,6 +50,7 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: "pg", schema }),
   secret,
   baseURL: resolveBaseURL(),
+  telemetry: { enabled: false },
   emailAndPassword: {
     enabled: true,
     // The signup screen has always returned the user to the login tab with
