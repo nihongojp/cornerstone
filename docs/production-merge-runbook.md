@@ -59,26 +59,35 @@ the site in maintenance first, not to reorder these steps.
 
 ## The sequence
 
-### 0. Before merging — rehearse the import
-
-`content:import` is a dry run unless given `--yes`, so this is safe and answers
-the question that actually decides the merge: does the snapshot line up with
-what production holds?
+### 0. Before merging — rehearse the whole thing on a fork
 
 ```bash
-DATABASE_URL="<production>" npm run content:import
+DATABASE_URL="$(npm run --silent db:branch:url -- phase4b)" npm run content:roundtrip
 ```
 
-Read the output for two things:
+This is the pre-merge gate. It forks `production`, applies the full migration
+chain to the fork, imports the snapshot, runs `content:verify` and then
+`parity`, and deletes the branch — which is steps 1 through 3 below, rehearsed
+against production's real content and media, with nothing at risk.
 
-- **Missing media.** The import never creates or deletes media — the bytes are
-  not in the snapshot — and it refuses to run when a file the snapshot
-  references is not already in the target. Production's media came through the
-  Phase 1 upload conversion, so this should be clean, but a refusal here is a
-  hard stop, not a warning to push past.
-- **The document counts**, against `content/snapshot/manifest.json`.
+**Do not dry-run the import against production directly.** It is the obvious
+move and it does not work: `content:import` counts the rows in every collection
+before it does anything, and production has no `payload.terms` table until
+`20260817_103837_terms_collection` runs in step 1. The result is
 
-Do not merge until this dry run is clean.
+```
+DrizzleQueryError: Failed query: select count(*) from "payload"."terms"
+  cause: relation "payload.terms" does not exist
+```
+
+which reads like a broken script and is really just the wrong order. Nothing is
+written — it is read-only and it fails before touching anything — but it answers
+no question. The dry run belongs *after* the migrations, and it is step 2 below.
+
+A green round trip already establishes the thing a pre-merge check is for: the
+chain applies to production's schema, and every media file the snapshot
+references is present in production. Both were confirmed on 2026-08-17
+(`✓ all 33 referenced media file(s) present`).
 
 ### 1. Merge PR #63
 
@@ -100,9 +109,28 @@ things it will do that are worth recognising rather than being surprised by:
 If the job fails, it fails atomically — each migration is its own transaction —
 and the site is untouched, because Vercel deploys independently of it.
 
-### 2. Import the content
+### 2. Dry-run the import, then run it
 
-As soon as the migration job is green:
+Now that the tables exist, the dry run works, and this is where it earns its
+place — between the schema landing and the first write.
+
+```bash
+DATABASE_URL="<production>" npm run content:import
+```
+
+`content:import` is a dry run unless given `--yes`. Read the output for:
+
+- **Missing media.** The import never creates or deletes media — the bytes are
+  not in the snapshot — and it refuses to run when a file the snapshot
+  references is not already in the target. A refusal here is a hard stop, not a
+  warning to push past.
+- **The document counts** in "Target before", against
+  `content/snapshot/manifest.json`. Note the manifest is stale in one respect:
+  Phase 4b committed a hand-transformed `lessons.json` without regenerating it,
+  so its `media: 33` describes what the snapshot *references*, which is the
+  number the import checks, rather than how many media documents exist.
+
+Then, once it is clean:
 
 ```bash
 DATABASE_URL="<production>" npm run content:import -- --yes
