@@ -1,4 +1,5 @@
 import type { Lesson, Resource } from "../../payload/payload-types";
+import { LIBRARY_BLOCK_SLUGS } from "../../payload/blocks/library";
 import { mediaSrc } from "./media";
 import { optProse } from "./prose";
 import type {
@@ -75,6 +76,88 @@ function list<T>(value: T[] | null | undefined): T[] {
 /** Every component of every exercise, in play order. */
 function components(lesson: Lesson): Block[] {
   return list(lesson.exercises).flatMap((exercise) => list(exercise.components));
+}
+
+/*
+ * ── The Phase 4a bridge ──────────────────────────────────────────────────────
+ *
+ * Phase 4a registers ten new blocks alongside the seventeen old ones so the five
+ * lessons can move one at a time. That only works if a new block *renders*, and
+ * it cannot render through the flattening above: a library screen is an ordered
+ * list of blocks, and the whole point of dropping `maxRows: 1` is that it is no
+ * longer one item.
+ *
+ * So library blocks are not flattened at all. They are carried through whole as
+ * a single `screen` item holding the raw blocks, and each player has one branch
+ * that hands them to `components/blocks/RenderExercise`. Consecutive library
+ * blocks accumulate into one screen; an old block still becomes its own item, in
+ * place, so author order survives a lesson that has been half migrated.
+ *
+ * The `screen` item's key is the exercise row's Payload id, which is exactly what
+ * Phase 4b re-keys *everything* onto. Content authored on the new blocks has no
+ * saved progress yet, so it can start there now rather than being re-keyed twice.
+ *
+ * All of this dies with this file in 4b, when `content.ts` returns the generated
+ * `Lesson` type and the pages hand `exercises` straight to `RenderExercise`.
+ */
+
+/** A screen composed of library blocks, handed to the players unflattened. */
+export type ScreenItem = {
+  type: "screen";
+  /** The exercise row's Payload id — stable across edits, and the progress key. */
+  screenId: string;
+  blocks: Block[];
+};
+
+function isLibraryBlock(block: Block): boolean {
+  return LIBRARY_BLOCK_SLUGS.includes(block.blockType);
+}
+
+/**
+ * An exercise's components in play order, with runs of library blocks grouped.
+ *
+ * Returns a mixed list: a raw old block, or a `ScreenItem`. Callers map the old
+ * blocks through their own flattening and pass the screens along untouched.
+ */
+function componentRuns(lesson: Lesson): Array<Block | ScreenItem> {
+  const out: Array<Block | ScreenItem> = [];
+
+  for (const exercise of list(lesson.exercises)) {
+    // Payload only assigns a row id once the document is saved. Live Preview
+    // streams unsaved rows, so fall back to the position rather than emitting
+    // `screen:undefined` for every one of them.
+    const exerciseId = optText(exercise.id) ?? `x${out.length}`;
+    let run: Block[] | null = null;
+    let runs = 0;
+
+    for (const block of list(exercise.components)) {
+      if (!isLibraryBlock(block)) {
+        run = null;
+        out.push(block);
+        continue;
+      }
+      if (!run) {
+        run = [];
+        /*
+         * An exercise interleaving old and new blocks produces more than one run,
+         * and two screens keyed the same would collide in saved progress. Only
+         * the runs after the first are suffixed, so the ordinary case — one
+         * exercise, one screen — is exactly the exercise id that Phase 4b keys
+         * everything on, and does not have to be re-keyed twice.
+         */
+        const screenId = runs === 0 ? exerciseId : `${exerciseId}#${runs}`;
+        runs++;
+        out.push({ type: "screen", screenId, blocks: run });
+      }
+      run.push(block);
+    }
+  }
+
+  return out;
+}
+
+function isScreen(entry: Block | ScreenItem): entry is ScreenItem {
+  return (entry as ScreenItem).type === "screen";
 }
 
 function identity(lesson: Lesson): { _id: string; slug: string } {
@@ -286,8 +369,14 @@ export function toLessonDoc(lesson: Lesson): LessonDoc {
   const blocks = components(lesson);
   const deck = flashcards(blocks);
   const achievement = lesson.achievement;
-  const exercises = blocks
-    .map(blockToLegacyExercise)
+  const exercises = componentRuns(lesson)
+    .map((entry) =>
+      isScreen(entry)
+        ? // The flashcard player keys its steps off `exerciseId`, so the screen
+          // id goes there — same value the step player uses for the same screen.
+          ({ type: "screen", exerciseId: entry.screenId, blocks: entry.blocks } as LessonExercise)
+        : blockToLegacyExercise(entry)
+    )
     .filter((exercise): exercise is LessonExercise => exercise !== null);
 
   return {
@@ -323,8 +412,9 @@ export function toNewLessonListItem(lesson: Lesson): NewLessonListItem {
 export function toNewLessonDoc(lesson: Lesson, nextSlug?: string): NewLessonDoc {
   return {
     ...toNewLessonListItem(lesson),
-    items: components(lesson)
-      .map(blockToItem)
+    items: componentRuns(lesson)
+      // A screen passes through untouched; an old block is flattened as before.
+      .map((entry) => (isScreen(entry) ? entry : blockToItem(entry)))
       .filter((item) => item.type !== ""),
     nextSlug,
   };

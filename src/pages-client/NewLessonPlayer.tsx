@@ -22,6 +22,7 @@ import DragDropPlaceholder from "../components/DragDropPlaceholder";
 import DragDropCombination from "../components/DragDropCombination";
 import Fact from "../components/Fact";
 
+import RenderExercise from "../components/blocks/RenderExercise";
 import RichText from "../components/richtext/RichText";
 
 import { NewLessonDoc, NewLessonItem } from "../lib/types/lessons";
@@ -60,6 +61,14 @@ function stepKeyForItem(item: NewLessonItem): string {
     case "infoBreak":
     case "lifeUsefulFact":
       return `${type}:${proseToPlainText(any.content).slice(0, 40)}`;
+    case "screen":
+      /*
+       * A screen of blocks from the new library. Its key is the exercise row's
+       * Payload id, which is what Phase 4b keys *every* step on — content on the
+       * new blocks has no saved progress yet, so it can start there rather than
+       * being derived from content now and re-keyed later.
+       */
+      return `screen:${any.screenId ?? ""}`;
     default:
       return `${type}:${any.number ?? ""}`;
   }
@@ -79,6 +88,13 @@ function renderItem(
         exercise={item as unknown as PronunciationExerciseData}
       />
     );
+  }
+
+  if (type === "screen") {
+    // Blocks from the new library, rendered from the raw Payload documents with
+    // no flattening in between. This is the one branch Phase 4a adds to the old
+    // player, and in 4b it is all that is left.
+    return <RenderExercise blocks={(item as any).blocks ?? []} onResult={onResult} />;
   }
 
   if (type === "page") {

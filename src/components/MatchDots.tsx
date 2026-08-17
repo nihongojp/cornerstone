@@ -16,6 +16,13 @@ type Connection = { dot1Id: string; dot2Id: string };
 
 type DotMatchProps = {
   pairs: DotMatchPair[];
+  /*
+   * The heading. Defaults to the kana wording this was written for, which is
+   * wrong for every other kind of pair — `matchPairs` can pair a word with its
+   * meaning, its reading or its audio, and telling a learner to "match each
+   * hiragana to its katakana" on one of those is worse than saying nothing.
+   */
+  heading?: string;
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
   // Version 1 keeps the left column in the order the terms were introduced
   // instead of shuffling it along with the right column.
@@ -24,7 +31,7 @@ type DotMatchProps = {
 
 const DOT_SIZE = 14;
 
-const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult, keepLeftOrder }) => {
+const DotMatch: React.FC<DotMatchProps> = ({ pairs, heading, onResult, keepLeftOrder }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dotRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -175,7 +182,7 @@ const DotMatch: React.FC<DotMatchProps> = ({ pairs, onResult, keepLeftOrder }) =
   return (
     <Box sx={{ textAlign: "center", p: { xs: 0.5, sm: 1 }, width: "100%", overflowX: "hidden" }}>
       <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.5, color: "#1C1917" }}>
-        Match each hiragana to its katakana
+        {heading ?? "Match each hiragana to its katakana"}
       </Typography>
       <Typography variant="body2" sx={{ color: "text.secondary", mb: 1.25 }}>
         {submitted ? "Done! See your results above." : "Click a dot on the left, then one on the right to connect."}

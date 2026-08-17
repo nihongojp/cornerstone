@@ -11,7 +11,11 @@
  * untouched until Phase 4 deletes this file along with `content/adapters.ts`.
  */
 
+import type { Lesson } from "../../payload/payload-types";
 import type { Prose } from "../content/prose";
+
+/** A block row from a lesson's `exercises[].components`, carried unflattened. */
+type LessonBlock = NonNullable<Lesson["exercises"]>[number]["components"][number];
 
 export type LessonExercise =
   | {
@@ -47,6 +51,17 @@ export type LessonExercise =
       title?: string;
       content?: Prose;
       prompt?: string;
+    }
+  | {
+      /*
+       * The Phase 4a bridge: a screen composed of blocks from the new library,
+       * carried through whole rather than flattened, because a composite screen
+       * is not one item. The player hands `blocks` to `RenderExercise`. See the
+       * note in `lib/content/adapters.ts`; it goes away with that file in 4b.
+       */
+      exerciseId: string;
+      type: "screen";
+      blocks: LessonBlock[];
     };
 
 export type LessonDoc = {

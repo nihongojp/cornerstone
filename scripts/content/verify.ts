@@ -172,6 +172,108 @@ async function main() {
     }
   };
 
+  /*
+   * The rules a Payload `validate` cannot reach.
+   *
+   * A field validate runs before the relationship is populated, so it sees a
+   * term as a bare id — it can require that a term is *picked*, never that the
+   * term has audio, a meaning, or a katakana form. Every one of those makes an
+   * exercise silently unplayable rather than broken: `RenderBlock` drops a pair
+   * whose two sides came out identical and renders nothing when too few remain,
+   * so the failure looks exactly like a screen that was never authored.
+   *
+   * This reads the populated content, so it can check them. It is the same
+   * division of labour as `payload/fields/media.ts` and PLACEHOLDER: the schema
+   * enforces what it can see, and this enforces the rest.
+   */
+  function checkLibraryBlock(doc: string, block: Record<string, unknown>, where: string): void {
+    const blockType = block.blockType;
+
+    if (blockType === "matchPairs") {
+      const pairing = String(block.pairing ?? "");
+      const list = (Array.isArray(block.terms) ? block.terms : [])
+        .map((t) => (t && typeof t === "object" ? (t as Record<string, unknown>) : null))
+        .filter((t): t is Record<string, unknown> => t !== null);
+
+      /** The field each side of the pair actually reads. */
+      const missing = list.filter((t) => {
+        if (pairing === "meaning") return !t.meaning;
+        if (pairing === "kana") return !t.katakana;
+        if (pairing === "reading") return !t.reading && !t.romaji;
+        if (pairing === "audio") return !t.audio;
+        return false;
+      });
+
+      if (missing.length) {
+        failures.push({
+          doc,
+          where,
+          detail:
+            `pairing is "${pairing}" but ${missing.length} of ${list.length} term(s) have nothing ` +
+            `on that side (${missing.map((t) => String(t.key)).join(", ")}). Those pairs are ` +
+            "dropped at render, and a screen with fewer than two left renders nothing at all.",
+        });
+      } else if (list.length - missing.length < 2) {
+        failures.push({
+          doc,
+          where,
+          detail: `only ${list.length - missing.length} usable pair(s) — a matching exercise needs two`,
+        });
+      }
+    }
+
+    if (blockType === "listenAndChoose" || blockType === "speakAndScore") {
+      const t = block.term;
+      if (t && typeof t === "object" && !(t as Record<string, unknown>).audio) {
+        failures.push({
+          doc,
+          where,
+          detail:
+            `term "${String((t as Record<string, unknown>).key)}" has no audio. ` +
+            (blockType === "listenAndChoose"
+              ? "There is nothing for the learner to hear."
+              : "The scorer has nothing to grade the recording against."),
+        });
+      }
+    }
+
+    if (blockType === "buildSentence") {
+      const tiles = (Array.isArray(block.tiles) ? block.tiles : []).map(String);
+      const sequence = (Array.isArray(block.correctSequence) ? block.correctSequence : []).map(String);
+      const absent = sequence.filter((tile) => !tiles.includes(tile));
+      if (absent.length) {
+        failures.push({
+          doc,
+          where,
+          detail: `correctSequence has tiles that are not in the pool: ${absent.join(", ")}`,
+        });
+      }
+    }
+
+    if (blockType === "multipleChoice") {
+      const options = Array.isArray(block.options) ? block.options : [];
+      const correct = options.filter((o) => (o as { isCorrect?: unknown })?.isCorrect === true);
+      if (correct.length !== 1) {
+        failures.push({
+          doc,
+          where,
+          detail: `${correct.length} option(s) marked correct out of ${options.length} — exactly one is needed`,
+        });
+      }
+    }
+
+    if (blockType === "mediaFigure") {
+      const set = ["image", "audio", "video"].filter((kind) => block[kind]);
+      if (set.length !== 1) {
+        failures.push({
+          doc,
+          where,
+          detail: `a figure holds one file, and this one has ${set.length}${set.length ? ` (${set.join(", ")})` : ""}`,
+        });
+      }
+    }
+  }
+
   /**
    * Walks anything and checks every reference it finds, of either kind.
    *
@@ -213,14 +315,16 @@ async function main() {
       const components = Array.isArray(exercise?.components) ? exercise.components : [];
       components.forEach((block: unknown, b: number) => {
         const blockType = String((block as { blockType?: string })?.blockType ?? "?");
+        const where = `exercise[${index}].components[${b}]`;
         if (blockType === "legacyJson") {
           todos.push({
             doc: slug,
-            where: `exercise[${index}].components[${b}]`,
+            where,
             detail: "legacyJson block — has never rendered; re-author or delete it",
           });
         }
-        walk(slug, block, `exercise[${index}].components[${b}]:${blockType}`);
+        checkLibraryBlock(slug, block as Record<string, unknown>, `${where}:${blockType}`);
+        walk(slug, block, `${where}:${blockType}`);
       });
     });
   }

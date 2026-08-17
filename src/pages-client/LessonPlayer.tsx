@@ -27,6 +27,7 @@ import DotMatch from "../components/MatchDots";
 import Fact from "../components/Fact";
 import Reward from "../components/Rewards";
 import RInfo from "../components/RewardInfo";
+import RenderExercise from "../components/blocks/RenderExercise";
 import RichText from "../components/richtext/RichText";
 
 import { submitAttempt, upsertProgress, getProgress } from "../lib/progress-client";
@@ -362,6 +363,24 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
 
     exercises.forEach((ex, i) => {
       const exType = String(ex?.type || "");
+
+      if (exType === "screen") {
+        /*
+         * A screen composed of blocks from the new library, rendered from the
+         * raw Payload documents. The one branch Phase 4a adds to this player;
+         * 4b replaces everything below it with the same call.
+         *
+         * `graded: true` because a Practice block reports a result — an
+         * ungraded screen of prose simply never calls `onResult`, which is
+         * already how the other graded steps behave when skipped.
+         */
+        out.push({
+          key: stepKeyFromExercise(ex, i),
+          graded: true,
+          comp: (on) => <RenderExercise blocks={ex.blocks ?? []} onResult={on} />,
+        });
+        return;
+      }
 
       if (exType === "connectTheDots") {
         const key = stepKeyFromExercise(ex, i);

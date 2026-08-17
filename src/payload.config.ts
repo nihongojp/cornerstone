@@ -41,6 +41,18 @@ export default buildConfig({
     user: CmsAdmins.slug,
     meta: { titleSuffix: "— Nihon-Go! CMS" },
     /*
+     * Where a component path like `/payload/blocks/BlockRowLabel#BlockRowLabel`
+     * is resolved from. Payload defaults this to `process.cwd()`, which would
+     * make every path start with `/src` — stating it once here keeps the paths in
+     * the collection configs short and makes it obvious they are repo-relative
+     * rather than package specifiers.
+     *
+     * Changing which components exist means regenerating the map:
+     * `npm run payload:importmap`. It is not a migration and it is easy to
+     * forget — `39f1e3f` had to fix a stale one by hand.
+     */
+    importMap: { baseDir: path.resolve(dirname) },
+    /*
      * Live Preview renders the real front end in a panel beside the editing
      * form and pushes the unsaved form state into it over `postMessage`, so an
      * editor sees a lesson as a learner would while they are still typing it.

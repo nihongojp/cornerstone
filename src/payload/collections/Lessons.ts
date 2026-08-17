@@ -2,6 +2,7 @@ import type { CollectionConfig } from "payload";
 
 import { grammarBlocks } from "../blocks/grammar";
 import { escapeHatchBlocks, legacyBlocks } from "../blocks/legacy";
+import { libraryBlocks } from "../blocks/library";
 import { guardLessonDelete } from "../hooks/guardLessonDelete";
 import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
 import { generatePreviewURL } from "../preview";
@@ -31,10 +32,23 @@ import { readPublishedOrEditor } from "../access/readPublished";
  *  - item `number` — unreliable in the source data; array position is the order.
  */
 
+/*
+ * An exercise is one screen, and since Phase 4a a screen can hold several blocks.
+ *
+ * That is the change that makes this a CMS rather than a transcription: the
+ * `maxRows: 1` that used to be on `components` meant a screen could only ever be
+ * one block, so every new layout needed a developer. It is gone.
+ *
+ * The catch during 4a, and only during 4a: the two old players consume a flat
+ * list of items, one per screen, so several *old* blocks in one exercise still
+ * arrive as several screens. Blocks from the new library are carried through
+ * whole and composed onto one screen — see `lib/content/adapters.ts`. Phase 4b
+ * deletes the old blocks and the distinction with them.
+ */
 const AUTHORING_CONVENTION =
-  "Convention: one component per exercise. The player renders an exercise as a single screen " +
-  "and there is no composite renderer yet, so a second block in the same exercise will not " +
-  "show. Add another exercise instead.";
+  "One exercise is one screen. Blocks from Content and Practice compose onto that screen in " +
+  "order. The seventeen older blocks are being retired — they still render, but one per " +
+  "exercise; a second one becomes its own screen. Prefer the Content and Practice blocks.";
 
 export const Lessons: CollectionConfig = {
   slug: "lessons",
@@ -168,8 +182,9 @@ export const Lessons: CollectionConfig = {
           type: "blocks",
           required: true,
           minRows: 1,
-          maxRows: 1,
-          blocks: [...grammarBlocks, ...legacyBlocks, ...escapeHatchBlocks],
+          // `maxRows: 1` was here. Removing it is what turns a screen into an
+          // ordered block list — see the note on AUTHORING_CONVENTION above.
+          blocks: [...libraryBlocks, ...grammarBlocks, ...legacyBlocks, ...escapeHatchBlocks],
           admin: { description: AUTHORING_CONVENTION },
         },
       ],

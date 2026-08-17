@@ -1,4 +1,4 @@
-import type { UploadField } from "payload";
+import type { UploadField, UploadFieldSingleValidation } from "payload";
 
 /*
  * Media on a component is an `upload` relationship to the `media` collection.
@@ -33,6 +33,12 @@ type MediaFieldOptions = {
   label?: string;
   description?: string;
   required?: boolean;
+  /**
+   * An extra check on top of the `filterOptions` constraint below, for rules a
+   * single field cannot see — `mediaFigure` uses it to require exactly one of
+   * its three slots, which needs the block's other fields.
+   */
+  validate?: UploadFieldSingleValidation;
 };
 
 type Kind = "image" | "audio" | "video";
@@ -56,6 +62,7 @@ function mediaField(kind: Kind, options: MediaFieldOptions = {}): UploadField {
      * image slot via the API either.
      */
     filterOptions: { mimeType: { contains: kind } },
+    validate: options.validate,
     admin: {
       description: options.description,
     },
