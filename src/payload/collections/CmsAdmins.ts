@@ -7,8 +7,9 @@ import type { CollectionConfig } from "payload";
  * owns the learner accounts in `public.user`, and two tables called some
  * variant of "user" sitting in one database is a trap. These are editors, they
  * live in the `payload` schema, and they are unrelated to learner accounts —
- * learner admin and analytics are authenticated Next routes keyed off
- * `user.role`, not Payload views (#16).
+ * learner-facing surfaces are Next routes behind `requireSession()`, not
+ * Payload views (#16). `user.role` exists on learner accounts but currently
+ * gates nothing; role-based access is sequenced separately (#56).
  */
 export const CmsAdmins: CollectionConfig = {
   slug: "cms_admins",
