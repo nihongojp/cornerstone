@@ -79,10 +79,16 @@ if [ -f "$ENVFILE" ]; then
   echo "note: $ENVFILE exists; it is restored on exit."
 fi
 
-if [ -n "$(git status --porcelain content/snapshot 2>/dev/null)" ]; then
-  die "content/snapshot has uncommitted changes. The export below overwrites it,
-     and the point of this test is whether the round trip reproduces what is
-     committed — commit or stash first."
+# Both of these, not just the snapshot. `content:export` writes the quarantine
+# report too, and that file is the *only* remaining copy of the eight blocks
+# Phase 4b could not map — an export from a database where they no longer exist
+# rewrites it to `[]`. Measured: 726 lines to 6.
+WRITTEN_BY_EXPORT="content/snapshot content/quarantine.json"
+
+if [ -n "$(git status --porcelain -- $WRITTEN_BY_EXPORT 2>/dev/null)" ]; then
+  die "content/snapshot or content/quarantine.json has uncommitted changes. The
+     export below overwrites both, and the point of this test is whether the
+     round trip reproduces what is committed — commit or stash first."
 fi
 
 if [ -z "$BRANCH" ]; then
@@ -107,6 +113,17 @@ cleanup() {
     rm -f "$ENVFILE"
   fi
 
+  # Put the exported files back. This is a test, not a capture —
+  # `content:export` is the capture tool — and the export in step 1 writes over
+  # the tracked files in place. Leaving them modified would mean a test run
+  # quietly replaced the committed snapshot, and emptied the quarantine record,
+  # with whatever was in the database it happened to point at. That is how the
+  # wrong content gets committed. The diff is reported before this runs; the
+  # diff is the signal worth keeping, not the files.
+  if [ -n "${EXPORTED:-}" ]; then
+    git checkout -- $WRITTEN_BY_EXPORT 2>/dev/null || true
+  fi
+
   # Only ever delete a branch this script made. A branch passed in with
   # --branch belongs to whoever passed it.
   if [ "$OWNED" = true ] && [ "$KEEP" = false ] && [ -n "${BRANCH_CREATED:-}" ]; then
@@ -125,18 +142,24 @@ trap cleanup EXIT INT TERM
 
 # ── 1. Export from wherever the working tree currently points ────────────────
 
+# The source is whatever DATABASE_URL resolves to — a shell variable if one is
+# set, otherwise .env.local. Worth being deliberate about: .env.local points at
+# the shared `development` branch, which is not always on the current schema.
+#
+#   DATABASE_URL="$(npm run --silent db:branch:url -- <branch>)" npm run content:roundtrip
 say "Exporting the content snapshot from the current DATABASE_URL"
+EXPORTED=1
 npm run content:export
 
 # A round trip that changes the committed snapshot is the regression this test
 # exists to catch, so it is reported rather than passed over. It is not fatal on
 # its own — an intended content edit shows up here too.
-if [ -n "$(git status --porcelain content/snapshot)" ]; then
+if [ -n "$(git status --porcelain -- $WRITTEN_BY_EXPORT)" ]; then
   echo
-  echo "⚠ the export changed content/snapshot:"
-  git --no-pager diff --stat content/snapshot
-  echo "  If that was not expected, stop here — the rest of this run will import"
-  echo "  the new files rather than the committed ones."
+  echo "⚠ the export differs from what is committed:"
+  git --no-pager diff --stat -- $WRITTEN_BY_EXPORT
+  echo "  The rest of this run imports what was just exported, not the committed"
+  echo "  files. Both are restored when this finishes — nothing here is a commit."
 fi
 
 # ── 2. A branch of its own to destroy ────────────────────────────────────────
@@ -158,6 +181,28 @@ say "Applying migrations to '$BRANCH'"
 DATABASE_URL="$DB_URL" npm run db:migrate
 DATABASE_URL="$DB_URL" npm run payload:migrate
 
+# `--wipe` deletes lessons, and `public.user_progress.lesson_id` is an
+# ON DELETE RESTRICT foreign key — so on a branch forked from `production`, where
+# ten real progress rows live, every lesson delete is refused and the wipe stops.
+# That constraint is doing its job; it is simply pointed at a copy here.
+#
+# Only ever on a branch this script created. A branch named with --branch might
+# be somebody's, and progress rows are not ours to clear on it — the import will
+# fail with its own explanation instead, which says the same thing.
+if [ "$OWNED" = true ]; then
+  say "Clearing copied learner progress on '$BRANCH'"
+  DATABASE_URL="$DB_URL" node -e '
+    const { Client } = require("pg");
+    (async () => {
+      const c = new Client({ connectionString: process.env.DATABASE_URL });
+      await c.connect();
+      const r = await c.query("DELETE FROM public.user_progress");
+      console.log(`  removed ${r.rowCount} progress row(s) — this is a fork, not the original`);
+      await c.end();
+    })().catch((e) => { console.error(e.message); process.exit(1); });
+  '
+fi
+
 say "Wiping and importing the snapshot"
 DATABASE_URL="$DB_URL" npm run content:import -- --wipe --yes
 
@@ -168,8 +213,13 @@ DATABASE_URL="$DB_URL" npm run content:verify
 
 printf 'DATABASE_URL=%s\n' "$DB_URL" > "$ENVFILE"
 
+# Both the file and the variable, deliberately. `next dev` loads
+# .env.development.local ahead of .env.local, but this script is usually invoked
+# with DATABASE_URL already set to name the *export* source — and an inherited
+# variable pointing somewhere else would have parity quietly checking the wrong
+# database, which is the exact failure this whole test exists to catch.
 say "Starting the app against '$BRANCH'"
-npm run dev >/tmp/roundtrip-server.log 2>&1 &
+DATABASE_URL="$DB_URL" npm run dev >/tmp/roundtrip-server.log 2>&1 &
 SERVER_PID=$!
 
 for _ in $(seq 1 60); do
