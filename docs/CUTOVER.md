@@ -609,12 +609,17 @@ Protection Bypass for Automation) in `.env.local`; without it Vercel Authenticat
 answers 401 and the run measures the auth wall rather than the deployment. The script
 says so when it sees a 401.
 
-The signed-in half of the check needs an account, so the run **signs up a throwaway user
-over the public API and deletes it again** — including here, against production. It is
-named `parity-<random>@parity-check.invalid`, and `.invalid` can never be a real domain.
-If the run is interrupted the account can survive; the script prints the address when it
-fails to clean up. To use an existing account and have it create nothing, run it as
-`PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity https://<the production domain>`.
+The signed-in half of the check needs an account, so the run **signs one in with a one-time
+code and deletes it again**. It is named `parity-<random>@parity-check.invalid`, and
+`.invalid` can never be a real domain. If the run is interrupted the account can survive;
+the script prints the address when it fails to clean up.
+
+**That half only works against a server on this machine.** Passwordless sign-in removed the
+password fixture, and the code is hashed in the database, so the server writes it to a local
+file for `@parity-check.invalid` addresses instead (`src/lib/auth-fixture-sink.ts`). Against
+a remote URL that file is on the other host and the run stops with a message saying so. Run
+the signed-in half locally against the production database if you need it here; the
+signed-out half is unaffected.
 
 **Expected output** — two blocks, and both have to be clean:
 

@@ -15,11 +15,23 @@
  * not exist in a fresh environment and the signed-in half failed everywhere
  * except the one machine where somebody had created it by hand (#28).
  *
- * So the check now brings its own. By default it signs up a throwaway account
- * over the public API, uses it, and deletes it again — leaving the target
- * exactly as it found it, whether that is localhost, a preview deploy, or
- * production. Set PARITY_EMAIL and PARITY_PASSWORD to use an existing account
- * instead, and it will neither create nor delete anything.
+ * So the check brings its own, and how it does that changed with passwordless
+ * sign-in (#62). Password signup is closed and password sign-in is not offered,
+ * so there is no password to hand this script — PARITY_EMAIL / PARITY_PASSWORD
+ * are gone rather than merely unused.
+ *
+ * It now signs in the way a person does, with a one-time code. The code cannot
+ * be read out of the database (`storeOTP: "hashed"`), and this script has no
+ * mailbox, so `sendVerificationOTP` writes it to a file instead of mailing it —
+ * but *only* for addresses ending in `@parity-check.invalid`. `.invalid` is
+ * reserved by RFC 2606 and can never resolve, so that branch cannot fire for a
+ * real person. See `src/lib/auth-fixture-sink.ts`.
+ *
+ * The consequence worth knowing: the file lands on the server's filesystem, so
+ * this works against a server on the same host — localhost — and not against a
+ * remote preview or production URL. That is a real loss of reach compared with
+ * the password fixture, and the honest trade for not keeping a working sign-in
+ * credential in a table that every Neon branch copies.
  *
  * ── The CMS is checked separately ───────────────────────────────────────────
  *
@@ -53,6 +65,10 @@
  * file, which is what makes a one-off override work.
  */
 
+import { readFileSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
 const BASE = process.argv[2] || "http://localhost:3000";
 
 /*
@@ -79,13 +95,16 @@ function headers(extra = {}) {
  * leaked fixture address cannot mail a stranger. The random suffix keeps
  * concurrent runs — CI and a laptop against the same preview — from colliding.
  */
-const SUPPLIED_FIXTURE = Boolean(process.env.PARITY_EMAIL && process.env.PARITY_PASSWORD);
-const CREDENTIALS = SUPPLIED_FIXTURE
-  ? { email: process.env.PARITY_EMAIL, password: process.env.PARITY_PASSWORD }
-  : {
-      email: `parity-${crypto.randomUUID().slice(0, 8)}@parity-check.invalid`,
-      password: `parity-${crypto.randomUUID()}`,
-    };
+const FIXTURE_EMAIL = `parity-${crypto.randomUUID().slice(0, 8)}@parity-check.invalid`;
+
+/*
+ * Mirrors `fixtureSinkPath` in src/lib/auth-fixture-sink.ts. Duplicated rather
+ * than imported because this file is plain .mjs and that one is TypeScript;
+ * if the sink moves, both move. The read below fails loudly if it does not.
+ */
+function sinkPath(email) {
+  return path.join(os.tmpdir(), "cornerstone-parity", `${email.toLowerCase().replace(/[^a-z0-9]+/g, "_")}.txt`);
+}
 
 // chrome: "both" = Header + Footer, "header" = Header only, "none" = bare
 const ROUTES = [
@@ -267,114 +286,78 @@ function printWallHint(status) {
   );
 }
 
-async function signUpFixture() {
-  const res = await authRequest("sign-up/email", {
-    body: {
-      email: CREDENTIALS.email,
-      password: CREDENTIALS.password,
-      name: "Parity Check",
-      firstName: "Parity",
-      lastName: "Check",
-    },
+/**
+ * Signs the fixture in with a one-time code, creating the account on the way:
+ * better-auth's email-OTP sign-in registers an address it has not seen before,
+ * which is what replaces the closed password signup.
+ */
+async function signInFixture() {
+  const sink = sinkPath(FIXTURE_EMAIL);
+  rmSync(sink, { force: true });
+
+  const sent = await authRequest("email-otp/send-verification-otp", {
+    body: { email: FIXTURE_EMAIL, type: "sign-in" },
   });
-  if (res.ok) return;
+  if (!sent.ok) {
+    console.error(`\nCould not request a sign-in code (${sent.status}) for ${FIXTURE_EMAIL}.`);
+    printDetail(await detail(sent));
+    printWallHint(sent.status);
+    process.exit(2);
+  }
 
   /*
-   * Password signup is closed (#55: `emailAndPassword.disableSignUp`), so this
-   * endpoint no longer creates anything — new accounts arrive by Google, magic
-   * link or one-time code, none of which this script can complete without a
-   * mailbox. The run therefore needs an account handed to it.
+   * The code is written by `sendVerificationOTP` on the server, so this only
+   * finds it when the server shares a filesystem with this script. Against a
+   * remote target it will not be there, and that is the documented limit
+   * rather than a bug — hence the specific message.
    */
-  if (res.status === 400 || res.status === 403) {
+  let code;
+  try {
+    code = readFileSync(sink, "utf8").trim();
+  } catch {
     console.error(
-      "\nThe parity fixture cannot be created: password signup is closed.\n\n" +
-        "  New accounts are created by Google, magic link or a one-time code, and\n" +
-        "  this script cannot open a mailbox. Point it at an existing, confirmed\n" +
-        "  account instead:\n\n" +
-        "    PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity\n"
+      `\nThe sign-in code was not written to ${sink}.\n\n` +
+        "  The server writes it there for @parity-check.invalid addresses only\n" +
+        "  (src/lib/auth-fixture-sink.ts). If the target is a remote deployment,\n" +
+        "  the file is on that host and this check cannot reach it — run parity\n" +
+        "  against a local server instead.\n"
     );
     process.exit(2);
   }
 
-  // A 500 here is almost always an unmigrated database — better-auth querying a
-  // `user` table that does not exist yet. Worth naming, because the raw error
-  // never reaches this script.
-  console.error(`Could not create the parity fixture account (${res.status}).`);
-  if (res.status >= 500) {
-    console.error(
-      "  A 5xx here usually means the database has no auth tables yet.\n" +
-        "  Run `npm run db:migrate` (and `npm run payload:migrate`) against this environment."
-    );
-  }
-  printDetail(await detail(res));
-  printWallHint(res.status);
-  console.error(
-    "\n  If this target does not accept signups, point the check at an existing\n" +
-      "  account instead: PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity"
-  );
-  process.exit(2);
-}
+  const res = await authRequest("sign-in/email-otp", {
+    body: { email: FIXTURE_EMAIL, otp: code },
+  });
+  rmSync(sink, { force: true });
 
-async function signIn() {
-  const res = await authRequest("sign-in/email", { body: CREDENTIALS });
   if (!res.ok) {
-    /*
-     * Phase 1 turned on `requireEmailVerification` (#55), so a freshly created
-     * account cannot sign in until its address is confirmed — and this script
-     * only speaks HTTP, so it can never open the confirmation mail. Creating
-     * the fixture here therefore stopped being possible; the run needs an
-     * account that is already confirmed.
-     *
-     * Worth naming precisely, because the raw 403 reads like a wrong password.
-     */
-    if (res.status === 403) {
-      console.error(
-        `\nThe parity fixture cannot sign in: ${CREDENTIALS.email} is not confirmed.\n\n` +
-          "  Sign-in now requires a confirmed email address, and this script has no\n" +
-          "  way to open the confirmation link. Point it at an account that is\n" +
-          "  already confirmed:\n\n" +
-          "    PARITY_EMAIL=… PARITY_PASSWORD=… npm run parity\n"
-      );
-      process.exit(2);
-    }
-
-    console.error(`Sign-in failed (${res.status}) for ${CREDENTIALS.email}.`);
-    console.error(
-      SUPPLIED_FIXTURE
-        ? "  PARITY_EMAIL / PARITY_PASSWORD do not match an account on this target."
-        : "  The fixture account was created but could not sign in — that should not happen."
-    );
+    console.error(`\nSign-in failed (${res.status}) for ${FIXTURE_EMAIL}.`);
     printDetail(await detail(res));
     printWallHint(res.status);
     process.exit(2);
   }
+
   return (res.headers.getSetCookie?.() ?? [])
     .map((c) => c.split(";")[0])
     .join("; ");
 }
 
 /*
- * Removes the throwaway account. `delete-user` accepts the password, which
- * skips better-auth's session-freshness check, so this works however long the
- * run took. An account supplied through the environment is never touched.
+ * Removes the throwaway account. There is no password to offer now, so this
+ * relies on better-auth's session-freshness window instead — the session is
+ * minutes old by the time the routes have been walked, which is inside it.
  *
  * A failure here is reported but does not fail the run: the parity result is
  * about the routes, and a leftover fixture is a tidiness problem, not a
  * regression. It prints the address so it can be removed by hand.
  */
 async function removeFixture(cookie) {
-  if (SUPPLIED_FIXTURE) return;
-
-  const res = await authRequest("delete-user", {
-    method: "POST",
-    body: { password: CREDENTIALS.password },
-    cookie,
-  });
+  const res = await authRequest("delete-user", { method: "POST", body: {}, cookie });
 
   if (!res.ok) {
     console.warn(
       `\n⚠ Could not delete the parity fixture account (${res.status}).\n` +
-        `  Remove it by hand: ${CREDENTIALS.email}`
+        `  Remove it by hand: ${FIXTURE_EMAIL}`
     );
   }
 }
@@ -571,14 +554,9 @@ async function checkBootstrapClosed() {
 }
 
 console.log(`Parity check against ${BASE}`);
-console.log(
-  SUPPLIED_FIXTURE
-    ? `Signing in as ${CREDENTIALS.email} (from PARITY_EMAIL)\n`
-    : `Creating a throwaway account for the signed-in half: ${CREDENTIALS.email}\n`
-);
+console.log(`Signing in a throwaway account for the signed-in half: ${FIXTURE_EMAIL}\n`);
 
-if (!SUPPLIED_FIXTURE) await signUpFixture();
-const cookie = await signIn();
+const cookie = await signInFixture();
 
 // finally, not just the happy path: a failed assertion must not leave the
 // fixture behind, or the next run against this target starts dirty.

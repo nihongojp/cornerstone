@@ -4,6 +4,7 @@ import { magicLink } from "better-auth/plugins/magic-link";
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { nextCookies } from "better-auth/next-js";
 import { identifierLookup } from "./auth-plugins/identifier-lookup";
+import { captureFixtureCode } from "./auth-fixture-sink";
 import { db, schema } from "./db";
 import {
   resetPasswordEmail,
@@ -284,15 +285,30 @@ export const auth = betterAuth({
   plugins: [
     identifierLookup(),
     magicLink({
+      /*
+       * Hashed at rest. The default is "plain", which puts a working sign-in
+       * token in `verification` for 15 minutes — and that table is copied
+       * wholesale into every Neon branch, so a preview branch connection string
+       * would be enough to sign in as whoever last requested a link. For magic
+       * links the token *is* the row identifier, so "plain" is especially
+       * exposed. better-auth compares with `constantTimeEqual` against the
+       * hash, so nothing else changes.
+       */
+      storeToken: "hashed",
       expiresIn: 60 * 15,
       sendMagicLink: async ({ email, url }) => {
+        if (captureFixtureCode(email, url)) return;
         await sendMail({ to: email, ...signInLinkEmail(url) });
       },
     }),
     emailOTP({
       expiresIn: 60 * 15,
       otpLength: 6,
+      // Same reasoning as `storeToken` above.
+      storeOTP: "hashed",
       sendVerificationOTP: async ({ email, otp }) => {
+        // Test fixtures never get mail — see auth-fixture-sink.ts.
+        if (captureFixtureCode(email, otp)) return;
         await sendMail({ to: email, ...signInCodeEmail(otp) });
       },
     }),
