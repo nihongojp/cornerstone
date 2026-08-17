@@ -1,10 +1,7 @@
-import { Suspense } from "react";
-import AuthForm from "../../../../../pages-client/AuthForm";
+import { redirect } from "next/navigation";
 
+// One sign-in surface lives at /auth (#52). This route predates that and is
+// kept only so existing links and bookmarks still work.
 export default function Page() {
-  return (
-    <Suspense>
-      <AuthForm />
-    </Suspense>
-  );
+  redirect("/auth");
 }

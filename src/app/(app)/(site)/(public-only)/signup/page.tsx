@@ -1,10 +1,6 @@
-import { Suspense } from "react";
-import AuthForm from "../../../../../pages-client/AuthForm";
+import { redirect } from "next/navigation";
 
+// As /login, but lands on the Sign Up side of the toggle rather than Login.
 export default function Page() {
-  return (
-    <Suspense>
-      <AuthForm />
-    </Suspense>
-  );
+  redirect("/auth?mode=signup");
 }
