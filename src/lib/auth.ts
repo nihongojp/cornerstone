@@ -34,9 +34,8 @@ if (!secret) {
  * `baseURL: { allowedHosts }` is the documented mechanism for this, so previews
  * now work on purpose rather than by luck.
  *
- * The preview pattern is deliberately PROJECT-SCOPED. A bare `*.vercel.app`
- * would trust every Vercel deployment on the internet to act as this app's
- * origin.
+ * The preview pattern is deliberately narrow. A bare `*.vercel.app` would trust
+ * every Vercel deployment on the internet to act as this app's origin.
  */
 function resolveBaseURL() {
   const explicit = process.env.BETTER_AUTH_URL;
@@ -44,22 +43,29 @@ function resolveBaseURL() {
 
   /*
    * Preview hostnames look like `<project>-<hash>-<team>.vercel.app` and
-   * `<project>-git-<branch>-<team>.vercel.app`. The project name cannot be
-   * derived from VERCEL_PROJECT_PRODUCTION_URL: once a custom domain is
-   * attached, that variable holds the custom domain, so taking its first label
-   * yields the domain name rather than the project — and every preview then
-   * matches nothing and answers 403.
+   * `<project>-git-<branch>-<team>.vercel.app`. This cannot be derived from
+   * VERCEL_PROJECT_PRODUCTION_URL: once a custom domain is attached, that
+   * variable holds the custom domain, so anything built from it matches no
+   * preview at all and every preview sign-in answers 403.
    *
-   * So it is configured, not guessed. Unset means previews are simply not
-   * trusted, which fails closed and visibly rather than silently.
+   * It is the whole pattern rather than just the project name, so the TEAM slug
+   * can be pinned too — it sits in the middle of the host, and
+   * `cornerstone-*.vercel.app` would also match a project called `cornerstone`
+   * under somebody else's team. Same over-trust that ruled out a bare
+   * `*.vercel.app`, one step narrower.
+   *
+   *   VERCEL_PREVIEW_HOST_PATTERN=cornerstone-*-retros.vercel.app
+   *
+   * Unset means previews are simply not trusted, which fails closed and
+   * visibly rather than silently.
    */
-  const previewProject = process.env.VERCEL_PREVIEW_PROJECT_NAME;
+  const previewHostPattern = process.env.VERCEL_PREVIEW_HOST_PATTERN;
 
   const allowedHosts = [
     "localhost:3000",
     ...(explicit ? [new URL(explicit).host] : []),
     ...(projectHost ? [projectHost] : []),
-    ...(previewProject ? [`${previewProject}-*.vercel.app`] : []),
+    ...(previewHostPattern ? [previewHostPattern] : []),
   ];
 
   return {
