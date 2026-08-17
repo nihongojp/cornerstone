@@ -2,6 +2,11 @@
 
 > ## Executed — history, not a pending checklist
 >
+> **Live, but pre-launch — no users yet.** The warnings below are written as though real
+> learners depend on this deployment. They do not, yet. Keep the "don't re-run the data
+> steps" caution (it would still clobber content), but do not read the rest as a reason to
+> avoid changing the design. See [AGENTS.md](../AGENTS.md) § Working agreements.
+>
 > **The cutover has happened.** Production is live at **`learn.nihongojp.com`**, served
 > by Vercel from this repo — verified: `x-powered-by: Next.js, Payload`, the Neon
 > `production` branch behind it, and `/api/cms_admins/init` reporting
@@ -729,6 +734,9 @@ That asymmetry is the whole reason decommission is last and the dump is mandator
 | `/admin`'s "Forgot password?" does nothing | Expected — no email adapter. Recover via step 6's three routes |
 | `payload:seed-admins` exits 2 immediately | `PAYLOAD_SECRET` or `DATABASE_URL` missing, or a malformed `Name <email>` argument |
 | Media uploads fail in the admin | `BLOB_READ_WRITE_TOKEN` missing — add Blob storage to the Vercel project |
+| Upload fails: "Cannot use public access on a private store" | A stale `@payloadcms/storage-vercel-blob` is in play. That package only speaks `access: 'public'`; this repo uses its own private adapter — see `src/payload/storage/vercelPrivateBlob.ts` |
+| Media 403s for signed-in learners but works in `/admin` | The better-auth session isn't reaching Payload. `Media.access.read` validates it directly; check the session cookie is sent same-origin |
+| Media 404s with "Failed to presign" in the logs | `BLOB_READ_WRITE_TOKEN` is wrong for this store, or the store was recreated and the token not refreshed |
 | Pronunciation 502s | Container down or asleep. Check `/health` |
 | Pronunciation 503s | `PRONUNCIATION_SERVICE_URL`/`_SECRET` missing on Vercel |
 | Lessons and resources empty, no errors | The import (step 7) hasn't run against this database |

@@ -11,6 +11,13 @@ Postgres on Neon (Drizzle + Payload) · Vercel.
 The repo root **is** the app. `src/` is the Next project; `npm` commands run from the
 root.
 
+**Deployed, but pre-launch.** Production serves at `learn.nihongojp.com` and the cutover
+is done — but there are **no users yet**. Several docs here, [CUTOVER.md](docs/CUTOVER.md)
+above all, describe production in a tone that reads as settled and risky to disturb. Take
+the deployment as real and the caution as premature: there is no user data to protect and
+no migration cost to changing course. See the last bullet under
+[Working agreements](#working-agreements).
+
 **There is only one application here now.** The retired CRA + Express + MongoDB app
 that used to sit in `client/` and `server/` was removed at
 [CUTOVER.md](docs/CUTOVER.md) step 10 (#42), once the final `mongodump` was taken. If
@@ -44,7 +51,8 @@ History — read for the record, not as instruction:
   resolved against its own tentative recommendation
 - [CUTOVER.md](docs/CUTOVER.md) — the runbook, now fully executed including step 10
   (#42). Its rollback notes remain useful reference; the step bodies are history. Read
-  its banner before the body — some step text still reads in the pending tense
+  its banner before the body — some step text still reads in the pending tense. Note the
+  banner's warnings are written for a production with users; there are none yet
 
 Airtable was a mid-migration content backend and is gone: no dependency, no
 `/api/revalidate` route, no live `AIRTABLE_*` or `REVALIDATE_SECRET` anywhere (the names
@@ -148,6 +156,13 @@ it over a shared secret. Scoring changes belong in that service, not in `src/`.
   See [docs/agents/domain.md](docs/agents/domain.md).
 - This is an old first project carrying real content alongside accumulated dead code.
   Confirm a thing is wired up before treating its existence as intent.
+- **Pre-launch: the current shape is not a constraint.** The app is deployed, but there
+  are no users yet. So the point above cuts both ways — an existing arrangement is
+  evidence of how the code got here, not a decision someone made and not a reason to
+  preserve it. When a fix has a cheap-but-wrong option and a correct-but-larger one,
+  propose the correct one; changing fields, schemas and dependencies is in bounds. Weigh
+  "would we build it this way today?" above "what changes least?". This stops applying at
+  launch — once real users exist, re-confirm before assuming it still holds.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

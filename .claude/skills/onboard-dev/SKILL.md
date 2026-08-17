@@ -98,7 +98,7 @@ it. What a new developer actually needs to know is where each value comes from:
 | `BETTER_AUTH_SECRET` | **Yes** | Generate locally: `openssl rand -base64 32`. No fallback exists; the app refuses to boot without it |
 | `PAYLOAD_SECRET` | **Yes** | Generate locally: `openssl rand -base64 32`. Without it `/admin` and every Payload API route return "There was an error initializing Payload" |
 | `BETTER_AUTH_URL` | No | `http://localhost:3000` locally. Production only on Vercel — pinned on a preview it 403s its own sign-in |
-| `BLOB_READ_WRITE_TOKEN` | No | Vercel sets it when Blob storage is added. Empty locally falls back to the filesystem |
+| `BLOB_READ_WRITE_TOKEN` | No | Vercel sets it when Blob storage is added, from a **private** store. Empty locally falls back to the filesystem — fine unless you are working on media, since the private upload path can only be exercised with a real token |
 | `RESEND_API_KEY` / `EMAIL_FROM` | No | Leave blank in dev — password-reset links print to the server console instead of being emailed. That is expected behaviour, not a failure |
 | `PRONUNCIATION_SERVICE_URL` / `_SECRET` | No | Only if working on pronunciation scoring — see `services/pronunciation/README.md`. Skip for a normal setup |
 | `MONGODB_URI` | No | One-off migration scripts only. **Never set on Vercel** |

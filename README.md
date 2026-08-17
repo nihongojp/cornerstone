@@ -140,7 +140,7 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 | `BETTER_AUTH_SECRET` | always | No fallback by design — boot fails without it |
 | `PAYLOAD_SECRET` | the CMS | `/admin` and Payload's REST API 500 without it. Rotating it drops every admin session |
 | `BETTER_AUTH_URL` | production | Production only. Optional locally, and must stay unset on Preview — pinned to the production domain it makes previews 403 their own sign-in |
-| `BLOB_READ_WRITE_TOKEN` | CMS media | Set for you when Blob storage is added to the Vercel project. Empty locally falls back to the filesystem |
+| `BLOB_READ_WRITE_TOKEN` | CMS media | Set for you when Blob storage is added to the Vercel project. The store must be **private** — media is served through Payload's auth-gated route, so signed-out requests 403. Empty locally falls back to the filesystem |
 | `RESEND_API_KEY` / `EMAIL_FROM` | password reset emails | Without them, dev prints the reset link to the server console |
 | `PRONUNCIATION_SERVICE_URL` / `_SECRET` | pronunciation scoring | See `services/pronunciation/README.md` |
 | `MONGODB_URI` | migration scripts only | **Never set this on Vercel** |
