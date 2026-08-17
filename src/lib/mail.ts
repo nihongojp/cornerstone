@@ -63,11 +63,25 @@ export async function sendMail(args: SendArgs): Promise<void> {
     return;
   }
 
+  /*
+   * EMAIL_FROM is a no-reply address, which is conventional — but under
+   * passwordless it collides with the failure this whole area exists to avoid:
+   * someone whose sign-in mail was filtered replies to the only message they
+   * have from us, and it goes nowhere. #47's Notes name that exact case, "a
+   * user who cannot sign in and has no way to tell us".
+   *
+   * SUPPORT_EMAIL gives them a way. It needs no receiving infrastructure on the
+   * sending domain — any inbox already being read will do. Unset, mail goes out
+   * as before.
+   */
+  const replyTo = process.env.SUPPORT_EMAIL;
+
   const { error } = await new Resend(apiKey).emails.send({
     from,
     to: args.to,
     subject: args.subject,
     text: args.text,
+    ...(replyTo ? { replyTo } : {}),
   });
 
   /*
