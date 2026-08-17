@@ -61,7 +61,7 @@ export default function VariantA() {
         pb={12}
       >
         <Container maxWidth="xs">
-          <Paper elevation={3} sx={{ p: 4, borderRadius: 3, position: "relative" }}>
+          <Paper elevation={3} sx={{ px: 4, py: 5, borderRadius: 3, position: "relative" }}>
             {/* One way back, everywhere. Returning to the email step is
                 implicitly how you use a different address. */}
             {stage !== "email" && (
@@ -69,7 +69,7 @@ export default function VariantA() {
                 aria-label="Back"
                 onClick={reset}
                 size="small"
-                sx={{ position: "absolute", top: 12, left: 12, color: "text.secondary" }}
+                sx={{ position: "absolute", top: 16, left: 16, color: "text.secondary" }}
               >
                 <ChevronLeftIcon />
               </IconButton>
@@ -143,7 +143,7 @@ export default function VariantA() {
                   Check your email
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  We sent a sign-in link to <strong>{email}</strong>.
+                  We sent a link to <strong>{email}</strong>.
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   It expires in 15 minutes.
