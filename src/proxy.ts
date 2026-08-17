@@ -19,6 +19,15 @@ import { getSessionCookie } from "better-auth/cookies";
 export function proxy(request: NextRequest) {
   if (getSessionCookie(request)) return NextResponse.next();
 
+  /*
+   * A Draft Mode request from the CMS preview panel. Presence only, the same
+   * optimistic rule the session cookie above gets: the Proxy runs on the edge,
+   * where it can reach neither Payload nor the build's preview id, so it cannot
+   * do better than this. The (player) layout re-checks the editor against
+   * `cms_admins`, which is where a bad cookie is caught.
+   */
+  if (request.cookies.has("__prerender_bypass")) return NextResponse.next();
+
   const url = new URL("/auth", request.url);
   // Preserves the CRA behaviour of returning the user to the page they wanted
   // (react-router carried this in location.state.from).

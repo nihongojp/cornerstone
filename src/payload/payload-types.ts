@@ -269,7 +269,7 @@ export interface Lesson {
 export interface VideoPageBlock {
   title: string;
   /**
-   * The lesson video. Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * The lesson video. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   videoUrl?: string | null;
   /**
@@ -277,7 +277,7 @@ export interface VideoPageBlock {
    */
   videoForm?: string[] | null;
   /**
-   * Optional standalone audio for this page (stored as `audioURL` in the old data). Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Optional standalone audio for this page (stored as `audioURL` in the old data). Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   audioUrl?: string | null;
   /**
@@ -309,11 +309,11 @@ export interface TermsPageBlock {
     | {
         term: string;
         /**
-         * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
          */
         imageUrl?: string | null;
         /**
-         * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
          */
         audioUrl?: string | null;
         id?: string | null;
@@ -394,11 +394,11 @@ export interface MatchingExerciseBlock {
         phrase: string;
         englishTranslation?: string | null;
         /**
-         * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
          */
         audioUrl?: string | null;
         /**
-         * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
          */
         imageUrl?: string | null;
         id?: string | null;
@@ -435,11 +435,11 @@ export interface DragAndDropPuzzleBlock {
    */
   options: string[];
   /**
-   * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   audioUrl?: string | null;
   /**
-   * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   imageUrl?: string | null;
   id?: string | null;
@@ -456,11 +456,11 @@ export interface TermMediaSeedBlock {
    */
   term: string;
   /**
-   * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   audioUrl?: string | null;
   /**
-   * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   imageUrl?: string | null;
   id?: string | null;
@@ -474,11 +474,11 @@ export interface TermMediaSeedBlock {
 export interface MatchAudioExerciseBlock {
   phrase: string;
   /**
-   * The clip the learner hears. Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * The clip the learner hears. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   audioUrl?: string | null;
   /**
-   * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   imageUrl?: string | null;
   id?: string | null;
@@ -496,11 +496,11 @@ export interface PronunciationExerciseBlock {
    */
   transcript?: string | null;
   /**
-   * Optional demonstration video. Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Optional demonstration video. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   videoUrl?: string | null;
   /**
-   * Dedicated reference audio for scoring — NOT the video's audio track. Without it the pronunciation service has nothing to grade against. Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Dedicated reference audio for scoring — NOT the video's audio track. Without it the pronunciation service has nothing to grade against. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   audioUrl?: string | null;
   id?: string | null;
@@ -563,7 +563,7 @@ export interface MatchAudioLetterBlock {
   exerciseId: string;
   prompt?: string | null;
   /**
-   * The clip the learner hears. Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * The clip the learner hears. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   audioUrl?: string | null;
   /**
@@ -597,15 +597,15 @@ export interface VocabularyDragDropBlock {
    */
   correctAnswer: string;
   /**
-   * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   audioUrl?: string | null;
   /**
-   * Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   imageUrl?: string | null;
   /**
-   * Back-compat alias some imported documents still use. Prefer Image URL above; only fill this in if you are matching an existing record. Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+   * Back-compat alias some imported documents still use. Prefer Image URL above; only fill this in if you are matching an existing record. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
    */
   image?: string | null;
   /**
@@ -651,7 +651,7 @@ export interface FlashcardDeckBlock {
          */
         card: string;
         /**
-         * Optional pronunciation for this card. Paste an absolute URL. Existing Cloudinary URLs work as-is; for new files, upload to Media first and paste the resulting URL here.
+         * Optional pronunciation for this card. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
          */
         audioUrl?: string | null;
         id?: string | null;

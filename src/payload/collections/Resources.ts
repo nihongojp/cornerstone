@@ -1,6 +1,11 @@
 import type { CollectionConfig } from "payload";
 
-import { revalidateResources, revalidateResourcesDelete } from "../hooks/revalidate";
+import {
+  revalidateResources,
+  revalidateResourcesDelete,
+} from "../hooks/revalidate";
+import { generatePreviewURL } from "../preview";
+import { readPublishedOrEditor } from "../access/readPublished";
 
 /*
  * The /resources page: a handful of named groups, each a list of links.
@@ -12,19 +17,23 @@ import { revalidateResources, revalidateResourcesDelete } from "../hooks/revalid
  */
 export const Resources: CollectionConfig = {
   slug: "resources",
+  versions: { drafts: true },
   labels: { singular: "Resource group", plural: "Resource groups" },
   admin: {
     useAsTitle: "category",
     defaultColumns: ["category", "_status", "updatedAt"],
     group: "Content",
-    description: "Link collections shown on the Resources page, grouped by category.",
+    description:
+      "Link collections shown on the Resources page, grouped by category.",
+    // Every group shares one page, so this opens /resources rather than a page
+    // belonging to this document.
+    preview: generatePreviewURL("resources"),
   },
-  access: { read: () => true },
+  access: { read: readPublishedOrEditor },
   hooks: {
     afterChange: [revalidateResources],
     afterDelete: [revalidateResourcesDelete],
   },
-  versions: { drafts: true },
   fields: [
     {
       name: "category",
@@ -43,7 +52,8 @@ export const Resources: CollectionConfig = {
           type: "text",
           required: true,
           admin: {
-            description: "Stable key for this link, unique within the group. Used as the React key.",
+            description:
+              "Stable key for this link, unique within the group. Used as the React key.",
           },
         },
         { name: "title", type: "text", required: true },
@@ -52,7 +62,7 @@ export const Resources: CollectionConfig = {
           type: "text",
           admin: {
             description:
-              "Absolute URL. Opens in a new tab. Optional on purpose: an entry with a title and description but no link yet is a real state the site already handles — it renders as \"(No URL)\" — and it keeps a planned resource visible as a to-do instead of losing the note.",
+              'Absolute URL. Opens in a new tab. Optional on purpose: an entry with a title and description but no link yet is a real state the site already handles — it renders as "(No URL)" — and it keeps a planned resource visible as a to-do instead of losing the note.',
           },
         },
         { name: "description", type: "textarea" },
@@ -66,7 +76,8 @@ export const Resources: CollectionConfig = {
       admin: {
         position: "sidebar",
         readOnly: true,
-        description: "The MongoDB `_id` this group was imported from. Used to make re-imports idempotent.",
+        description:
+          "The MongoDB `_id` this group was imported from. Used to make re-imports idempotent.",
       },
     },
   ],

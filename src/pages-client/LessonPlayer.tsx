@@ -232,8 +232,6 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
   const resumedRef = useRef(false);
 
   useEffect(() => {
-    resumedRef.current = false;
-
     setLesson(lessonProp);
     setDebugInfo({
       lessonIdParam: lessonId,
@@ -251,12 +249,24 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
       })),
       prefecture: (lessonProp as any)?.prefecture,
     });
+  }, [lessonProp]);
 
+  /*
+   * Position and score reset on the lesson's *identity*, not on the object it
+   * arrived in. Split from the content update above for CMS Live Preview:
+   * there this component is handed a freshly built lesson on every keystroke,
+   * and resetting on object identity would send the editor back to card 1 and
+   * wipe the running score each time they typed a character. On the public
+   * path the two fire together — a different lesson means both a different
+   * `lessonId` and a different object.
+   */
+  useEffect(() => {
+    resumedRef.current = false;
     setStep(0);
     setCorrectCount(0);
     setAttemptCount(0);
     answeredStepRef.current = {};
-  }, [lessonId, lessonProp]);
+  }, [lessonId]);
 
   const lessonKey = useMemo(() => (lesson ? resolveLessonIdentifier(lesson) : ""), [lesson]);
 
@@ -545,12 +555,16 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
       setStep(nextStep);
 
       if (lesson && lessonKey) {
+        // Caught, like the save-and-exit call below. Progress is best-effort
+        // here, and in the CMS preview panel there is no learner session at
+        // all, so every one of these 401s — unhandled, that is a rejection per
+        // card turned.
         void upsertProgress({
           lessonId: lessonKey,
           status: "in_progress",
           lastStep: nextStep,
           accuracyPct: nextAccuracy,
-        });
+        }).catch((e) => console.error("[Progress] save failed:", e));
       }
     } else {
       if (lesson && lessonKey) {
@@ -559,7 +573,7 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
           status: "completed",
           lastStep: step,
           accuracyPct: nextAccuracy,
-        });
+        }).catch((e) => console.error("[Progress] save failed:", e));
       }
 
       router.push("/new-lessons");

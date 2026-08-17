@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     console.error("[pronunciation] service env vars are not configured");
     return NextResponse.json(
       { message: "Pronunciation scoring is unavailable" },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -38,20 +38,32 @@ export async function POST(request: Request) {
   try {
     form = await request.formData();
   } catch {
-    return NextResponse.json({ message: "Expected multipart form data" }, { status: 400 });
+    return NextResponse.json(
+      { message: "Expected multipart form data" },
+      { status: 400 },
+    );
   }
 
   const recording = form.get("recording");
   const referenceAudioUrl = form.get("referenceAudioUrl");
 
   if (!(recording instanceof File)) {
-    return NextResponse.json({ message: "recording is required" }, { status: 400 });
+    return NextResponse.json(
+      { message: "recording is required" },
+      { status: 400 },
+    );
   }
   if (typeof referenceAudioUrl !== "string" || !referenceAudioUrl) {
-    return NextResponse.json({ message: "referenceAudioUrl is required" }, { status: 400 });
+    return NextResponse.json(
+      { message: "referenceAudioUrl is required" },
+      { status: 400 },
+    );
   }
   if (recording.size > MAX_UPLOAD_BYTES) {
-    return NextResponse.json({ message: "Recording is too large" }, { status: 413 });
+    return NextResponse.json(
+      { message: "Recording is too large" },
+      { status: 413 },
+    );
   }
 
   const upstream = new FormData();
@@ -68,13 +80,15 @@ export async function POST(request: Request) {
     const body = await res.text();
     return new NextResponse(body, {
       status: res.status,
-      headers: { "Content-Type": res.headers.get("content-type") ?? "application/json" },
+      headers: {
+        "Content-Type": res.headers.get("content-type") ?? "application/json",
+      },
     });
   } catch (err) {
     console.error("[pronunciation] upstream request failed:", err);
     return NextResponse.json(
       { message: "Pronunciation service is unreachable" },
-      { status: 502 }
+      { status: 502 },
     );
   }
 }

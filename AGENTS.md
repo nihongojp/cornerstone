@@ -11,6 +11,13 @@ Postgres on Neon (Drizzle + Payload) · Vercel.
 The repo root **is** the app. `src/` is the Next project; `npm` commands run from the
 root.
 
+**Deployed, but pre-launch.** Production serves at `learn.nihongojp.com` and the cutover
+is done — but there are **no users yet**. Several docs here, [CUTOVER.md](docs/CUTOVER.md)
+above all, describe production in a tone that reads as settled and risky to disturb. Take
+the deployment as real and the caution as premature: there is no user data to protect and
+no migration cost to changing course. See the last bullet under
+[Working agreements](#working-agreements).
+
 **There is only one application here now.** The retired CRA + Express + MongoDB app
 that used to sit in `client/` and `server/` was removed at
 [CUTOVER.md](docs/CUTOVER.md) step 10 (#42), once the final `mongodump` was taken. If
@@ -44,7 +51,8 @@ History — read for the record, not as instruction:
   resolved against its own tentative recommendation
 - [CUTOVER.md](docs/CUTOVER.md) — the runbook, now fully executed including step 10
   (#42). Its rollback notes remain useful reference; the step bodies are history. Read
-  its banner before the body — some step text still reads in the pending tense
+  its banner before the body — some step text still reads in the pending tense. Note the
+  banner's warnings are written for a production with users; there are none yet
 
 Airtable was a mid-migration content backend and is gone: no dependency, no
 `/api/revalidate` route, no live `AIRTABLE_*` or `REVALIDATE_SECRET` anywhere (the names
@@ -61,7 +69,8 @@ mentions left in `src/` are historical comments. Content comes from Payload.
   `npm run parity [url]`, which checks all 36 routes in both auth states and then
   asserts the CMS is up and serving real content. Both must pass before you call
   something done.
-- **Node 24**, pinned in `.nvmrc` and `engines`.
+- **Node 24 LTS**, pinned in `.nvmrc` and floored at 24.11.0 in `engines`. CI
+  reads `.nvmrc` via `node-version-file`, so that file is the one to change.
 - `npm run dev` rewrites the managed block at the bottom of this file. Leave it alone
   and the tree stays clean.
 
@@ -92,6 +101,22 @@ the moment an editor saves. A one-hour expiry is the backstop for a missed hook.
 
 Reads pass `overrideAccess: false`, so an unpublished draft cannot leak even if a
 query forgets to filter. Keep new reads inside this module and inside that rule.
+
+That rule only became true once the collections' own `read` access enforced it.
+The three content collections share `readPublishedOrEditor`
+(`src/payload/access/readPublished.ts`): a signed-in CMS user reads everything,
+everyone else is constrained to `_status: published`. They previously declared
+`read: () => true`, which is not "public read" but *no filter at all* — and
+Payload's REST API is mounted publicly, so `GET /api/lessons` served unpublished
+documents to anyone, with or without `?draft=true`. Never write
+`read: () => true` on a collection that has drafts enabled.
+
+The draft readers at the bottom of that file (`getDraftLesson`,
+`getDraftNextSlug`, `getDraftResources`) are the one exception to the published
+filter, and they stay inside the rule: they are uncached, they only run for a
+request in Draft Mode, and they pass the authenticated `cms_admins` editor as
+`user` rather than switching `overrideAccess` off. They exist for the CMS
+preview panel — see `docs/payload-content-model.md`.
 
 ### Two players, one collection
 
@@ -147,6 +172,13 @@ it over a shared secret. Scoring changes belong in that service, not in `src/`.
   See [docs/agents/domain.md](docs/agents/domain.md).
 - This is an old first project carrying real content alongside accumulated dead code.
   Confirm a thing is wired up before treating its existence as intent.
+- **Pre-launch: the current shape is not a constraint.** The app is deployed, but there
+  are no users yet. So the point above cuts both ways — an existing arrangement is
+  evidence of how the code got here, not a decision someone made and not a reason to
+  preserve it. When a fix has a cheap-but-wrong option and a correct-but-larger one,
+  propose the correct one; changing fields, schemas and dependencies is in bounds. Weigh
+  "would we build it this way today?" above "what changes least?". This stops applying at
+  launch — once real users exist, re-confirm before assuming it still holds.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
