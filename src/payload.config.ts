@@ -36,8 +36,23 @@ export default buildConfig({
   admin: {
     user: CmsAdmins.slug,
     meta: { titleSuffix: "— Nihon-Go! CMS" },
+    livePreview: {
+      // Points to the frontend route that initializes Draft Mode
+      url: ({ data, collectionConfig }) => {
+        const baseUrl =
+          process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
+        return `${baseUrl}/api/preview?slug=${data.slug}&collection=${collectionConfig?.slug ?? ""}`;
+      },
+      collections: [
+        Courses.slug,
+        Lessons.slug,
+        Resources.slug,
+        Media.slug,
+        CmsAdmins.slug,
+      ], // Collections supporting Live Preview
+    },
   },
-  collections: [Courses, Lessons, Resources, Media, CmsAdmins],
+  collections: [Courses, Lessons, Resources, Media],
   db: postgresAdapter({
     schemaName: "payload",
     push: false,

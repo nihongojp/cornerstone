@@ -39,7 +39,14 @@ export const Lessons: CollectionConfig = {
   labels: { singular: "Lesson", plural: "Lessons" },
   admin: {
     useAsTitle: "title",
-    defaultColumns: ["title", "course", "order", "slug", "_status", "updatedAt"],
+    defaultColumns: [
+      "title",
+      "course",
+      "order",
+      "slug",
+      "_status",
+      "updatedAt",
+    ],
     group: "Content",
     listSearchableFields: ["title", "slug", "cardTitle"],
     description: "Every lesson, from both of the old lesson systems.",
@@ -58,7 +65,10 @@ export const Lessons: CollectionConfig = {
       name: "title",
       type: "text",
       required: true,
-      admin: { description: 'The lesson name, e.g. "Lesson 1 V1". Stored as `lesson` in the old grammar data.' },
+      admin: {
+        description:
+          'The lesson name, e.g. "Lesson 1 V1". Stored as `lesson` in the old grammar data.',
+      },
     },
     {
       name: "slug",
@@ -116,7 +126,10 @@ export const Lessons: CollectionConfig = {
     {
       name: "cardTitle",
       type: "text",
-      admin: { description: "Heading shown on the lessons list card. Falls back to the title." },
+      admin: {
+        description:
+          "Heading shown on the lessons list card. Falls back to the title.",
+      },
     },
     {
       name: "shuffleExercises",
@@ -141,7 +154,8 @@ export const Lessons: CollectionConfig = {
           name: "label",
           type: "text",
           admin: {
-            description: "Optional name, for your own navigation. Not shown to learners.",
+            description:
+              "Optional name, for your own navigation. Not shown to learners.",
           },
         },
         {
@@ -177,7 +191,8 @@ export const Lessons: CollectionConfig = {
       type: "text",
       admin: {
         position: "sidebar",
-        description: 'Content revision label carried over from the old data, e.g. "v1".',
+        description:
+          'Content revision label carried over from the old data, e.g. "v1".',
       },
     },
     {
@@ -193,7 +208,10 @@ export const Lessons: CollectionConfig = {
     {
       name: "achievement",
       type: "group",
-      admin: { description: "Awarded on completion. Leave the title empty for no award." },
+      admin: {
+        description:
+          "Awarded on completion. Leave the title empty for no award.",
+      },
       fields: [
         { name: "title", type: "text" },
         { name: "xp", type: "number", admin: { step: 1 } },

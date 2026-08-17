@@ -52,6 +52,7 @@ const readMedia: Access = async ({ req }) => {
 };
 export const Media: CollectionConfig = {
   slug: "media",
+  versions: { drafts: true },
   labels: { singular: "Media", plural: "Media" },
   admin: {
     group: "Content",

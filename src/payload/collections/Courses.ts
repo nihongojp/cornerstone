@@ -9,6 +9,7 @@ import { revalidateCourse, revalidateCourseDelete } from "../hooks/revalidate";
  */
 export const Courses: CollectionConfig = {
   slug: "courses",
+  versions: { drafts: true },
   labels: { singular: "Course", plural: "Courses" },
   admin: {
     useAsTitle: "title",
@@ -21,7 +22,6 @@ export const Courses: CollectionConfig = {
     afterChange: [revalidateCourse],
     afterDelete: [revalidateCourseDelete],
   },
-  versions: { drafts: true },
   fields: [
     { name: "title", type: "text", required: true },
     {
@@ -32,7 +32,8 @@ export const Courses: CollectionConfig = {
       index: true,
       admin: {
         position: "sidebar",
-        description: "URL segment. Lowercase, hyphenated. Changing it breaks existing links.",
+        description:
+          "URL segment. Lowercase, hyphenated. Changing it breaks existing links.",
       },
     },
     {
@@ -41,7 +42,10 @@ export const Courses: CollectionConfig = {
       required: true,
       defaultValue: "beginner-to-intermediate",
       options: [
-        { label: "Beginner to intermediate", value: "beginner-to-intermediate" },
+        {
+          label: "Beginner to intermediate",
+          value: "beginner-to-intermediate",
+        },
         { label: "2-week crash course", value: "2-week-crash-course" },
       ],
       admin: {
