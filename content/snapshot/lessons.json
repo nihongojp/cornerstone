@@ -1,0 +1,3025 @@
+[
+  {
+    "key": "hiragana-l1-v1-hokkaido",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 1",
+      "slug": "hiragana-l1-v1-hokkaido",
+      "format": "flashcard",
+      "course": {
+        "$ref": "hiragana-and-prefectures",
+        "$collection": "courses"
+      },
+      "order": 1,
+      "cardTitle": null,
+      "shuffleExercises": false,
+      "exercises": [
+        {
+          "id": "6a80d50012409c84ac232144",
+          "label": "Flashcards",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232143",
+              "title": "Flashcards",
+              "blockName": null,
+              "cards": [
+                {
+                  "id": "6a80d50012409c84ac23213e",
+                  "card": "あ/ア",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50012409c84ac23213f",
+                  "card": "い/イ",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50012409c84ac232140",
+                  "card": "う/ウ",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50012409c84ac232141",
+                  "card": "え/エ",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50012409c84ac232142",
+                  "card": "お/オ",
+                  "audioUrl": null
+                }
+              ],
+              "blockType": "flashcardDeck"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232146",
+          "label": "l1_cd",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232145",
+              "exerciseId": "l1_cd",
+              "prompt": null,
+              "blockName": null,
+              "blockType": "connectTheDots",
+              "items": [
+                "あ/ア",
+                "い/イ",
+                "う/ウ",
+                "え/エ",
+                "お/オ"
+              ],
+              "correctAnswers": [
+                "あ/ア",
+                "い/イ",
+                "う/ウ",
+                "え/エ",
+                "お/オ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232148",
+          "label": "l1_am",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232147",
+              "exerciseId": "l1_am",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "あ/ア",
+                "い/イ",
+                "う/ウ",
+                "え/エ",
+                "お/オ"
+              ],
+              "correctAnswers": [
+                "あ/ア"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23214a",
+          "label": "l1_am_2",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232149",
+              "exerciseId": "l1_am_2",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "あ/ア",
+                "い/イ",
+                "う/ウ",
+                "え/エ",
+                "お/オ"
+              ],
+              "correctAnswers": [
+                "い/イ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23214c",
+          "label": "l1_am_3",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac23214b",
+              "exerciseId": "l1_am_3",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "あ/ア",
+                "い/イ",
+                "う/ウ",
+                "え/エ",
+                "お/オ"
+              ],
+              "correctAnswers": [
+                "う/ウ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23214e",
+          "label": "l1_am_4",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac23214d",
+              "exerciseId": "l1_am_4",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "あ/ア",
+                "い/イ",
+                "う/ウ",
+                "え/エ",
+                "お/オ"
+              ],
+              "correctAnswers": [
+                "え/エ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232150",
+          "label": "l1_am_5",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac23214f",
+              "exerciseId": "l1_am_5",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "あ/ア",
+                "い/イ",
+                "う/ウ",
+                "え/エ",
+                "お/オ"
+              ],
+              "correctAnswers": [
+                "お/オ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232152",
+          "label": "l1_vocab_ao",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232151",
+              "exerciseId": "l1_vocab_ao",
+              "prompt": null,
+              "correctAnswer": "あお",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": null,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232154",
+          "label": "l1_vocab_ue",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232153",
+              "exerciseId": "l1_vocab_ue",
+              "prompt": null,
+              "correctAnswer": "うえ",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": null,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232156",
+          "label": "l1_vocab_au",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232155",
+              "exerciseId": "l1_vocab_au",
+              "prompt": null,
+              "correctAnswer": "あう",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": null,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232158",
+          "label": "l1_vocab_ooi",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232157",
+              "exerciseId": "l1_vocab_ooi",
+              "prompt": null,
+              "correctAnswer": "おおい",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": null,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23215a",
+          "label": "l1_vocab_ao_bonus",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac232159",
+              "exerciseId": "l1_vocab_ao_bonus",
+              "prompt": null,
+              "correctAnswer": "あお",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": true,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23215c",
+          "label": "l1_vocab_ue_bonus",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac23215b",
+              "exerciseId": "l1_vocab_ue_bonus",
+              "prompt": null,
+              "correctAnswer": "うえ",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": true,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23215e",
+          "label": "l1_vocab_au_bonus",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac23215d",
+              "exerciseId": "l1_vocab_au_bonus",
+              "prompt": null,
+              "correctAnswer": "あう",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": true,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232160",
+          "label": "l1_vocab_ooi_bonus",
+          "components": [
+            {
+              "id": "6a80d50012409c84ac23215f",
+              "exerciseId": "l1_vocab_ooi_bonus",
+              "prompt": null,
+              "correctAnswer": "おおい",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": true,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ]
+            }
+          ]
+        }
+      ],
+      "prefecture": "Hokkaido",
+      "tags": [],
+      "version": "V1",
+      "funFact": "Hiragana is used for Japanese-origin words! Katakana is used for loan-words from other languages!",
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": 10
+      },
+      "sourceId": "699a45660d11ac7a2b8a8d7e",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "hiragana-l2-v1-iwate",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 2",
+      "slug": "hiragana-l2-v1-iwate",
+      "format": "flashcard",
+      "course": {
+        "$ref": "hiragana-and-prefectures",
+        "$collection": "courses"
+      },
+      "order": 2,
+      "cardTitle": null,
+      "shuffleExercises": false,
+      "exercises": [
+        {
+          "id": "6a80d50212409c84ac232167",
+          "label": "Flashcards",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac232166",
+              "title": "Flashcards",
+              "blockName": null,
+              "cards": [
+                {
+                  "id": "6a80d50212409c84ac232161",
+                  "card": "か/カ",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50212409c84ac232162",
+                  "card": "き/キ",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50212409c84ac232163",
+                  "card": "く/ク",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50212409c84ac232164",
+                  "card": "け/ケ",
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50212409c84ac232165",
+                  "card": "こ/コ",
+                  "audioUrl": null
+                }
+              ],
+              "blockType": "flashcardDeck"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232169",
+          "label": "l2_cd",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac232168",
+              "exerciseId": "l2_cd",
+              "prompt": null,
+              "blockName": null,
+              "blockType": "connectTheDots",
+              "items": [
+                "か/カ",
+                "き/キ",
+                "く/ク",
+                "け/ケ",
+                "こ/コ"
+              ],
+              "correctAnswers": [
+                "か/カ",
+                "き/キ",
+                "く/ク",
+                "け/ケ",
+                "こ/コ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac23216b",
+          "label": "l2_am",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac23216a",
+              "exerciseId": "l2_am",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "か/カ",
+                "き/キ",
+                "く/ク",
+                "け/ケ",
+                "こ/コ"
+              ],
+              "correctAnswers": [
+                "か/カ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac23216d",
+          "label": "l2_am_2",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac23216c",
+              "exerciseId": "l2_am_2",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "か/カ",
+                "き/キ",
+                "く/ク",
+                "け/ケ",
+                "こ/コ"
+              ],
+              "correctAnswers": [
+                "き/キ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac23216f",
+          "label": "l2_am_3",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac23216e",
+              "exerciseId": "l2_am_3",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "か/カ",
+                "き/キ",
+                "く/ク",
+                "け/ケ",
+                "こ/コ"
+              ],
+              "correctAnswers": [
+                "く/ク"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232171",
+          "label": "l2_am_4",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac232170",
+              "exerciseId": "l2_am_4",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "か/カ",
+                "き/キ",
+                "く/ク",
+                "け/ケ",
+                "こ/コ"
+              ],
+              "correctAnswers": [
+                "け/ケ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232173",
+          "label": "l2_am_5",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac232172",
+              "exerciseId": "l2_am_5",
+              "prompt": "Listen and choose the character you hear",
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioLetter",
+              "items": [
+                "か/カ",
+                "き/キ",
+                "く/ク",
+                "け/ケ",
+                "こ/コ"
+              ],
+              "correctAnswers": [
+                "こ/コ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232175",
+          "label": "l2_vocab_koke",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac232174",
+              "exerciseId": "l2_vocab_koke",
+              "prompt": null,
+              "correctAnswer": "こけ",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": null,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "か",
+                "き",
+                "く",
+                "け",
+                "こ"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232177",
+          "label": "l2_vocab_ike",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac232176",
+              "exerciseId": "l2_vocab_ike",
+              "prompt": null,
+              "correctAnswer": "いけ",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": null,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "い",
+                "う",
+                "か",
+                "け"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232179",
+          "label": "l2_vocab_oke",
+          "components": [
+            {
+              "id": "6a80d50212409c84ac232178",
+              "exerciseId": "l2_vocab_oke",
+              "prompt": null,
+              "correctAnswer": "おけ",
+              "audioUrl": null,
+              "imageUrl": null,
+              "image": null,
+              "bonus": null,
+              "blockName": null,
+              "blockType": "vocabularyDragDrop",
+              "characterBank": [
+                "あ",
+                "う",
+                "お",
+                "か",
+                "け"
+              ]
+            }
+          ]
+        }
+      ],
+      "prefecture": "Iwate",
+      "tags": [],
+      "version": "V1",
+      "funFact": "Hiragana usually restarts with the あいうえお vowels every five characters! From now on, it'll just be new consonants at the start!",
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": 10
+      },
+      "sourceId": "699a45910d11ac7a2b8a8d86",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "l1-v1",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 1 Pt. 1",
+      "slug": "l1-v1",
+      "format": "step",
+      "course": {
+        "$ref": "grammar-and-conversation",
+        "$collection": "courses"
+      },
+      "order": 1,
+      "cardTitle": "First Greetings — Part 1",
+      "shuffleExercises": true,
+      "exercises": [
+        {
+          "id": "6a80d50312409c84ac23217b",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23217a",
+              "title": "Hajimemashite",
+              "videoUrl": "/api/media/file/Hajimemashite_cqfhtl.mp4",
+              "audioUrl": "/api/media/file/Hajimemashite_aodjal.m4a",
+              "description": "Meeting first time, polite",
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "Hajimemashite, Nakamura desu",
+                "Hajimemashite, Suu desu."
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23217d",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23217c",
+              "title": "Konnnichiwa",
+              "videoUrl": "/api/media/file/Konnnichiwa_so1c8p.mp4",
+              "audioUrl": "/api/media/file/Konnichiwa_putqgw.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "Konnnichiwa",
+                "Konnnichiwa"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23217f",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23217e",
+              "title": "Ohayou gozaimasu",
+              "videoUrl": "/api/media/file/Ohayou_gozaimasu_d4iguz.mp4",
+              "audioUrl": "/api/media/file/Ohayou_Gozaimasu_i5zn0p.m4a",
+              "description": "Polite",
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "Ohayou gozaimasu",
+                "Ohayou gozaimasu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232181",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac232180",
+              "title": "Konnbannwa",
+              "videoUrl": "/api/media/file/Konnbannwa_kbmnhf.mp4",
+              "audioUrl": "/api/media/file/Konnwannwa_u3kvxq.m4a",
+              "description": "Polite",
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "Konnbannwa",
+                "Konnbannwa"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232187",
+          "label": "Match phrase to appropriate situation - connect the dots",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac232186",
+              "instructions": "Match phrase to appropriate situation - connect the dots",
+              "description": null,
+              "blockName": null,
+              "items": [
+                {
+                  "id": "6a80d50312409c84ac232182",
+                  "phrase": "Hajimemashite",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
+                  "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png"
+                },
+                {
+                  "id": "6a80d50312409c84ac232183",
+                  "phrase": "Konnnichiwa",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
+                  "imageUrl": "/api/media/file/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png"
+                },
+                {
+                  "id": "6a80d50312409c84ac232184",
+                  "phrase": "Ohayou gozaimasu",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
+                  "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png"
+                },
+                {
+                  "id": "6a80d50312409c84ac232185",
+                  "phrase": "Konnbannwa",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
+                  "imageUrl": "/api/media/file/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png"
+                }
+              ],
+              "blockType": "matchingExercise",
+              "rows": [
+                "audio buttons",
+                "image"
+              ],
+              "dragDropOptions": []
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232189",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac232188",
+              "phrase": "Hajimemashite",
+              "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23218b",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23218a",
+              "phrase": "Konnnichiwa",
+              "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23218d",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23218c",
+              "phrase": "Ohayou gozaimasu",
+              "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23218f",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23218e",
+              "phrase": "Konnbannwa",
+              "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232191",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac232190",
+              "title": "Sumimasen",
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Sumimasen"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232193",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac232192",
+              "title": "Arigatougozaimasu",
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Arigatougozaimasu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232195",
+          "label": "Sayounara",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac232194",
+              "title": "Sayounara",
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "Sayounara",
+                "Sayounara"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23219a",
+          "label": "Match phrase to appropriate situation - connect the dots",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac232199",
+              "instructions": "Match phrase to appropriate situation - connect the dots",
+              "description": null,
+              "blockName": null,
+              "items": [
+                {
+                  "id": "6a80d50312409c84ac232196",
+                  "phrase": "Sumimasen",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50312409c84ac232197",
+                  "phrase": "Arigatougozaimasu",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50312409c84ac232198",
+                  "phrase": "Sayounara",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
+                  "imageUrl": null
+                }
+              ],
+              "blockType": "matchingExercise",
+              "rows": [
+                "audio buttons",
+                "image"
+              ],
+              "dragDropOptions": []
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23219c",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23219b",
+              "phrase": "Sumimasen",
+              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23219e",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23219d",
+              "phrase": "Arigatougozaimasu",
+              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a0",
+          "label": "Sayounara",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac23219f",
+              "phrase": "Sayounara",
+              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a2",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321a1",
+              "phrase": "Hajimemashite",
+              "transcript": null,
+              "videoUrl": "/api/media/file/Hajimemashite_cqfhtl.mp4",
+              "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a4",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321a3",
+              "phrase": "Konnnichiwa",
+              "transcript": null,
+              "videoUrl": "/api/media/file/Konnnichiwa_so1c8p.mp4",
+              "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a6",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321a5",
+              "phrase": "Ohayou gozaimasu",
+              "transcript": null,
+              "videoUrl": "/api/media/file/Ohayou_gozaimasu_d4iguz.mp4",
+              "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a8",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321a7",
+              "phrase": "Konnbannwa",
+              "transcript": null,
+              "videoUrl": "/api/media/file/Konnbannwa_kbmnhf.mp4",
+              "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321aa",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321a9",
+              "phrase": "Sumimasen",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321ac",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321ab",
+              "phrase": "Arigatougozaimasu",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321ae",
+          "label": "Sayounara",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321ad",
+              "phrase": "Sayounara",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b0",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321af",
+              "term": "Hajimemashite",
+              "audioUrl": "/api/media/file/New_Recording_37_xskjfk.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+              "blockName": null,
+              "blockType": "dragAndDropPuzzle",
+              "correctSequence": [
+                "hajime",
+                "mashite"
+              ],
+              "options": [
+                "masu",
+                "hajime",
+                "bann",
+                "konn",
+                "mashite"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b2",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321b1",
+              "term": "Konnnichiwa",
+              "audioUrl": "/api/media/file/Konnnichiha_R_bov8g7.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+              "blockName": null,
+              "blockType": "dragAndDropPuzzle",
+              "correctSequence": [
+                "konn",
+                "nichi",
+                "ha"
+              ],
+              "options": [
+                "konn",
+                "bann",
+                "ha",
+                "nichi",
+                "hajime"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b4",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321b3",
+              "term": "Ohayou gozaimasu",
+              "audioUrl": "/api/media/file/Ohayougozaimasu_R_r5go97.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+              "blockName": null,
+              "blockType": "dragAndDropPuzzle",
+              "correctSequence": [
+                "ohayou",
+                "gozai",
+                "masu"
+              ],
+              "options": [
+                "arigatou",
+                "masu",
+                "gozai",
+                "ohayou",
+                "sayou"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b6",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321b5",
+              "term": "Konnbannwa",
+              "audioUrl": "/api/media/file/Konnnichiha_ibgete.m4a",
+              "imageUrl": "/api/media/file/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+              "blockName": null,
+              "blockType": "dragAndDropPuzzle",
+              "correctSequence": [
+                "konn",
+                "bann",
+                "ha"
+              ],
+              "options": [
+                "konn",
+                "bann",
+                "nichi",
+                "ha",
+                "nara"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b8",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321b7",
+              "term": "Sumimasen",
+              "audioUrl": "/api/media/file/Sumimasen_R_otzedy.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "dragAndDropPuzzle",
+              "correctSequence": [
+                "sumi",
+                "masenn"
+              ],
+              "options": [
+                "sumi",
+                "ohayou",
+                "mashite",
+                "masenn",
+                "masu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321ba",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321b9",
+              "term": "Arigatougozaimasu",
+              "audioUrl": "/api/media/file/Arigatougozaimasu_R_hikobv.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "dragAndDropPuzzle",
+              "correctSequence": [
+                "arigatou",
+                "gozai",
+                "masu"
+              ],
+              "options": [
+                "haji",
+                "arigatou",
+                "gozai",
+                "mashite",
+                "masu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321bc",
+          "label": "Sayounara",
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321bb",
+              "term": "Sayounara",
+              "audioUrl": "/api/media/file/Sayounara_R_nyjeau.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "dragAndDropPuzzle",
+              "correctSequence": [
+                "sayou",
+                "nara"
+              ],
+              "options": [
+                "haji",
+                "sayou",
+                "mashite",
+                "nara",
+                "gozaimasu"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321be",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321bd",
+              "content": "Topic: Consonant + vowel build. Format: Short paragraph text bubble form.",
+              "blockName": null,
+              "blockType": "infoBreak"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321c0",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50312409c84ac2321bf",
+              "content": "In certain words in Japanese, there is a vowel extension. Ifyou noticed, \"ohayougozaimasu\" is pronounced \"ohayoogozaimasu\", where the end of the \"ohayou\" is stretched out to an \"ohayoo\". Similarly, \"arigatougozaimasu\" is stretched out to \"arigatoogozaimasu\", and \"sayounara\" is stretched out to \"sayoonara\" You will get used to it over time! ",
+              "blockName": null,
+              "blockType": "infoBreak"
+            }
+          ]
+        }
+      ],
+      "prefecture": null,
+      "tags": [],
+      "version": null,
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a4f5136a670a646ec413f25",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "l1-v2",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 1 Pt. 2",
+      "slug": "l1-v2",
+      "format": "step",
+      "course": {
+        "$ref": "grammar-and-conversation",
+        "$collection": "courses"
+      },
+      "order": 2,
+      "cardTitle": "First Greetings — Part 2",
+      "shuffleExercises": true,
+      "exercises": [
+        {
+          "id": "6a80d50512409c84ac2321c2",
+          "label": "Ogenki desuka",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321c1",
+              "title": "Ogenki desuka",
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Ogenki desuka"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321c4",
+          "label": "Okagesama de",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321c3",
+              "title": "Okagesama de",
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "Ogenki desuka",
+                "Okagesama de"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321c6",
+          "label": "Hai",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321c5",
+              "title": "Hai",
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Hai"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321c8",
+          "label": "Iie",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321c7",
+              "title": "Iie",
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Iie"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321cc",
+          "label": "Introduce common phrases",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321cb",
+              "title": "Introduce common phrases",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "grammarPoints": [
+                {
+                  "id": "6a80d50512409c84ac2321c9",
+                  "pattern": "~ desu",
+                  "examples": [
+                    "___ desu"
+                  ]
+                },
+                {
+                  "id": "6a80d50512409c84ac2321ca",
+                  "pattern": "~ desu ka",
+                  "examples": [
+                    "___ desu ka."
+                  ]
+                }
+              ],
+              "blockType": "grammarPage"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321ce",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321cd",
+              "content": "In Japanese, question marks \"?\" are not used at the end of questions. Instead, all sentences, including questions, end with a maru \"。\" (circle, in Japanese). However, some may still use exclamation marks \"!\" for sentences with strong emotion. ",
+              "blockName": null,
+              "blockType": "infoBreak"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321d6",
+          "label": "Match phrase to appropriate situation - connect the dots",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321d5",
+              "instructions": "Match phrase to appropriate situation - connect the dots",
+              "description": null,
+              "blockName": null,
+              "items": [
+                {
+                  "id": "6a80d50512409c84ac2321cf",
+                  "phrase": "Ogennki desuka",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac2321d0",
+                  "phrase": "Okagesamade",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac2321d1",
+                  "phrase": "Hai",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac2321d2",
+                  "phrase": "iie",
+                  "englishTranslation": null,
+                  "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac2321d3",
+                  "phrase": "~ desu",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac2321d4",
+                  "phrase": "~ desu ka",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                }
+              ],
+              "blockType": "matchingExercise",
+              "rows": [
+                "audio buttons",
+                "image"
+              ],
+              "dragDropOptions": []
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321d8",
+          "label": "Ogennki desuka",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321d7",
+              "phrase": "Ogennki desuka",
+              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321da",
+          "label": "Okagesamade",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321d9",
+              "phrase": "Okagesamade",
+              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321dc",
+          "label": "Hai",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321db",
+              "phrase": "Hai",
+              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321de",
+          "label": "iie",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321dd",
+              "phrase": "iie",
+              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e0",
+          "label": "~ desu",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321df",
+              "phrase": "~ desu",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e2",
+          "label": "~ desu ka",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321e1",
+              "phrase": "~ desu ka",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e4",
+          "label": "Introduce particle \"ga\"",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321e3",
+              "title": "Introduce particle \"ga\"",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "contentPage"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e6",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321e5",
+              "content": "In Japanese, people rarely refer to each other with the pronoun \"you\". Instead, people refer to each other by their last names with and a title added to the name. ",
+              "blockName": null,
+              "blockType": "infoBreak"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e9",
+          "label": "Introduce people-referring",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321e8",
+              "title": "Introduce people-referring",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "grammarPoints": [
+                {
+                  "id": "6a80d50512409c84ac2321e7",
+                  "pattern": "~ san",
+                  "examples": [
+                    "[famous people] san",
+                    "[job position] san desu.",
+                    "[relationship position] san desu."
+                  ]
+                }
+              ],
+              "blockType": "grammarPage"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321ed",
+          "label": "Match to corresponding English translation - connect the dots",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321ec",
+              "instructions": "Match to corresponding English translation - connect the dots",
+              "description": "Matches of phrases using ~ san and ~ jin",
+              "blockName": null,
+              "items": [
+                {
+                  "id": "6a80d50512409c84ac2321ea",
+                  "phrase": "PLACEHOLDER_PHRASE_SAN",
+                  "englishTranslation": "PLACEHOLDER_TRANSLATION",
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac2321eb",
+                  "phrase": "PLACEHOLDER_PHRASE_JIN",
+                  "englishTranslation": "PLACEHOLDER_TRANSLATION",
+                  "audioUrl": null,
+                  "imageUrl": null
+                }
+              ],
+              "blockType": "matchingExercise",
+              "rows": [],
+              "dragDropOptions": []
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321ef",
+          "label": "PLACEHOLDER_PHRASE_SAN",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321ee",
+              "phrase": "PLACEHOLDER_PHRASE_SAN",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f1",
+          "label": "PLACEHOLDER_PHRASE_JIN",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321f0",
+              "phrase": "PLACEHOLDER_PHRASE_JIN",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f3",
+          "label": "Ogennki desuka",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321f2",
+              "phrase": "Ogennki desuka",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f5",
+          "label": "Okagesamade",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321f4",
+              "phrase": "Okagesamade",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f7",
+          "label": "Hai",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321f6",
+              "phrase": "Hai",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f9",
+          "label": "iie",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321f8",
+              "phrase": "iie",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321fb",
+          "label": "~ desu",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321fa",
+              "phrase": "~ desu",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321fd",
+          "label": "~ desu ka",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321fc",
+              "phrase": "~ desu ka",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321ff",
+          "label": "PLACEHOLDER_PHRASE_SAN",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac2321fe",
+              "phrase": "PLACEHOLDER_PHRASE_SAN",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232201",
+          "label": "PLACEHOLDER_PHRASE_JIN",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232200",
+              "phrase": "PLACEHOLDER_PHRASE_JIN",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232203",
+          "label": "Ogennki desuka",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232202",
+              "term": "Ogennki desuka",
+              "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232205",
+          "label": "Okagesamade",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232204",
+              "term": "Okagesamade",
+              "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232207",
+          "label": "Hai",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232206",
+              "term": "Hai",
+              "audioUrl": "/api/media/file/Hai_R_diaf22.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232209",
+          "label": "iie",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232208",
+              "term": "iie",
+              "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a",
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac23220b",
+          "label": "~ desu",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac23220a",
+              "term": "~ desu",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac23220d",
+          "label": "~ desu ka",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac23220c",
+              "term": "~ desu ka",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac23220f",
+          "label": "PLACEHOLDER_PHRASE_SAN",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac23220e",
+              "term": "PLACEHOLDER_PHRASE_SAN",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232211",
+          "label": "PLACEHOLDER_PHRASE_JIN",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232210",
+              "term": "PLACEHOLDER_PHRASE_JIN",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232213",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232212",
+              "content": "There are two separate emergency phone numbers in Japan. Dial 119 to reach the emergency medical and fire help. Dial 110 to reach the police. ",
+              "blockName": null,
+              "blockType": "lifeUsefulFact"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac23221c",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac23221b",
+              "title": "Flashcard review",
+              "format": "Flashcard",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "terms": [
+                {
+                  "id": "6a80d50512409c84ac232214",
+                  "term": "Hajimemashite",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232215",
+                  "term": "Konnichiwa",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232216",
+                  "term": "Ohayou gozaimasu",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232217",
+                  "term": "Konnbannwa",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232218",
+                  "term": "Sumimasen",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232219",
+                  "term": "Arigatougozaimasu",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac23221a",
+                  "term": "Sayounara",
+                  "imageUrl": null,
+                  "audioUrl": null
+                }
+              ],
+              "blockType": "termsPage"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232222",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232221",
+              "title": "Flashcard review",
+              "format": "Flashcard",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "terms": [
+                {
+                  "id": "6a80d50512409c84ac23221d",
+                  "term": "Ogennki desuka",
+                  "imageUrl": null,
+                  "audioUrl": "/api/media/file/Ogenkidesuka_R_bsdnch.m4a"
+                },
+                {
+                  "id": "6a80d50512409c84ac23221e",
+                  "term": "Okagesama de",
+                  "imageUrl": null,
+                  "audioUrl": "/api/media/file/Okagesamade_R_oemvy4.m4a"
+                },
+                {
+                  "id": "6a80d50512409c84ac23221f",
+                  "term": "Hai",
+                  "imageUrl": null,
+                  "audioUrl": "/api/media/file/Hai_R_diaf22.m4a"
+                },
+                {
+                  "id": "6a80d50512409c84ac232220",
+                  "term": "iie",
+                  "imageUrl": null,
+                  "audioUrl": "/api/media/file/Iie_R_uxvz7f.m4a"
+                }
+              ],
+              "blockType": "termsPage"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232228",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "id": "6a80d50512409c84ac232227",
+              "title": "Flashcard review",
+              "format": "Flashcard",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "terms": [
+                {
+                  "id": "6a80d50512409c84ac232223",
+                  "term": "~ desu",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232224",
+                  "term": "~ desu ka.",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232225",
+                  "term": "~ san",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50512409c84ac232226",
+                  "term": "~ jin",
+                  "imageUrl": null,
+                  "audioUrl": null
+                }
+              ],
+              "blockType": "termsPage"
+            }
+          ]
+        }
+      ],
+      "prefecture": null,
+      "tags": [],
+      "version": null,
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a62a173a51d5d6db4f1219f",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "l2-v1",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 2 V1",
+      "slug": "l2-v1",
+      "format": "step",
+      "course": {
+        "$ref": "grammar-and-conversation",
+        "$collection": "courses"
+      },
+      "order": 3,
+      "cardTitle": "Common Phrases\n",
+      "shuffleExercises": true,
+      "exercises": [
+        {
+          "id": "6a80d50712409c84ac23222a",
+          "label": "Sumimasen, wakarimasen",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232229",
+              "title": "Sumimasen, wakarimasen",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Sumimasen, wakarimasen"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23222c",
+          "label": "Mouichido, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23222b",
+              "title": "Mouichido, onegaishimasu",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Mouichido, onegaishimasu",
+                "[...]"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23222e",
+          "label": "Yukkuri, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23222d",
+              "title": "Yukkuri, onegaishimasu",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Yukkuri, onegaishimasu",
+                "[...]"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232233",
+          "label": "Match phrase to appropriate situation - connect the dots",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232232",
+              "instructions": "Match phrase to appropriate situation - connect the dots",
+              "description": null,
+              "blockName": null,
+              "items": [
+                {
+                  "id": "6a80d50712409c84ac23222f",
+                  "phrase": "Sumimasen, wakarimasen",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232230",
+                  "phrase": "Mouichido, onegaishimasu",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232231",
+                  "phrase": "Yukkuri, onegaishimasu",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                }
+              ],
+              "blockType": "matchingExercise",
+              "rows": [
+                "audio buttons",
+                "image"
+              ],
+              "dragDropOptions": []
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232235",
+          "label": "Sumimasen, wakarimasen",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232234",
+              "phrase": "Sumimasen, wakarimasen",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232237",
+          "label": "Mouichido, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232236",
+              "phrase": "Mouichido, onegaishimasu",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232239",
+          "label": "Yukkuri, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232238",
+              "phrase": "Yukkuri, onegaishimasu",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23223b",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23223a",
+              "content": "Explain particle \"ha\".",
+              "blockName": null,
+              "blockType": "infoBreak"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23223d",
+          "label": "Kore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23223c",
+              "title": "Kore",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Kore"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23223f",
+          "label": "Sore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23223e",
+              "title": "Sore",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Sore"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232241",
+          "label": "Are",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232240",
+              "title": "Are",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Are"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232243",
+          "label": "dore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232242",
+              "title": "dore",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Dore"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232249",
+          "label": "Match phrase to appropriate situation - connect the dots",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232248",
+              "instructions": "Match phrase to appropriate situation - connect the dots",
+              "description": null,
+              "blockName": null,
+              "items": [
+                {
+                  "id": "6a80d50712409c84ac232244",
+                  "phrase": "Kore",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232245",
+                  "phrase": "Sore",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232246",
+                  "phrase": "Are",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232247",
+                  "phrase": "Dore",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                }
+              ],
+              "blockType": "matchingExercise",
+              "rows": [
+                "audio buttons",
+                "image"
+              ],
+              "dragDropOptions": []
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23224b",
+          "label": "Kore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23224a",
+              "phrase": "Kore",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23224d",
+          "label": "Sore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23224c",
+              "phrase": "Sore",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23224f",
+          "label": "Are",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23224e",
+              "phrase": "Are",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232251",
+          "label": "Dore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232250",
+              "phrase": "Dore",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232253",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232252",
+              "content": "To be filled in",
+              "blockName": null,
+              "blockType": "infoBreak"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232255",
+          "label": "Kore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232254",
+              "title": "Kore ha nandesuka",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Kore ha nandesuka"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232257",
+          "label": "Sore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232256",
+              "title": "Sore ha nandesuka",
+              "videoUrl": null,
+              "audioUrl": null,
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "blockType": "videoPage",
+              "videoForm": [
+                "[...]",
+                "Sore ha nandesuka"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23225b",
+          "label": "Match phrase to appropriate situation - connect the dots",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23225a",
+              "instructions": "Match phrase to appropriate situation - connect the dots",
+              "description": null,
+              "blockName": null,
+              "items": [
+                {
+                  "id": "6a80d50712409c84ac232258",
+                  "phrase": "Kore ha nandesuka",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232259",
+                  "phrase": "Sore ha nandesuka",
+                  "englishTranslation": null,
+                  "audioUrl": null,
+                  "imageUrl": null
+                }
+              ],
+              "blockType": "matchingExercise",
+              "rows": [
+                "audio buttons",
+                "image"
+              ],
+              "dragDropOptions": []
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23225d",
+          "label": "Kore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23225c",
+              "phrase": "Kore ha nandesuka",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23225f",
+          "label": "Sore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23225e",
+              "phrase": "Sore ha nandesuka",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "matchAudioExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232261",
+          "label": "Sumimasen, wakarimasen",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232260",
+              "phrase": "Sumimasen, wakarimasen",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232263",
+          "label": "Mouichido, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232262",
+              "phrase": "Mouichido, onegaishimasu",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232265",
+          "label": "Yukkuri, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232264",
+              "phrase": "Yukkuri, onegaishimasu",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232267",
+          "label": "Kore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232266",
+              "phrase": "Kore",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232269",
+          "label": "Sore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232268",
+              "phrase": "Sore",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23226b",
+          "label": "Are",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23226a",
+              "phrase": "Are",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23226d",
+          "label": "Dore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23226c",
+              "phrase": "Dore",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23226f",
+          "label": "Kore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23226e",
+              "phrase": "Kore ha nandesuka",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232271",
+          "label": "Sore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232270",
+              "phrase": "Sore ha nandesuka",
+              "transcript": null,
+              "videoUrl": null,
+              "audioUrl": null,
+              "blockName": null,
+              "blockType": "pronunciationExercise"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232273",
+          "label": "Sumimasen, wakarimasen",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232272",
+              "term": "Sumimasen, wakarimasen",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232275",
+          "label": "Mouichido, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232274",
+              "term": "Mouichido, onegaishimasu",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232277",
+          "label": "Yukkuri, onegaishimasu",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232276",
+              "term": "Yukkuri, onegaishimasu",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232279",
+          "label": "Kore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232278",
+              "term": "Kore",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23227b",
+          "label": "Sore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23227a",
+              "term": "Sore",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23227d",
+          "label": "Are",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23227c",
+              "term": "Are",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23227f",
+          "label": "Dore",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23227e",
+              "term": "Dore",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232281",
+          "label": "Kore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232280",
+              "term": "Kore ha nandesuka",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232283",
+          "label": "Sore ha nandesuka",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232282",
+              "term": "Sore ha nandesuka",
+              "audioUrl": null,
+              "imageUrl": null,
+              "blockName": null,
+              "blockType": "termMediaSeed"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232285",
+          "label": null,
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232284",
+              "content": "Trash sorting?",
+              "blockName": null,
+              "blockType": "lifeUsefulFact"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23228a",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232289",
+              "title": "Flashcard review",
+              "format": "Flashcard",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "terms": [
+                {
+                  "id": "6a80d50712409c84ac232286",
+                  "term": "Sumimasen, wakarimasen",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232287",
+                  "term": "Mouichido, onegaishimasu",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232288",
+                  "term": "Yukkuri, onegaishimasu",
+                  "imageUrl": null,
+                  "audioUrl": null
+                }
+              ],
+              "blockType": "termsPage"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232290",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac23228f",
+              "title": "Flashcard review",
+              "format": "Flashcard",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "terms": [
+                {
+                  "id": "6a80d50712409c84ac23228b",
+                  "term": "Kore",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac23228c",
+                  "term": "Sore",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac23228d",
+                  "term": "Are",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac23228e",
+                  "term": "dore",
+                  "imageUrl": null,
+                  "audioUrl": null
+                }
+              ],
+              "blockType": "termsPage"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232294",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "id": "6a80d50712409c84ac232293",
+              "title": "Flashcard review",
+              "format": "Flashcard",
+              "description": null,
+              "content": null,
+              "blockName": null,
+              "terms": [
+                {
+                  "id": "6a80d50712409c84ac232291",
+                  "term": "Kore ha nandesuka",
+                  "imageUrl": null,
+                  "audioUrl": null
+                },
+                {
+                  "id": "6a80d50712409c84ac232292",
+                  "term": "Sore ha nandesuka",
+                  "imageUrl": null,
+                  "audioUrl": null
+                }
+              ],
+              "blockType": "termsPage"
+            }
+          ]
+        }
+      ],
+      "prefecture": null,
+      "tags": [],
+      "version": null,
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a51cc61a670a646ec413f28",
+      "_status": "published"
+    }
+  }
+]

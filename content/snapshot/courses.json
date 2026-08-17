@@ -1,0 +1,24 @@
+[
+  {
+    "key": "hiragana-and-prefectures",
+    "status": "published",
+    "latest": {
+      "title": "Hiragana & prefectures",
+      "slug": "hiragana-and-prefectures",
+      "trackType": "beginner-to-intermediate",
+      "description": "Learn the hiragana syllabary one prefecture at a time.",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "grammar-and-conversation",
+    "status": "published",
+    "latest": {
+      "title": "Grammar & conversation",
+      "slug": "grammar-and-conversation",
+      "trackType": "beginner-to-intermediate",
+      "description": "Greetings, everyday phrases, and the grammar that holds them together.",
+      "_status": "published"
+    }
+  }
+]

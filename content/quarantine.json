@@ -1,0 +1,43 @@
+{
+  "takenAt": "2026-08-17T09:39:53.796Z",
+  "note": "Content that needs a human decision. Everything listed here is STILL IN THE SNAPSHOT and still round-trips — this is a to-do list, not a removal log. legacyJson blocks have never rendered (adapters.ts drops them); Phase 4 re-authors or deletes each one. placeholders are unfinished copy that IS on the site right now — a learner sees the sentinel string.",
+  "legacyJson": [],
+  "placeholders": [
+    {
+      "lesson": "l1-v2",
+      "exercise": 17,
+      "field": "phrase",
+      "value": "PLACEHOLDER_PHRASE_SAN"
+    },
+    {
+      "lesson": "l1-v2",
+      "exercise": 18,
+      "field": "phrase",
+      "value": "PLACEHOLDER_PHRASE_JIN"
+    },
+    {
+      "lesson": "l1-v2",
+      "exercise": 25,
+      "field": "phrase",
+      "value": "PLACEHOLDER_PHRASE_SAN"
+    },
+    {
+      "lesson": "l1-v2",
+      "exercise": 26,
+      "field": "phrase",
+      "value": "PLACEHOLDER_PHRASE_JIN"
+    },
+    {
+      "lesson": "l1-v2",
+      "exercise": 33,
+      "field": "term",
+      "value": "PLACEHOLDER_PHRASE_SAN"
+    },
+    {
+      "lesson": "l1-v2",
+      "exercise": 34,
+      "field": "term",
+      "value": "PLACEHOLDER_PHRASE_JIN"
+    }
+  ]
+}

@@ -1,0 +1,286 @@
+[
+  {
+    "key": "69757225298565a7fdb85b92",
+    "status": "published",
+    "latest": {
+      "category": "News",
+      "items": [
+        {
+          "id": "6a80d50812409c84ac232295",
+          "itemId": "news_nhk",
+          "title": "NHK",
+          "url": "https://www3.nhk.or.jp/nhknews/",
+          "description": "Japan’s national broadcaster news site with up-to-date articles and video clips."
+        },
+        {
+          "id": "6a80d50812409c84ac232296",
+          "itemId": "news_ohayo_nihon",
+          "title": "Ohayo Nihon",
+          "url": "https://www.nhk.jp/p/ohayou/",
+          "description": "NHK morning news program page—good for daily listening practice and headlines."
+        },
+        {
+          "id": "6a80d50812409c84ac232297",
+          "itemId": "news_asahi",
+          "title": "Asahi",
+          "url": "https://www.asahi.com/",
+          "description": "Major Japanese newspaper covering politics, business, culture, and society."
+        },
+        {
+          "id": "6a80d50812409c84ac232298",
+          "itemId": "news_nhk_easy",
+          "title": "NHK News Web Easy",
+          "url": "https://www3.nhk.or.jp/news/easy/",
+          "description": "Simplified Japanese news with furigana and audio, designed for learners."
+        },
+        {
+          "id": "6a80d50812409c84ac232299",
+          "itemId": "news_places",
+          "title": "Places",
+          "url": "https://www.japan.travel/en/",
+          "description": "Japan travel and places guide—useful vocabulary for locations, food, and culture."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b92",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b93",
+    "status": "published",
+    "latest": {
+      "category": "Textbooks",
+      "items": [
+        {
+          "id": "6a80d50912409c84ac23229a",
+          "itemId": "tb_genki",
+          "title": "Genki",
+          "url": "https://genki.japantimes.co.jp/en/",
+          "description": "Popular beginner Japanese textbook series with structured lessons and exercises."
+        },
+        {
+          "id": "6a80d50912409c84ac23229b",
+          "itemId": "tb_busy_people",
+          "title": "Japanese for Busy People",
+          "url": "https://www.kodansha.us/book/japanese-for-busy-people/",
+          "description": "Practical Japanese textbook focused on everyday conversations and quick learning."
+        },
+        {
+          "id": "6a80d50912409c84ac23229c",
+          "itemId": "tb_random",
+          "title": "Random",
+          "url": null,
+          "description": "Placeholder for any extra textbook or PDF you want to add later."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b93",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b94",
+    "status": "published",
+    "latest": {
+      "category": "Videos",
+      "items": [
+        {
+          "id": "6a80d50912409c84ac23229d",
+          "itemId": "vid_nhk_school",
+          "title": "NHK for School",
+          "url": "https://www.nhk.or.jp/school/",
+          "description": "Educational videos for Japanese students—great for real native-speed exposure."
+        },
+        {
+          "id": "6a80d50912409c84ac23229e",
+          "itemId": "vid_youtube_channel",
+          "title": "Youtube channel",
+          "url": "https://www.youtube.com/",
+          "description": "General YouTube entry—replace with your favorite Japanese learning channel."
+        },
+        {
+          "id": "6a80d50912409c84ac23229f",
+          "itemId": "vid_doraemon",
+          "title": "Doraemon",
+          "url": "https://www.youtube.com/results?search_query=doraemon+japanese",
+          "description": "Search results for Doraemon in Japanese—easy listening with familiar context."
+        },
+        {
+          "id": "6a80d50912409c84ac2322a0",
+          "itemId": "vid_some_youtube",
+          "title": "Some youtube",
+          "url": "https://www.youtube.com/",
+          "description": "Placeholder for another YouTube playlist or a specific video series."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b94",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b95",
+    "status": "published",
+    "latest": {
+      "category": "Shows",
+      "items": [
+        {
+          "id": "6a80d50a12409c84ac2322a1",
+          "itemId": "show_some_anime",
+          "title": "Some anime",
+          "url": null,
+          "description": "Placeholder for any anime series you want to add as a study resource."
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a2",
+          "itemId": "show_gegege",
+          "title": "Gegege no Kitaro",
+          "url": "https://www.toei-anim.co.jp/tv/kitaro/",
+          "description": "Official series page—useful for learning folklore-related vocabulary and expressions."
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a3",
+          "itemId": "show_doraemon",
+          "title": "Doraemon",
+          "url": "https://www.tv-asahi.co.jp/doraemon/",
+          "description": "Official Doraemon page—great beginner-friendly conversations and daily phrases."
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a4",
+          "itemId": "show_some_youtube",
+          "title": "Some youtube",
+          "url": "https://www.youtube.com/",
+          "description": "Placeholder for a show playlist or episodes hosted on YouTube."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b95",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b96",
+    "status": "published",
+    "latest": {
+      "category": "Organizations",
+      "items": [
+        {
+          "id": "6a80d50a12409c84ac2322a5",
+          "itemId": "org_jsnc",
+          "title": "Japan Society of Northern California",
+          "url": "https://www.usajapan.org/",
+          "description": "Community organization with events and cultural programs related to Japan."
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a6",
+          "itemId": "org_culture",
+          "title": "Culture",
+          "url": "https://www.japan.go.jp/",
+          "description": "Japanese government portal with cultural and informational resources about Japan."
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a7",
+          "itemId": "org_random",
+          "title": "Random",
+          "url": null,
+          "description": "Placeholder for any local Japanese organization or language community."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b96",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b97",
+    "status": "published",
+    "latest": {
+      "category": "Writing",
+      "items": [
+        {
+          "id": "6a80d50b12409c84ac2322a8",
+          "itemId": "write_sheets",
+          "title": "Exercise sheets",
+          "url": null,
+          "description": "Printable practice sheets for handwriting, stroke order, and drills."
+        },
+        {
+          "id": "6a80d50b12409c84ac2322a9",
+          "itemId": "write_more_practice",
+          "title": "More practice",
+          "url": null,
+          "description": "Extra writing prompts or grammar drills you add later."
+        },
+        {
+          "id": "6a80d50b12409c84ac2322aa",
+          "itemId": "write_ex3",
+          "title": "Exercise 3",
+          "url": null,
+          "description": "A specific writing exercise placeholder (e.g., lesson-based worksheet)."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b97",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b98",
+    "status": "published",
+    "latest": {
+      "category": "Podcasts",
+      "items": [
+        {
+          "id": "6a80d50b12409c84ac2322ab",
+          "itemId": "pod_ex1",
+          "title": "Example 1",
+          "url": null,
+          "description": "Placeholder for a beginner-friendly Japanese podcast recommendation."
+        },
+        {
+          "id": "6a80d50b12409c84ac2322ac",
+          "itemId": "pod_ex2",
+          "title": "Example 2",
+          "url": null,
+          "description": "Placeholder for an intermediate Japanese listening podcast."
+        },
+        {
+          "id": "6a80d50b12409c84ac2322ad",
+          "itemId": "pod_ex3",
+          "title": "Example 3",
+          "url": null,
+          "description": "Placeholder for a casual/native-speed Japanese podcast resource."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b98",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b99",
+    "status": "published",
+    "latest": {
+      "category": "Reading",
+      "items": [
+        {
+          "id": "6a80d50b12409c84ac2322ae",
+          "itemId": "read_ame_nimo_makezu",
+          "title": "Ame nimo makezu",
+          "url": "https://www.aozora.gr.jp/cards/000081/files/45630_23908.html",
+          "description": "Classic Japanese poem on Aozora Bunko—good for reading practice and vocabulary."
+        },
+        {
+          "id": "6a80d50b12409c84ac2322af",
+          "itemId": "read_book_2",
+          "title": "Book 2",
+          "url": null,
+          "description": "Placeholder for an easy Japanese reader (graded reader or children’s book)."
+        },
+        {
+          "id": "6a80d50b12409c84ac2322b0",
+          "itemId": "read_poem_3",
+          "title": "Poem 3",
+          "url": null,
+          "description": "Placeholder for another short poem or text to read for practice."
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b99",
+      "_status": "published"
+    }
+  }
+]

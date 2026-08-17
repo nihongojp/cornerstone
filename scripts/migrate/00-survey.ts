@@ -2,16 +2,31 @@
  * Survey the source MongoDB before migrating anything.
  *
  *   npx tsx scripts/migrate/00-survey.ts
+ *   npm run migrate:survey:dump      # also writes content/mongo-snapshot/
  *
  * Read-only. Answers the question docs/MIGRATION_EVALUATION.md left open — how much
  * real content actually exists. The JSON body sizes it prints were originally
  * measured against Airtable's long-text limit; Airtable is retired (#26) and
  * Payload stores content as real fields, so they are now just a sense of scale.
+ *
+ * `--dump` writes the four source collections out verbatim. MongoDB is
+ * decommissioned on 2026-09-15 (docs/DECOMMISSION.md), and after that date
+ * `01-content-to-payload.ts` has nothing to read: the dump is what keeps the
+ * original import re-runnable, and what any future argument about "what did the
+ * source actually say" gets settled against. Verbatim on purpose — same reason
+ * `lib/mongo.ts` uses the raw driver rather than Mongoose.
  */
 import { config } from "dotenv";
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { connectMongo } from "./lib/mongo";
 
 config({ path: ".env.local" });
+
+const DUMP = process.argv.includes("--dump");
+const DUMP_DIR = path.resolve("content/mongo-snapshot");
+/** The collections the content import reads. `Resource` is capitalised. */
+const DUMP_COLLECTIONS = ["lessons", "newlessons", "Resource"];
 
 const PLACEHOLDER = /placeholder/i;
 
@@ -103,6 +118,24 @@ async function main() {
       const exists = collections.some((c) => c.name === name);
       if (exists) {
         console.log(`  ${name}: ${await db.collection(name).countDocuments()}`);
+      }
+    }
+
+    if (DUMP) {
+      console.log(`\n── Dump → ${path.relative(process.cwd(), DUMP_DIR)} ──`);
+      mkdirSync(DUMP_DIR, { recursive: true });
+      for (const name of DUMP_COLLECTIONS) {
+        if (!collections.some((c) => c.name === name)) {
+          console.log(`  ${name.padEnd(12)} (absent — skipped)`);
+          continue;
+        }
+        // Sorted by _id so a re-dump of unchanged data produces no diff.
+        const docs = await db.collection(name).find({}).sort({ _id: 1 }).toArray();
+        writeFileSync(
+          path.join(DUMP_DIR, `${name}.json`),
+          `${JSON.stringify(docs, null, 2)}\n`
+        );
+        console.log(`  ${name.padEnd(12)} ${String(docs.length).padStart(4)} docs`);
       }
     }
   } finally {
