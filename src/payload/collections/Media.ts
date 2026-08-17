@@ -53,6 +53,23 @@ import type { Access, CollectionConfig } from "payload";
  * bytes. The alternative, flipping `content.ts` to `overrideAccess: true`, is a
  * much bigger hammer that also drops the published-only filter those reads lean
  * on.
+ *
+ * ── Settled, 2026-08-17: do not tighten this ────────────────────────────────
+ *
+ * The exposure was measured and put to Justin, who accepted it. `/api/media`
+ * returns 200 anonymously with all 33 documents; `/api/media/file/*` 403s,
+ * verified on both an image and an audio file. What that leaks is a content
+ * inventory — the filenames are romaji greetings, so which words still lack a
+ * recording is publicly derivable — and nothing else.
+ *
+ * This reads like an oversight to anyone arriving at it fresh, especially while
+ * doing access-control work, and "fixing" it returns `null` for every populated
+ * upload with no error anywhere: measured 55 vs 0 on one lesson. If you think
+ * this rule is too loose, re-read the paragraph above before changing it.
+ *
+ * Still open, and genuinely worth doing: no file has `imageSizes` variants yet,
+ * so "variants are gated too" is untested. Check that `sizes.*.url` resolves to
+ * `/api/media/file/*` the first time a file goes through the upload pipeline.
  */
 const readMedia: Access = async ({ req, isReadingStaticFile }) => {
   if (!isReadingStaticFile) {
