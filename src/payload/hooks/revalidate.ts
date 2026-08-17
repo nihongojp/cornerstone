@@ -14,10 +14,14 @@ import { TAGS } from "../../lib/content/tags";
  * call over the network and no shared secret to keep — an edit in /admin lands
  * on the site as soon as the next request re-reads it.
  *
- * Both the collection tag and the per-slug tag are dropped on every write:
- * a lesson's slug can change in the same save that changes its body, so the
- * previous document's tag is invalidated as well or the old URL keeps serving
- * the old copy until the backstop expiry.
+ * Both the collection tag and the per-slug tag are dropped on every write that
+ * changes what the site serves: a lesson's slug can change in the same save
+ * that changes its body, so the previous document's tag is invalidated as well
+ * or the old URL keeps serving the old copy until the backstop expiry.
+ *
+ * "that changes what the site serves" is doing real work in that sentence —
+ * see `isDraftToDraft` below, which is what keeps autosave from purging the
+ * cache several times a second while someone is typing.
  *
  * `revalidateTag` only exists inside a Next request. The import script drives
  * Payload from plain Node, where it throws — the guard below turns that into a
@@ -25,7 +29,37 @@ import { TAGS } from "../../lib/content/tags";
  * and the import's own re-read comes from the database.
  */
 
-type Doc = { slug?: string | null; format?: string | null };
+type Doc = { slug?: string | null; format?: string | null; _status?: string | null };
+
+/*
+ * A save that leaves a document unpublished changes nothing the site serves, so
+ * it must not purge anything.
+ *
+ * This is what makes autosave affordable. `payload/versions.ts` sets a 375ms
+ * interval on all three drafting collections; without this guard, every one of
+ * those ticks dropped both lesson-list tags and both per-slug tags, for as long
+ * as a document sat open in the editor. The cache would be empty roughly
+ * whenever anyone was authoring — which is exactly when the site is being
+ * looked at.
+ *
+ * The four transitions, and why only one of them is silent:
+ *
+ *   draft → draft          nothing published changed          skip
+ *   draft → published      it just went live                  purge
+ *   published → draft      it just came down                  purge
+ *   published → published  the live copy changed              purge
+ *
+ * Deliberately conservative in two places. A document being *created* has no
+ * `previousDoc`, so it purges once even though a new draft is not yet served.
+ * And the first autosave after editing a published document reads as
+ * published → draft, so it purges once too, before the rest of that editing
+ * session goes quiet. Both cost a single extra purge; both fail in the
+ * direction of serving fresh content rather than stale, which is the only
+ * direction worth failing in here.
+ */
+export function isDraftToDraft(doc?: Doc, previousDoc?: Doc): boolean {
+  return doc?._status === "draft" && previousDoc?._status === "draft";
+}
 
 function purge(tags: string[]): void {
   for (const tag of tags) {
@@ -53,6 +87,7 @@ function lessonTags(doc?: Doc): string[] {
 }
 
 export const revalidateLesson: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
+  if (isDraftToDraft(doc as Doc, previousDoc as Doc)) return doc;
   purge([...lessonTags(doc as Doc), ...lessonTags(previousDoc as Doc)]);
   return doc;
 };
@@ -62,7 +97,8 @@ export const revalidateLessonDelete: CollectionAfterDeleteHook = ({ doc }) => {
   return doc;
 };
 
-export const revalidateResources: CollectionAfterChangeHook = ({ doc }) => {
+export const revalidateResources: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
+  if (isDraftToDraft(doc as Doc, previousDoc as Doc)) return doc;
   purge([TAGS.resources]);
   return doc;
 };
@@ -77,7 +113,8 @@ export const revalidateResourcesDelete: CollectionAfterDeleteHook = ({ doc }) =>
  * baked into every step lesson's `nextSlug` at read time — so a course write
  * invalidates the lesson lists, not just itself.
  */
-export const revalidateCourse: CollectionAfterChangeHook = ({ doc }) => {
+export const revalidateCourse: CollectionAfterChangeHook = ({ doc, previousDoc }) => {
+  if (isDraftToDraft(doc as Doc, previousDoc as Doc)) return doc;
   purge([TAGS.lessons, TAGS.newLessons]);
   return doc;
 };

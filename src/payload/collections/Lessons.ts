@@ -5,6 +5,8 @@ import { guardLessonDelete } from "../hooks/guardLessonDelete";
 import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
 import { generatePreviewURL } from "../preview";
 import { readPublishedOrEditor } from "../access/readPublished";
+import { draftingVersions } from "../versions";
+import { isAdmin } from "../access/isAdmin";
 
 /*
  * One `lessons` collection replaces both Mongo collections — legacy `lessons`
@@ -66,7 +68,13 @@ export const Lessons: CollectionConfig = {
     // The Live Preview panel is the same destination, side by side instead.
     preview: generatePreviewURL("lessons"),
   },
-  access: { read: readPublishedOrEditor },
+  /*
+   * `guardLessonDelete` already refuses to delete a lesson that learner
+   * progress references, so this is the second of two locks rather than the
+   * only one — but the first is about referential integrity and this one is
+   * about authority, and a lesson nobody has started yet passes the first.
+   */
+  access: { read: readPublishedOrEditor, delete: isAdmin },
   hooks: {
     beforeDelete: [guardLessonDelete],
     afterChange: [revalidateLesson],
@@ -74,7 +82,7 @@ export const Lessons: CollectionConfig = {
   },
   defaultSort: "order",
   // Replaces the old `isActive` flag: unpublished lessons are drafts.
-  versions: { drafts: true },
+  versions: draftingVersions,
   fields: [
     {
       name: "title",

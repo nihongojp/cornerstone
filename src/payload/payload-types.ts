@@ -860,6 +860,10 @@ export interface CmsAdmin {
    * Display name shown in the admin UI.
    */
   name?: string | null;
+  /**
+   * Editors can create, edit and publish all content. Admins can additionally delete content and manage these accounts. Everyone who signs in here is at least an editor.
+   */
+  roles: ('admin' | 'editor')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1293,6 +1297,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CmsAdminsSelect<T extends boolean = true> {
   name?: T;
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

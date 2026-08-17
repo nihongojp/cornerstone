@@ -1,5 +1,7 @@
 import type { Access, CollectionConfig } from "payload";
 
+import { isAdmin } from "../access/isAdmin";
+
 /*
  * Uploads. Backed by a **private** Vercel Blob store — see
  * `payload/storage/vercelPrivateBlob.ts`. Without `BLOB_READ_WRITE_TOKEN` the
@@ -107,11 +109,23 @@ export const Media: CollectionConfig = {
     // guessing game.
     useAsTitle: "filename",
     defaultColumns: ["filename", "alt", "mimeType", "filesize", "updatedAt"],
+    /*
+     * Without this the list search box filters on `filename` alone, which is
+     * the one field nobody remembers — the catalogue arrived from Cloudinary
+     * with names like `Screenshot_2026-08-14_at_11-42-03.png`. Searching what
+     * an image *shows* means searching `alt` and `caption`.
+     */
+    listSearchableFields: ["filename", "alt", "caption"],
     description:
       "Images, audio and video. Upload once here, then pick the file from the media field " +
       "of whichever component needs it.",
   },
-  access: { read: readMedia },
+  /*
+   * Delete is the one operation here with no undo anywhere: the row goes, and
+   * the blob goes with it. Every component holding that upload then renders
+   * nothing, across however many lessons referenced it.
+   */
+  access: { read: readMedia, delete: isAdmin },
   upload: {
     mimeTypes: ["image/*", "audio/*", "video/*"],
     /*

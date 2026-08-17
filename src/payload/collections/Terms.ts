@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 
 import { audioField, imageField } from "../fields/media";
+import { isAdmin } from "../access/isAdmin";
 // Safe as a static import: `utils/kana.ts` is a pure lookup table with no
 // imports of its own, so it does not drag anything into the Payload CLI paths
 // (unlike `@/lib/auth`, which is why Media.ts defers its import to request time).
@@ -75,7 +76,17 @@ export const Terms: CollectionConfig = {
    * drafting vocabulary turns out to matter, the honest version is a `status`
    * field the lesson read filters on explicitly, not Payload's version machinery.
    */
-  access: { read: () => true },
+  /*
+   * `read` is open because a term is rendered inside every lesson that
+   * references it, and unlike Media there are no bytes behind it to gate — the
+   * audio and images it points at are `media` documents with their own rules.
+   *
+   * Delete is not open: a term is referenced by `termRef` nodes inside lesson
+   * prose, and deleting one leaves those nodes resolving to nothing. That is
+   * the same silent-blank failure the collection comment above is organised
+   * around, arrived at from the other end.
+   */
+  access: { read: () => true, delete: isAdmin },
   defaultSort: "key",
   fields: [
     {
