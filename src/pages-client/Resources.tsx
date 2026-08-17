@@ -22,12 +22,20 @@ import ClearIcon from "@mui/icons-material/Clear";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import LinkIcon from "@mui/icons-material/Link";
 import Bart from "../components/Menut";
+import RichText from "../components/richtext/RichText";
+import { proseToPlainText, type Prose } from "../lib/content/prose";
 
 type ResourceItem = {
   id: string;
   title: string;
   url: string;
-  description: string;
+  /*
+   * Rich text since Phase 3. The card renders it for real rather than flattening
+   * it — a description whose formatting silently disappeared would be worse than
+   * having left the field a textarea. The three-line clamp in `sx.cardDesc`
+   * still applies; it clamps the rendered output.
+   */
+  description?: Prose;
 };
 
 type ResourceCategory = {
@@ -269,7 +277,10 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
           ? section.items ?? []
           : (section.items ?? []).filter((it) => {
               const t = (it.title ?? "").toLowerCase();
-              const d = (it.description ?? "").toLowerCase();
+              // Through the plain-text converter: `String(document)` is
+              // "[object Object]", which matches the query "object" and nothing
+              // else — search would have quietly stopped looking at descriptions.
+              const d = proseToPlainText(it.description).toLowerCase();
               const u = (it.url ?? "").toLowerCase();
               return t.includes(ql) || d.includes(ql) || u.includes(ql);
             });
@@ -509,9 +520,9 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
                               </Tooltip>
                             </Box>
 
-                            <Typography variant="body2" sx={sx.cardDesc}>
-                              {item.description}
-                            </Typography>
+                            <Box sx={{ ...sx.cardDesc, fontSize: "0.875rem" }}>
+                              <RichText data={item.description} />
+                            </Box>
 
                             <Box sx={sx.cardFooter}>
                               <Chip
@@ -633,9 +644,9 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
                         </Tooltip>
                       </Box>
 
-                      <Typography variant="body2" sx={sx.cardDesc}>
-                        {item.description}
-                      </Typography>
+                      <Box sx={{ ...sx.cardDesc, fontSize: "0.875rem" }}>
+                        <RichText data={item.description} />
+                      </Box>
 
                       <Box sx={sx.cardFooter}>
                         <Chip

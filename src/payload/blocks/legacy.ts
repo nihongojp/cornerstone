@@ -151,7 +151,7 @@ export const FactBreak: Block = {
       admin: { description: "Stable id — see the note on Connect the dots." },
     },
     { name: "title", type: "text" },
-    { name: "content", type: "textarea" },
+    { name: "content", type: "richText" },
     { name: "prompt", type: "text" },
   ],
 };

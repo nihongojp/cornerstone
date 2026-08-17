@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import StyleRoundedIcon from "@mui/icons-material/StyleRounded";
 import FlashcardReview from "./FlashcardReview";
+import RichText from "./richtext/RichText";
 import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
@@ -482,9 +483,12 @@ const NewLessonPageItem: React.FC<Props> = ({ item }) => {
         {title}
       </Typography>
       {item.content ? (
-        <Typography sx={{ color: "text.secondary", lineHeight: 1.7 }}>
-          {String(item.content)}
-        </Typography>
+        // `textAlign: left` against the centred heading above: rich text can hold
+        // a list or a multi-line paragraph, and centred body copy with ragged
+        // edges on both sides is hard to read.
+        <Box sx={{ color: "text.secondary", lineHeight: 1.7, textAlign: "left" }}>
+          <RichText data={item.content} />
+        </Box>
       ) : (
         <Typography sx={{ color: "text.disabled", fontStyle: "italic" }}>
           Content coming soon

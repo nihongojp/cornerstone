@@ -58,7 +58,7 @@ export const Courses: CollectionConfig = {
     },
     {
       name: "description",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Shown on the course card. A sentence or two." },
     },
     {

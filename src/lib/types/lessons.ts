@@ -4,7 +4,14 @@
  * These are the shapes both lesson players already consume. The Airtable
  * adapters produce exactly these, so the player components port over without
  * any data-shape changes.
+ *
+ * One shape has changed since: the prose fields hold a Lexical document rather
+ * than a string, because rich text has no string to flatten to. Everything else
+ * is as it was — media is still a URL, and that is what keeps the players
+ * untouched until Phase 4 deletes this file along with `content/adapters.ts`.
  */
+
+import type { Prose } from "../content/prose";
 
 export type LessonExercise =
   | {
@@ -38,7 +45,7 @@ export type LessonExercise =
       exerciseId: string;
       type: "factBreak";
       title?: string;
-      content?: string;
+      content?: Prose;
       prompt?: string;
     };
 
@@ -52,8 +59,8 @@ export type LessonDoc = {
   flashcards: string[];
   /** Parallel to flashcards — per-card audio URLs when authored. */
   flashcardsAudio?: string[];
-  funFact?: string;
-  notes?: string;
+  funFact?: Prose;
+  notes?: Prose;
 
   exercises?: LessonExercise[];
   achievement?: { title: string; xp: number };

@@ -2,6 +2,8 @@
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
+import { CONTENT_DEPTH } from "../../lib/content/depth";
+
 import Resources from "../Resources";
 import { toResourceGroup } from "../../lib/content/adapters";
 import type { Resource } from "../../payload/payload-types";
@@ -29,8 +31,10 @@ export default function ResourcesPreview({
   const { data } = useLivePreview<Resource>({
     initialData: initialGroups[0] ?? ({} as Resource),
     serverURL,
-    // Resources link out by URL and hold no uploads — nothing to populate.
-    depth: 0,
+    // Was 0, when a link's description was a textarea. It is rich text now, so
+    // this has to match the server read — a term reference or an image in a
+    // description would otherwise render on /resources and vanish in the panel.
+    depth: CONTENT_DEPTH,
   });
 
   const groups = initialGroups

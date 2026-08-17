@@ -227,10 +227,11 @@ export const Terms: CollectionConfig = {
     },
     {
       name: "notes",
-      type: "textarea",
+      type: "richText",
       admin: {
         description:
-          "Usage notes for the learner. Becomes rich text in the next phase, once Lexical is in.",
+          "Usage notes for the learner — when to use this word and when not to. " +
+          "Reference other terms inline rather than retyping them.",
       },
     },
   ],

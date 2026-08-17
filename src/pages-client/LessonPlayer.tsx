@@ -27,6 +27,7 @@ import DotMatch from "../components/MatchDots";
 import Fact from "../components/Fact";
 import Reward from "../components/Rewards";
 import RInfo from "../components/RewardInfo";
+import RichText from "../components/richtext/RichText";
 
 import { submitAttempt, upsertProgress, getProgress } from "../lib/progress-client";
 import { LessonDoc } from "../lib/types/lessons";
@@ -91,9 +92,12 @@ interface DotMatchProps {
   keepLeftOrder?: boolean;
 }
 
+// Local restatements of the two components' props, kept in step by hand — the
+// casts below are what make that necessary. `description` is a node rather than a
+// string because the copy behind it is rich text now; see `components/Fact.tsx`.
 interface FactProps {
   title: string;
-  description: string;
+  description: React.ReactNode;
 }
 
 interface RewardProps {
@@ -103,7 +107,7 @@ interface RewardProps {
 
 interface RewardInfoProps {
   title: string;
-  description: string;
+  description: React.ReactNode;
 }
 
 const FlipsC = Flips as unknown as React.FC<FlipsProps>;
@@ -330,7 +334,9 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
       out.push({
         key: "fact",
         graded: false,
-        comp: () => <FactC title="Fun Fact" description={String((lesson as any).funFact || "")} />,
+        comp: () => (
+          <FactC title="Fun Fact" description={<RichText data={(lesson as any).funFact} />} />
+        ),
       });
     }
 
@@ -440,7 +446,10 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
           key: stepKeyFromExercise(ex, i),
           graded: false,
           comp: () => (
-            <FactC title={String(ex.title || "Fun Fact")} description={String(ex.content || "")} />
+            <FactC
+              title={String(ex.title || "Fun Fact")}
+              description={<RichText data={ex.content} />}
+            />
           ),
         });
         return;
@@ -474,7 +483,9 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
       out.push({
         key: "rinfo",
         graded: false,
-        comp: () => <RInfoC title="Notes" description={String((lesson as any).notes || "")} />,
+        comp: () => (
+          <RInfoC title="Notes" description={<RichText data={(lesson as any).notes} />} />
+        ),
       });
     }
 

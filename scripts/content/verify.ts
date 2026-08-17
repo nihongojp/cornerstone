@@ -17,102 +17,216 @@ import { config } from "dotenv";
  * It reads at exactly the depth and populate the app uses (`lib/content/depth.ts`)
  * so a regression here is a regression there.
  *
+ * ── Rich text has its own references, and its own silence ────────────────────
+ *
+ * Since Phase 3 a reference can also live inside a Lexical document, where the
+ * key is `value` rather than `image`/`audio`/`video` and nothing about the shape
+ * says "relationship". Two of those matter:
+ *
+ *  - an `upload` node whose file did not populate renders no image
+ *  - a `termRef` whose term did not populate renders *nothing at all* —
+ *    `renderableTerm` returns null rather than printing a database id, which is
+ *    right for a learner and invisible to everyone else
+ *
+ * A `termRef` needs two hops (the term, then the term's audio), which is why
+ * `CONTENT_DEPTH` is 2 — so these checks are what stop it silently going back.
+ *
+ * Resources are verified as well as lessons now. A link's description is rich
+ * text, so it can hold both kinds of reference, and its read moved off `depth: 0`
+ * for that reason.
+ *
  * Doubles as the "which lessons are incomplete" report — the placeholder and
  * empty-slot counts are editorial to-dos, reported but not failures.
  */
 
 config({ path: ".env.local" });
 
-import { LESSON_DEPTH, MEDIA_POPULATE } from "../../src/lib/content/depth";
+import { CONTENT_DEPTH, MEDIA_POPULATE } from "../../src/lib/content/depth";
 
-type Problem = { lesson: string; where: string; detail: string };
+type Problem = { doc: string; where: string; detail: string };
 
 const PLACEHOLDER = /placeholder/i;
 
 /** Media fields as `payload/fields/media.ts` names them. */
 const MEDIA_FIELDS = ["image", "audio", "video"] as const;
 
+/** `termRef` display modes that put the term's Japanese script on screen. */
+const NEEDS_SCRIPT = ["furigana", "plain"];
+
 async function main() {
   const { getPayload } = await import("payload");
   const { default: configPromise } = await import("../../src/payload.config");
   const payload = await getPayload({ config: configPromise });
 
-  const { docs: lessons } = await payload.find({
-    collection: "lessons",
+  const read = {
     where: { _status: { equals: "published" } },
-    depth: LESSON_DEPTH,
+    depth: CONTENT_DEPTH,
     populate: MEDIA_POPULATE,
     limit: 0,
-    pagination: false,
+    pagination: false as const,
     overrideAccess: true,
-  });
+  };
+
+  const { docs: lessons } = await payload.find({ collection: "lessons", ...read });
+  const { docs: resources } = await payload.find({ collection: "resources", ...read });
 
   const failures: Problem[] = [];
   const todos: Problem[] = [];
   let resolved = 0;
+  let termRefs = 0;
   let empty = 0;
+
+  /**
+   * A populated upload, or a failure.
+   *
+   * A number here means the relationship did not populate. That is the depth
+   * bug, and it is invisible from the app — `mediaSrc` returns undefined and the
+   * page renders without the asset.
+   */
+  const checkMedia = (doc: string, value: unknown, where: string): void => {
+    if (typeof value === "number" || typeof value === "string") {
+      failures.push({
+        doc,
+        where,
+        detail: `unpopulated upload (got a bare id: ${value}). Read depth is ${CONTENT_DEPTH}; it is not enough.`,
+      });
+      return;
+    }
+    const media = value as { url?: string | null; filename?: string | null };
+    if (!media.url) {
+      failures.push({
+        doc,
+        where,
+        detail: `media "${media.filename ?? "?"}" populated but has no url`,
+      });
+      return;
+    }
+    resolved++;
+  };
+
+  /** The two kinds of reference a Lexical document can hold. */
+  const checkLexicalNode = (doc: string, node: Record<string, unknown>, where: string): void => {
+    if (node.type === "upload" && node.value !== null && node.value !== undefined) {
+      checkMedia(doc, node.value, `${where}<upload>`);
+      return;
+    }
+
+    const fields = node.fields as Record<string, unknown> | null | undefined;
+    if (node.type !== "inlineBlock" || fields?.blockType !== "termRef") return;
+
+    const here = `${where}<termRef>`;
+    const term = fields.term;
+
+    if (term === null || term === undefined) {
+      failures.push({ doc, where: here, detail: "termRef has no term — it renders nothing" });
+      return;
+    }
+    if (typeof term === "number" || typeof term === "string") {
+      failures.push({
+        doc,
+        where: here,
+        detail:
+          `unpopulated term (got a bare id: ${term}). Read depth is ${CONTENT_DEPTH}; ` +
+          "the word renders as nothing at all, with no error anywhere.",
+      });
+      return;
+    }
+    termRefs++;
+
+    const record = term as Record<string, unknown>;
+    const key = String(record.key ?? "?");
+
+    /*
+     * `showAudio` needs the *second* hop. At depth 1 the term itself populates
+     * and its audio comes back as an id, so the play button silently disappears —
+     * the one failure that looks identical to "this term has no audio yet".
+     */
+    if (fields.showAudio === true) {
+      const audio = record.audio;
+      if (typeof audio === "number" || typeof audio === "string") {
+        failures.push({
+          doc,
+          where: here,
+          detail:
+            `term "${key}" has audio but it did not populate (bare id: ${audio}). ` +
+            `Read depth is ${CONTENT_DEPTH}; a termRef needs 2 to reach the term's audio.`,
+        });
+      } else if (audio === null || audio === undefined) {
+        todos.push({
+          doc,
+          where: here,
+          detail: `termRef asks for audio but term "${key}" has none recorded`,
+        });
+      }
+    }
+
+    // Editorial, not structural: 24 of 41 terms are romaji only, so a `furigana`
+    // or `plain` termRef falls back to the reading. It renders — it just does not
+    // render Japanese, which is a content gap worth counting rather than hiding.
+    if (NEEDS_SCRIPT.includes(String(fields.display)) && !record.japanese) {
+      todos.push({
+        doc,
+        where: here,
+        detail: `termRef shows "${String(fields.display)}" but term "${key}" has no Japanese script`,
+      });
+    }
+  };
+
+  /**
+   * Walks anything and checks every reference it finds, of either kind.
+   *
+   * One walk over the raw document rather than a traversal per field type: blocks
+   * nest arrays inside blocks inside arrays and a rich-text field can appear at
+   * any level, so the shape of that tree is not worth encoding a second time.
+   */
+  const walk = (doc: string, node: unknown, path: string): void => {
+    if (Array.isArray(node)) return node.forEach((n, i) => walk(doc, n, `${path}[${i}]`));
+    if (!node || typeof node !== "object") return;
+
+    checkLexicalNode(doc, node as Record<string, unknown>, path);
+
+    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+      const here = `${path}.${key}`;
+
+      if ((MEDIA_FIELDS as readonly string[]).includes(key) && value !== null && value !== undefined) {
+        checkMedia(doc, value, here);
+        continue;
+      }
+
+      if (typeof value === "string" && PLACEHOLDER.test(value)) {
+        todos.push({ doc, where: here, detail: `placeholder copy: "${value}"` });
+      }
+
+      if (value && typeof value === "object") walk(doc, value, here);
+    }
+  };
 
   for (const lesson of lessons) {
     const slug = String(lesson.slug);
     const exercises = Array.isArray(lesson.exercises) ? lesson.exercises : [];
 
+    // Lesson-level prose is rich text too, and can hold both kinds of reference.
+    walk(slug, lesson.funFact, "funFact");
+    walk(slug, lesson.notes, "notes");
+
     exercises.forEach((exercise, index) => {
       const components = Array.isArray(exercise?.components) ? exercise.components : [];
-
-      const walk = (node: unknown, path: string): void => {
-        if (Array.isArray(node)) return node.forEach((n, i) => walk(n, `${path}[${i}]`));
-        if (!node || typeof node !== "object") return;
-
-        for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
-          const here = `${path}.${key}`;
-
-          if ((MEDIA_FIELDS as readonly string[]).includes(key) && value !== null && value !== undefined) {
-            /*
-             * A number here means the relationship did not populate. That is
-             * the depth bug, and it is invisible from the app — `mediaSrc`
-             * returns undefined and the page renders without the asset.
-             */
-            if (typeof value === "number" || typeof value === "string") {
-              failures.push({
-                lesson: slug,
-                where: here,
-                detail: `unpopulated upload (got a bare id: ${value}). Read depth is ${LESSON_DEPTH}; it is not enough.`,
-              });
-            } else {
-              const media = value as { url?: string | null; filename?: string | null };
-              if (!media.url) {
-                failures.push({
-                  lesson: slug,
-                  where: here,
-                  detail: `media "${media.filename ?? "?"}" populated but has no url`,
-                });
-              } else {
-                resolved++;
-              }
-            }
-            continue;
-          }
-
-          if (typeof value === "string" && PLACEHOLDER.test(value)) {
-            todos.push({ lesson: slug, where: here, detail: `placeholder copy: "${value}"` });
-          }
-
-          if (value && typeof value === "object") walk(value, here);
-        }
-      };
-
       components.forEach((block: unknown, b: number) => {
         const blockType = String((block as { blockType?: string })?.blockType ?? "?");
         if (blockType === "legacyJson") {
           todos.push({
-            lesson: slug,
+            doc: slug,
             where: `exercise[${index}].components[${b}]`,
             detail: "legacyJson block — has never rendered; re-author or delete it",
           });
         }
-        walk(block, `exercise[${index}].components[${b}]:${blockType}`);
+        walk(slug, block, `exercise[${index}].components[${b}]:${blockType}`);
       });
     });
+  }
+
+  for (const resource of resources) {
+    walk(`resources/${String(resource.category)}`, resource.items, "items");
   }
 
   // Count unfilled slots separately: absent media is legitimate (most blocks
@@ -128,25 +242,30 @@ async function main() {
     }
   }
 
-  console.log(`\nVerifying ${lessons.length} published lesson(s)\n`);
+  console.log(
+    `\nVerifying ${lessons.length} published lesson(s) and ${resources.length} resource group(s)\n`
+  );
   console.log(`  media relationships resolved: ${resolved}`);
   console.log(`  media slots left empty:       ${empty}`);
+  console.log(`  term references resolved:     ${termRefs}`);
 
   if (todos.length) {
     console.log(`\n  ${todos.length} editorial to-do(s) — not failures:`);
-    for (const t of todos.slice(0, 15)) console.log(`    ${t.lesson}  ${t.where}\n      ${t.detail}`);
+    for (const t of todos.slice(0, 15)) console.log(`    ${t.doc}  ${t.where}\n      ${t.detail}`);
     if (todos.length > 15) console.log(`    … and ${todos.length - 15} more`);
   }
 
   if (failures.length) {
     console.error(`\n✗ ${failures.length} structural failure(s):\n`);
-    for (const f of failures.slice(0, 20)) console.error(`    ${f.lesson}  ${f.where}\n      ${f.detail}`);
+    for (const f of failures.slice(0, 20)) {
+      console.error(`    ${f.doc}  ${f.where}\n      ${f.detail}`);
+    }
     if (failures.length > 20) console.error(`    … and ${failures.length - 20} more`);
     console.error();
     process.exit(1);
   }
 
-  console.log("\n✓ every media relationship resolves\n");
+  console.log("\n✓ every media relationship and term reference resolves\n");
   process.exit(0);
 }
 

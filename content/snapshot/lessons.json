@@ -396,7 +396,37 @@
       "prefecture": "Hokkaido",
       "tags": [],
       "version": "V1",
-      "funFact": "Hiragana is used for Japanese-origin words! Katakana is used for loan-words from other languages!",
+      "funFact": {
+        "root": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Hiragana is used for Japanese-origin words! Katakana is used for loan-words from other languages!",
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "format": "",
+              "indent": 0,
+              "textFormat": 0,
+              "textStyle": "",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "version": 1
+        }
+      },
       "notes": null,
       "achievement": {
         "title": null,
@@ -683,7 +713,37 @@
       "prefecture": "Iwate",
       "tags": [],
       "version": "V1",
-      "funFact": "Hiragana usually restarts with the あいうえお vowels every five characters! From now on, it'll just be new consonants at the start!",
+      "funFact": {
+        "root": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Hiragana usually restarts with the あいうえお vowels every five characters! From now on, it'll just be new consonants at the start!",
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "format": "",
+              "indent": 0,
+              "textFormat": 0,
+              "textStyle": "",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "version": 1
+        }
+      },
       "notes": null,
       "achievement": {
         "title": null,
@@ -1490,7 +1550,37 @@
           "components": [
             {
               "id": "6a80d50312409c84ac2321bd",
-              "content": "Topic: Consonant + vowel build. Format: Short paragraph text bubble form.",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Topic: Consonant + vowel build. Format: Short paragraph text bubble form.",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "infoBreak"
             }
@@ -1502,7 +1592,37 @@
           "components": [
             {
               "id": "6a80d50312409c84ac2321bf",
-              "content": "In certain words in Japanese, there is a vowel extension. Ifyou noticed, \"ohayougozaimasu\" is pronounced \"ohayoogozaimasu\", where the end of the \"ohayou\" is stretched out to an \"ohayoo\". Similarly, \"arigatougozaimasu\" is stretched out to \"arigatoogozaimasu\", and \"sayounara\" is stretched out to \"sayoonara\" You will get used to it over time! ",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "In certain words in Japanese, there is a vowel extension. Ifyou noticed, \"ohayougozaimasu\" is pronounced \"ohayoogozaimasu\", where the end of the \"ohayou\" is stretched out to an \"ohayoo\". Similarly, \"arigatougozaimasu\" is stretched out to \"arigatoogozaimasu\", and \"sayounara\" is stretched out to \"sayoonara\" You will get used to it over time! ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "infoBreak"
             }
@@ -1665,7 +1785,37 @@
           "components": [
             {
               "id": "6a80d50512409c84ac2321cd",
-              "content": "In Japanese, question marks \"?\" are not used at the end of questions. Instead, all sentences, including questions, end with a maru \"。\" (circle, in Japanese). However, some may still use exclamation marks \"!\" for sentences with strong emotion. ",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "In Japanese, question marks \"?\" are not used at the end of questions. Instead, all sentences, including questions, end with a maru \"。\" (circle, in Japanese). However, some may still use exclamation marks \"!\" for sentences with strong emotion. ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "infoBreak"
             }
@@ -1861,7 +2011,37 @@
           "components": [
             {
               "id": "6a80d50512409c84ac2321e5",
-              "content": "In Japanese, people rarely refer to each other with the pronoun \"you\". Instead, people refer to each other by their last names with and a title added to the name. ",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "In Japanese, people rarely refer to each other with the pronoun \"you\". Instead, people refer to each other by their last names with and a title added to the name. ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "infoBreak"
             }
@@ -2213,7 +2393,37 @@
           "components": [
             {
               "id": "6a80d50512409c84ac232212",
-              "content": "There are two separate emergency phone numbers in Japan. Dial 119 to reach the emergency medical and fire help. Dial 110 to reach the police. ",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "There are two separate emergency phone numbers in Japan. Dial 119 to reach the emergency medical and fire help. Dial 110 to reach the police. ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "lifeUsefulFact"
             }
@@ -2552,7 +2762,37 @@
           "components": [
             {
               "id": "6a80d50712409c84ac23223a",
-              "content": "Explain particle \"ha\".",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Explain particle \"ha\".",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "infoBreak"
             }
@@ -2748,7 +2988,37 @@
           "components": [
             {
               "id": "6a80d50712409c84ac232252",
-              "content": "To be filled in",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "To be filled in",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "infoBreak"
             }
@@ -3123,7 +3393,37 @@
           "components": [
             {
               "id": "6a80d50712409c84ac232284",
-              "content": "Trash sorting?",
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Trash sorting?",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              },
               "blockName": null,
               "blockType": "lifeUsefulFact"
             }

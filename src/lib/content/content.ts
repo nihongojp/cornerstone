@@ -4,7 +4,7 @@ import type { TypedUser, Where } from "payload";
 import { payloadClient } from "./payload";
 import { TAGS } from "./tags";
 import { lessonHref } from "./routes";
-import { LESSON_DEPTH, MEDIA_POPULATE } from "./depth";
+import { CONTENT_DEPTH, MEDIA_POPULATE } from "./depth";
 import {
   toLessonDoc,
   toLessonListItem,
@@ -68,7 +68,7 @@ async function findLessons(where: Where, limit = 0): Promise<Lesson[]> {
     collection: "lessons",
     where,
     limit,
-    depth: LESSON_DEPTH,
+    depth: CONTENT_DEPTH,
     populate: MEDIA_POPULATE,
     sort: ["order", "createdAt"],
     overrideAccess: false,
@@ -195,8 +195,14 @@ export const getResources = unstable_cache(
     const result = await payload.find({
       collection: "resources",
       where: PUBLISHED,
-      // Resources link out by URL and hold no uploads.
-      depth: 0,
+      /*
+       * Was `depth: 0`, on the grounds that resources link out by URL and hold
+       * no uploads. True while a link's description was a textarea; it is rich
+       * text now, and prose can hold an image or a term reference. Same depth as
+       * the lessons read so there is one number to reason about.
+       */
+      depth: CONTENT_DEPTH,
+      populate: MEDIA_POPULATE,
       sort: "createdAt",
       overrideAccess: false,
       pagination: false,
@@ -291,7 +297,7 @@ async function findDrafts(
     limit,
     // Same depth as the published path. If these drift, media renders on the
     // site and vanishes in the preview panel, or the reverse.
-    depth: LESSON_DEPTH,
+    depth: CONTENT_DEPTH,
     populate: MEDIA_POPULATE,
     draft: true,
     sort: ["order", "createdAt"],
@@ -360,7 +366,10 @@ export async function getDraftResources(user: TypedUser): Promise<Resource[]> {
   const payload = await payloadClient();
   const result = await payload.find({
     collection: "resources",
-    depth: 0,
+    // Matches the published read above, for the same reason the two lesson
+    // reads match: prose in a draft has to populate the same way.
+    depth: CONTENT_DEPTH,
+    populate: MEDIA_POPULATE,
     draft: true,
     sort: "createdAt",
     overrideAccess: false,

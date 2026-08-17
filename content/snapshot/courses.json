@@ -6,7 +6,37 @@
       "title": "Hiragana & prefectures",
       "slug": "hiragana-and-prefectures",
       "trackType": "beginner-to-intermediate",
-      "description": "Learn the hiragana syllabary one prefecture at a time.",
+      "description": {
+        "root": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Learn the hiragana syllabary one prefecture at a time.",
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "format": "",
+              "indent": 0,
+              "textFormat": 0,
+              "textStyle": "",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "version": 1
+        }
+      },
       "_status": "published"
     }
   },
@@ -17,7 +47,37 @@
       "title": "Grammar & conversation",
       "slug": "grammar-and-conversation",
       "trackType": "beginner-to-intermediate",
-      "description": "Greetings, everyday phrases, and the grammar that holds them together.",
+      "description": {
+        "root": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Greetings, everyday phrases, and the grammar that holds them together.",
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "format": "",
+              "indent": 0,
+              "textFormat": 0,
+              "textStyle": "",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "version": 1
+        }
+      },
       "_status": "published"
     }
   }

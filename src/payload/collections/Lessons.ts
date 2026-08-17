@@ -202,12 +202,12 @@ export const Lessons: CollectionConfig = {
     },
     {
       name: "funFact",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Shown at the end of the lesson." },
     },
     {
       name: "notes",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Learner-facing notes." },
     },
     {

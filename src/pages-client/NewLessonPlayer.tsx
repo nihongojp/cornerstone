@@ -22,7 +22,10 @@ import DragDropPlaceholder from "../components/DragDropPlaceholder";
 import DragDropCombination from "../components/DragDropCombination";
 import Fact from "../components/Fact";
 
+import RichText from "../components/richtext/RichText";
+
 import { NewLessonDoc, NewLessonItem } from "../lib/types/lessons";
+import { proseToPlainText } from "../lib/content/prose";
 import { expandLessonItems } from "../utils/expandLessonItems";
 import { isPlaceholderUrl } from "../utils/termMedia";
 import { getProgress, upsertProgress } from "../lib/progress-client";
@@ -31,6 +34,16 @@ import { getProgress, upsertProgress } from "../lib/progress-client";
 // re-expansions of the same lesson even though matchAudio/pronunciation/
 // dragAndDrop items are re-shuffled on every visit. Used to resume at the
 // same exercise the user last saw, rather than a raw (unstable) index.
+//
+// The `content` fields are rich text as of Phase 3, and this is the one place
+// that turned out to matter. `String(document)` is "[object Object]", so every
+// break in every lesson would have collapsed onto the single key
+// "infoBreak:[object Object]" — a saved position would then resume at whichever
+// break came first, and nothing would fail. Going through `proseToPlainText`
+// keeps the key byte-identical to the one derived from the text this content was
+// migrated from, so progress rows written before the migration still match.
+//
+// Phase 4b replaces this whole function with the exercise row's Payload id.
 function stepKeyForItem(item: NewLessonItem): string {
   const type = item.type as string;
   const any = item as any;
@@ -46,7 +59,7 @@ function stepKeyForItem(item: NewLessonItem): string {
       return `dragAndDropExercise:${any._term || any.phrase || any.term || ""}`;
     case "infoBreak":
     case "lifeUsefulFact":
-      return `${type}:${String(any.content || "").slice(0, 40)}`;
+      return `${type}:${proseToPlainText(any.content).slice(0, 40)}`;
     default:
       return `${type}:${any.number ?? ""}`;
   }
@@ -139,21 +152,16 @@ function renderItem(
             py: { xs: 2.5, sm: 3 },
           }}
         >
-          <Typography sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, lineHeight: 1.7, color: "#374151" }}>
-            {String((item as any).content || "")}
-          </Typography>
+          <Box sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, lineHeight: 1.7, color: "#374151" }}>
+            <RichText data={(item as any).content} />
+          </Box>
         </Box>
       </Box>
     );
   }
 
   if (type === "lifeUsefulFact") {
-    return (
-      <Fact
-        title="Life Tip 🌟"
-        description={String((item as any).content || "")}
-      />
-    );
+    return <Fact title="Life Tip 🌟" description={<RichText data={(item as any).content} />} />;
   }
 
   // Unknown type — styled placeholder so page never looks broken

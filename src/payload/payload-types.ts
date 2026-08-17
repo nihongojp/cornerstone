@@ -149,7 +149,21 @@ export interface Course {
   /**
    * Shown on the course card. A sentence or two.
    */
-  description?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Every lesson pointing at this course, read-only here. Sequence comes from each lesson's Order field — set it on the lesson, not here.
    */
@@ -244,11 +258,39 @@ export interface Lesson {
   /**
    * Shown at the end of the lesson.
    */
-  funFact?: string | null;
+  funFact?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Learner-facing notes.
    */
-  notes?: string | null;
+  notes?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Awarded on completion. Leave the title empty for no award.
    */
@@ -283,13 +325,27 @@ export interface VideoPageBlock {
    */
   audio?: (number | null) | Media;
   /**
-   * Optional sub-heading shown under the title.
+   * Optional sub-heading shown under the title. One line, no formatting.
    */
   description?: string | null;
   /**
    * Optional body copy shown under the description.
    */
-  content?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'videoPage';
@@ -371,13 +427,27 @@ export interface TermsPageBlock {
       }[]
     | null;
   /**
-   * Optional sub-heading shown under the title.
+   * Optional sub-heading shown under the title. One line, no formatting.
    */
   description?: string | null;
   /**
    * Optional body copy shown under the description.
    */
-  content?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'termsPage';
@@ -402,13 +472,27 @@ export interface GrammarPageBlock {
       }[]
     | null;
   /**
-   * Optional sub-heading shown under the title.
+   * Optional sub-heading shown under the title. One line, no formatting.
    */
   description?: string | null;
   /**
    * Optional body copy shown under the description.
    */
-  content?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'grammarPage';
@@ -420,13 +504,27 @@ export interface GrammarPageBlock {
 export interface ContentPageBlock {
   title: string;
   /**
-   * Optional sub-heading shown under the title.
+   * Optional sub-heading shown under the title. One line, no formatting.
    */
   description?: string | null;
   /**
    * Optional body copy shown under the description.
    */
-  content?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'contentPage';
@@ -545,7 +643,21 @@ export interface InfoBreakBlock {
   /**
    * Ungraded copy shown between exercises. Some imported bodies are authoring briefs rather than learner-facing text — those need an editorial pass.
    */
-  content: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'infoBreak';
@@ -555,7 +667,21 @@ export interface InfoBreakBlock {
  * via the `definition` "LifeUsefulFactBlock".
  */
 export interface LifeUsefulFactBlock {
-  content: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'lifeUsefulFact';
@@ -646,7 +772,21 @@ export interface FactBreakBlock {
    */
   exerciseId: string;
   title?: string | null;
-  content?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   prompt?: string | null;
   id?: string | null;
   blockName?: string | null;
@@ -776,9 +916,23 @@ export interface Term {
   image?: (number | null) | Media;
   tags?: string[] | null;
   /**
-   * Usage notes for the learner. Becomes rich text in the next phase, once Lexical is in.
+   * Usage notes for the learner — when to use this word and when not to. Reference other terms inline rather than retyping them.
    */
-  notes?: string | null;
+  notes?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -808,7 +962,21 @@ export interface Resource {
          * Absolute URL. Opens in a new tab. Optional on purpose: an entry with a title and description but no link yet is a real state the site already handles — it renders as "(No URL)" — and it keeps a planned resource visible as a to-do instead of losing the note.
          */
         url?: string | null;
-        description?: string | null;
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
         id?: string | null;
       }[]
     | null;
@@ -1414,6 +1582,103 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RubyInlineBlock".
+ */
+export interface RubyInlineBlock {
+  /**
+   * The characters the reading sits above — 漢字.
+   */
+  base: string;
+  /**
+   * The reading — かんじ.
+   */
+  ruby: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ruby';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TermRefInlineBlock".
+ */
+export interface TermRefInlineBlock {
+  /**
+   * A word from the vocabulary catalogue. Its reading, furigana and audio come with it, so correcting the term corrects every sentence that references it.
+   */
+  term: number | Term;
+  /**
+   * Which form of the term to show here. Falls back to the reading and then the romaji for the entries that have no Japanese script yet.
+   */
+  display: 'furigana' | 'plain' | 'reading' | 'romaji' | 'meaning';
+  /**
+   * Add a play button after the word, using the term's own pronunciation audio. Nothing renders if the term has no audio.
+   */
+  showAudio?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'termRef';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutProseBlock".
+ */
+export interface CalloutProseBlock {
+  tone: 'note' | 'tip' | 'warning';
+  title?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ExampleSentenceProseBlock".
+ */
+export interface ExampleSentenceProseBlock {
+  /**
+   * The sentence. Use Ruby for a one-off reading and Term for a word from the catalogue.
+   */
+  japanese: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  romaji?: string | null;
+  english?: string | null;
+  /**
+   * Someone reading the sentence aloud.
+   */
+  audio?: (number | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'exampleSentence';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

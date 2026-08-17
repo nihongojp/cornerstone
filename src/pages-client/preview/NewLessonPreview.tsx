@@ -2,7 +2,7 @@
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
-import { LESSON_DEPTH } from "../../lib/content/depth";
+import { CONTENT_DEPTH } from "../../lib/content/depth";
 
 import NewLessonPlayer from "../NewLessonPlayer";
 import { toNewLessonDoc } from "../../lib/content/adapters";
@@ -17,13 +17,14 @@ import type { Lesson } from "../../payload/payload-types";
  * that — the very adapter the server path runs — puts the real player in front
  * of unsaved content without a second copy of the mapping to keep in step.
  *
- * `depth` matches the server read (`CONTENT_DEPTH` in `lib/content/content.ts`)
- * and has to keep matching it. Block media is an `upload` relationship now, so
- * at depth 0 every one of them streams back as a bare id, `mediaSrc` returns
- * undefined, and the preview panel shows a lesson with no images or audio while
- * the real page shows them fine — no error in either place. That divergence is
- * the whole hazard of having a second read path, so when the server read goes
- * deeper for Phase 2's block → term → media, this goes with it.
+ * `depth` is the shared `CONTENT_DEPTH` rather than a number written here, and
+ * that is the whole point: this is a second read path, and every time the two
+ * have diverged the symptom has been content rendering on the site and silently
+ * vanishing in the panel, with no error in either place. Block media is an
+ * `upload` relationship, so at depth 0 each one streams back as a bare id and
+ * `mediaSrc` returns undefined; a `termRef` in a block's prose needs a second
+ * hop for the term's audio. Both live in `lib/content/depth.ts` now, so raising
+ * it moves both paths at once.
  */
 export default function NewLessonPreview({
   initialLesson,
@@ -47,7 +48,7 @@ export default function NewLessonPreview({
   const { data } = useLivePreview<Lesson>({
     initialData: initialLesson,
     serverURL,
-    depth: LESSON_DEPTH,
+    depth: CONTENT_DEPTH,
   });
 
   const lesson = toNewLessonDoc(data, nextSlug);

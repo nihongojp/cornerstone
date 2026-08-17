@@ -37,15 +37,21 @@ import { audioField, imageField, videoField } from "../fields/media";
  * shorten things: it replaces the whole table name, prefix included.
  */
 
+/*
+ * `description` stays a plain string and `content` is rich text, which is the
+ * split the whole phase turns on: a sub-heading is one line of text with no
+ * structure to express, body copy is prose that wants emphasis, lists, an image
+ * and — the point — furigana. See `payload/fields/prose.ts`.
+ */
 const PAGE_PROSE = [
   {
     name: "description",
     type: "textarea" as const,
-    admin: { description: "Optional sub-heading shown under the title." },
+    admin: { description: "Optional sub-heading shown under the title. One line, no formatting." },
   },
   {
     name: "content",
-    type: "textarea" as const,
+    type: "richText" as const,
     admin: { description: "Optional body copy shown under the description." },
   },
 ];
@@ -186,6 +192,8 @@ export const MatchingExercise: Block = {
           "from the terms introduced earlier in the lesson.",
       },
     },
+    // A sub-heading under the instructions, same as `PAGE_PROSE.description`:
+    // one line, nothing to format.
     { name: "description", type: "textarea" },
   ],
 };
@@ -266,6 +274,14 @@ export const PronunciationExercise: Block = {
   fields: [
     { name: "phrase", type: "text", required: true },
     {
+      /*
+       * Stays a string while the prose fields become rich text: the
+       * pronunciation scorer reads this as one, and a document would have to be
+       * flattened back to text before it could be graded — at which point the
+       * formatting an author added is silently discarded and the score is
+       * computed against something they cannot see. General rule for the whole
+       * phase: anything an algorithm reads as a string stays a string.
+       */
       name: "transcript",
       type: "textarea",
       admin: { description: "Longer display text. The player falls back to the phrase if empty." },
@@ -284,7 +300,7 @@ export const InfoBreak: Block = {
   fields: [
     {
       name: "content",
-      type: "textarea",
+      type: "richText",
       required: true,
       admin: {
         description:
@@ -301,7 +317,7 @@ export const LifeUsefulFact: Block = {
   labels: { singular: "Life-useful fact", plural: "Life-useful facts" },
   admin: { group: "Grammar lesson" },
   fields: [
-    { name: "content", type: "textarea", required: true },
+    { name: "content", type: "richText", required: true },
   ],
 };
 

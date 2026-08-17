@@ -7,6 +7,7 @@ import sharp from "sharp";
 
 import { vercelPrivateBlobStorage } from "./payload/storage/vercelPrivateBlob";
 import { livePreviewURL } from "./payload/preview";
+import { proseEditor } from "./payload/fields/prose";
 
 import { CmsAdmins } from "./payload/collections/CmsAdmins";
 import { Courses } from "./payload/collections/Courses";
@@ -68,6 +69,18 @@ export default buildConfig({
   // admin panel at a collection that was never registered, which takes out
   // /admin login and `npm run payload:seed-admins` with it.
   collections: [Courses, Lessons, Terms, Resources, Media, CmsAdmins],
+  /*
+   * The root editor. A `richText` field that names no `editor` of its own
+   * inherits this one, which is the point: the nine prose fields converted in
+   * Phase 3, and every one added after, get the same toolbar and the same
+   * blocks without anyone wiring it up per field. See `payload/fields/prose.ts`
+   * for what is in it and why furigana is two inline blocks rather than a
+   * custom Lexical node.
+   *
+   * Adding a Lexical feature or block changes which client components the admin
+   * panel needs, so it needs `npm run payload:importmap` — not a migration.
+   */
+  editor: proseEditor,
   db: postgresAdapter({
     schemaName: "payload",
     push: false,

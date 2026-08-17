@@ -2,7 +2,7 @@
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
-import { LESSON_DEPTH } from "../../lib/content/depth";
+import { CONTENT_DEPTH } from "../../lib/content/depth";
 
 import LessonPlayer from "../LessonPlayer";
 import { toLessonDoc } from "../../lib/content/adapters";
@@ -23,7 +23,7 @@ export default function LessonPreview({
   const { data } = useLivePreview<Lesson>({
     initialData: initialLesson,
     serverURL,
-    depth: LESSON_DEPTH,
+    depth: CONTENT_DEPTH,
   });
 
   const lesson = toLessonDoc(data);

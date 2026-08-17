@@ -1,4 +1,6 @@
-import type { Field, Payload } from "payload";
+import type { Block, Field, Payload } from "payload";
+
+import { PROSE_BLOCKS, PROSE_INLINE_BLOCKS } from "../../../src/payload/fields/prose";
 
 /*
  * The snapshot format, and the one interesting thing about it: references.
@@ -17,6 +19,10 @@ import type { Field, Payload } from "payload";
  * of that needs a change here — a new relationship field is portable the day
  * it is added, and a field this file cannot make portable stops the export
  * rather than being silently written out as a stale integer.
+ *
+ * Phase 3 is where that promise needed work rather than holding for free: a
+ * `richText` field's references live inside its own JSON, below the level the
+ * field schema describes. See `PROSE_BLOCK_BY_SLUG`.
  *
  * What a snapshot does NOT contain:
  *
@@ -153,12 +159,99 @@ function namedTabs(field: Field): Array<{ name: string; fields: Field[] }> {
   );
 }
 
-type Walk = {
+export type Walk = {
   /** Turn one relationship/upload value into its portable form, or back. */
   value: (value: unknown, field: Field, path: string) => unknown;
+  /** Something the walk cannot make portable. Stops the run; never silent. */
+  problem: (path: string, detail: string) => void;
+  /**
+   * Replace a whole `richText` value. Only `upgrade-snapshot-prose.ts` supplies
+   * this, to convert a snapshot taken before the fields became rich text; the
+   * export and import leave the document alone and only rewrite what is inside it.
+   */
+  prose?: (value: unknown, path: string) => unknown;
 };
 
-function walkFields(fields: Field[], data: unknown, path: string, walk: Walk): void {
+/*
+ * ── References inside rich text ──────────────────────────────────────────────
+ *
+ * A Lexical document stores an upload or a relationship as a node in its own
+ * JSON, and Payload's field schema stops at the `richText` field — it does not
+ * describe what is inside. So without this, an image dropped into a paragraph or
+ * a `termRef` pointing at a vocabulary entry would be written to the snapshot as
+ * a bare integer: portable-looking, and wrong the moment it is imported into a
+ * database with different serial ids. Silently, which is the failure this file
+ * exists to prevent.
+ *
+ * Two kinds of node, handled differently:
+ *
+ *  - `upload` and `relationship` nodes are self-describing. They carry
+ *    `relationTo` next to `value`, so the same rewriting the schema-driven walk
+ *    does applies with no extra knowledge.
+ *  - `block` and `inlineBlock` nodes are not. Their fields are arbitrary, and a
+ *    relationship inside one — `termRef.term` — is an integer with nothing to
+ *    mark it as a reference. The only way to find it is the block's own field
+ *    schema, which is why these are imported from `payload/fields/prose.ts`:
+ *    the same arrays `BlocksFeature` is built from, so there is no second list
+ *    to fall out of step. A block slug that is not in them stops the export
+ *    rather than being passed through.
+ */
+const PROSE_BLOCK_BY_SLUG = new Map<string, Block>(
+  [...PROSE_BLOCKS, ...PROSE_INLINE_BLOCKS].map((block) => [block.slug, block])
+);
+
+function walkLexical(value: unknown, path: string, walk: Walk): void {
+  const root = (value as { root?: unknown } | null | undefined)?.root;
+  if (root && typeof root === "object") walkLexicalNodes([root], path, walk);
+}
+
+function walkLexicalNodes(nodes: unknown[], path: string, walk: Walk): void {
+  nodes.forEach((node, index) => {
+    if (!node || typeof node !== "object") return;
+    const record = node as Record<string, unknown>;
+    const type = typeof record.type === "string" ? record.type : "?";
+    const here = `${path}/${type}[${index}]`;
+
+    if (
+      (type === "upload" || type === "relationship") &&
+      record.value !== undefined &&
+      record.value !== null
+    ) {
+      const relationTo = record.relationTo;
+      if (typeof relationTo !== "string" || !relationTo) {
+        walk.problem(
+          `${here}.value`,
+          `a ${type} node in rich text has no relationTo, so its target collection is unknown`
+        );
+      } else {
+        // A synthesized field: everything downstream reads only `type` and
+        // `relationTo`, and the node supplies both.
+        const field = { type, name: "value", relationTo } as unknown as Field;
+        record.value = walk.value(record.value, field, `${here}.value`);
+      }
+    }
+
+    if (type === "block" || type === "inlineBlock") {
+      const fields = record.fields;
+      const blockType = (fields as { blockType?: unknown } | null | undefined)?.blockType;
+      const block = PROSE_BLOCK_BY_SLUG.get(String(blockType));
+      if (!block) {
+        walk.problem(
+          `${here}.fields`,
+          `rich text holds a "${String(blockType)}" block, which is not in PROSE_BLOCKS or ` +
+            "PROSE_INLINE_BLOCKS — add it there (the arrays the editor is built from) so any " +
+            "reference inside it can be made portable"
+        );
+      } else {
+        walkFields(block.fields, fields, `${here}:${String(blockType)}`, walk);
+      }
+    }
+
+    if (Array.isArray(record.children)) walkLexicalNodes(record.children, here, walk);
+  });
+}
+
+export function walkFields(fields: Field[], data: unknown, path: string, walk: Walk): void {
   if (!data || typeof data !== "object") return;
   const record = data as Record<string, unknown>;
 
@@ -194,6 +287,14 @@ function walkFields(fields: Field[], data: unknown, path: string, walk: Walk): v
 
     if (field.type === "relationship" || field.type === "upload") {
       record[name] = walk.value(value, field, here);
+      continue;
+    }
+
+    // Rich text carries its references inside its own JSON, below where the
+    // field schema describes anything. See PROSE_BLOCK_BY_SLUG above.
+    if (field.type === "richText") {
+      if (walk.prose) record[name] = walk.prose(value, here);
+      walkLexical(record[name], here, walk);
       continue;
     }
 
@@ -288,6 +389,7 @@ export function toPortable(
   walkFields(fields, clone, "", {
     value: (value, field, path) =>
       Array.isArray(value) ? value.map((v) => one(v, field, path)) : one(value, field, path),
+    problem: (path, detail) => broken.push({ collection, doc: docKey, field: path, detail }),
   });
 
   return clone;
@@ -328,6 +430,7 @@ export function fromPortable(
   walkFields(fields, clone, "", {
     value: (value, field, path) =>
       Array.isArray(value) ? value.map((v) => one(v, field, path)) : one(value, field, path),
+    problem: (path, detail) => unresolved.push({ collection, doc: docKey, field: path, detail }),
   });
 
   return clone;

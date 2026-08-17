@@ -1,5 +1,6 @@
 import type { Lesson, Resource } from "../../payload/payload-types";
 import { mediaSrc } from "./media";
+import { optProse } from "./prose";
 import type {
   LessonDoc,
   LessonExercise,
@@ -35,6 +36,14 @@ import type {
  * away. That is the deal for this phase: the players stay untouched while the
  * storage model changes underneath them. The alt text starts being used when
  * the blocks render directly and this file goes away.
+ *
+ * Prose is the opposite: rich text passes straight through, unflattened, because
+ * there is nothing to flatten it *to* — the whole point of the field type is the
+ * structure. So the contract's prose fields hold a Lexical document and the
+ * render sites hand it to `components/richtext/RichText`. `optProse` is the
+ * `optText` of rich text and is load-bearing rather than tidy: an empty document
+ * is truthy, and four render sites decide whether a screen exists by testing
+ * these fields for truthiness. See `prose.ts`.
  *
  * This flattening is also why `depth` matters. An unpopulated relationship
  * arrives as a bare id, `mediaSrc` returns undefined for it, and the lesson
@@ -93,7 +102,7 @@ function blockToItem(block: Block): NewLessonItem {
         videoForm: opt(block.videoForm),
         audioUrl: mediaSrc(block.audio),
         description: optText(block.description),
-        content: optText(block.content),
+        content: optProse(block.content),
       };
     case "termsPage":
       return {
@@ -106,7 +115,7 @@ function blockToItem(block: Block): NewLessonItem {
           audioUrl: mediaSrc(term.audio),
         })),
         description: optText(block.description),
-        content: optText(block.content),
+        content: optProse(block.content),
       };
     case "grammarPage":
       return {
@@ -117,14 +126,14 @@ function blockToItem(block: Block): NewLessonItem {
           examples: opt(point.examples),
         })),
         description: optText(block.description),
-        content: optText(block.content),
+        content: optProse(block.content),
       };
     case "contentPage":
       return {
         type: "page",
         title: block.title,
         description: optText(block.description),
-        content: optText(block.content),
+        content: optProse(block.content),
       };
     case "matchingExercise":
       return {
@@ -173,9 +182,9 @@ function blockToItem(block: Block): NewLessonItem {
         audioUrl: mediaSrc(block.audio),
       };
     case "infoBreak":
-      return { type: "infoBreak", content: block.content };
+      return { type: "infoBreak", content: optProse(block.content) };
     case "lifeUsefulFact":
-      return { type: "lifeUsefulFact", content: block.content };
+      return { type: "lifeUsefulFact", content: optProse(block.content) };
     default:
       // `legacyJson` (unmigrated content) and any block from the flashcard
       // family authored into a step lesson by mistake. Neither renders, so it
@@ -222,7 +231,7 @@ function blockToLegacyExercise(block: Block): LessonExercise | null {
         type: "factBreak",
         exerciseId: block.exerciseId,
         title: optText(block.title),
-        content: optText(block.content),
+        content: optProse(block.content),
         prompt: optText(block.prompt),
       };
     default:
@@ -285,8 +294,8 @@ export function toLessonDoc(lesson: Lesson): LessonDoc {
     ...toLessonListItem(lesson),
     flashcards: deck.cards,
     flashcardsAudio: deck.audio,
-    funFact: optText(lesson.funFact),
-    notes: optText(lesson.notes),
+    funFact: optProse(lesson.funFact),
+    notes: optProse(lesson.notes),
     exercises,
     achievement:
       achievement && optText(achievement.title)
@@ -329,7 +338,7 @@ export function toResourceGroup(resource: Resource): ResourceGroup {
       id: item.itemId,
       title: item.title,
       url: optText(item.url),
-      description: optText(item.description),
+      description: optProse(item.description),
     })),
   };
 }
