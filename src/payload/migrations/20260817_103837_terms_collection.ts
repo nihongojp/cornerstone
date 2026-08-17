@@ -63,18 +63,36 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "payload_locked_documents_rels_terms_id_idx" ON "payload"."payload_locked_documents_rels" USING btree ("terms_id");`)
 }
 
+/*
+ * Hand-ordered, because the generated `down()` was not runnable.
+ *
+ * Payload emitted the DROP TABLEs first and only then tried to drop
+ * `payload_locked_documents_rels_terms_fk`. But that constraint lives on
+ * `payload_locked_documents_rels` and *references* `terms`, so `DROP TABLE
+ * "terms" CASCADE` had already taken it as a dependent object — and the later
+ * statement failed with
+ *
+ *     constraint "payload_locked_documents_rels_terms_fk" of relation
+ *     "payload_locked_documents_rels" does not exist
+ *
+ * which reads like `up()` never created it. It does, on the second-to-last line
+ * above; CASCADE just got there first.
+ *
+ * So this reverses `up()` in order instead: the `payload_locked_documents_rels`
+ * additions come off first, while `terms` is still there to hang the FK on,
+ * and the tables go in child-before-parent order.
+ */
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    ALTER TABLE "payload"."terms_furigana" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "payload"."terms" DISABLE ROW LEVEL SECURITY;
   ALTER TABLE "payload"."terms_texts" DISABLE ROW LEVEL SECURITY;
-  DROP TABLE "payload"."terms_furigana" CASCADE;
-  DROP TABLE "payload"."terms" CASCADE;
-  DROP TABLE "payload"."terms_texts" CASCADE;
-  ALTER TABLE "payload"."payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_terms_fk";
-  
   DROP INDEX "payload"."payload_locked_documents_rels_terms_id_idx";
+  ALTER TABLE "payload"."payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_terms_fk";
   ALTER TABLE "payload"."payload_locked_documents_rels" DROP COLUMN "terms_id";
+  DROP TABLE "payload"."terms_furigana" CASCADE;
+  DROP TABLE "payload"."terms_texts" CASCADE;
+  DROP TABLE "payload"."terms" CASCADE;
   DROP TYPE "payload"."enum_terms_kind";
   DROP TYPE "payload"."enum_terms_part_of_speech";
   DROP TYPE "payload"."enum_terms_jlpt";`)
