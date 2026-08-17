@@ -7,7 +7,6 @@ import * as migration_20260817_123651_richtext_prose from './20260817_123651_ric
 import * as migration_20260817_140611_block_library from './20260817_140611_block_library';
 import * as migration_20260817_143501_dialogue_block from './20260817_143501_dialogue_block';
 import * as migration_20260817_214000_phase4b_spotlight_layout from './20260817_214000_phase4b_spotlight_layout';
-import * as migration_20260817_214041_phase4b_drop_old_blocks from './20260817_214041_phase4b_drop_old_blocks';
 import * as migration_20260817_223731_phase5_autosave_roles from './20260817_223731_phase5_autosave_roles';
 
 export const migrations = [
@@ -57,13 +56,8 @@ export const migrations = [
     name: '20260817_214000_phase4b_spotlight_layout',
   },
   {
-    up: migration_20260817_214041_phase4b_drop_old_blocks.up,
-    down: migration_20260817_214041_phase4b_drop_old_blocks.down,
-    name: '20260817_214041_phase4b_drop_old_blocks',
-  },
-  {
     up: migration_20260817_223731_phase5_autosave_roles.up,
     down: migration_20260817_223731_phase5_autosave_roles.down,
-    name: '20260817_223731_phase5_autosave_roles'
+    name: '20260817_223731_phase5_autosave_roles',
   },
 ];
