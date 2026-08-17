@@ -88,7 +88,8 @@ could not be migrated at all: `payload.lessons` does not exist when drizzle
 runs, and because drizzle applies its whole pending set in one transaction, the
 failure rolled back the `CREATE SCHEMA payload` that Payload needed next. The
 migration is guarded on `pg_constraint`, so it is a no-op on every database
-that already had the constraint from the old `drizzle/0002`.
+that already had the constraint from the drizzle migration it replaced (deleted
+in #44; the `0002` slot in `drizzle/` is free for unrelated work).
 
 Consequences worth knowing:
 
