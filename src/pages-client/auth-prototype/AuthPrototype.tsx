@@ -299,12 +299,12 @@ export default function AuthPrototype() {
 
                     {notice === "wrongCode" && (
                       <Alert severity="error" sx={{ mt: 2, textAlign: "left" }}>
-                        That code isn&apos;t right. Check the email and try again.
+                        That code isn&apos;t right.
                       </Alert>
                     )}
                     {notice === "rateLimited" && (
                       <Alert severity="warning" sx={{ mt: 2, textAlign: "left" }}>
-                        Too many attempts. Try again in 5 minutes, or request a new link.
+                        Too many attempts. Try again in 5 minutes.
                       </Alert>
                     )}
 
