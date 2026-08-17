@@ -39,10 +39,20 @@ import {
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useRouter, useSearchParams } from "next/navigation";
 import { emailOtp, signIn } from "../lib/auth-client";
+import AuthCat from "../components/AuthCat";
 
 type Mode = "login" | "signup";
 type Stage = "email" | "password" | "sent" | "otp" | "linkFailed" | "sendFailed";
-type Notice = null | "wrongCode" | "rateLimited" | "resent";
+type Notice =
+  | null
+  | "wrongCode"
+  | "rateLimited"
+  | "resent"
+  /* Sent because the account predates `requireEmailVerification` — the mail is
+     a confirmation link, not the sign-in link the normal path sends. */
+  | "confirmFirst"
+  /* Google refused to link into an existing unproven account. */
+  | "linkBlocked";
 
 const alertSx = {
   mt: 2,
@@ -50,18 +60,6 @@ const alertSx = {
   px: 1.5,
   "& .MuiAlert-icon": { mr: 1 },
 };
-
-function Cat() {
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="https://cdn-icons-png.flaticon.com/512/9288/9288684.png"
-      alt=""
-      width={80}
-      style={{ marginBottom: 12 }}
-    />
-  );
-}
 
 export default function AuthForm(): React.ReactElement {
   const router = useRouter();
@@ -77,7 +75,19 @@ export default function AuthForm(): React.ReactElement {
    * resend, and all three arrive as INVALID_TOKEN. The copy below covers all
    * three rather than claiming one.
    */
-  const linkError = searchParams.get("error");
+  const urlError = searchParams.get("error");
+
+  /*
+   * `account_not_linked` is its own case, not a failed link. Better Auth's
+   * OAuth callback emits it (spaces become underscores) when Google's identity
+   * cannot be attached to an existing account — which for us means the local
+   * row is not yet proven, since `requireLocalEmailVerified` gates on it (#51).
+   * The user is sent back to the email step to receive a link, which proves the
+   * address; Google works from then on. Their address does not survive the
+   * round trip, so it cannot be prefilled.
+   */
+  const linkBlocked = urlError === "account_not_linked";
+  const linkError = urlError && !linkBlocked;
 
   // /signup redirects here as ?mode=signup, so the old routes still land people
   // on the side they asked for rather than always on Login.
@@ -85,7 +95,7 @@ export default function AuthForm(): React.ReactElement {
     searchParams.get("mode") === "signup" ? "signup" : "login"
   );
   const [stage, setStage] = useState<Stage>(linkError ? "linkFailed" : "email");
-  const [notice, setNotice] = useState<Notice>(null);
+  const [notice, setNotice] = useState<Notice>(linkBlocked ? "linkBlocked" : null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -149,16 +159,27 @@ export default function AuthForm(): React.ReactElement {
     setBusy(true);
     const { error } = await signIn.email({ email, password });
     setBusy(false);
-    if (error) return setMessage(error.message ?? "That didn't work.");
-    router.push(from);
+    if (!error) return router.push(from);
+
+    /*
+     * An account that predates `requireEmailVerification`. The password was
+     * right — this is not a failed sign-in, and saying "that didn't work" would
+     * send someone to reset a password that is fine. Better Auth has already
+     * mailed the confirmation link (`emailVerification.sendOnSignIn`), so the
+     * honest move is to say so.
+     */
+    if (error.code === "EMAIL_NOT_VERIFIED") return go("sent", "confirmFirst");
+
+    setMessage(error.message ?? "That didn't work.");
   }
 
-  async function requestCode() {
+  /** Request a one-time code. Used both to switch to the code screen and to resend. */
+  async function requestCode(resend = false) {
     setBusy(true);
     const { error } = await emailOtp.sendVerificationOtp({ email, type: "sign-in" });
     setBusy(false);
     if (error) return go("sendFailed");
-    go("otp");
+    go("otp", resend ? "resent" : null);
   }
 
   async function submitCode() {
@@ -215,7 +236,7 @@ export default function AuthForm(): React.ReactElement {
             )}
 
             <Box textAlign="center" mb={3}>
-              <Cat />
+              <AuthCat />
               <Typography variant="h5" fontWeight="bold">
                 {headings[stage]}
               </Typography>
@@ -223,6 +244,14 @@ export default function AuthForm(): React.ReactElement {
 
             {stage === "email" && (
               <>
+                {notice === "linkBlocked" && (
+                  <Alert severity="info" sx={{ ...alertSx, mt: 0, mb: 2 }}>
+                    We can&apos;t connect Google to your account until we know the
+                    address is yours. Enter it below and we&apos;ll send you a link —
+                    after that, Google will work.
+                  </Alert>
+                )}
+
                 <ToggleButtonGroup
                   color="primary"
                   value={mode}
@@ -243,7 +272,15 @@ export default function AuthForm(): React.ReactElement {
                   fullWidth
                   variant="outlined"
                   size="large"
-                  onClick={() => signIn.social({ provider: "google", callbackURL: from })}
+                  onClick={() =>
+                    signIn.social({
+                      provider: "google",
+                      callbackURL: from,
+                      // Without this, a refused link lands on Better Auth's own
+                      // error page instead of the recovery path below.
+                      errorCallbackURL: "/auth",
+                    })
+                  }
                   sx={{ textTransform: "none", py: 1.25 }}
                 >
                   {mode === "login" ? "Sign in with Google" : "Sign up with Google"}
@@ -352,16 +389,40 @@ export default function AuthForm(): React.ReactElement {
                 <Typography variant="body1" fontWeight={600}>
                   Check your email
                 </Typography>
+                {/* What was actually sent differs by stage and by why we got
+                    here — saying "link" on the code screen is a small lie that
+                    makes people hunt for the wrong thing in their inbox. */}
                 <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  We sent a link to <strong>{email}</strong>.
+                  {stage === "otp" ? (
+                    <>
+                      We sent a code to <strong>{email}</strong>.
+                    </>
+                  ) : notice === "confirmFirst" ? (
+                    <>
+                      We sent a link to <strong>{email}</strong> to confirm it&apos;s
+                      yours.
+                    </>
+                  ) : (
+                    <>
+                      We sent a link to <strong>{email}</strong>.
+                    </>
+                  )}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   It expires in 15 minutes.
                 </Typography>
 
+                {notice === "confirmFirst" && (
+                  <Alert severity="info" sx={alertSx}>
+                    Your password was right. This account was made before we started
+                    confirming addresses — open the link and you won&apos;t be asked
+                    again.
+                  </Alert>
+                )}
+
                 {notice === "resent" && (
                   <Alert severity="success" sx={alertSx}>
-                    Sent again. Older links no longer work.
+                    Sent again. Anything we sent earlier no longer works.
                   </Alert>
                 )}
 
@@ -369,7 +430,7 @@ export default function AuthForm(): React.ReactElement {
 
                 {stage === "sent" ? (
                   <Box mt={2}>
-                    <Link component="button" underline="hover" onClick={requestCode}>
+                    <Link component="button" underline="hover" onClick={() => requestCode()}>
                       Enter the 6-digit code instead
                     </Link>
                   </Box>
@@ -415,7 +476,14 @@ export default function AuthForm(): React.ReactElement {
                 <Box mt={1}>
                   <Typography variant="caption" color="text.secondary">
                     Didn&apos;t arrive?{" "}
-                    <Link component="button" underline="hover" onClick={() => sendLink(true)}>
+                    {/* Resend what this screen is about. Previously this always
+                        mailed a link, which on the code screen sent the wrong
+                        thing and dropped the user back a step. */}
+                    <Link
+                      component="button"
+                      underline="hover"
+                      onClick={() => (stage === "otp" ? requestCode(true) : sendLink(true))}
+                    >
                       Resend
                     </Link>
                   </Typography>
@@ -463,7 +531,15 @@ export default function AuthForm(): React.ReactElement {
                   <Button
                     fullWidth
                     variant="outlined"
-                    onClick={() => signIn.social({ provider: "google", callbackURL: from })}
+                    onClick={() =>
+                    signIn.social({
+                      provider: "google",
+                      callbackURL: from,
+                      // Without this, a refused link lands on Better Auth's own
+                      // error page instead of the recovery path below.
+                      errorCallbackURL: "/auth",
+                    })
+                  }
                     sx={{ textTransform: "none" }}
                   >
                     Continue with Google instead

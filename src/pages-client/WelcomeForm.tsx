@@ -7,7 +7,7 @@
  * renders the address is proven and a session exists. That is the whole reason
  * it is here rather than on the signup form: `signIn.magicLink` accepts a
  * single `name` string when it creates the account, so a first/last pair asked
- * for before verification would have been flattened into one value and the two
+ * for before the address was proven would have been flattened into one value and the two
  * columns the profile reads would have stayed empty. With a session, updateUser
  * can set both properly.
  *
@@ -28,6 +28,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { updateUser } from "../lib/auth-client";
+import AuthCat from "../components/AuthCat";
 
 export default function WelcomeForm(): React.ReactElement {
   const router = useRouter();
@@ -66,13 +67,7 @@ export default function WelcomeForm(): React.ReactElement {
         <Container maxWidth="xs">
           <Paper elevation={3} sx={{ px: 4, py: 5, borderRadius: 3 }}>
             <Box textAlign="center" mb={3}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/9288/9288684.png"
-                alt=""
-                width={80}
-                style={{ marginBottom: 12 }}
-              />
+              <AuthCat />
               <Typography variant="h5" fontWeight="bold">
                 You&apos;re in!
               </Typography>

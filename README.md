@@ -139,11 +139,15 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 | `DATABASE_URL` | always | Pooled Neon URL. The driver switches on the host, so any Postgres URL works. On Vercel set it for Production only — Preview's is injected per deployment by the Neon integration |
 | `BETTER_AUTH_SECRET` | always | No fallback by design — boot fails without it |
 | `PAYLOAD_SECRET` | the CMS | `/admin` and Payload's REST API 500 without it. Rotating it drops every admin session |
-| `BETTER_AUTH_URL` | production | Production only. Optional locally, and must stay unset on Preview — pinned to the production domain it makes previews 403 their own sign-in |
+| `BETTER_AUTH_URL` | production | The public origin, and the fallback when a request's host matches no allowed host. Previews no longer depend on leaving it unset: `src/lib/auth.ts` builds `baseURL: { allowedHosts }` instead (#55) |
+| `VERCEL_PREVIEW_PROJECT_NAME` | Google/auth on Preview | The Vercel **project** name, used to trust `<project>-*.vercel.app`. Cannot be derived — with a custom domain attached, `VERCEL_PROJECT_PRODUCTION_URL` holds that domain, not the project. Unset means previews are not trusted and sign-in 403s there |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google sign-in | Redirect URI is `{origin}/api/auth/callback/google`, matched by Google as an exact string. Boot fails without them outside development |
 | `BLOB_READ_WRITE_TOKEN` | CMS media | Set for you when Blob storage is added to the Vercel project. The store must be **private** — media is served through Payload's auth-gated route, so signed-out requests 403. Empty locally falls back to the filesystem |
 | `PREVIEW_SECRET` | CMS live preview | Fails closed: unset, `/api/preview` 403s everything and the admin hides Live Preview. Not the boundary on its own — the route also checks the caller's `cms_admins` session |
 | `NEXT_PUBLIC_SERVER_URL` | CMS live preview | The exact origin `/admin` is served from. Set it per environment, Preview included. Falls back to `http://localhost:3000`, which is wrong on any deploy |
-| `RESEND_API_KEY` / `EMAIL_FROM` | password reset emails | Without them, dev prints the reset link to the server console |
+| `RESEND_API_KEY` / `EMAIL_FROM` | **all sign-in** | Sign-in links, one-time codes and confirmations all go through Resend, so mail delivery *is* the login system. `EMAIL_FROM` must be on a Resend-authenticated domain (SPF + DKIM) |
+| `AUTH_DEV_LOG_LINKS` | local only | `1` prints sign-in links and codes to the server console instead of sending. Those lines are working credentials — without it a missing mail config is an error, and a production build refuses the flag outright |
+| `RATE_LIMIT_IN_DEV` | local only | Better Auth rate-limits on production only, so a broken limiter is invisible in dev. `1` turns it on to check it writes to `rate_limit` |
 | `PRONUNCIATION_SERVICE_URL` / `_SECRET` | pronunciation scoring | See `services/pronunciation/README.md` |
 | `MONGODB_URI` | migration scripts only | **Never set this on Vercel** |
 

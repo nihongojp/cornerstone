@@ -8,18 +8,17 @@ import { Resend } from "resend";
  * doesn't arrive is a user who cannot sign in and has no way to tell us. That
  * is why #47 names deliverability, not Better Auth configuration, as the real
  * Phase 1 risk — and why this module refuses to fail quietly.
+ *
+ * Every message here carries a working credential — a sign-in link, a
+ * confirmation link, or a code. There is deliberately no flag distinguishing
+ * them, because there is no case where one may be logged and another may not:
+ * `devLogFallback` gates the lot behind a single opt-in.
  */
 
 type SendArgs = {
   to: string;
   subject: string;
   text: string;
-  /**
-   * True when `text` contains a sign-in credential — a magic link or a code.
-   * These may never be written to a log unless a developer has explicitly asked
-   * for it; see `devLogFallback` below.
-   */
-  containsCredential: boolean;
 };
 
 /*
@@ -89,7 +88,6 @@ export function signInLinkEmail(url: string) {
       `Here is your sign-in link:\n\n${url}\n\n` +
       `It expires in 15 minutes and can only be used once.\n\n` +
       `If you didn't ask to sign in, you can ignore this email.`,
-    containsCredential: true as const,
   };
 }
 
@@ -100,7 +98,6 @@ export function signInCodeEmail(otp: string) {
       `Your sign-in code is ${otp}\n\n` +
       `It expires in 15 minutes.\n\n` +
       `If you didn't ask to sign in, you can ignore this email.`,
-    containsCredential: true as const,
   };
 }
 
@@ -110,7 +107,6 @@ export function verifyEmail(url: string) {
     text:
       `Confirm your email address to finish setting up your Nihon-Go! account:\n\n${url}\n\n` +
       `If you didn't create an account, you can ignore this email.`,
-    containsCredential: true as const,
   };
 }
 
@@ -121,6 +117,5 @@ export function resetPasswordEmail(url: string) {
       `Someone requested a password reset for this account.\n\n` +
       `Reset your password: ${url}\n\n` +
       `This link expires in one hour. If you didn't request it, you can ignore this email.`,
-    containsCredential: true as const,
   };
 }

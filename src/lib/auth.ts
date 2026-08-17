@@ -36,24 +36,30 @@ if (!secret) {
  *
  * The preview pattern is deliberately PROJECT-SCOPED. A bare `*.vercel.app`
  * would trust every Vercel deployment on the internet to act as this app's
- * origin. VERCEL_PROJECT_PRODUCTION_URL is set by Vercel on every deployment.
+ * origin.
  */
 function resolveBaseURL() {
   const explicit = process.env.BETTER_AUTH_URL;
   const projectHost = process.env.VERCEL_PROJECT_PRODUCTION_URL;
 
+  /*
+   * Preview hostnames look like `<project>-<hash>-<team>.vercel.app` and
+   * `<project>-git-<branch>-<team>.vercel.app`. The project name cannot be
+   * derived from VERCEL_PROJECT_PRODUCTION_URL: once a custom domain is
+   * attached, that variable holds the custom domain, so taking its first label
+   * yields the domain name rather than the project — and every preview then
+   * matches nothing and answers 403.
+   *
+   * So it is configured, not guessed. Unset means previews are simply not
+   * trusted, which fails closed and visibly rather than silently.
+   */
+  const previewProject = process.env.VERCEL_PREVIEW_PROJECT_NAME;
+
   const allowedHosts = [
     "localhost:3000",
     ...(explicit ? [new URL(explicit).host] : []),
-    ...(projectHost
-      ? [
-          projectHost,
-          // Covers both the immutable per-deployment host and the *-git-<branch>
-          // alias people actually open from a PR — scoped to this project's
-          // name rather than all of vercel.app.
-          `${projectHost.split(".")[0]}-*.vercel.app`,
-        ]
-      : []),
+    ...(projectHost ? [projectHost] : []),
+    ...(previewProject ? [`${previewProject}-*.vercel.app`] : []),
   ];
 
   return {
@@ -63,6 +69,22 @@ function resolveBaseURL() {
     ...(explicit ? { fallback: explicit } : {}),
   };
 }
+
+/*
+ * `?? ""` would have registered a provider with empty credentials — a Google
+ * button that looks fine and fails only when someone clicks it. Instead the
+ * provider is registered only when it is actually configured, so an
+ * unconfigured deploy answers the sign-in endpoint with a clear error rather
+ * than bouncing the user to Google with a malformed request.
+ *
+ * Deliberately NOT a boot-time throw, which is how BETTER_AUTH_SECRET is
+ * handled above. `next build` imports this module with NODE_ENV=production, so
+ * a throw would refuse to build anywhere the credentials are absent at build
+ * time — including a clean checkout — while saying nothing about runtime.
+ */
+const googleId = process.env.GOOGLE_CLIENT_ID;
+const googleSecret = process.env.GOOGLE_CLIENT_SECRET;
+const googleConfigured = Boolean(googleId && googleSecret);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -91,7 +113,7 @@ export const auth = betterAuth({
      * Structural rather than hygiene, now that password signup is the one path
      * that creates an account without proving inbox control. It is also what
      * keeps those accounts able to link Google later: `requireLocalEmailVerified`
-     * gates on the local row, so an unverified account can never link (#51).
+     * gates on the local row, so an unproven account can never link (#51).
      */
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
@@ -104,16 +126,29 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendOnSignUp: true,
+    /*
+     * The mechanism that keeps `requireEmailVerification` from locking out the
+     * accounts that predate it.
+     *
+     * Those accounts have `emailVerified: false` — #51 decided against
+     * backfilling, since we never had the proof — so with verification required
+     * they would be refused at sign-in with EMAIL_NOT_VERIFIED and no way
+     * forward. This sends them the confirmation mail on that attempt, so the
+     * refusal becomes one detour rather than a dead end. The population is
+     * finite and shrinks: every new account is proven at creation.
+     */
+    sendOnSignIn: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       await sendMail({ to: user.email, ...verifyEmail(url) });
     },
   },
 
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+  socialProviders: googleConfigured
+    ? {
+        google: {
+          clientId: googleId!,
+          clientSecret: googleSecret!,
       /*
        * Required, and easy to miss because it fails silently.
        *
@@ -123,12 +158,13 @@ export const auth = betterAuth({
        * `firstName`/`lastName`. Without this mapping they never populate — no
        * error, just empty columns (#51).
        */
-      mapProfileToUser: (profile) => ({
-        firstName: profile.given_name,
-        lastName: profile.family_name,
-      }),
-    },
-  },
+          mapProfileToUser: (profile) => ({
+            firstName: profile.given_name,
+            lastName: profile.family_name,
+          }),
+        },
+      }
+    : {},
 
   account: {
     accountLinking: {
@@ -139,7 +175,7 @@ export const auth = betterAuth({
        * always does.
        *
        * The takeover vector — an attacker pre-registering an unverified account
-       * at a victim's address, then having the victim's Google identity merged
+       * at a victim's address, then having the victim's Google identity linked
        * into it — is closed by `requireLocalEmailVerified`, which defaults true
        * and becomes unconditional next minor. We rely on that default rather
        * than restating it (#51).

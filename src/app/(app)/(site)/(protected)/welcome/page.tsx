@@ -1,7 +1,7 @@
 import WelcomeForm from "../../../../../pages-client/WelcomeForm";
 
 /*
- * Where a brand-new account lands after verifying its address — see
+ * Where a brand-new account lands after proving its address — see
  * `newUserCallbackURL` in AuthForm. In the (protected) group because it only
  * makes sense with a session: it calls updateUser on the signed-in user.
  */
