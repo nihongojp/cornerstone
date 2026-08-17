@@ -226,6 +226,7 @@ export interface Lesson {
          */
         components: (
           | ProseBlock
+          | DialogueBlock
           | VideoLessonBlock
           | GrammarPointBlock
           | VocabListBlock
@@ -350,39 +351,53 @@ export interface ProseBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "VideoLessonBlock".
+ * via the `definition` "DialogueBlock".
  */
-export interface VideoLessonBlock {
-  title: string;
+export interface DialogueBlock {
+  title?: string | null;
   /**
-   * The lesson video.
+   * The first speaker's name, as shown beside their lines.
+   */
+  speakerA: string;
+  speakerB: string;
+  /**
+   * Optional recording of the conversation.
    */
   video?: (number | null) | Media;
-  /**
-   * Optional standalone audio for this screen.
-   */
-  audio?: (number | null) | Media;
-  /**
-   * Notes shown under the video.
-   */
-  content?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
+  lines: {
+    /**
+     * Which of the two is talking. The old data had no speakers at all — the renderer coloured lines by whether their index was even, so inserting a line silently reassigned every line after it.
+     */
+    speaker: 'a' | 'b';
+    /**
+     * What they say. Ruby and Term work in here.
+     */
+    japanese: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
         version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
+      };
+      [k: string]: unknown;
     };
-    [k: string]: unknown;
-  } | null;
+    romaji?: string | null;
+    english?: string | null;
+    /**
+     * This line, spoken.
+     */
+    audio?: (number | null) | Media;
+    id?: string | null;
+  }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'videoLesson';
+  blockType: 'dialogue';
 }
 /**
  * Images, audio and video. Upload once here, then pick the file from the media field of whichever component needs it.
@@ -438,6 +453,42 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoLessonBlock".
+ */
+export interface VideoLessonBlock {
+  title: string;
+  /**
+   * The lesson video.
+   */
+  video?: (number | null) | Media;
+  /**
+   * Optional standalone audio for this screen.
+   */
+  audio?: (number | null) | Media;
+  /**
+   * Notes shown under the video.
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoLesson';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -773,7 +824,7 @@ export interface VideoPageBlock {
    */
   video?: (number | null) | Media;
   /**
-   * Free-text notes about the video's form, carried over from the source data. Purely descriptive — nothing renders off it.
+   * The dialogue, one line per speaker, alternating. This IS rendered — `NewLessonPageItem.tsx:279` branches on it and lays the lines out as a two-speaker conversation. The earlier note here said nothing rendered off it, which was wrong: 16 of the 20 pages of this type have no video at all and this field is their entire content. Do not drop it.
    */
   videoForm?: string[] | null;
   /**
@@ -1454,6 +1505,7 @@ export interface LessonsSelect<T extends boolean = true> {
           | T
           | {
               prose?: T | ProseBlockSelect<T>;
+              dialogue?: T | DialogueBlockSelect<T>;
               videoLesson?: T | VideoLessonBlockSelect<T>;
               grammarPoint?: T | GrammarPointBlockSelect<T>;
               vocabList?: T | VocabListBlockSelect<T>;
@@ -1507,6 +1559,28 @@ export interface ProseBlockSelect<T extends boolean = true> {
   tone?: T;
   title?: T;
   content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DialogueBlock_select".
+ */
+export interface DialogueBlockSelect<T extends boolean = true> {
+  title?: T;
+  speakerA?: T;
+  speakerB?: T;
+  video?: T;
+  lines?:
+    | T
+    | {
+        speaker?: T;
+        japanese?: T;
+        romaji?: T;
+        english?: T;
+        audio?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

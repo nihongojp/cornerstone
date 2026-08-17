@@ -38,6 +38,8 @@ import path from "node:path";
 
 import { textToLexical, type PlainTextLexical } from "../../src/lib/content/textToLexical";
 
+import { LIBRARY_BLOCK_SLUGS } from "../../src/payload/blocks/librarySlugs";
+
 import { CONTENT_COLLECTIONS, type SnapshotDoc } from "./lib/snapshot";
 
 const DIR = path.resolve("content/snapshot");
@@ -79,7 +81,53 @@ type DerivedTerm = {
   mergedFrom?: string[];
 };
 
+/*
+ * Two files hold terms and only one of them is the catalogue.
+ *
+ * `content/terms.json` is the one-time *derivation* from the legacy strings, and
+ * its `mergedFrom` is the string → key mapping this transform reads.
+ * `content/snapshot/terms.json` is the snapshot of the collection, and it is what
+ * `content:import` actually writes to the database. So a change to a term has to
+ * go into the snapshot; writing the derivation file would look like it worked and
+ * change nothing. (It did, on the first version of this script.)
+ */
 const derived: DerivedTerm[] = JSON.parse(readFileSync(path.resolve("content/terms.json"), "utf8"));
+
+const termSnapshot: SnapshotDoc[] = JSON.parse(
+  readFileSync(path.join(DIR, "terms.json"), "utf8")
+);
+
+/** The snapshot states for a term key — latest, and the published one if it differs. */
+function snapshotStatesFor(key: string): Array<Record<string, unknown>> {
+  const entry = termSnapshot.find((t) => t.key === key);
+  if (!entry) return [];
+  return [entry.latest, entry.published].filter(
+    (state): state is Record<string, unknown> => Boolean(state)
+  );
+}
+
+/**
+ * Move a value off an exercise and onto the term, when the term has none.
+ *
+ * This is the whole argument for the catalogue, applied once: audio and images
+ * were attached to whichever *copy* of a word the author happened to be editing,
+ * and `utils/termMedia.ts` then guessed at render time which copies meant the
+ * same word. The new blocks read `term.audio`, so anything still sitting on an
+ * exercise has to move now or it is lost when the old block is deleted in 4b.
+ *
+ * Never overwrites: a term that already has audio keeps it. Reported, so 30 terms
+ * gaining audio is visible rather than implicit.
+ */
+function adopt(key: string, field: "audio" | "image" | "meaning", value: unknown): void {
+  if (value === null || value === undefined || value === "") return;
+  const states = snapshotStatesFor(key);
+  if (!states.length) return;
+  if (states[0][field]) return;
+  for (const state of states) state[field] = structuredClone(value);
+  adopted.push(`${key}.${field}`);
+}
+
+const adopted: string[] = [];
 
 const normalise = (s: string) => s.trim().toLowerCase().replace(/[.,!?~\s]+/g, " ").trim();
 
@@ -144,6 +192,12 @@ type Context = {
   quarantine: (reason: string) => void;
   /** This block has no successor and should simply go away. */
   drop: () => void;
+  /**
+   * The words a checkpoint has introduced so far in this lesson, accumulated as
+   * the blocks are walked in order. `listenAndChoose` is authored with these as
+   * its distractors — the replacement for the render-time `checkpointPool`.
+   */
+  pool: Ref[];
 };
 
 /**
@@ -155,8 +209,23 @@ type Context = {
  */
 const DELETE: Block[] = [];
 
+/*
+ * The library's slugs, read from the collection config rather than listed here —
+ * a hand-copied list is how the eleventh block would end up being quarantined by
+ * a script that had never heard of it.
+ */
+const LIBRARY_SLUGS = new Set<string>(LIBRARY_BLOCK_SLUGS);
+
 function convert(block: Block, ctx: Context): Block[] {
   const type = String(block.blockType);
+
+  /*
+   * Already a library block — a lesson migrated on an earlier run, which is the
+   * normal state while the five move one at a time. Passed through untouched, so
+   * the script is safe to re-run and safe to point at a lesson twice. Without
+   * this the `default` case would quarantine the transform's own output.
+   */
+  if (LIBRARY_SLUGS.has(type)) return [block];
 
   switch (type) {
     // ── The four prose blocks, which differed only in their box ──────────────
@@ -184,47 +253,88 @@ function convert(block: Block, ctx: Context): Block[] {
     }
 
     case "videoPage": {
+      /*
+       * Two shapes wearing one block type, which the field inventory only shows
+       * once you count: 4 of the 20 rows have a video, 16 do not and carry a
+       * two-speaker dialogue in `videoForm` instead. The plan said to drop that
+       * field because nothing rendered it; `NewLessonPageItem.tsx:279` does, and
+       * for those 16 it is the entire screen. So both halves are kept — a
+       * `dialogue` block for the conversation, a `videoLesson` for the video, and
+       * both when a row has both.
+       */
       const dialogue = (Array.isArray(block.videoForm) ? block.videoForm : []) as string[];
+      const lines = dialogue.filter((line) => typeof line === "string" && line.trim());
+      const out: Block[] = [];
 
-      if (!block.video) {
-        /*
-         * 16 of the 20 pages of this type have no video, and their entire content
-         * is `videoForm` — a two-speaker dialogue, alternating lines.
-         *
-         * The plan said to drop `videoForm` because "nothing renders off it", and
-         * the block's own field description said the same. Both were wrong:
-         * `NewLessonPageItem.tsx:279` branches on it and lays the lines out as a
-         * conversation. Converting these to `videoLesson` and dropping the field
-         * would delete the content of 16 screens.
-         *
-         * There is no block in the library for a dialogue, and inventing an
-         * eleventh one is a design decision rather than a transform, so these are
-         * held. See the note in the report.
-         */
-        ctx.quarantine(
-          dialogue.length
-            ? `not a video page at all — no video, and its content is a ${dialogue.length}-line ` +
-              `dialogue in \`videoForm\`, which DOES render. Needs a dialogue block, or the lines ` +
-              `re-authored as prose: ${JSON.stringify(dialogue)}`
-            : "a video page with neither a video nor a dialogue — nothing to show"
-        );
-        return [];
+      if (lines.length) {
+        out.push({
+          blockType: "dialogue",
+          title: block.video ? null : (block.title ?? null),
+          /*
+           * The old rendering coloured a line by index parity and had no names at
+           * all, so "A" and "B" is exactly as much as the data actually says.
+           * Naming them is an authoring job, and the field is required so it
+           * cannot be silently left blank.
+           */
+          speakerA: "A",
+          speakerB: "B",
+          video: null,
+          lines: lines.map((line, i) => ({
+            speaker: i % 2 === 0 ? "a" : "b",
+            japanese: textToLexical(line),
+            romaji: null,
+            english: null,
+            audio: null,
+          })),
+        });
+        // Not a failure, but the lines are worth a human read: several are the
+        // literal string "[...]", which is a placeholder that reached the site.
+        const placeholders = lines.filter((line) => /^\s*\[\.\.\.\]\s*$/.test(line));
+        if (placeholders.length) {
+          ctx.quarantine(
+            `migrated to a dialogue, but ${placeholders.length} of its ${lines.length} line(s) are ` +
+              'the literal placeholder "[...]" — the conversation is incomplete'
+          );
+        }
       }
-      if (dialogue.length) {
-        ctx.quarantine(
-          `kept as videoLesson, but its ${dialogue.length}-line dialogue in \`videoForm\` has no ` +
-            `home in the library and is not carried: ${JSON.stringify(dialogue)}`
-        );
-      }
-      return [
-        {
+
+      if (block.video) {
+        out.push({
           blockType: "videoLesson",
           title: block.title ?? "Video",
           video: block.video,
           audio: block.audio ?? null,
           content: joinProse(block.description, block.content),
-        },
-      ];
+        });
+      } else {
+        // No video. Copy and audio would otherwise be dropped, and they are
+        // different shapes: prose needs a body (`content` is required, and an
+        // empty document fails validation), a bare clip is a figure.
+        const copy = joinProse(block.description, block.content);
+        if (copy) {
+          out.push({
+            blockType: "prose",
+            tone: "page",
+            title: lines.length ? null : (block.title ?? null),
+            content: copy,
+          });
+        }
+        if (block.audio) {
+          out.push({
+            blockType: "mediaFigure",
+            image: null,
+            audio: block.audio,
+            video: null,
+            caption: lines.length ? null : (block.title ?? null),
+          });
+        }
+      }
+
+      if (!out.length) {
+        ctx.quarantine("a video page with no video, no dialogue and no copy — nothing to show");
+        return [];
+      }
+      return out;
     }
 
     case "grammarPage": {
@@ -295,6 +405,9 @@ function convert(block: Block, ctx: Context): Block[] {
         ctx.quarantine(`media seed for "${String(block.term)}", which is not in the catalogue`);
         return [];
       }
+      // This block's entire purpose. Harvest it before deleting it.
+      adopt(t.key, "audio", block.audio);
+      adopt(t.key, "image", block.image);
       /*
        * Deleted, not converted, and not held either. This block existed *only* to
        * attach audio and an image to a word so the render-time expander could find
@@ -310,23 +423,24 @@ function convert(block: Block, ctx: Context): Block[] {
 
     // ── Practice ────────────────────────────────────────────────────────────
     /*
-     * ── `matchingExercise` is not a matching exercise ─────────────────────────
+     * ── `matchingExercise` is a checkpoint, and this is where its pool goes ────
      *
-     * It is a *checkpoint marker*. `utils/expandLessonItems.ts:302` keys off it to
+     * It was never a pairing. `utils/expandLessonItems.ts:302` keys off it to
      * capture the terms introduced since the last checkpoint and then *generates*
-     * the matchAudio, pronunciation and drag-and-drop batches that follow it. That
-     * expansion moved to import time (decision #27), which is why the snapshot
-     * already holds 24 matchAudioExercise and 24 pronunciationExercise blocks as
-     * real rows — the generated children are already there.
+     * the practice batches that follow it — which is why it has no
+     * `englishTranslation` on its items and why the snapshot already holds 24
+     * matchAudio and 24 pronunciation rows as real blocks: that expansion moved to
+     * import time (decision #27).
      *
-     * So a checkpoint has no `englishTranslation` on its items and never did: it
-     * was never rendered as a pairing. Mapping it to `matchPairs` would invent an
-     * exercise, and dropping it would lose the authored grouping that says which
-     * words belong to which checkpoint — which is what the plan turns into an
-     * authored `distractors` relationship on the practice blocks.
+     * What the marker still carries is the grouping — which words this checkpoint
+     * covers — and the plan's answer is an authored `distractors` relationship
+     * instead of a pool derived at render. So the checkpoint contributes its terms
+     * to `pool` and then goes away, and every `listenAndChoose` after it is
+     * authored with those words as its wrong answers. That is what finally lets
+     * the render-time expander be deleted in 4b.
      *
-     * That is a cross-block transform and an authoring decision, not a 1:1 map,
-     * so these are held.
+     * Cumulative, matching `buildCheckpointPool(cumulativeTerms)` in the expander:
+     * a word from an earlier checkpoint stays available as a distractor.
      */
     case "matchingExercise": {
       const items = (Array.isArray(block.items) ? block.items : []) as Block[];
@@ -338,25 +452,22 @@ function convert(block: Block, ctx: Context): Block[] {
 
       /*
        * The translation moves onto the term. It was stored on the exercise, which
-       * is why the same word had a different gloss in different lessons; the
-       * catalogue is where it belongs, and `matchPairs` reads it from there.
+       * is why the same word could have a different gloss in different lessons;
+       * the catalogue is where it belongs. (Nothing in the current corpus has one,
+       * so this adopts nothing today — it is here because the field exists and
+       * dropping a populated one silently would be the failure this avoids.)
        */
       items.forEach((item, i) => {
         const gloss = item.englishTranslation;
         const t = resolved[i];
-        if (t && !t.meaning && typeof gloss === "string" && gloss.trim()) {
-          t.meaning = gloss.trim();
-          glossesAdopted.push(`${t.key} ← "${gloss.trim()}"`);
-        }
+        if (t && typeof gloss === "string" && gloss.trim()) adopt(t.key, "meaning", gloss.trim());
       });
 
-      ctx.quarantine(
-        `a checkpoint marker over ${refs.length} term(s) (${resolved.map((t) => t?.key).join(", ")}), ` +
-          "not a pairing — the practice it used to generate is already in the data as separate " +
-          "blocks. Decide whether these terms become an authored matchPairs, or the distractor " +
-          "pool for the practice blocks that follow it."
-      );
-      return [];
+      for (const r of refs) {
+        if (!ctx.pool.some((p) => p.$ref === r.$ref)) ctx.pool.push(r);
+      }
+      ctx.drop();
+      return DELETE;
     }
 
     case "connectTheDots": {
@@ -388,12 +499,17 @@ function convert(block: Block, ctx: Context): Block[] {
         ctx.quarantine(`"${String(block.phrase)}" is not in the catalogue`);
         return [];
       }
+      // The clip and the picture were on the exercise. They belong to the word.
+      adopt(t.key, "audio", block.audio);
+      adopt(t.key, "image", block.image);
       return [
         {
           blockType: "listenAndChoose",
           instructions: null,
           term: ref(t.key),
-          distractors: [],
+          // Authored from the checkpoint that introduced these words, instead of
+          // derived at render time from a fuzzy term-media registry.
+          distractors: ctx.pool.filter((p) => p.$ref !== t.key),
           // The old block carried its own image for the answer tiles.
           answerWith: block.image ? "image" : "text",
         },
@@ -429,6 +545,10 @@ function convert(block: Block, ctx: Context): Block[] {
 
     case "dragAndDropPuzzle": {
       const t = lookup(block.term);
+      if (t) {
+        adopt(t.key, "audio", block.audio);
+        adopt(t.key, "image", block.image);
+      }
       const tiles = (Array.isArray(block.options) ? block.options : []) as string[];
       const sequence = (Array.isArray(block.correctSequence) ? block.correctSequence : []) as string[];
       const absent = sequence.filter((s) => !tiles.includes(s));
@@ -482,11 +602,19 @@ function convert(block: Block, ctx: Context): Block[] {
         ctx.quarantine(`"${String(block.phrase)}" is not in the catalogue`);
         return [];
       }
+      adopt(t.key, "audio", block.audio);
       if (!block.audio) {
+        /*
+         * Migrated anyway, and reported. 13 of the 24 have no reference audio, so
+         * they cannot have been scoring anything under the old block either — the
+         * gap is editorial, not structural, and holding them back would only mean
+         * 13 screens stayed on a block type that is about to be deleted.
+         * `content:verify` reports it as a to-do against the term.
+         */
         ctx.quarantine(
-          `"${String(block.phrase)}" has no reference audio — there is nothing to score against`
+          `migrated, but "${String(block.phrase)}" has no reference audio — the scorer has ` +
+            "nothing to grade a recording against until the term gets a recording"
         );
-        return [];
       }
       return [
         {
@@ -508,8 +636,6 @@ function convert(block: Block, ctx: Context): Block[] {
       return [];
   }
 }
-
-const glossesAdopted: string[] = [];
 
 function proseBlock(block: Block, tone: string, ctx: Context, title?: unknown): Block[] {
   const content = prose(block.content);
@@ -583,6 +709,7 @@ function main() {
   let produced = 0;
   const perType = new Map<string, { in: number; out: number; held: number; dropped: number }>();
   let drops = 0;
+  let emptyExercises = 0;
 
   console.log(`\n${WRITE ? "Migrating" : "Dry run —"} old blocks → the library${ONLY ? ` (lesson ${ONLY})` : ""}\n`);
 
@@ -592,6 +719,9 @@ function main() {
     for (const state of [doc.latest, doc.published]) {
       if (!state) continue;
       const exercises = (Array.isArray(state.exercises) ? state.exercises : []) as Block[];
+      // Per lesson state, in play order: a checkpoint adds to it, the practice
+      // after it reads from it.
+      const pool: Ref[] = [];
 
       exercises.forEach((exercise, ei) => {
         const blocks = (Array.isArray(exercise.components) ? exercise.components : []) as Block[];
@@ -607,6 +737,7 @@ function main() {
           const ctx: Context = {
             lesson: doc.key,
             where: `exercise[${ei}].components[${bi}]`,
+            pool,
             drop: () => {
               dropped = true;
             },
@@ -649,6 +780,21 @@ function main() {
 
         exercise.components = next;
       });
+
+      /*
+       * An exercise whose every block was deleted has nothing left to render, and
+       * `components` has `minRows: 1` so Payload refuses it outright. A screen
+       * that was only ever a checkpoint marker is exactly that case: the marker's
+       * job is now the `distractors` on the practice blocks, so the empty screen
+       * goes with it rather than being imported as an invalid row.
+       */
+      const kept = exercises.filter((exercise) => {
+        const components = Array.isArray(exercise.components) ? exercise.components : [];
+        if (components.length) return true;
+        emptyExercises++;
+        return false;
+      });
+      if (kept.length !== exercises.length) state.exercises = kept;
     }
   }
 
@@ -664,11 +810,19 @@ function main() {
     `\n  ${converted} block(s) converted into ${produced}, ${drops} deleted on purpose, ` +
       `${quarantine.length} flagged`
   );
+  if (emptyExercises) {
+    console.log(
+      `  ${emptyExercises} exercise(s) removed — every block in them was deleted, and an exercise ` +
+        "with no components is not a screen"
+    );
+  }
 
-  if (glossesAdopted.length) {
-    console.log(`\n  ${glossesAdopted.length} English gloss(es) moved from an exercise onto the term:`);
-    for (const g of glossesAdopted.slice(0, 10)) console.log(`    ${g}`);
-    if (glossesAdopted.length > 10) console.log(`    … and ${glossesAdopted.length - 10} more`);
+  if (adopted.length) {
+    console.log(
+      `\n  ${adopted.length} value(s) moved off an exercise and onto the term they belong to:`
+    );
+    for (const a of adopted.slice(0, 12)) console.log(`    ${a}`);
+    if (adopted.length > 12) console.log(`    … and ${adopted.length - 12} more`);
   }
 
   if (quarantine.length) {
@@ -691,8 +845,8 @@ function main() {
 
   writeFileSync(path.join(DIR, "lessons.json"), `${JSON.stringify(lessons, null, 2)}\n`);
 
-  // The catalogue gains the glosses that were living on exercises.
-  writeFileSync(path.resolve("content/terms.json"), `${JSON.stringify(derived, null, 2)}\n`);
+  // The catalogue gains the media and glosses that were living on exercises.
+  writeFileSync(path.join(DIR, "terms.json"), `${JSON.stringify(termSnapshot, null, 2)}\n`);
 
   const existing = (() => {
     try {

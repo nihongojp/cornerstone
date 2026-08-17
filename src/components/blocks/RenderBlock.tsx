@@ -6,6 +6,7 @@ import { Box, Typography } from "@mui/material";
 import { kanaTilesToRomaji } from "../../utils/kana";
 import type {
   BuildSentenceBlock,
+  DialogueBlock,
   GrammarPointBlock,
   ListenAndChooseBlock,
   MatchPairsBlock,
@@ -70,6 +71,8 @@ export const RenderBlock: React.FC<{ block: BlockOf; onResult?: ResultCallback }
   switch (block.blockType) {
     case "prose":
       return <ProseView {...block} />;
+    case "dialogue":
+      return <DialogueView {...block} />;
     case "videoLesson":
       return <VideoLessonView {...block} />;
     case "grammarPoint":
@@ -144,6 +147,68 @@ const ProseView: React.FC<ProseBlock> = ({ tone, title, content }) => {
     </Box>
   );
 };
+
+/*
+ * A two-speaker conversation.
+ *
+ * The old `videoPage.videoForm` rendering coloured a line by whether its index was
+ * even, so the speaker was a property of position — inserting a line silently
+ * reassigned every line after it. Here the speaker is on the line.
+ */
+const DialogueView: React.FC<DialogueBlock> = ({
+  title,
+  speakerA,
+  speakerB,
+  video,
+  lines,
+}) => (
+  <Box sx={{ width: "100%", maxWidth: 560, mx: "auto", px: { xs: 1, sm: 2 } }}>
+    {title && (
+      <Typography sx={{ fontWeight: 800, fontSize: "1.2rem", mb: 1.5 }}>{title}</Typography>
+    )}
+    {video && (
+      <Box sx={{ mb: 2 }}>
+        <MediaVideo value={video} />
+      </Box>
+    )}
+    <Box sx={{ ...CARD_SX, display: "flex", flexDirection: "column", gap: 1.5 }}>
+      {(lines ?? []).map((line, index) => (
+        <Box key={line.id ?? index} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
+          <Typography
+            sx={{
+              fontSize: "0.72rem",
+              fontWeight: 800,
+              letterSpacing: "0.04em",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+              pt: 0.5,
+              minWidth: 56,
+              color: line.speaker === "a" ? "#B43D20" : "#6366f1",
+            }}
+          >
+            {line.speaker === "a" ? speakerA : speakerB}
+          </Typography>
+          <Box sx={{ flex: 1 }}>
+            <Box sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, lineHeight: 1.7 }}>
+              <RichText data={line.japanese} disableContainer />
+            </Box>
+            {line.romaji && (
+              <Typography
+                sx={{ fontSize: "0.85rem", color: "text.secondary", fontStyle: "italic" }}
+              >
+                {line.romaji}
+              </Typography>
+            )}
+            {line.english && (
+              <Typography sx={{ fontSize: "0.9rem", color: "#374151" }}>{line.english}</Typography>
+            )}
+            {line.audio && <MediaAudio value={line.audio} />}
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  </Box>
+);
 
 const VideoLessonView: React.FC<VideoLessonBlock> = ({ title, video, audio, content }) => (
   <Box sx={{ width: "100%", maxWidth: 720, mx: "auto", px: { xs: 1, sm: 2 } }}>

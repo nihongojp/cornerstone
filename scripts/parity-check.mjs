@@ -191,10 +191,30 @@ const CMS = {
       unit: "categories",
       marks: ["Reading", "Podcasts", "Writing", "Organizations", "Shows", "Videos", "Textbooks", "News"],
     },
+    /*
+     * The kana marks changed shape in Phase 4a, and the reason is the point of
+     * the phase.
+     *
+     * They used to be the literal strings `"あ/ア"` on a `flashcardDeck` — the
+     * pair encoded in one field with a slash, split on that slash in four
+     * separate places. The delimiter *was* the schema. They are now a `vocabList`
+     * referencing kana terms that hold `japanese` and `katakana` as their own
+     * fields, so how the pair is displayed is the renderer's decision and the
+     * string `"あ/ア"` does not exist anywhere any more.
+     *
+     * The marks are the term keys instead, which is a stronger assertion than
+     * before: a key can only be in the payload if the *relationship* resolved,
+     * where the old marks only proved a string had been stored. `blockType` is
+     * included so a lesson silently reverting to the old blocks fails here.
+     *
+     * They are checked against the payload rather than rendered text because the
+     * library blocks render client-side — the players are client components, so
+     * the server HTML carries the document, not the screen.
+     */
     {
       path: "/lesson/hiragana-l1-v1-hokkaido",
       unit: "content marks",
-      marks: ["あ/ア", "い/イ", "う/ウ", "え/エ", "お/オ", "Listen and choose the character you hear"],
+      marks: ["あ-ア", "い-イ", "う-ウ", "え-エ", "お-オ", "vocabList", "listenAndChoose"],
     },
     /*
      * The media check, and it has to be a step lesson: neither flashcard lesson

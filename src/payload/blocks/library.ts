@@ -1,6 +1,8 @@
 import type { Block, Field } from "payload";
 
 import { audioField, imageField, videoField } from "../fields/media";
+import { sentenceEditor } from "../fields/prose";
+import { LIBRARY_BLOCK_SLUGS as LIBRARY_SLUGS } from "./librarySlugs";
 
 /*
  * The block library: ten blocks an author composes a screen from.
@@ -117,10 +119,9 @@ export const VideoLesson: Block = {
     audioField({ description: "Optional standalone audio for this screen." }),
     { name: "content", type: "richText", admin: { description: "Notes shown under the video." } },
     /*
-     * `videoPage.videoForm` is deliberately gone: free-text notes carried over
-     * from the source data that nothing has ever rendered. It goes to
-     * `content/quarantine.json` with the rest of the unreachable fields rather
-     * than being carried a third time.
+     * `videoPage.videoForm` is not here, and not dropped either: it held the
+     * dialogue, so it becomes a `dialogue` block. The plan called it free-text
+     * notes that nothing rendered, which was wrong — see the note on `Dialogue`.
      */
   ],
 };
@@ -246,7 +247,89 @@ function exactlyOneAsset(self: "audio" | "image" | "video") {
   };
 }
 
-export const contentBlocks: Block[] = [Prose, VideoLesson, GrammarPoint, VocabList, MediaFigure];
+export const Dialogue: Block = {
+  slug: "dialogue",
+  interfaceName: "DialogueBlock",
+  labels: { singular: "Dialogue", plural: "Dialogues" },
+  admin: { ...ROW_LABEL, group: "Content" },
+  fields: [
+    { name: "title", type: "text" },
+    {
+      name: "speakerA",
+      type: "text",
+      required: true,
+      defaultValue: "A",
+      admin: { description: "The first speaker's name, as shown beside their lines." },
+    },
+    {
+      name: "speakerB",
+      type: "text",
+      required: true,
+      defaultValue: "B",
+    },
+    videoField({ description: "Optional recording of the conversation." }),
+    {
+      name: "lines",
+      type: "array",
+      required: true,
+      minRows: 1,
+      labels: { singular: "Line", plural: "Lines" },
+      admin: { initCollapsed: false },
+      fields: [
+        {
+          name: "speaker",
+          type: "select",
+          required: true,
+          defaultValue: "a",
+          options: [
+            { label: "First speaker", value: "a" },
+            { label: "Second speaker", value: "b" },
+          ],
+          admin: {
+            description:
+              "Which of the two is talking. The old data had no speakers at all — the renderer " +
+              "coloured lines by whether their index was even, so inserting a line silently " +
+              "reassigned every line after it.",
+          },
+        },
+        {
+          name: "japanese",
+          type: "richText",
+          required: true,
+          editor: sentenceEditor,
+          admin: { description: "What they say. Ruby and Term work in here." },
+        },
+        { name: "romaji", type: "text" },
+        { name: "english", type: "text" },
+        audioField({ description: "This line, spoken." }),
+      ],
+    },
+  ],
+};
+
+/*
+ * ── Why there are eleven blocks and not ten ──────────────────────────────────
+ *
+ * The plan listed ten and said to drop `videoPage.videoForm` because "nothing
+ * renders off it". That is false: `NewLessonPageItem.tsx:279` branches on it and
+ * lays the lines out as a two-speaker conversation, and 16 of the 20 `videoPage`
+ * rows have no video at all — the dialogue is their entire content. Dropping the
+ * field would have deleted sixteen screens.
+ *
+ * So a dialogue is a real content shape the library was missing, and it gets a
+ * block rather than being flattened into prose. Modelling it properly also fixes
+ * two things the old field could not express: the speaker is stated instead of
+ * inferred from an index, and each line is rich text, so a dialogue can carry
+ * furigana and per-line audio.
+ */
+export const contentBlocks: Block[] = [
+  Prose,
+  Dialogue,
+  VideoLesson,
+  GrammarPoint,
+  VocabList,
+  MediaFigure,
+];
 
 // ── Practice ─────────────────────────────────────────────────────────────────
 
@@ -463,9 +546,40 @@ export const practiceBlocks: Block[] = [
 /** Every block in the library, in the order the admin offers them. */
 export const libraryBlocks: Block[] = [...contentBlocks, ...practiceBlocks];
 
-/** Which slugs belong to the library — the discriminator the bridge in
- *  `lib/content/adapters.ts` uses to decide which render path an exercise takes. */
-export const LIBRARY_BLOCK_SLUGS: readonly string[] = libraryBlocks.map((block) => block.slug);
+/*
+ * The discriminator `lib/content/adapters.ts` uses to decide which render path an
+ * exercise takes lives in `librarySlugs.ts`, not here — that file has no imports
+ * because `adapters.ts` runs in the browser and this one reaches
+ * `@payloadcms/richtext-lexical` and, through it, `fs`. See the note there.
+ *
+ * Re-exported so callers that are already server-side have one obvious import,
+ * and asserted below so the two cannot disagree.
+ */
+export { LIBRARY_BLOCK_SLUGS } from "./librarySlugs";
+
+/*
+ * The two lists are the same set, checked at module load.
+ *
+ * This is the whole reason a hand-maintained slug list is acceptable: it runs
+ * wherever the Payload config is loaded — `next dev`, every script,
+ * `payload:types` — so adding a block and forgetting `librarySlugs.ts` fails on
+ * the next command instead of making one screen render nothing in the player.
+ */
+{
+  const registered = new Set(libraryBlocks.map((block) => block.slug));
+  const declared = new Set<string>(LIBRARY_SLUGS);
+  const missing = [...registered].filter((slug) => !declared.has(slug));
+  const extra = [...declared].filter((slug) => !registered.has(slug));
+  if (missing.length || extra.length) {
+    throw new Error(
+      "payload/blocks/librarySlugs.ts is out of step with the blocks registered in library.ts." +
+        (missing.length ? ` Missing: ${missing.join(", ")}.` : "") +
+        (extra.length ? ` Not registered: ${extra.join(", ")}.` : "") +
+        " That list is duplicated on purpose — adapters.ts runs in the browser and cannot import" +
+        " this file — so fix the list rather than this check."
+    );
+  }
+}
 
 // ── The validations ──────────────────────────────────────────────────────────
 /*

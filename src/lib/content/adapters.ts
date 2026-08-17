@@ -1,5 +1,11 @@
 import type { Lesson, Resource } from "../../payload/payload-types";
-import { LIBRARY_BLOCK_SLUGS } from "../../payload/blocks/library";
+/*
+ * The slug list, not the block definitions. This file runs in the browser (the
+ * Live Preview wrappers are client components), and `blocks/library.ts` reaches
+ * `@payloadcms/richtext-lexical` and through it `fs` — importing it here 500s
+ * every route with `Module not found: Can't resolve 'fs'`. See librarySlugs.ts.
+ */
+import { LIBRARY_BLOCK_SLUGS } from "../../payload/blocks/librarySlugs";
 import { mediaSrc } from "./media";
 import { optProse } from "./prose";
 import type {
@@ -110,7 +116,10 @@ export type ScreenItem = {
 };
 
 function isLibraryBlock(block: Block): boolean {
-  return LIBRARY_BLOCK_SLUGS.includes(block.blockType);
+  // Widened: the slug list is `as const`, so `includes` would otherwise only
+  // accept a library slug as its argument — and the whole question here is
+  // whether an arbitrary block type is one.
+  return (LIBRARY_BLOCK_SLUGS as readonly string[]).includes(block.blockType);
 }
 
 /**

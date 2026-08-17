@@ -50,6 +50,11 @@ function summarise(data: RowData | undefined): string {
   switch (blockType) {
     case "prose":
       return text(data.title) ?? firstText(data.content) ?? "Prose";
+    case "dialogue": {
+      const lines = Array.isArray(data.lines) ? data.lines : [];
+      const first = lines[0] as RowData | undefined;
+      return text(data.title) ?? firstText(first?.japanese) ?? `${lines.length} lines`;
+    }
     case "videoLesson":
       return text(data.title) ?? "Video";
     case "grammarPoint": {

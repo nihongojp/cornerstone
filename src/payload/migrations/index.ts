@@ -5,6 +5,7 @@ import * as migration_20260817_100401_media_upload_relationships from './2026081
 import * as migration_20260817_103837_terms_collection from './20260817_103837_terms_collection';
 import * as migration_20260817_123651_richtext_prose from './20260817_123651_richtext_prose';
 import * as migration_20260817_140611_block_library from './20260817_140611_block_library';
+import * as migration_20260817_143501_dialogue_block from './20260817_143501_dialogue_block';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20260817_140611_block_library.up,
     down: migration_20260817_140611_block_library.down,
-    name: '20260817_140611_block_library'
+    name: '20260817_140611_block_library',
+  },
+  {
+    up: migration_20260817_143501_dialogue_block.up,
+    down: migration_20260817_143501_dialogue_block.down,
+    name: '20260817_143501_dialogue_block'
   },
 ];
