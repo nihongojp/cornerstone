@@ -5,6 +5,7 @@ import { postgresAdapter } from "@payloadcms/db-postgres";
 import { buildConfig } from "payload";
 
 import { vercelPrivateBlobStorage } from "./payload/storage/vercelPrivateBlob";
+import { livePreviewURL } from "./payload/preview";
 
 import { CmsAdmins } from "./payload/collections/CmsAdmins";
 import { Courses } from "./payload/collections/Courses";
@@ -36,17 +37,35 @@ export default buildConfig({
   admin: {
     user: CmsAdmins.slug,
     meta: { titleSuffix: "— Nihon-Go! CMS" },
+    /*
+     * Live Preview renders the real front end in a panel beside the editing
+     * form and pushes the unsaved form state into it over `postMessage`, so an
+     * editor sees a lesson as a learner would while they are still typing it.
+     *
+     * `url` points at /api/preview, not at the page: Draft Mode is a cookie
+     * only a route handler can set, and that handler is where the request is
+     * checked. See `payload/preview.ts` for what goes into the URL and
+     * `app/(app)/api/preview/route.ts` for what happens to it.
+     */
     livePreview: {
-      // Points to the frontend route that initializes Draft Mode
-      url: ({ data, collectionConfig }) => {
-        const baseUrl =
-          process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
-        return `${baseUrl}/api/preview?slug=${data.slug}&collection=${collectionConfig?.slug ?? ""}`;
-      },
-      collections: [Courses.slug, Lessons.slug, Resources.slug, Media.slug], // Collections supporting Live Preview
+      url: livePreviewURL,
+      // Only the two collections with a page of their own. A course is a
+      // grouping with no route, and media is an upload — there is nothing for
+      // the iframe to load in either case.
+      collections: [Lessons.slug, Resources.slug],
+      // Payload adds "responsive" itself; these are the fixed sizes to check a
+      // lesson against, and the phone is the one that matters most here.
+      breakpoints: [
+        { name: "mobile", label: "Mobile", width: 390, height: 844 },
+        { name: "tablet", label: "Tablet", width: 768, height: 1024 },
+        { name: "desktop", label: "Desktop", width: 1440, height: 900 },
+      ],
     },
   },
-  collections: [Courses, Lessons, Resources, Media],
+  // CmsAdmins is `admin.user` above — leaving it out of this list points the
+  // admin panel at a collection that was never registered, which takes out
+  // /admin login and `npm run payload:seed-admins` with it.
+  collections: [Courses, Lessons, Resources, Media, CmsAdmins],
   db: postgresAdapter({
     schemaName: "payload",
     push: false,

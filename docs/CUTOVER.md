@@ -167,6 +167,8 @@ here to skip:
 DATABASE_URL                  = set for you by the Neon integration   ← Production ONLY
 PAYLOAD_SECRET                = <openssl rand -base64 32>   ← fresh; required
 BLOB_READ_WRITE_TOKEN         = set for you when Blob storage is added
+PREVIEW_SECRET                = <openssl rand -hex 32>   ← fresh; CMS live preview
+NEXT_PUBLIC_SERVER_URL        = the deployment's own origin   ← per environment
 BETTER_AUTH_SECRET            = <openssl rand -base64 32>   ← fresh, not your local one
 BETTER_AUTH_URL               = https://<the production domain>   ← Production ONLY
 RESEND_API_KEY                = <resend key>
@@ -193,6 +195,12 @@ static Preview value silently overrides that:
   whose host is production's. If Production's is missing entirely, its checkbox is off in
   Neon → Integrations → Vercel → Settings; toggling it re-pushes the set. See
   [docs/database-workflow.md](database-workflow.md).
+
+`NEXT_PUBLIC_SERVER_URL` is the mirror image of `BETTER_AUTH_URL`: it has to be set on
+every environment, each to that deployment's own origin. It is the origin the front end
+checks Live Preview's `postMessage` against, so a Preview deployment carrying the
+production value silently drops every preview update. On Preview, set it to the stable
+`*-git-<branch>` alias rather than the per-deployment URL, which changes on every push.
 
 `PAYLOAD_SECRET` is **required — the app does not boot without it.** There is no silent
 fallback: with it unset, Payload fails to initialize, so `/admin` 500s and every page

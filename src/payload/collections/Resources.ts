@@ -4,6 +4,8 @@ import {
   revalidateResources,
   revalidateResourcesDelete,
 } from "../hooks/revalidate";
+import { generatePreviewURL } from "../preview";
+import { readPublishedOrEditor } from "../access/readPublished";
 
 /*
  * The /resources page: a handful of named groups, each a list of links.
@@ -23,8 +25,11 @@ export const Resources: CollectionConfig = {
     group: "Content",
     description:
       "Link collections shown on the Resources page, grouped by category.",
+    // Every group shares one page, so this opens /resources rather than a page
+    // belonging to this document.
+    preview: generatePreviewURL("resources"),
   },
-  access: { read: () => true },
+  access: { read: readPublishedOrEditor },
   hooks: {
     afterChange: [revalidateResources],
     afterDelete: [revalidateResourcesDelete],

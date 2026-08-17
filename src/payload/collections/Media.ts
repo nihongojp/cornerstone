@@ -52,7 +52,12 @@ const readMedia: Access = async ({ req }) => {
 };
 export const Media: CollectionConfig = {
   slug: "media",
-  versions: { drafts: true },
+  // No `versions: { drafts: true }` here, unlike the content collections. An
+  // upload has no draft/publish cycle to model — a file is either in the store
+  // or it is not — and turning it on needs a `_status` column plus a `_media_v`
+  // table that the initial migration never created. With `push: false` nothing
+  // creates them at boot, so the admin's Media list would query a column that
+  // does not exist.
   labels: { singular: "Media", plural: "Media" },
   admin: {
     group: "Content",

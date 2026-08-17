@@ -1,6 +1,7 @@
 import type { CollectionConfig } from "payload";
 
 import { revalidateCourse, revalidateCourseDelete } from "../hooks/revalidate";
+import { readPublishedOrEditor } from "../access/readPublished";
 
 /*
  * A course is an ordered track of lessons. It replaces the old `nextSlug`
@@ -17,7 +18,7 @@ export const Courses: CollectionConfig = {
     group: "Content",
     description: "Tracks that group lessons into an ordered sequence.",
   },
-  access: { read: () => true },
+  access: { read: readPublishedOrEditor },
   hooks: {
     afterChange: [revalidateCourse],
     afterDelete: [revalidateCourseDelete],

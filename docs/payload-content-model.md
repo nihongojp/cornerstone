@@ -136,6 +136,63 @@ no longer applies to content, though the fields are still plain strings and can
 still hold an arbitrary absolute URL. Wiring components to real `upload`
 relationships is now unblocked but deliberately not done.
 
+## Live preview
+
+Open a lesson or a resource group in `/admin` and there is a **Live Preview**
+tab beside **Edit**. It renders the real front end in a panel next to the form
+and updates it *as you type* — no save, no reload. The **Preview** button next
+to Save opens the same page in its own tab instead.
+
+Only `lessons` and `resources` have it. A course is a grouping with no page of
+its own, and media is an upload; neither has anything for the panel to load.
+Lessons open in whichever player `format` selects, so flipping `format` moves
+the panel between `/lesson/<slug>` and `/newlesson/<slug>`.
+
+Two environment variables turn it on: `PREVIEW_SECRET` and
+`NEXT_PUBLIC_SERVER_URL`. Without the secret the feature hides itself rather
+than half-working. `NEXT_PUBLIC_SERVER_URL` must be the exact origin `/admin`
+is served from — it is what the front end checks incoming preview messages
+against, so a wrong value shows a panel that never updates.
+
+**How a draft reaches the page.** The panel's iframe points at `/api/preview`,
+not at the page. That route is the only thing in the app that turns Next's
+Draft Mode on, and it checks two things before it does: the `previewSecret` in
+the URL, and a live `cms_admins` session via `payload.auth()`. The secret only
+proves the link came from our admin — Payload puts it in the iframe's `src`,
+where any signed-in editor can read it — so the session check is the real
+boundary. Once Draft Mode is on, the three previewable pages read through the
+draft lookups in `src/lib/content/content.ts`, which are uncached and pass the
+authenticated editor through to Payload's access rules.
+
+**Drafts are gated at the collection, not by the app's queries.** `lessons`,
+`courses` and `resources` share `readPublishedOrEditor`
+(`src/payload/access/readPublished.ts`): signed-in CMS users read everything,
+everyone else is constrained to `_status: published`. This is what actually
+keeps unpublished work private — the public REST API at `/api/<collection>` is
+reachable by anyone, and the previous `read: () => true` applied no filter, so
+it served drafts to unauthenticated callers directly. The published filters in
+`content.ts` are now a second statement of the same rule rather than the only
+one.
+
+The same split applies to the player's own auth gate: a CMS editor has a
+`payload-token`, not a better-auth learner session, so
+`requirePlayerAccess()` in `src/lib/session.ts` admits either. `src/proxy.ts`
+lets the Draft Mode cookie past on presence alone, which is safe only because
+the layout behind it re-checks the editor on every request — the cookie is a
+build-scoped token that names nobody and outlives the session that obtained it.
+
+**Getting out.** Draft Mode is a cookie on the whole origin and it survives
+until the browser closes, so after previewing you keep seeing unpublished
+content while browsing normally. Visit **`/api/exit-preview`** to clear it.
+
+Two known edges, both harmless:
+
+- A step lesson's "next lesson" is resolved once when the preview loads. Reorder
+  the course while the panel is open and it goes stale until you save and
+  reload.
+- On `/resources`, only the group you have open updates live. The others show
+  what is currently saved, which is the honest rendering of a shared page.
+
 ## Running the tooling
 
 ```bash

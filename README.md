@@ -141,6 +141,8 @@ Everything is documented inline in [`.env.example`](.env.example). Summary:
 | `PAYLOAD_SECRET` | the CMS | `/admin` and Payload's REST API 500 without it. Rotating it drops every admin session |
 | `BETTER_AUTH_URL` | production | Production only. Optional locally, and must stay unset on Preview — pinned to the production domain it makes previews 403 their own sign-in |
 | `BLOB_READ_WRITE_TOKEN` | CMS media | Set for you when Blob storage is added to the Vercel project. The store must be **private** — media is served through Payload's auth-gated route, so signed-out requests 403. Empty locally falls back to the filesystem |
+| `PREVIEW_SECRET` | CMS live preview | Fails closed: unset, `/api/preview` 403s everything and the admin hides Live Preview. Not the boundary on its own — the route also checks the caller's `cms_admins` session |
+| `NEXT_PUBLIC_SERVER_URL` | CMS live preview | The exact origin `/admin` is served from. Set it per environment, Preview included. Falls back to `http://localhost:3000`, which is wrong on any deploy |
 | `RESEND_API_KEY` / `EMAIL_FROM` | password reset emails | Without them, dev prints the reset link to the server console |
 | `PRONUNCIATION_SERVICE_URL` / `_SECRET` | pronunciation scoring | See `services/pronunciation/README.md` |
 | `MONGODB_URI` | migration scripts only | **Never set this on Vercel** |
