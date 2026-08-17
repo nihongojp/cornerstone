@@ -1,8 +1,9 @@
 import "server-only";
 import { unstable_cache } from "next/cache";
-import type { Where } from "payload";
+import type { TypedUser, Where } from "payload";
 import { payloadClient } from "./payload";
 import { TAGS } from "./tags";
+import { lessonHref } from "./routes";
 import {
   toLessonDoc,
   toLessonListItem,
@@ -10,7 +11,7 @@ import {
   toNewLessonListItem,
   toResourceGroup,
 } from "./adapters";
-import type { Lesson } from "../../payload/payload-types";
+import type { Lesson, Resource } from "../../payload/payload-types";
 import type {
   LessonDoc,
   LessonListItem,
@@ -237,10 +238,7 @@ export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | nu
         title: lesson.title,
         version: lesson.version ?? "",
         prefecture: lesson.prefecture ?? "",
-        href:
-          lesson.format === "flashcard"
-            ? `/lesson/${lesson.slug}`
-            : `/newlesson/${lesson.slug}`,
+        href: lessonHref(lesson.format, lesson.slug),
       };
     },
     ["content", "getLessonRoute", key],
@@ -249,4 +247,119 @@ export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | nu
       revalidate: REVALIDATE,
     }
   )();
+}
+
+// ── Draft reads: the CMS preview panel, and nothing else ─────────────────────
+/*
+ * Everything above answers for the public site: published only, cached, tagged.
+ * The three lookups below answer for Live Preview, and differ on every one of
+ * those axes.
+ *
+ * They return the raw Payload document rather than the view model the players
+ * consume. The preview wrapper needs the raw shape because `useLivePreview`
+ * merges the editor's unsaved form state into it and hands back another raw
+ * document, and the wrapper then runs the same adapters this module runs — on
+ * the client. That works only because `adapters.ts` is deliberately free of
+ * `server-only`, and it is what keeps preview from growing a second copy of the
+ * document-to-player mapping that could drift from this one.
+ *
+ * Not wrapped in `unstable_cache`. A preview load is one query, once, so there
+ * is nothing to win, and a cached draft is a wrong answer waiting to be served
+ * to somebody.
+ *
+ * `overrideAccess: false` is kept, with the authenticated editor passed as
+ * `user`. These reads stay on the same access rules as every other read rather
+ * than being exempted from them — the caller has already proved who it is (see
+ * `getPreviewEditor` in `lib/session.ts`).
+ */
+
+/** Which player to narrow a draft lookup to. The public lookups use these too. */
+export const DRAFT_FLASHCARD = FLASHCARD;
+export const DRAFT_STEP = STEP;
+
+async function findDrafts(
+  where: Where,
+  user: TypedUser,
+  limit = 0
+): Promise<Lesson[]> {
+  const payload = await payloadClient();
+  const result = await payload.find({
+    collection: "lessons",
+    where,
+    limit,
+    depth: 0,
+    draft: true,
+    sort: ["order", "createdAt"],
+    overrideAccess: false,
+    user,
+    pagination: false,
+  });
+  return result.docs;
+}
+
+/**
+ * The draft behind a preview URL, raw.
+ *
+ * Narrowed by `format` exactly as the published lookups are, so /lesson/<slug>
+ * still cannot preview a step lesson in the wrong player. The slug-then-
+ * `sourceId` fallback is kept as well: a legacy id remains a valid way to reach
+ * a lesson, and the preview URL is built from whatever the editor has open.
+ */
+export async function getDraftLesson(
+  slugOrLegacyId: string,
+  format: Where,
+  user: TypedUser
+): Promise<Lesson | null> {
+  const key = String(slugOrLegacyId || "").trim();
+  if (!key) return null;
+
+  const [lesson] = await findDrafts(and(format, byKey(key)), user, 1);
+  return lesson ?? null;
+}
+
+/**
+ * `nextSlug` for a draft — the same course-order lookup as `nextSlugFor`, but
+ * resolved against drafts too. An editor writing a course should see the lesson
+ * they just added as the one that follows, not skip over it to the last
+ * published one.
+ */
+export async function getDraftNextSlug(
+  lesson: Lesson,
+  user: TypedUser
+): Promise<string | undefined> {
+  const courseId = typeof lesson.course === "object" ? lesson.course?.id : lesson.course;
+  if (courseId === null || courseId === undefined || lesson.order === null || lesson.order === undefined) {
+    return undefined;
+  }
+
+  const payload = await payloadClient();
+  const result = await payload.find({
+    collection: "lessons",
+    where: and(STEP, {
+      course: { equals: courseId },
+      order: { greater_than: lesson.order },
+    }),
+    limit: 1,
+    depth: 0,
+    draft: true,
+    sort: "order",
+    overrideAccess: false,
+    user,
+  });
+
+  return result.docs[0]?.slug;
+}
+
+export async function getDraftResources(user: TypedUser): Promise<Resource[]> {
+  const payload = await payloadClient();
+  const result = await payload.find({
+    collection: "resources",
+    depth: 0,
+    draft: true,
+    sort: "createdAt",
+    overrideAccess: false,
+    user,
+    pagination: false,
+  });
+  return result.docs;
 }

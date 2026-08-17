@@ -4,6 +4,8 @@ import { grammarBlocks } from "../blocks/grammar";
 import { escapeHatchBlocks, legacyBlocks } from "../blocks/legacy";
 import { guardLessonDelete } from "../hooks/guardLessonDelete";
 import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
+import { generatePreviewURL } from "../preview";
+import { readPublishedOrEditor } from "../access/readPublished";
 
 /*
  * One `lessons` collection replaces both Mongo collections — legacy `lessons`
@@ -50,8 +52,11 @@ export const Lessons: CollectionConfig = {
     group: "Content",
     listSearchableFields: ["title", "slug", "cardTitle"],
     description: "Every lesson, from both of the old lesson systems.",
+    // Opens the lesson in its own tab, in whichever player `format` selects.
+    // The Live Preview panel is the same destination, side by side instead.
+    preview: generatePreviewURL("lessons"),
   },
-  access: { read: () => true },
+  access: { read: readPublishedOrEditor },
   hooks: {
     beforeDelete: [guardLessonDelete],
     afterChange: [revalidateLesson],

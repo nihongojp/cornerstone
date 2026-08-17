@@ -102,6 +102,22 @@ the moment an editor saves. A one-hour expiry is the backstop for a missed hook.
 Reads pass `overrideAccess: false`, so an unpublished draft cannot leak even if a
 query forgets to filter. Keep new reads inside this module and inside that rule.
 
+That rule only became true once the collections' own `read` access enforced it.
+The three content collections share `readPublishedOrEditor`
+(`src/payload/access/readPublished.ts`): a signed-in CMS user reads everything,
+everyone else is constrained to `_status: published`. They previously declared
+`read: () => true`, which is not "public read" but *no filter at all* — and
+Payload's REST API is mounted publicly, so `GET /api/lessons` served unpublished
+documents to anyone, with or without `?draft=true`. Never write
+`read: () => true` on a collection that has drafts enabled.
+
+The draft readers at the bottom of that file (`getDraftLesson`,
+`getDraftNextSlug`, `getDraftResources`) are the one exception to the published
+filter, and they stay inside the rule: they are uncached, they only run for a
+request in Draft Mode, and they pass the authenticated `cms_admins` editor as
+`user` rather than switching `overrideAccess` off. They exist for the CMS
+preview panel — see `docs/payload-content-model.md`.
+
 ### Two players, one collection
 
 Lessons used to be two parallel systems. They are now one `lessons` collection with a

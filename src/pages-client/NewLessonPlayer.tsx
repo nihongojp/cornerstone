@@ -201,10 +201,29 @@ const NewLessonPage: React.FC<{ slug: string; lesson: NewLessonDoc }> = ({ slug,
   const [items, setItems] = useState<NewLessonItem[] | null>(null);
 
   useEffect(() => {
-    resumedRef.current = false;
-    setStep(0);
     setItems(expandLessonItems(lesson.items ?? []));
   }, [lesson]);
+
+  /*
+   * Position resets on the lesson's *identity*, not on the object it arrived
+   * in. Split from the expansion above for CMS Live Preview: there this
+   * component is handed a freshly built lesson on every keystroke, and
+   * resetting on object identity would throw the editor back to step 1 each
+   * time they typed a character. On the public path the two fire together —
+   * a different lesson means both a different slug and a different object.
+   */
+  useEffect(() => {
+    resumedRef.current = false;
+    setStep(0);
+  }, [lesson.slug]);
+
+  // The expansion shrinks when an editor deletes an exercise mid-preview.
+  // Keep the cursor inside it rather than rendering a blank step.
+  useEffect(() => {
+    if (items && items.length > 0 && step >= items.length) {
+      setStep(items.length - 1);
+    }
+  }, [items, step]);
 
   // Resume at the last-seen exercise (by content key, since the expansion
   // above re-shuffles order every visit — a raw saved index could point at a

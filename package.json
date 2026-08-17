@@ -44,6 +44,7 @@
     "@mui/material-nextjs": "^9.3.0",
     "@neondatabase/serverless": "^1.1.0",
     "@payloadcms/db-postgres": "3.88.0",
+    "@payloadcms/live-preview-react": "3.88.0",
     "@payloadcms/next": "3.88.0",
     "@payloadcms/plugin-cloud-storage": "3.88.0",
     "@vercel/analytics": "^2.0.1",
