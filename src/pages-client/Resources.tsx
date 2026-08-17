@@ -22,19 +22,26 @@ import ClearIcon from "@mui/icons-material/Clear";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import LinkIcon from "@mui/icons-material/Link";
 import Bart from "../components/Menut";
+import RichText from "../components/richtext/RichText";
+import { proseToPlainText } from "../lib/content/prose";
+import type { Resource } from "../payload/payload-types";
 
-type ResourceItem = {
-  id: string;
-  title: string;
-  url: string;
-  description: string;
-};
+/*
+ * The generated Payload types, not a restatement of them.
+ *
+ * These were hand-written shapes that `lib/content/adapters.ts` mapped a
+ * `Resource` document into — renaming `sourceId` to `id` and `itemId` to `id`
+ * along the way. Phase 4b deleted the adapter, so the document arrives as it is
+ * stored and the renames go with it. `description` is still rich text, and the
+ * card renders it for real rather than flattening it: a description whose
+ * formatting silently disappeared would be worse than having left the field a
+ * textarea. The three-line clamp in `sx.cardDesc` clamps the rendered output.
+ */
+type ResourceCategory = Resource;
+type ResourceItem = NonNullable<Resource["items"]>[number];
 
-type ResourceCategory = {
-  id: string;
-  category: string;
-  items: ResourceItem[];
-};
+/** Payload models an absent link as null; every check here is for falsiness. */
+const linkOf = (item: ResourceItem): string => item.url ?? "";
 
 const openExternal = (url: string) => {
   if (!url) return;
@@ -269,7 +276,10 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
           ? section.items ?? []
           : (section.items ?? []).filter((it) => {
               const t = (it.title ?? "").toLowerCase();
-              const d = (it.description ?? "").toLowerCase();
+              // Through the plain-text converter: `String(document)` is
+              // "[object Object]", which matches the query "object" and nothing
+              // else — search would have quietly stopped looking at descriptions.
+              const d = proseToPlainText(it.description).toLowerCase();
               const u = (it.url ?? "").toLowerCase();
               return t.includes(ql) || d.includes(ql) || u.includes(ql);
             });
@@ -424,28 +434,28 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
 
                     <Box sx={sx.grid}>
                       {section.items.map((item, iIdx) => {
-                        const disabled = !item.url;
-                        const isPressed = pressedId === item.id;
+                        const disabled = !linkOf(item);
+                        const isPressed = pressedId === item.itemId;
 
                         return (
                           <Box
-                            key={item.id}
+                            key={item.itemId}
                             role={disabled ? "article" : "button"}
                             tabIndex={disabled ? -1 : 0}
                             aria-disabled={disabled}
                             onClick={() => {
                               if (disabled) return;
-                              setPressedId(item.id);
+                              setPressedId(item.itemId);
                               window.setTimeout(() => setPressedId(null), 220);
-                              openExternal(item.url);
+                              openExternal(linkOf(item));
                             }}
                             onKeyDown={(e) => {
                               if (disabled) return;
                               if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
-                                setPressedId(item.id);
+                                setPressedId(item.itemId);
                                 window.setTimeout(() => setPressedId(null), 220);
-                                openExternal(item.url);
+                                openExternal(linkOf(item));
                               }
                             }}
                             sx={{
@@ -509,38 +519,38 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
                               </Tooltip>
                             </Box>
 
-                            <Typography variant="body2" sx={sx.cardDesc}>
-                              {item.description}
-                            </Typography>
+                            <Box sx={{ ...sx.cardDesc, fontSize: "0.875rem" }}>
+                              <RichText data={item.description} />
+                            </Box>
 
                             <Box sx={sx.cardFooter}>
                               <Chip
                                 size="small"
                                 icon={<LinkIcon fontSize="small" />}
-                                label={item.url ? "Link" : "No link"}
-                                variant={item.url ? "filled" : "outlined"}
+                                label={linkOf(item) ? "Link" : "No link"}
+                                variant={linkOf(item) ? "filled" : "outlined"}
                                 sx={{
-                                  bgcolor: item.url ? "rgba(0,0,0,0.10)" : "transparent",
+                                  bgcolor: linkOf(item) ? "rgba(0,0,0,0.10)" : "transparent",
                                   borderColor: "rgba(0,0,0,0.12)",
                                   fontWeight: 800,
                                 }}
                               />
 
-                              {item.url ? (
-                                <Tooltip title={item.url}>
+                              {linkOf(item) ? (
+                                <Tooltip title={linkOf(item)}>
                                   <MuiLink
                                     underline="hover"
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
-                                      openExternal(item.url);
+                                      openExternal(linkOf(item));
                                     }}
-                                    href={item.url}
+                                    href={linkOf(item)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     sx={sx.url}
                                   >
-                                    {item.url}
+                                    {linkOf(item)}
                                   </MuiLink>
                                 </Tooltip>
                               ) : (
@@ -558,28 +568,28 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
               // Single category view: show only items (no headers)
               <Box sx={sx.grid}>
                 {filteredItems[0]?.items?.map((item, iIdx) => {
-                  const disabled = !item.url;
-                  const isPressed = pressedId === item.id;
+                  const disabled = !linkOf(item);
+                  const isPressed = pressedId === item.itemId;
 
                   return (
                     <Box
-                      key={item.id}
+                      key={item.itemId}
                       role={disabled ? "article" : "button"}
                       tabIndex={disabled ? -1 : 0}
                       aria-disabled={disabled}
                       onClick={() => {
                         if (disabled) return;
-                        setPressedId(item.id);
+                        setPressedId(item.itemId);
                         window.setTimeout(() => setPressedId(null), 220);
-                        openExternal(item.url);
+                        openExternal(linkOf(item));
                       }}
                       onKeyDown={(e) => {
                         if (disabled) return;
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
-                          setPressedId(item.id);
+                          setPressedId(item.itemId);
                           window.setTimeout(() => setPressedId(null), 220);
-                          openExternal(item.url);
+                          openExternal(linkOf(item));
                         }
                       }}
                       sx={{
@@ -633,38 +643,38 @@ const Resources = ({ data }: { data: ResourceCategory[] }): React.ReactElement =
                         </Tooltip>
                       </Box>
 
-                      <Typography variant="body2" sx={sx.cardDesc}>
-                        {item.description}
-                      </Typography>
+                      <Box sx={{ ...sx.cardDesc, fontSize: "0.875rem" }}>
+                        <RichText data={item.description} />
+                      </Box>
 
                       <Box sx={sx.cardFooter}>
                         <Chip
                           size="small"
                           icon={<LinkIcon fontSize="small" />}
-                          label={item.url ? "Link" : "No link"}
-                          variant={item.url ? "filled" : "outlined"}
+                          label={linkOf(item) ? "Link" : "No link"}
+                          variant={linkOf(item) ? "filled" : "outlined"}
                           sx={{
-                            bgcolor: item.url ? "rgba(0,0,0,0.10)" : "transparent",
+                            bgcolor: linkOf(item) ? "rgba(0,0,0,0.10)" : "transparent",
                             borderColor: "rgba(0,0,0,0.12)",
                             fontWeight: 800,
                           }}
                         />
 
-                        {item.url ? (
-                          <Tooltip title={item.url}>
+                        {linkOf(item) ? (
+                          <Tooltip title={linkOf(item)}>
                             <MuiLink
                               underline="hover"
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                openExternal(item.url);
+                                openExternal(linkOf(item));
                               }}
-                              href={item.url}
+                              href={linkOf(item)}
                               target="_blank"
                               rel="noopener noreferrer"
                               sx={sx.url}
                             >
-                              {item.url}
+                              {linkOf(item)}
                             </MuiLink>
                           </Tooltip>
                         ) : (

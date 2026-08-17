@@ -1,0 +1,726 @@
+[
+  {
+    "lesson": "l1-v1",
+    "where": "exercise[9].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50312409c84ac232190",
+      "title": "Sumimasen",
+      "video": null,
+      "audio": {
+        "$ref": "Sumimasen_R_otzedy.m4a",
+        "$collection": "media"
+      },
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Sumimasen"
+      ]
+    }
+  },
+  {
+    "lesson": "l1-v1",
+    "where": "exercise[10].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50312409c84ac232192",
+      "title": "Arigatougozaimasu",
+      "video": null,
+      "audio": {
+        "$ref": "Arigatougozaimasu_R_hikobv.m4a",
+        "$collection": "media"
+      },
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Arigatougozaimasu"
+      ]
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[0].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50512409c84ac2321c1",
+      "title": "Ogenki desuka",
+      "video": null,
+      "audio": {
+        "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+        "$collection": "media"
+      },
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Ogenki desuka"
+      ]
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[2].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50512409c84ac2321c5",
+      "title": "Hai",
+      "video": null,
+      "audio": {
+        "$ref": "Hai_R_diaf22.m4a",
+        "$collection": "media"
+      },
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Hai"
+      ]
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[3].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50512409c84ac2321c7",
+      "title": "Iie",
+      "video": null,
+      "audio": {
+        "$ref": "Iie_R_uxvz7f.m4a",
+        "$collection": "media"
+      },
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Iie"
+      ]
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[13].components[0]",
+    "blockType": "contentPage",
+    "reason": "a text-only page with no body — only a title was ever set",
+    "block": {
+      "id": "6a80d50512409c84ac2321e3",
+      "title": "Introduce particle \"ga\"",
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "contentPage"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[16].components[0]",
+    "blockType": "matchingExercise",
+    "reason": "phrases not in the catalogue: PLACEHOLDER_PHRASE_SAN, PLACEHOLDER_PHRASE_JIN",
+    "block": {
+      "id": "6a80d50512409c84ac2321ec",
+      "instructions": "Match to corresponding English translation - connect the dots",
+      "description": "Matches of phrases using ~ san and ~ jin",
+      "blockName": null,
+      "items": [
+        {
+          "id": "6a80d50512409c84ac2321ea",
+          "phrase": "PLACEHOLDER_PHRASE_SAN",
+          "englishTranslation": "PLACEHOLDER_TRANSLATION",
+          "audio": null,
+          "image": null
+        },
+        {
+          "id": "6a80d50512409c84ac2321eb",
+          "phrase": "PLACEHOLDER_PHRASE_JIN",
+          "englishTranslation": "PLACEHOLDER_TRANSLATION",
+          "audio": null,
+          "image": null
+        }
+      ],
+      "blockType": "matchingExercise",
+      "rows": [],
+      "dragDropOptions": []
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[17].components[0]",
+    "blockType": "matchAudioExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_SAN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321ee",
+      "phrase": "PLACEHOLDER_PHRASE_SAN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "matchAudioExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[18].components[0]",
+    "blockType": "matchAudioExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_JIN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321f0",
+      "phrase": "PLACEHOLDER_PHRASE_JIN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "matchAudioExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[23].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"~ desu\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50512409c84ac2321fa",
+      "phrase": "~ desu",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[24].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"~ desu ka\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50512409c84ac2321fc",
+      "phrase": "~ desu ka",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[25].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_SAN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321fe",
+      "phrase": "PLACEHOLDER_PHRASE_SAN",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[26].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_JIN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac232200",
+      "phrase": "PLACEHOLDER_PHRASE_JIN",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[33].components[0]",
+    "blockType": "termMediaSeed",
+    "reason": "media seed for \"PLACEHOLDER_PHRASE_SAN\", which is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac23220e",
+      "term": "PLACEHOLDER_PHRASE_SAN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "termMediaSeed"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[34].components[0]",
+    "blockType": "termMediaSeed",
+    "reason": "media seed for \"PLACEHOLDER_PHRASE_JIN\", which is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac232210",
+      "term": "PLACEHOLDER_PHRASE_JIN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "termMediaSeed"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[0].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac232229",
+      "title": "Sumimasen, wakarimasen",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Sumimasen, wakarimasen"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[1].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 2 of its 3 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac23222b",
+      "title": "Mouichido, onegaishimasu",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Mouichido, onegaishimasu",
+        "[...]"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[2].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 2 of its 3 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac23222d",
+      "title": "Yukkuri, onegaishimasu",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Yukkuri, onegaishimasu",
+        "[...]"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[8].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac23223c",
+      "title": "Kore",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Kore"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[9].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac23223e",
+      "title": "Sore",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Sore"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[10].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac232240",
+      "title": "Are",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Are"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[11].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac232242",
+      "title": "dore",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Dore"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[18].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac232254",
+      "title": "Kore ha nandesuka",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Kore ha nandesuka"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[19].components[0]",
+    "blockType": "videoPage",
+    "reason": "migrated to a dialogue, but 1 of its 2 line(s) are the literal placeholder \"[...]\" — the conversation is incomplete",
+    "block": {
+      "id": "6a80d50712409c84ac232256",
+      "title": "Sore ha nandesuka",
+      "video": null,
+      "audio": null,
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "videoPage",
+      "videoForm": [
+        "[...]",
+        "Sore ha nandesuka"
+      ]
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[23].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Sumimasen, wakarimasen\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac232260",
+      "phrase": "Sumimasen, wakarimasen",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[24].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Mouichido, onegaishimasu\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac232262",
+      "phrase": "Mouichido, onegaishimasu",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[25].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Yukkuri, onegaishimasu\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac232264",
+      "phrase": "Yukkuri, onegaishimasu",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[26].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Kore\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac232266",
+      "phrase": "Kore",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[27].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Sore\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac232268",
+      "phrase": "Sore",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[28].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Are\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac23226a",
+      "phrase": "Are",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[29].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Dore\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac23226c",
+      "phrase": "Dore",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[30].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Kore ha nandesuka\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac23226e",
+      "phrase": "Kore ha nandesuka",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l2-v1",
+    "where": "exercise[31].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "migrated, but \"Sore ha nandesuka\" has no reference audio — the scorer has nothing to grade a recording against until the term gets a recording",
+    "block": {
+      "id": "6a80d50712409c84ac232270",
+      "phrase": "Sore ha nandesuka",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[12].components[0]",
+    "blockType": "contentPage",
+    "reason": "a text-only page with no body — only a title was ever set",
+    "block": {
+      "id": "6a80d50512409c84ac2321e3",
+      "title": "Introduce particle \"ga\"",
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "contentPage"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[15].components[0]",
+    "blockType": "matchingExercise",
+    "reason": "phrases not in the catalogue: PLACEHOLDER_PHRASE_SAN, PLACEHOLDER_PHRASE_JIN",
+    "block": {
+      "id": "6a80d50512409c84ac2321ec",
+      "instructions": "Match to corresponding English translation - connect the dots",
+      "description": "Matches of phrases using ~ san and ~ jin",
+      "blockName": null,
+      "items": [
+        {
+          "id": "6a80d50512409c84ac2321ea",
+          "phrase": "PLACEHOLDER_PHRASE_SAN",
+          "englishTranslation": "PLACEHOLDER_TRANSLATION",
+          "audio": null,
+          "image": null
+        },
+        {
+          "id": "6a80d50512409c84ac2321eb",
+          "phrase": "PLACEHOLDER_PHRASE_JIN",
+          "englishTranslation": "PLACEHOLDER_TRANSLATION",
+          "audio": null,
+          "image": null
+        }
+      ],
+      "blockType": "matchingExercise",
+      "rows": [],
+      "dragDropOptions": []
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[16].components[0]",
+    "blockType": "matchAudioExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_SAN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321ee",
+      "phrase": "PLACEHOLDER_PHRASE_SAN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "matchAudioExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[17].components[0]",
+    "blockType": "matchAudioExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_JIN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321f0",
+      "phrase": "PLACEHOLDER_PHRASE_JIN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "matchAudioExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[24].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_SAN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321fe",
+      "phrase": "PLACEHOLDER_PHRASE_SAN",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[25].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_JIN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac232200",
+      "phrase": "PLACEHOLDER_PHRASE_JIN",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[26].components[0]",
+    "blockType": "termMediaSeed",
+    "reason": "media seed for \"PLACEHOLDER_PHRASE_SAN\", which is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac23220e",
+      "term": "PLACEHOLDER_PHRASE_SAN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "termMediaSeed"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[27].components[0]",
+    "blockType": "termMediaSeed",
+    "reason": "media seed for \"PLACEHOLDER_PHRASE_JIN\", which is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac232210",
+      "term": "PLACEHOLDER_PHRASE_JIN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "termMediaSeed"
+    }
+  }
+]

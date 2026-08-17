@@ -1,11 +1,12 @@
 import type { CollectionConfig } from "payload";
 
-import { grammarBlocks } from "../blocks/grammar";
-import { escapeHatchBlocks, legacyBlocks } from "../blocks/legacy";
+import { libraryBlocks } from "../blocks/library";
 import { guardLessonDelete } from "../hooks/guardLessonDelete";
 import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
 import { generatePreviewURL } from "../preview";
 import { readPublishedOrEditor } from "../access/readPublished";
+import { draftingVersions } from "../versions";
+import { isAdmin } from "../access/isAdmin";
 
 /*
  * One `lessons` collection replaces both Mongo collections — legacy `lessons`
@@ -31,10 +32,21 @@ import { readPublishedOrEditor } from "../access/readPublished";
  *  - item `number` — unreliable in the source data; array position is the order.
  */
 
+/*
+ * An exercise is one screen, and a screen is an ordered list of blocks.
+ *
+ * That is the change that makes this a CMS rather than a transcription: the
+ * `maxRows: 1` that used to be on `components` meant a screen could only ever be
+ * one block, so every new layout needed a developer. It is gone.
+ *
+ * The seventeen blocks this replaced — one per legacy JSON shape, split into
+ * "Grammar lesson" and "Legacy lesson" groups because the two families could not
+ * mix — were deleted in Phase 4b along with the flattening layer that fed them
+ * to two separate players. There is one library and one runner.
+ */
 const AUTHORING_CONVENTION =
-  "Convention: one component per exercise. The player renders an exercise as a single screen " +
-  "and there is no composite renderer yet, so a second block in the same exercise will not " +
-  "show. Add another exercise instead.";
+  "One exercise is one screen. Blocks from Content and Practice compose onto that screen in " +
+  "order — a prose introduction followed by the exercise it sets up is one screen, not two.";
 
 export const Lessons: CollectionConfig = {
   slug: "lessons",
@@ -56,7 +68,13 @@ export const Lessons: CollectionConfig = {
     // The Live Preview panel is the same destination, side by side instead.
     preview: generatePreviewURL("lessons"),
   },
-  access: { read: readPublishedOrEditor },
+  /*
+   * `guardLessonDelete` already refuses to delete a lesson that learner
+   * progress references, so this is the second of two locks rather than the
+   * only one — but the first is about referential integrity and this one is
+   * about authority, and a lesson nobody has started yet passes the first.
+   */
+  access: { read: readPublishedOrEditor, delete: isAdmin },
   hooks: {
     beforeDelete: [guardLessonDelete],
     afterChange: [revalidateLesson],
@@ -64,7 +82,7 @@ export const Lessons: CollectionConfig = {
   },
   defaultSort: "order",
   // Replaces the old `isActive` flag: unpublished lessons are drafts.
-  versions: { drafts: true },
+  versions: draftingVersions,
   fields: [
     {
       name: "title",
@@ -142,8 +160,10 @@ export const Lessons: CollectionConfig = {
       defaultValue: true,
       admin: {
         description:
-          "Shuffle exercises within each generated group when the lesson is rendered. " +
-          "Turn off for lessons where the order teaches something.",
+          "Vary the order of consecutive practice screens of the same kind, so a learner " +
+          "repeating the lesson does not get the same sequence. Screens that present " +
+          "material never move, and a run never moves out of its place in the lesson. " +
+          "Turn off where the order within a run teaches something.",
       },
     },
     {
@@ -168,8 +188,9 @@ export const Lessons: CollectionConfig = {
           type: "blocks",
           required: true,
           minRows: 1,
-          maxRows: 1,
-          blocks: [...grammarBlocks, ...legacyBlocks, ...escapeHatchBlocks],
+          // `maxRows: 1` was here. Removing it is what turns a screen into an
+          // ordered block list — see the note on AUTHORING_CONVENTION above.
+          blocks: libraryBlocks,
           admin: { description: AUTHORING_CONVENTION },
         },
       ],
@@ -202,12 +223,12 @@ export const Lessons: CollectionConfig = {
     },
     {
       name: "funFact",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Shown at the end of the lesson." },
     },
     {
       name: "notes",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Learner-facing notes." },
     },
     {

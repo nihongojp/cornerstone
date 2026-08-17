@@ -81,3 +81,8 @@ next-env.d.ts
 
 # Playwright MCP page snapshots (agent browser testing)
 .playwright-mcp/
+
+# Written by `npm run payload:check-richtext -- --before`: the pre-migration
+# prose values, so the --after pass can prove the backfill moved all of them.
+# A local check artefact, not content.
+content/.richtext-backfill-check.json

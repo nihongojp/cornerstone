@@ -1,0 +1,19 @@
+{
+  // The root tsconfig excludes `scripts` entirely, so nothing under it is
+  // typechecked by `npm run typecheck`. That is tolerable for the one-shot
+  // migration scripts, which have already run against the data they were
+  // written for — it is not tolerable for `scripts/content`, which can delete
+  // the content tables and is meant to be re-run for years.
+  //
+  // Scoped to scripts/content on purpose. Widening it to all of `scripts` is a
+  // separate cleanup: the older migration scripts predate this and do not pass.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["node"]
+  },
+  "include": ["scripts/content/**/*.ts", "src/payload.config.ts"],
+  "exclude": ["node_modules"]
+}

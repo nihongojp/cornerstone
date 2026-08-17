@@ -8,7 +8,7 @@
  * what still points at Cloudinary — and therefore what has to be transferred
  * into the Blob store — is to ask the database. The repo cannot tell you: the
  * only Cloudinary URLs committed anywhere are the ten hardcoded stroke-order
- * PNGs in `src/data/kanaStrokeOrder.ts` and the sample values quoted in
+ * PNGs in `scripts/content/kana-stroke-order.ts` and the sample values quoted in
  * `out/items-audit.md`, which is a MongoDB-era artifact and not live data.
  *
  * Both the live block tables and the `_v_` draft-version mirrors are surveyed.

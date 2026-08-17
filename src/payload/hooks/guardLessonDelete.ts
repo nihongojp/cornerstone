@@ -6,7 +6,8 @@ import { APIError } from "payload";
  * can act on.
  *
  * The real guarantee is the ON DELETE RESTRICT foreign key from
- * `user_progress.lesson_id` (drizzle/0002_user_progress_lesson_fk.sql) — it
+ * `user_progress.lesson_id`, declared in
+ * `payload/migrations/20260815_120000_user_progress_lesson_fk.ts` — it
  * holds even for a delete that never goes through the admin. Without this hook
  * that constraint still fires, but the editor sees a raw Postgres error naming
  * a table they have never heard of. This is the error message, not the rule.

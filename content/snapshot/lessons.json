@@ -1,0 +1,5345 @@
+[
+  {
+    "key": "hiragana-l1-v1-hokkaido",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 1",
+      "slug": "hiragana-l1-v1-hokkaido",
+      "format": "flashcard",
+      "course": {
+        "$ref": "hiragana-and-prefectures",
+        "$collection": "courses"
+      },
+      "order": 1,
+      "cardTitle": null,
+      "shuffleExercises": false,
+      "exercises": [
+        {
+          "label": "Spotlight あ-ア",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight い-イ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight う-ウ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight え-エ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight お-オ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232144",
+          "label": "Flashcards",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcards",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232146",
+          "label": "l1_cd",
+          "components": [
+            {
+              "blockType": "matchPairs",
+              "instructions": "Match each hiragana to its katakana",
+              "terms": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "pairing": "kana"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232148",
+          "label": "l1_am",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "あ-ア",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23214a",
+          "label": "l1_am_2",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "い-イ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23214c",
+          "label": "l1_am_3",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "う-ウ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23214e",
+          "label": "l1_am_4",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "え-エ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232150",
+          "label": "l1_am_5",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "お-オ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232152",
+          "label": "l1_vocab_ao",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "あお",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "あ",
+                "お"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232154",
+          "label": "l1_vocab_ue",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "うえ",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "う",
+                "え"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232156",
+          "label": "l1_vocab_au",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "あう",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "あ",
+                "う"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232158",
+          "label": "l1_vocab_ooi",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "おおい",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "お",
+                "お",
+                "い"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23215a",
+          "label": "l1_vocab_ao_bonus",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "あお",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "あ",
+                "お"
+              ],
+              "tileScript": "romaji"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23215c",
+          "label": "l1_vocab_ue_bonus",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "うえ",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "う",
+                "え"
+              ],
+              "tileScript": "romaji"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac23215e",
+          "label": "l1_vocab_au_bonus",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "あう",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "あ",
+                "う"
+              ],
+              "tileScript": "romaji"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50012409c84ac232160",
+          "label": "l1_vocab_ooi_bonus",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "おおい",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "え",
+                "お"
+              ],
+              "correctSequence": [
+                "お",
+                "お",
+                "い"
+              ],
+              "tileScript": "romaji"
+            }
+          ]
+        }
+      ],
+      "prefecture": "Hokkaido",
+      "tags": [],
+      "version": "V1",
+      "funFact": {
+        "root": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Hiragana is used for Japanese-origin words! Katakana is used for loan-words from other languages!",
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "format": "",
+              "indent": 0,
+              "textFormat": 0,
+              "textStyle": "",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "version": 1
+        }
+      },
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": 10
+      },
+      "sourceId": "699a45660d11ac7a2b8a8d7e",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "hiragana-l2-v1-iwate",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 2",
+      "slug": "hiragana-l2-v1-iwate",
+      "format": "flashcard",
+      "course": {
+        "$ref": "hiragana-and-prefectures",
+        "$collection": "courses"
+      },
+      "order": 2,
+      "cardTitle": null,
+      "shuffleExercises": false,
+      "exercises": [
+        {
+          "label": "Spotlight か-カ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight き-キ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight く-ク",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight け-ケ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight こ-コ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232167",
+          "label": "Flashcards",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcards",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232169",
+          "label": "l2_cd",
+          "components": [
+            {
+              "blockType": "matchPairs",
+              "instructions": "Match each hiragana to its katakana",
+              "terms": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "pairing": "kana"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac23216b",
+          "label": "l2_am",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "か-カ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac23216d",
+          "label": "l2_am_2",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "き-キ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac23216f",
+          "label": "l2_am_3",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "く-ク",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232171",
+          "label": "l2_am_4",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "け-ケ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232173",
+          "label": "l2_am_5",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": "Listen and choose the character you hear",
+              "term": {
+                "$ref": "こ-コ",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232175",
+          "label": "l2_vocab_koke",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "こけ",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "か",
+                "き",
+                "く",
+                "け",
+                "こ"
+              ],
+              "correctSequence": [
+                "こ",
+                "け"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232177",
+          "label": "l2_vocab_ike",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "いけ",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "い",
+                "う",
+                "か",
+                "け"
+              ],
+              "correctSequence": [
+                "い",
+                "け"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50212409c84ac232179",
+          "label": "l2_vocab_oke",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "おけ",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "あ",
+                "う",
+                "お",
+                "か",
+                "け"
+              ],
+              "correctSequence": [
+                "お",
+                "け"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        }
+      ],
+      "prefecture": "Iwate",
+      "tags": [],
+      "version": "V1",
+      "funFact": {
+        "root": {
+          "type": "root",
+          "children": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "detail": 0,
+                  "format": 0,
+                  "mode": "normal",
+                  "style": "",
+                  "text": "Hiragana usually restarts with the あいうえお vowels every five characters! From now on, it'll just be new consonants at the start!",
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "format": "",
+              "indent": 0,
+              "textFormat": 0,
+              "textStyle": "",
+              "version": 1
+            }
+          ],
+          "direction": "ltr",
+          "format": "",
+          "indent": 0,
+          "version": 1
+        }
+      },
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": 10
+      },
+      "sourceId": "699a45910d11ac7a2b8a8d86",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "l1-v1",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 1 Pt. 1",
+      "slug": "l1-v1",
+      "format": "step",
+      "course": {
+        "$ref": "grammar-and-conversation",
+        "$collection": "courses"
+      },
+      "order": 1,
+      "cardTitle": "First Greetings — Part 1",
+      "shuffleExercises": true,
+      "exercises": [
+        {
+          "id": "6a80d50312409c84ac23217b",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": null,
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Hajimemashite, Nakamura desu",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Hajimemashite, Suu desu.",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "videoLesson",
+              "title": "Hajimemashite",
+              "video": {
+                "$ref": "Hajimemashite_cqfhtl.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Hajimemashite_aodjal.m4a",
+                "$collection": "media"
+              },
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Meeting first time, polite",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23217d",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": null,
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Konnnichiwa",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Konnnichiwa",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "videoLesson",
+              "title": "Konnnichiwa",
+              "video": {
+                "$ref": "Konnnichiwa_so1c8p.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Konnichiwa_putqgw.m4a",
+                "$collection": "media"
+              },
+              "content": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23217f",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": null,
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Ohayou gozaimasu",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Ohayou gozaimasu",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "videoLesson",
+              "title": "Ohayou gozaimasu",
+              "video": {
+                "$ref": "Ohayou_gozaimasu_d4iguz.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Ohayou_Gozaimasu_i5zn0p.m4a",
+                "$collection": "media"
+              },
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Polite",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232181",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": null,
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Konnbannwa",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Konnbannwa",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "videoLesson",
+              "title": "Konnbannwa",
+              "video": {
+                "$ref": "Konnbannwa_kbmnhf.mp4",
+                "$collection": "media"
+              },
+              "audio": {
+                "$ref": "Konnwannwa_u3kvxq.m4a",
+                "$collection": "media"
+              },
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Polite",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232189",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "hajimemashite",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "konnnichiwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "ohayou-gozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnbannwa",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "image"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23218b",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "konnnichiwa",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "hajimemashite",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "ohayou-gozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnbannwa",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "image"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23218d",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "ohayou-gozaimasu",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "hajimemashite",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnnichiwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnbannwa",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "image"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23218f",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "konnbannwa",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "hajimemashite",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnnichiwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "ohayou-gozaimasu",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "image"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232191",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Sumimasen",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Sumimasen",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "mediaFigure",
+              "image": null,
+              "audio": {
+                "$ref": "Sumimasen_R_otzedy.m4a",
+                "$collection": "media"
+              },
+              "video": null,
+              "caption": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232193",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Arigatougozaimasu",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Arigatougozaimasu",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "mediaFigure",
+              "image": null,
+              "audio": {
+                "$ref": "Arigatougozaimasu_R_hikobv.m4a",
+                "$collection": "media"
+              },
+              "video": null,
+              "caption": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac232195",
+          "label": "Sayounara",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Sayounara",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Sayounara",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Sayounara",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "mediaFigure",
+              "image": null,
+              "audio": {
+                "$ref": "Sayounara_R_nyjeau.m4a",
+                "$collection": "media"
+              },
+              "video": null,
+              "caption": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23219c",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "sumimasen",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "hajimemashite",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnnichiwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "ohayou-gozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnbannwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "arigatougozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sayounara",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac23219e",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "arigatougozaimasu",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "hajimemashite",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnnichiwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "ohayou-gozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnbannwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sumimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sayounara",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a0",
+          "label": "Sayounara",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "sayounara",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "hajimemashite",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnnichiwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "ohayou-gozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnbannwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sumimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "arigatougozaimasu",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a2",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "hajimemashite",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": {
+                "$ref": "Hajimemashite_cqfhtl.mp4",
+                "$collection": "media"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a4",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "konnnichiwa",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": {
+                "$ref": "Konnnichiwa_so1c8p.mp4",
+                "$collection": "media"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a6",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "ohayou-gozaimasu",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": {
+                "$ref": "Ohayou_gozaimasu_d4iguz.mp4",
+                "$collection": "media"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321a8",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "konnbannwa",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": {
+                "$ref": "Konnbannwa_kbmnhf.mp4",
+                "$collection": "media"
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321aa",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "sumimasen",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321ac",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "arigatougozaimasu",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321ae",
+          "label": "Sayounara",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "sayounara",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b0",
+          "label": "Hajimemashite",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "hajimemashite",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "masu",
+                "hajime",
+                "bann",
+                "konn",
+                "mashite"
+              ],
+              "correctSequence": [
+                "hajime",
+                "mashite"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b2",
+          "label": "Konnnichiwa",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "konnnichiwa",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "konn",
+                "bann",
+                "ha",
+                "nichi",
+                "hajime"
+              ],
+              "correctSequence": [
+                "konn",
+                "nichi",
+                "ha"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b4",
+          "label": "Ohayou gozaimasu",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "ohayou-gozaimasu",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "arigatou",
+                "masu",
+                "gozai",
+                "ohayou",
+                "sayou"
+              ],
+              "correctSequence": [
+                "ohayou",
+                "gozai",
+                "masu"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b6",
+          "label": "Konnbannwa",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "konnbannwa",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "konn",
+                "bann",
+                "nichi",
+                "ha",
+                "nara"
+              ],
+              "correctSequence": [
+                "konn",
+                "bann",
+                "ha"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321b8",
+          "label": "Sumimasen",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "sumimasen",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "sumi",
+                "ohayou",
+                "mashite",
+                "masenn",
+                "masu"
+              ],
+              "correctSequence": [
+                "sumi",
+                "masenn"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321ba",
+          "label": "Arigatougozaimasu",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "arigatougozaimasu",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "haji",
+                "arigatou",
+                "gozai",
+                "mashite",
+                "masu"
+              ],
+              "correctSequence": [
+                "arigatou",
+                "gozai",
+                "masu"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321bc",
+          "label": "Sayounara",
+          "components": [
+            {
+              "blockType": "buildSentence",
+              "instructions": null,
+              "term": {
+                "$ref": "sayounara",
+                "$collection": "terms"
+              },
+              "tiles": [
+                "haji",
+                "sayou",
+                "mashite",
+                "nara",
+                "gozaimasu"
+              ],
+              "correctSequence": [
+                "sayou",
+                "nara"
+              ],
+              "tileScript": "asAuthored"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321be",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "card",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Topic: Consonant + vowel build. Format: Short paragraph text bubble form.",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50312409c84ac2321c0",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "card",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "In certain words in Japanese, there is a vowel extension. Ifyou noticed, \"ohayougozaimasu\" is pronounced \"ohayoogozaimasu\", where the end of the \"ohayou\" is stretched out to an \"ohayoo\". Similarly, \"arigatougozaimasu\" is stretched out to \"arigatoogozaimasu\", and \"sayounara\" is stretched out to \"sayoonara\" You will get used to it over time! ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "prefecture": null,
+      "tags": [],
+      "version": null,
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a4f5136a670a646ec413f25",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "l1-v2",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 1 Pt. 2",
+      "slug": "l1-v2",
+      "format": "step",
+      "course": {
+        "$ref": "grammar-and-conversation",
+        "$collection": "courses"
+      },
+      "order": 2,
+      "cardTitle": "First Greetings — Part 2",
+      "shuffleExercises": true,
+      "exercises": [
+        {
+          "id": "6a80d50512409c84ac2321c2",
+          "label": "Ogenki desuka",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Ogenki desuka",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Ogenki desuka",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "mediaFigure",
+              "image": null,
+              "audio": {
+                "$ref": "Ogenkidesuka_R_bsdnch.m4a",
+                "$collection": "media"
+              },
+              "video": null,
+              "caption": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321c4",
+          "label": "Okagesama de",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Okagesama de",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Ogenki desuka",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Okagesama de",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "mediaFigure",
+              "image": null,
+              "audio": {
+                "$ref": "Okagesamade_R_oemvy4.m4a",
+                "$collection": "media"
+              },
+              "video": null,
+              "caption": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321c6",
+          "label": "Hai",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Hai",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Hai",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "mediaFigure",
+              "image": null,
+              "audio": {
+                "$ref": "Hai_R_diaf22.m4a",
+                "$collection": "media"
+              },
+              "video": null,
+              "caption": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321c8",
+          "label": "Iie",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Iie",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Iie",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            },
+            {
+              "blockType": "mediaFigure",
+              "image": null,
+              "audio": {
+                "$ref": "Iie_R_uxvz7f.m4a",
+                "$collection": "media"
+              },
+              "video": null,
+              "caption": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321cc",
+          "label": "Introduce common phrases",
+          "components": [
+            {
+              "blockType": "grammarPoint",
+              "title": "Introduce common phrases",
+              "points": [
+                {
+                  "pattern": "~ desu",
+                  "explanation": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "block",
+                          "version": 2,
+                          "format": "",
+                          "fields": {
+                            "id": "ex0",
+                            "blockName": "",
+                            "blockType": "exampleSentence",
+                            "japanese": {
+                              "root": {
+                                "type": "root",
+                                "children": [
+                                  {
+                                    "type": "paragraph",
+                                    "children": [
+                                      {
+                                        "type": "text",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "mode": "normal",
+                                        "style": "",
+                                        "text": "___ desu",
+                                        "version": 1
+                                      }
+                                    ],
+                                    "direction": "ltr",
+                                    "format": "",
+                                    "indent": 0,
+                                    "textFormat": 0,
+                                    "textStyle": "",
+                                    "version": 1
+                                  }
+                                ],
+                                "direction": "ltr",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1
+                              }
+                            },
+                            "romaji": null,
+                            "english": null,
+                            "audio": null
+                          }
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  }
+                },
+                {
+                  "pattern": "~ desu ka",
+                  "explanation": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "block",
+                          "version": 2,
+                          "format": "",
+                          "fields": {
+                            "id": "ex0",
+                            "blockName": "",
+                            "blockType": "exampleSentence",
+                            "japanese": {
+                              "root": {
+                                "type": "root",
+                                "children": [
+                                  {
+                                    "type": "paragraph",
+                                    "children": [
+                                      {
+                                        "type": "text",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "mode": "normal",
+                                        "style": "",
+                                        "text": "___ desu ka.",
+                                        "version": 1
+                                      }
+                                    ],
+                                    "direction": "ltr",
+                                    "format": "",
+                                    "indent": 0,
+                                    "textFormat": 0,
+                                    "textStyle": "",
+                                    "version": 1
+                                  }
+                                ],
+                                "direction": "ltr",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1
+                              }
+                            },
+                            "romaji": null,
+                            "english": null,
+                            "audio": null
+                          }
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321ce",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "card",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "In Japanese, question marks \"?\" are not used at the end of questions. Instead, all sentences, including questions, end with a maru \"。\" (circle, in Japanese). However, some may still use exclamation marks \"!\" for sentences with strong emotion. ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321d8",
+          "label": "Ogennki desuka",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "ogennki-desuka",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "okagesamade",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "hai",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "iie",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu-ka",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321da",
+          "label": "Okagesamade",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "okagesamade",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "ogennki-desuka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "hai",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "iie",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu-ka",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321dc",
+          "label": "Hai",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "hai",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "ogennki-desuka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "okagesamade",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "iie",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu-ka",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321de",
+          "label": "iie",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "iie",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "ogennki-desuka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "okagesamade",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "hai",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu-ka",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e0",
+          "label": "~ desu",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "desu",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "ogennki-desuka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "okagesamade",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "hai",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "iie",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu-ka",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e2",
+          "label": "~ desu ka",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "desu-ka",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "ogennki-desuka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "okagesamade",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "hai",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "iie",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e6",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "card",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "In Japanese, people rarely refer to each other with the pronoun \"you\". Instead, people refer to each other by their last names with and a title added to the name. ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321e9",
+          "label": "Introduce people-referring",
+          "components": [
+            {
+              "blockType": "grammarPoint",
+              "title": "Introduce people-referring",
+              "points": [
+                {
+                  "pattern": "~ san",
+                  "explanation": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "block",
+                          "version": 2,
+                          "format": "",
+                          "fields": {
+                            "id": "ex0",
+                            "blockName": "",
+                            "blockType": "exampleSentence",
+                            "japanese": {
+                              "root": {
+                                "type": "root",
+                                "children": [
+                                  {
+                                    "type": "paragraph",
+                                    "children": [
+                                      {
+                                        "type": "text",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "mode": "normal",
+                                        "style": "",
+                                        "text": "[famous people] san",
+                                        "version": 1
+                                      }
+                                    ],
+                                    "direction": "ltr",
+                                    "format": "",
+                                    "indent": 0,
+                                    "textFormat": 0,
+                                    "textStyle": "",
+                                    "version": 1
+                                  }
+                                ],
+                                "direction": "ltr",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1
+                              }
+                            },
+                            "romaji": null,
+                            "english": null,
+                            "audio": null
+                          }
+                        },
+                        {
+                          "type": "block",
+                          "version": 2,
+                          "format": "",
+                          "fields": {
+                            "id": "ex1",
+                            "blockName": "",
+                            "blockType": "exampleSentence",
+                            "japanese": {
+                              "root": {
+                                "type": "root",
+                                "children": [
+                                  {
+                                    "type": "paragraph",
+                                    "children": [
+                                      {
+                                        "type": "text",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "mode": "normal",
+                                        "style": "",
+                                        "text": "[job position] san desu.",
+                                        "version": 1
+                                      }
+                                    ],
+                                    "direction": "ltr",
+                                    "format": "",
+                                    "indent": 0,
+                                    "textFormat": 0,
+                                    "textStyle": "",
+                                    "version": 1
+                                  }
+                                ],
+                                "direction": "ltr",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1
+                              }
+                            },
+                            "romaji": null,
+                            "english": null,
+                            "audio": null
+                          }
+                        },
+                        {
+                          "type": "block",
+                          "version": 2,
+                          "format": "",
+                          "fields": {
+                            "id": "ex2",
+                            "blockName": "",
+                            "blockType": "exampleSentence",
+                            "japanese": {
+                              "root": {
+                                "type": "root",
+                                "children": [
+                                  {
+                                    "type": "paragraph",
+                                    "children": [
+                                      {
+                                        "type": "text",
+                                        "detail": 0,
+                                        "format": 0,
+                                        "mode": "normal",
+                                        "style": "",
+                                        "text": "[relationship position] san desu.",
+                                        "version": 1
+                                      }
+                                    ],
+                                    "direction": "ltr",
+                                    "format": "",
+                                    "indent": 0,
+                                    "textFormat": 0,
+                                    "textStyle": "",
+                                    "version": 1
+                                  }
+                                ],
+                                "direction": "ltr",
+                                "format": "",
+                                "indent": 0,
+                                "version": 1
+                              }
+                            },
+                            "romaji": null,
+                            "english": null,
+                            "audio": null
+                          }
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f3",
+          "label": "Ogennki desuka",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "ogennki-desuka",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f5",
+          "label": "Okagesamade",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "okagesamade",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f7",
+          "label": "Hai",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "hai",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321f9",
+          "label": "iie",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "iie",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321fb",
+          "label": "~ desu",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "desu",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac2321fd",
+          "label": "~ desu ka",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "desu-ka",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232213",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "lifeTip",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "There are two separate emergency phone numbers in Japan. Dial 119 to reach the emergency medical and fire help. Dial 110 to reach the police. ",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac23221c",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcard review",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "hajimemashite",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnnichiwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "ohayou-gozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "konnbannwa",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sumimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "arigatougozaimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sayounara",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232222",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcard review",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "ogennki-desuka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "okagesamade",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "hai",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "iie",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50512409c84ac232228",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcard review",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "desu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "desu-ka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "san",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "jin",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        }
+      ],
+      "prefecture": null,
+      "tags": [],
+      "version": null,
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a62a173a51d5d6db4f1219f",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "l2-v1",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 2 V1",
+      "slug": "l2-v1",
+      "format": "step",
+      "course": {
+        "$ref": "grammar-and-conversation",
+        "$collection": "courses"
+      },
+      "order": 3,
+      "cardTitle": "Common Phrases\n",
+      "shuffleExercises": true,
+      "exercises": [
+        {
+          "id": "6a80d50712409c84ac23222a",
+          "label": "Sumimasen, wakarimasen",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Sumimasen, wakarimasen",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Sumimasen, wakarimasen",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23222c",
+          "label": "Mouichido, onegaishimasu",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Mouichido, onegaishimasu",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Mouichido, onegaishimasu",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23222e",
+          "label": "Yukkuri, onegaishimasu",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Yukkuri, onegaishimasu",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Yukkuri, onegaishimasu",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232235",
+          "label": "Sumimasen, wakarimasen",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "sumimasen-wakarimasen",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232237",
+          "label": "Mouichido, onegaishimasu",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "mouichido-onegaishimasu",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232239",
+          "label": "Yukkuri, onegaishimasu",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "yukkuri-onegaishimasu",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23223b",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "card",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Explain particle \"ha\".",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23223d",
+          "label": "Kore",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Kore",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Kore",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23223f",
+          "label": "Sore",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Sore",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Sore",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232241",
+          "label": "Are",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Are",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Are",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232243",
+          "label": "dore",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "dore",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Dore",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23224b",
+          "label": "Kore",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "kore",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "are",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "dore",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23224d",
+          "label": "Sore",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "sore",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "kore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "are",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "dore",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23224f",
+          "label": "Are",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "are",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "kore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "dore",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232251",
+          "label": "Dore",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "dore",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "kore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "are",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232253",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "card",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "To be filled in",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232255",
+          "label": "Kore ha nandesuka",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Kore ha nandesuka",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Kore ha nandesuka",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232257",
+          "label": "Sore ha nandesuka",
+          "components": [
+            {
+              "blockType": "dialogue",
+              "title": "Sore ha nandesuka",
+              "speakerA": "A",
+              "speakerB": "B",
+              "video": null,
+              "lines": [
+                {
+                  "speaker": "a",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "[...]",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                },
+                {
+                  "speaker": "b",
+                  "japanese": {
+                    "root": {
+                      "type": "root",
+                      "children": [
+                        {
+                          "type": "paragraph",
+                          "children": [
+                            {
+                              "type": "text",
+                              "detail": 0,
+                              "format": 0,
+                              "mode": "normal",
+                              "style": "",
+                              "text": "Sore ha nandesuka",
+                              "version": 1
+                            }
+                          ],
+                          "direction": "ltr",
+                          "format": "",
+                          "indent": 0,
+                          "textFormat": 0,
+                          "textStyle": "",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "version": 1
+                    }
+                  },
+                  "romaji": null,
+                  "english": null,
+                  "audio": null
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23225d",
+          "label": "Kore ha nandesuka",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "kore-ha-nandesuka",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "kore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "are",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "dore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore-ha-nandesuka",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23225f",
+          "label": "Sore ha nandesuka",
+          "components": [
+            {
+              "blockType": "listenAndChoose",
+              "instructions": null,
+              "term": {
+                "$ref": "sore-ha-nandesuka",
+                "$collection": "terms"
+              },
+              "distractors": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "kore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "are",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "dore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "kore-ha-nandesuka",
+                  "$collection": "terms"
+                }
+              ],
+              "answerWith": "text"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232261",
+          "label": "Sumimasen, wakarimasen",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "sumimasen-wakarimasen",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232263",
+          "label": "Mouichido, onegaishimasu",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "mouichido-onegaishimasu",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232265",
+          "label": "Yukkuri, onegaishimasu",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "yukkuri-onegaishimasu",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232267",
+          "label": "Kore",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "kore",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232269",
+          "label": "Sore",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "sore",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23226b",
+          "label": "Are",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "are",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23226d",
+          "label": "Dore",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "dore",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23226f",
+          "label": "Kore ha nandesuka",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "kore-ha-nandesuka",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232271",
+          "label": "Sore ha nandesuka",
+          "components": [
+            {
+              "blockType": "speakAndScore",
+              "instructions": null,
+              "term": {
+                "$ref": "sore-ha-nandesuka",
+                "$collection": "terms"
+              },
+              "transcript": null,
+              "video": null
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232285",
+          "label": null,
+          "components": [
+            {
+              "blockType": "prose",
+              "tone": "lifeTip",
+              "title": null,
+              "content": {
+                "root": {
+                  "type": "root",
+                  "children": [
+                    {
+                      "type": "paragraph",
+                      "children": [
+                        {
+                          "type": "text",
+                          "detail": 0,
+                          "format": 0,
+                          "mode": "normal",
+                          "style": "",
+                          "text": "Trash sorting?",
+                          "version": 1
+                        }
+                      ],
+                      "direction": "ltr",
+                      "format": "",
+                      "indent": 0,
+                      "textFormat": 0,
+                      "textStyle": "",
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac23228a",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcard review",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "sumimasen-wakarimasen",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "mouichido-onegaishimasu",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "yukkuri-onegaishimasu",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232290",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcard review",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "kore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "are",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "dore",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        },
+        {
+          "id": "6a80d50712409c84ac232294",
+          "label": "Flashcard review",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": "Flashcard review",
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "kore-ha-nandesuka",
+                  "$collection": "terms"
+                },
+                {
+                  "$ref": "sore-ha-nandesuka",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "flashcards"
+            }
+          ]
+        }
+      ],
+      "prefecture": null,
+      "tags": [],
+      "version": null,
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a51cc61a670a646ec413f28",
+      "_status": "published"
+    }
+  }
+]

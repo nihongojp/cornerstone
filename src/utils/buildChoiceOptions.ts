@@ -1,4 +1,13 @@
-import { ChoiceCandidate } from "./expandLessonItems";
+/**
+ * A term offered as a multiple-choice tile: the word, and its picture if it has
+ * one.
+ *
+ * Declared here because this is the module that builds the choice set. It used
+ * to live in `utils/expandLessonItems.ts`, which generated the exercises at
+ * render time and is gone — the distractors are an authored `distractors`
+ * relationship on the block now.
+ */
+export type ChoiceCandidate = { phrase: string; imageUrl?: string };
 
 function randomShuffle<T>(arr: T[]): T[] {
   const out = [...arr];

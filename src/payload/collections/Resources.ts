@@ -6,6 +6,8 @@ import {
 } from "../hooks/revalidate";
 import { generatePreviewURL } from "../preview";
 import { readPublishedOrEditor } from "../access/readPublished";
+import { draftingVersions } from "../versions";
+import { isAdmin } from "../access/isAdmin";
 
 /*
  * The /resources page: a handful of named groups, each a list of links.
@@ -17,7 +19,7 @@ import { readPublishedOrEditor } from "../access/readPublished";
  */
 export const Resources: CollectionConfig = {
   slug: "resources",
-  versions: { drafts: true },
+  versions: draftingVersions,
   labels: { singular: "Resource group", plural: "Resource groups" },
   admin: {
     useAsTitle: "category",
@@ -29,7 +31,7 @@ export const Resources: CollectionConfig = {
     // belonging to this document.
     preview: generatePreviewURL("resources"),
   },
-  access: { read: readPublishedOrEditor },
+  access: { read: readPublishedOrEditor, delete: isAdmin },
   hooks: {
     afterChange: [revalidateResources],
     afterDelete: [revalidateResourcesDelete],
@@ -65,7 +67,7 @@ export const Resources: CollectionConfig = {
               'Absolute URL. Opens in a new tab. Optional on purpose: an entry with a title and description but no link yet is a real state the site already handles — it renders as "(No URL)" — and it keeps a planned resource visible as a to-do instead of losing the note.',
           },
         },
-        { name: "description", type: "textarea" },
+        { name: "description", type: "richText" },
       ],
     },
     {

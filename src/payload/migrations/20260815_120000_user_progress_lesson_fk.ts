@@ -8,8 +8,9 @@ import { sql } from '@payloadcms/db-postgres'
  *
  * ── Why it is not a drizzle migration ───────────────────────────────────────
  *
- * It was one — `drizzle/0002_user_progress_lesson_fk.sql` — and on a fresh
- * database that could never work. The constraint needs both `public.user_progress`
+ * It was one — a drizzle migration named `0002_user_progress_lesson_fk.sql`,
+ * deleted in #44 and not to be confused with whatever occupies the `0002` slot
+ * now — and on a fresh database that could never work. The constraint needs both `public.user_progress`
  * (drizzle's) and `payload.lessons` (Payload's) to exist, but Payload never
  * issues `CREATE SCHEMA`, so `payload migrate` cannot run until drizzle has
  * created the `payload` schema. Drizzle first, Payload second — and a drizzle

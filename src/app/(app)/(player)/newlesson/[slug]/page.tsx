@@ -1,12 +1,14 @@
 import { redirect } from "next/navigation";
-import NewLessonPlayer from "../../../../../pages-client/NewLessonPlayer";
-import NewLessonPreview from "../../../../../pages-client/preview/NewLessonPreview";
+import LessonRunner from "../../../../../pages-client/LessonRunner";
+import LessonPreview from "../../../../../pages-client/preview/LessonPreview";
 import {
   DRAFT_STEP,
   getDraftLesson,
-  getDraftNextSlug,
+  getDraftNextHref,
   getNewLessonBySlug,
+  getNextLessonHref,
 } from "../../../../../lib/content/content";
+import { getShuffleIdentity } from "../../../../../lib/progress-server";
 import { getPreviewEditor } from "../../../../../lib/session";
 
 export default async function Page({
@@ -28,9 +30,9 @@ export default async function Page({
     if (!draft) redirect("/dashboard");
 
     return (
-      <NewLessonPreview
+      <LessonPreview
         initialLesson={draft}
-        nextSlug={await getDraftNextSlug(draft, editor)}
+        nextHref={await getDraftNextHref(draft, editor)}
         serverURL={process.env.NEXT_PUBLIC_SERVER_URL || ""}
       />
     );
@@ -42,10 +44,23 @@ export default async function Page({
   // back to the dashboard rather than rendering an empty player.
   if (!lesson) redirect("/dashboard");
 
-  // The lesson's own slug, not the URL segment: this route also resolves a
-  // legacy Mongo id, and the player keys progress off whatever it is handed.
-  // Passing the segment would write progress under an id that is not a slug —
-  // which the user_progress FK rejects, and which resume would never find
-  // again. The flashcard player already resolves its key the same way.
-  return <NewLessonPlayer slug={lesson.slug} lesson={lesson} />;
+  /*
+   * The shuffle seed is resolved here, on the server, and travels as props.
+   * Reading it in the browser instead would produce one order during SSR and
+   * another after mount — the mismatch the seeded shuffle exists to remove.
+   *
+   * Uncached on purpose: it is per-learner, and `getShuffleIdentity` reads the
+   * session. Putting it inside `unstable_cache` would serve one learner's seed
+   * to the next.
+   */
+  const { userId, attempt } = await getShuffleIdentity(lesson.slug);
+
+  return (
+    <LessonRunner
+      lesson={lesson}
+      nextHref={await getNextLessonHref(lesson)}
+      userId={userId}
+      attempt={attempt}
+    />
+  );
 }

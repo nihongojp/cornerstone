@@ -1,0 +1,614 @@
+[
+  {
+    "key": "are",
+    "kind": "vocab",
+    "romaji": "Are",
+    "mergedFrom": [
+      "Are"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "arigatougozaimasu",
+    "kind": "vocab",
+    "romaji": "Arigatougozaimasu",
+    "audio": "Arigatougozaimasu_R_hikobv.m4a",
+    "mergedFrom": [
+      "Arigatougozaimasu"
+    ],
+    "usedIn": [
+      "l1-v1:matchingExercise",
+      "l1-v1:matchAudioExercise",
+      "l1-v1:pronunciationExercise",
+      "l1-v1:dragAndDropPuzzle",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "desu",
+    "kind": "phrase",
+    "romaji": "~ desu",
+    "mergedFrom": [
+      "~ desu"
+    ],
+    "usedIn": [
+      "l1-v2:matchingExercise",
+      "l1-v2:matchAudioExercise",
+      "l1-v2:pronunciationExercise",
+      "l1-v2:termMediaSeed",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "desu-ka",
+    "kind": "phrase",
+    "romaji": "~ desu ka",
+    "mergedFrom": [
+      "~ desu ka",
+      "~ desu ka."
+    ],
+    "usedIn": [
+      "l1-v2:matchingExercise",
+      "l1-v2:matchAudioExercise",
+      "l1-v2:pronunciationExercise",
+      "l1-v2:termMediaSeed",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "dore",
+    "kind": "vocab",
+    "romaji": "Dore",
+    "mergedFrom": [
+      "Dore",
+      "dore"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "hai",
+    "kind": "vocab",
+    "romaji": "Hai",
+    "audio": "Hai_R_diaf22.m4a",
+    "mergedFrom": [
+      "Hai"
+    ],
+    "usedIn": [
+      "l1-v2:matchingExercise",
+      "l1-v2:matchAudioExercise",
+      "l1-v2:pronunciationExercise",
+      "l1-v2:termMediaSeed",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "hajimemashite",
+    "kind": "vocab",
+    "romaji": "Hajimemashite",
+    "audio": "New_Recording_37_xskjfk.m4a",
+    "image": "Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+    "mergedFrom": [
+      "Hajimemashite"
+    ],
+    "usedIn": [
+      "l1-v1:matchingExercise",
+      "l1-v1:matchAudioExercise",
+      "l1-v1:pronunciationExercise",
+      "l1-v1:dragAndDropPuzzle",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "iie",
+    "kind": "vocab",
+    "romaji": "iie",
+    "audio": "Iie_R_uxvz7f.m4a",
+    "mergedFrom": [
+      "iie"
+    ],
+    "usedIn": [
+      "l1-v2:matchingExercise",
+      "l1-v2:matchAudioExercise",
+      "l1-v2:pronunciationExercise",
+      "l1-v2:termMediaSeed",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "jin",
+    "kind": "phrase",
+    "romaji": "~ jin",
+    "mergedFrom": [
+      "~ jin"
+    ],
+    "usedIn": [
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "konnbannwa",
+    "kind": "vocab",
+    "romaji": "Konnbannwa",
+    "audio": "Konnnichiha_ibgete.m4a",
+    "image": "Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+    "mergedFrom": [
+      "Konnbannwa"
+    ],
+    "usedIn": [
+      "l1-v1:matchingExercise",
+      "l1-v1:matchAudioExercise",
+      "l1-v1:pronunciationExercise",
+      "l1-v1:dragAndDropPuzzle",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "konnnichiwa",
+    "kind": "vocab",
+    "romaji": "Konnnichiwa",
+    "audio": "Konnnichiha_R_bov8g7.m4a",
+    "image": "Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+    "mergedFrom": [
+      "Konnnichiwa",
+      "Konnichiwa"
+    ],
+    "usedIn": [
+      "l1-v1:matchingExercise",
+      "l1-v1:matchAudioExercise",
+      "l1-v1:pronunciationExercise",
+      "l1-v1:dragAndDropPuzzle",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "kore",
+    "kind": "vocab",
+    "romaji": "Kore",
+    "mergedFrom": [
+      "Kore"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "kore-ha-nandesuka",
+    "kind": "phrase",
+    "romaji": "Kore ha nandesuka",
+    "mergedFrom": [
+      "Kore ha nandesuka"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "mouichido-onegaishimasu",
+    "kind": "phrase",
+    "romaji": "Mouichido, onegaishimasu",
+    "mergedFrom": [
+      "Mouichido, onegaishimasu"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "ogennki-desuka",
+    "kind": "phrase",
+    "romaji": "Ogennki desuka",
+    "audio": "Ogenkidesuka_R_bsdnch.m4a",
+    "mergedFrom": [
+      "Ogennki desuka"
+    ],
+    "usedIn": [
+      "l1-v2:matchingExercise",
+      "l1-v2:matchAudioExercise",
+      "l1-v2:pronunciationExercise",
+      "l1-v2:termMediaSeed",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "ohayou-gozaimasu",
+    "kind": "phrase",
+    "romaji": "Ohayou gozaimasu",
+    "audio": "Ohayougozaimasu_R_r5go97.m4a",
+    "image": "Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+    "mergedFrom": [
+      "Ohayou gozaimasu"
+    ],
+    "usedIn": [
+      "l1-v1:matchingExercise",
+      "l1-v1:matchAudioExercise",
+      "l1-v1:pronunciationExercise",
+      "l1-v1:dragAndDropPuzzle",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "okagesamade",
+    "kind": "vocab",
+    "romaji": "Okagesamade",
+    "audio": "Okagesamade_R_oemvy4.m4a",
+    "mergedFrom": [
+      "Okagesamade",
+      "Okagesama de"
+    ],
+    "usedIn": [
+      "l1-v2:matchingExercise",
+      "l1-v2:matchAudioExercise",
+      "l1-v2:pronunciationExercise",
+      "l1-v2:termMediaSeed",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "san",
+    "kind": "phrase",
+    "romaji": "~ san",
+    "mergedFrom": [
+      "~ san"
+    ],
+    "usedIn": [
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "sayounara",
+    "kind": "vocab",
+    "romaji": "Sayounara",
+    "audio": "Sayounara_R_nyjeau.m4a",
+    "mergedFrom": [
+      "Sayounara"
+    ],
+    "usedIn": [
+      "l1-v1:matchingExercise",
+      "l1-v1:matchAudioExercise",
+      "l1-v1:pronunciationExercise",
+      "l1-v1:dragAndDropPuzzle",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "sore",
+    "kind": "vocab",
+    "romaji": "Sore",
+    "mergedFrom": [
+      "Sore"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "sore-ha-nandesuka",
+    "kind": "phrase",
+    "romaji": "Sore ha nandesuka",
+    "mergedFrom": [
+      "Sore ha nandesuka"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "sumimasen",
+    "kind": "vocab",
+    "romaji": "Sumimasen",
+    "audio": "Sumimasen_R_otzedy.m4a",
+    "mergedFrom": [
+      "Sumimasen"
+    ],
+    "usedIn": [
+      "l1-v1:matchingExercise",
+      "l1-v1:matchAudioExercise",
+      "l1-v1:pronunciationExercise",
+      "l1-v1:dragAndDropPuzzle",
+      "l1-v2:termsPage"
+    ]
+  },
+  {
+    "key": "sumimasen-wakarimasen",
+    "kind": "phrase",
+    "romaji": "Sumimasen, wakarimasen",
+    "mergedFrom": [
+      "Sumimasen, wakarimasen"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "yukkuri-onegaishimasu",
+    "kind": "phrase",
+    "romaji": "Yukkuri, onegaishimasu",
+    "mergedFrom": [
+      "Yukkuri, onegaishimasu"
+    ],
+    "usedIn": [
+      "l2-v1:matchingExercise",
+      "l2-v1:matchAudioExercise",
+      "l2-v1:pronunciationExercise",
+      "l2-v1:termMediaSeed",
+      "l2-v1:termsPage"
+    ]
+  },
+  {
+    "key": "あ-ア",
+    "kind": "kana",
+    "japanese": "あ",
+    "katakana": "ア",
+    "romaji": "a",
+    "strokes": 3,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.01_PM_ei0pad.png",
+    "mergedFrom": [
+      "あ/ア"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:flashcardDeck"
+    ]
+  },
+  {
+    "key": "あう",
+    "kind": "vocab",
+    "japanese": "あう",
+    "reading": "あう",
+    "romaji": "au",
+    "mergedFrom": [
+      "あう"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:vocabularyDragDrop"
+    ]
+  },
+  {
+    "key": "あお",
+    "kind": "vocab",
+    "japanese": "あお",
+    "reading": "あお",
+    "romaji": "ao",
+    "mergedFrom": [
+      "あお"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:vocabularyDragDrop"
+    ]
+  },
+  {
+    "key": "い-イ",
+    "kind": "kana",
+    "japanese": "い",
+    "katakana": "イ",
+    "romaji": "i",
+    "strokes": 2,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.07_PM_hhpoil.png",
+    "mergedFrom": [
+      "い/イ"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:flashcardDeck"
+    ]
+  },
+  {
+    "key": "いけ",
+    "kind": "vocab",
+    "japanese": "いけ",
+    "reading": "いけ",
+    "romaji": "ike",
+    "mergedFrom": [
+      "いけ"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:vocabularyDragDrop"
+    ]
+  },
+  {
+    "key": "う-ウ",
+    "kind": "kana",
+    "japanese": "う",
+    "katakana": "ウ",
+    "romaji": "u",
+    "strokes": 2,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.15_PM_s4uuwp.png",
+    "mergedFrom": [
+      "う/ウ"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:flashcardDeck"
+    ]
+  },
+  {
+    "key": "うえ",
+    "kind": "vocab",
+    "japanese": "うえ",
+    "reading": "うえ",
+    "romaji": "ue",
+    "mergedFrom": [
+      "うえ"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:vocabularyDragDrop"
+    ]
+  },
+  {
+    "key": "え-エ",
+    "kind": "kana",
+    "japanese": "え",
+    "katakana": "エ",
+    "romaji": "e",
+    "strokes": 2,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.19_PM_pim0ml.png",
+    "mergedFrom": [
+      "え/エ"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:flashcardDeck"
+    ]
+  },
+  {
+    "key": "お-オ",
+    "kind": "kana",
+    "japanese": "お",
+    "katakana": "オ",
+    "romaji": "o",
+    "strokes": 3,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.23_PM_qd5ypr.png",
+    "mergedFrom": [
+      "お/オ"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:flashcardDeck"
+    ]
+  },
+  {
+    "key": "おおい",
+    "kind": "vocab",
+    "japanese": "おおい",
+    "reading": "おおい",
+    "romaji": "ooi",
+    "mergedFrom": [
+      "おおい"
+    ],
+    "usedIn": [
+      "hiragana-l1-v1-hokkaido:vocabularyDragDrop"
+    ]
+  },
+  {
+    "key": "おけ",
+    "kind": "vocab",
+    "japanese": "おけ",
+    "reading": "おけ",
+    "romaji": "oke",
+    "mergedFrom": [
+      "おけ"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:vocabularyDragDrop"
+    ]
+  },
+  {
+    "key": "か-カ",
+    "kind": "kana",
+    "japanese": "か",
+    "katakana": "カ",
+    "romaji": "ka",
+    "strokes": 3,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.30_PM_uljbn3.png",
+    "mergedFrom": [
+      "か/カ"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:flashcardDeck"
+    ]
+  },
+  {
+    "key": "き-キ",
+    "kind": "kana",
+    "japanese": "き",
+    "katakana": "キ",
+    "romaji": "ki",
+    "strokes": 3,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.33_PM_n6m4pf.png",
+    "mergedFrom": [
+      "き/キ"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:flashcardDeck"
+    ]
+  },
+  {
+    "key": "く-ク",
+    "kind": "kana",
+    "japanese": "く",
+    "katakana": "ク",
+    "romaji": "ku",
+    "strokes": 1,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.37_PM_etzwyb.png",
+    "mergedFrom": [
+      "く/ク"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:flashcardDeck"
+    ]
+  },
+  {
+    "key": "け-ケ",
+    "kind": "kana",
+    "japanese": "け",
+    "katakana": "ケ",
+    "romaji": "ke",
+    "strokes": 3,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.40_PM_aryuah.png",
+    "mergedFrom": [
+      "け/ケ"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:flashcardDeck"
+    ]
+  },
+  {
+    "key": "こ-コ",
+    "kind": "kana",
+    "japanese": "こ",
+    "katakana": "コ",
+    "romaji": "ko",
+    "strokes": 2,
+    "strokeOrder": "Screenshot_2026-08-13_at_2.38.43_PM_cd7s34.png",
+    "mergedFrom": [
+      "こ/コ"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:flashcardDeck"
+    ]
+  },
+  {
+    "key": "こけ",
+    "kind": "vocab",
+    "japanese": "こけ",
+    "reading": "こけ",
+    "romaji": "koke",
+    "mergedFrom": [
+      "こけ"
+    ],
+    "usedIn": [
+      "hiragana-l2-v1-iwate:vocabularyDragDrop"
+    ]
+  }
+]

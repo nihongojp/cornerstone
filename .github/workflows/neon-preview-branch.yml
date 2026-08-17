@@ -66,15 +66,59 @@ jobs:
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
         run: npm run payload:migrate
 
-      - name: Typecheck and build
+      # ── Content ──────────────────────────────────────────────────────────
+      #
+      # The branch above forks `production`, and production's *content* is
+      # older than its schema: the migrations just applied bring the tables up
+      # to date, but nothing re-imports the rows. From Phase 4a onward that gap
+      # matters, because the block library replaced the seventeen old block
+      # types and the old rows have no definition behind them any more.
+      #
+      # So the snapshot is imported before anything reads the content. Two
+      # things fall out of that, both wanted:
+      #
+      #  - `content:verify` below is checking this pull request's content model
+      #    against this pull request's code, rather than reporting on whatever
+      #    production happened to be holding.
+      #  - the sequence migrate → import → read is the same one production
+      #    needs at merge time, so every pull request rehearses it. See
+      #    `docs/production-merge-runbook.md`; that ordering is the whole
+      #    subject of it.
+      #
+      # `--yes` is required to write; the script is a dry run without it. Media
+      # is never created here — the import checks that every file the snapshot
+      # references already exists and refuses to run when one does not.
+      - name: Import the content snapshot
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_with_pooler }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: npm run content:import -- --yes
+
+      # The deterministic content check, and the reason it is worth a job slot:
+      # it reads through Payload at the app's own depth and populate with no
+      # cache in front of it. `parity` cannot replace it — `unstable_cache` has
+      # answered parity from an entry built before the change twice, once
+      # passing a whole pre-migration lesson. This one cannot lie.
+      #
+      # Fails on any unpopulated upload and any unresolved `termRef`. Missing
+      # pronunciation audio is reported on its own line without failing, because
+      # that is an editorial backlog rather than a regression.
+      - name: Verify content structure
+        env:
+          DATABASE_URL: ${{ steps.branch.outputs.db_url_with_pooler }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+        run: npm run content:verify
+
+      # Typecheck and tests live in `ci.yml`, which is not gated on Neon and so
+      # runs even when this workflow skips. The build stays here because it
+      # boots Payload and needs the database.
+      - name: Build
         env:
           DATABASE_URL: ${{ steps.branch.outputs.db_url_with_pooler }}
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
           BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
           BETTER_AUTH_URL: http://localhost:3000
-        run: |
-          npm run typecheck
-          npm run build
+        run: npm run build
 
   delete:
     if: vars.NEON_PROJECT_ID != '' && github.event.action == 'closed'
