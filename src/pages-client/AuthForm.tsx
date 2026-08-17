@@ -40,6 +40,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useRouter, useSearchParams } from "next/navigation";
 import { emailOtp, signIn } from "../lib/auth-client";
 import AuthCat from "../components/AuthCat";
+import GoogleMark from "../components/GoogleMark";
 
 type Mode = "login" | "signup";
 type Stage = "email" | "password" | "sent" | "otp" | "linkFailed" | "sendFailed";
@@ -272,6 +273,7 @@ export default function AuthForm(): React.ReactElement {
                   fullWidth
                   variant="outlined"
                   size="large"
+                  startIcon={<GoogleMark />}
                   onClick={() =>
                     signIn.social({
                       provider: "google",
@@ -281,7 +283,12 @@ export default function AuthForm(): React.ReactElement {
                       errorCallbackURL: "/auth",
                     })
                   }
-                  sx={{ textTransform: "none", py: 1.25 }}
+                  sx={{
+                    textTransform: "none",
+                    py: 1.25,
+                    borderColor: "#dadce0",
+                    color: "text.primary",
+                  }}
                 >
                   {mode === "login" ? "Sign in with Google" : "Sign up with Google"}
                 </Button>
@@ -531,16 +538,19 @@ export default function AuthForm(): React.ReactElement {
                   <Button
                     fullWidth
                     variant="outlined"
+                    startIcon={<GoogleMark />}
                     onClick={() =>
-                    signIn.social({
-                      provider: "google",
-                      callbackURL: from,
-                      // Without this, a refused link lands on Better Auth's own
-                      // error page instead of the recovery path below.
-                      errorCallbackURL: "/auth",
-                    })
-                  }
-                    sx={{ textTransform: "none" }}
+                      signIn.social({
+                        provider: "google",
+                        callbackURL: from,
+                        errorCallbackURL: "/auth",
+                      })
+                    }
+                    sx={{
+                      textTransform: "none",
+                      borderColor: "#dadce0",
+                      color: "text.primary",
+                    }}
                   >
                     Continue with Google instead
                   </Button>
