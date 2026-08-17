@@ -108,6 +108,37 @@ that file is the record and the merging rule is never used again.
 
 ---
 
+## 5. Most of the vocabulary has no pronunciation audio
+
+**30 of the 41 terms have no recording.** That leaves **21 listening exercises with nothing to
+play** — the learner is asked "which word did you hear?" and hears silence.
+
+This is not new and it is not a side effect of the rework: the old `matchAudioLetter` blocks never
+had an audio field filled in either, so those screens have always been silent. What changed is that
+it is now countable. Audio used to be attached to whichever *copy* of a word an author happened to
+be editing, and a helper guessed at render time which copies meant the same word; now a word has one
+place for its recording, so "does this word have audio?" has an answer.
+
+The five kana sets are the biggest block of it:
+
+| Terms with no audio | Where it shows |
+|---|---|
+| `あ-ア` `い-イ` `う-ウ` `え-エ` `お-オ` | 5 listening exercises in `hiragana-l1-v1-hokkaido` |
+| `か-カ` `き-キ` `く-ク` `け-ケ` `こ-コ` | 5 listening exercises in `hiragana-l2-v1-iwate` |
+| `desu` `desu-ka` | 2 in `l1-v2` |
+| `sumimasen-wakarimasen`, `mouichido-onegaishimasu`, `yukkuri-onegaishimasu`, `kore`, `sore`, `are`, `dore`, `kore-ha-nandesuka`, `sore-ha-nandesuka` | the rest, in `l2-v1` |
+
+A recording on the term fixes every exercise that references it at once — that is the whole point of
+the vocabulary collection. Upload the clip to the term's own Audio field in the CMS
+(Vocabulary → the word → Audio); nothing else needs touching.
+
+Separately, **11 speaking exercises have no reference audio**, so a learner can record themselves
+but nothing can be scored. Same fix, same field.
+
+`npm run content:verify` prints both counts on their own lines, so they go down as recordings land.
+
+---
+
 ## Checking your work
 
 `npm run content:verify` reads every published lesson and reports the placeholder strings and any
