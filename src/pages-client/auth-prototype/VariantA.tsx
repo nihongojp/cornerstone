@@ -17,11 +17,14 @@ import {
   Button,
   CircularProgress,
   Container,
+  Divider,
+  IconButton,
   Link,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { GoogleButton, OrDivider, StateReadout, fakeLookup, sleep } from "./stubs";
 
 type Stage = "email" | "password" | "sent" | "otp";
@@ -58,13 +61,23 @@ export default function VariantA() {
         pb={12}
       >
         <Container maxWidth="xs">
-          <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
+          <Paper elevation={3} sx={{ p: 4, borderRadius: 3, position: "relative" }}>
+            {/* One way back, everywhere. Returning to the email step is
+                implicitly how you use a different address. */}
+            {stage !== "email" && (
+              <IconButton
+                aria-label="Back"
+                onClick={reset}
+                size="small"
+                sx={{ position: "absolute", top: 12, left: 12, color: "text.secondary" }}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+            )}
+
             <Box textAlign="center" mb={3}>
               <Typography variant="h5" fontWeight="bold">
                 Sign in to Nihon-Go!
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                New here? Same box — we&apos;ll sort it out.
               </Typography>
             </Box>
 
@@ -130,18 +143,22 @@ export default function VariantA() {
                   Check your email
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  We sent a sign-in link to <strong>{email}</strong>. It expires in
-                  15 minutes.
+                  We sent a sign-in link to <strong>{email}</strong>.
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  It expires in 15 minutes.
                 </Typography>
 
+                <Divider sx={{ mx: 3, mt: 3 }} />
+
                 {stage === "sent" ? (
-                  <Box mt={3}>
+                  <Box mt={2}>
                     <Link component="button" underline="hover" onClick={() => setStage("otp")}>
                       Enter the 6-digit code instead
                     </Link>
                   </Box>
                 ) : (
-                  <Box mt={3}>
+                  <Box mt={2}>
                     <TextField
                       label="6-digit code"
                       fullWidth
@@ -167,28 +184,11 @@ export default function VariantA() {
                   </Box>
                 )}
 
-                <Box mt={2}>
+                <Box mt={1}>
                   <Typography variant="caption" color="text.secondary">
                     Didn&apos;t arrive? <Link component="button" underline="hover">Resend</Link>
                   </Typography>
                 </Box>
-              </Box>
-            )}
-
-            {/* One way back, everywhere. Going back to the email step is
-                implicitly how you use a different address — no separate
-                "change" affordance competing with it. */}
-            {stage !== "email" && (
-              <Box textAlign="center" mt={3}>
-                <Link
-                  component="button"
-                  variant="body2"
-                  underline="hover"
-                  onClick={reset}
-                  sx={{ color: "text.secondary" }}
-                >
-                  ← Back
-                </Link>
               </Box>
             )}
 
