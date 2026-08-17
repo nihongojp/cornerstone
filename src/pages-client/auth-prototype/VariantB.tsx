@@ -150,16 +150,17 @@ export default function VariantB() {
             )}
 
             {(stage === "sent" || stage === "otp") && (
-              <Box>
+              <Box textAlign="center">
                 <Typography variant="body1" fontWeight={600}>
                   Check your email
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  Sent to <strong>{email || "your address"}</strong>. Expires in 15 minutes.
+                  We sent a sign-in link to <strong>{email || "your address"}</strong>.
+                  It expires in 15 minutes.
                 </Typography>
 
                 {stage === "sent" ? (
-                  <Box textAlign="center" mt={3}>
+                  <Box mt={3}>
                     <Link component="button" underline="hover" onClick={() => setStage("otp")}>
                       Enter the 6-digit code instead
                     </Link>
@@ -192,9 +193,15 @@ export default function VariantB() {
                   </>
                 )}
 
-                <Box textAlign="center" mt={2}>
-                  <Link component="button" underline="hover" onClick={() => setStage("form")}>
-                    Back
+                <Box mt={3}>
+                  <Link
+                    component="button"
+                    variant="body2"
+                    underline="hover"
+                    onClick={() => setStage("form")}
+                    sx={{ color: "text.secondary" }}
+                  >
+                    ← Back
                   </Link>
                 </Box>
               </Box>

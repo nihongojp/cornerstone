@@ -15,7 +15,6 @@ import React, { useState } from "react";
 import {
   Box,
   Button,
-  Chip,
   CircularProgress,
   Container,
   Link,
@@ -95,17 +94,11 @@ export default function VariantA() {
               </>
             )}
 
-            {stage !== "email" && (
-              <Box display="flex" alignItems="center" gap={1} mb={2}>
-                <Chip label={email} size="small" sx={{ maxWidth: "100%" }} />
-                <Link component="button" variant="caption" underline="hover" onClick={reset}>
-                  change
-                </Link>
-              </Box>
-            )}
-
             {stage === "password" && (
-              <>
+              <Box textAlign="center">
+                <Typography variant="body2" color="text.secondary" mb={2}>
+                  Signing in as <strong>{email}</strong>
+                </Typography>
                 <TextField
                   label="Password"
                   type="password"
@@ -123,25 +116,26 @@ export default function VariantA() {
                 >
                   Sign in
                 </Button>
-                <Box textAlign="center" mt={2}>
+                <Box mt={2}>
                   <Link component="button" underline="hover" onClick={() => setStage("sent")}>
                     Email me a sign-in link instead
                   </Link>
                 </Box>
-              </>
+              </Box>
             )}
 
             {(stage === "sent" || stage === "otp") && (
-              <>
+              <Box textAlign="center">
                 <Typography variant="body1" fontWeight={600}>
                   Check your email
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  We sent a sign-in link. It expires in 15 minutes.
+                  We sent a sign-in link to <strong>{email}</strong>. It expires in
+                  15 minutes.
                 </Typography>
 
                 {stage === "sent" ? (
-                  <Box textAlign="center" mt={3}>
+                  <Box mt={3}>
                     <Link component="button" underline="hover" onClick={() => setStage("otp")}>
                       Enter the 6-digit code instead
                     </Link>
@@ -173,12 +167,29 @@ export default function VariantA() {
                   </Box>
                 )}
 
-                <Box textAlign="center" mt={2}>
+                <Box mt={2}>
                   <Typography variant="caption" color="text.secondary">
                     Didn&apos;t arrive? <Link component="button" underline="hover">Resend</Link>
                   </Typography>
                 </Box>
-              </>
+              </Box>
+            )}
+
+            {/* One way back, everywhere. Going back to the email step is
+                implicitly how you use a different address — no separate
+                "change" affordance competing with it. */}
+            {stage !== "email" && (
+              <Box textAlign="center" mt={3}>
+                <Link
+                  component="button"
+                  variant="body2"
+                  underline="hover"
+                  onClick={reset}
+                  sx={{ color: "text.secondary" }}
+                >
+                  ← Back
+                </Link>
+              </Box>
             )}
 
             <StateReadout state={{ variant: "A", stage, email, hasPassword: email ? fakeLookup(email) : null }} />
