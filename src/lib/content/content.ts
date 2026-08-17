@@ -5,29 +5,29 @@ import { payloadClient } from "./payload";
 import { TAGS } from "./tags";
 import { lessonHref } from "./routes";
 import { CONTENT_DEPTH, MEDIA_POPULATE } from "./depth";
-import {
-  toLessonDoc,
-  toLessonListItem,
-  toNewLessonDoc,
-  toNewLessonListItem,
-  toResourceGroup,
-} from "./adapters";
 import type { Lesson, Resource } from "../../payload/payload-types";
-import type {
-  LessonDoc,
-  LessonListItem,
-  NewLessonDoc,
-  NewLessonListItem,
-  ResourceGroup,
-} from "../types/lessons";
 
 /*
  * The content API — the only module the app reads content through.
  *
- * The five exported lookups keep the signatures and return types they had when
- * this was backed by Airtable, and before that by the Express controllers that
- * served /api/lessons, /api/newlessons and /api/resources. Everything about
- * the storage change lives behind them.
+ * ── One type system ─────────────────────────────────────────────────────────
+ *
+ * These lookups return Payload's own generated documents. Until Phase 4b they
+ * returned hand-written view models from `lib/types/lessons.ts`, built by
+ * `lib/content/adapters.ts` — shapes inherited from the Airtable services and
+ * the Express controllers before them, which flattened a lesson's blocks into
+ * `{ type: string; [key: string]: unknown }` so the players could discriminate
+ * on which fields happened to be present.
+ *
+ * That was three parallel type systems for the same content, and adding a block
+ * meant touching all three. Both of those files are gone and `payload-types.ts`
+ * is the only one left: a renamed field is now a type error rather than a screen
+ * that renders blank.
+ *
+ * The one thing the adapters did that was worth keeping is gone with them: they
+ * normalised Payload's `T | null | undefined` down to `T | undefined`. Callers
+ * check for absence directly instead, which is a little more verbose at each
+ * site and one fewer transformation to keep in step.
  *
  * Reads go through Payload's local API — an in-process database query, not an
  * HTTP call — so there is no `fetch` for Next to cache and the caching is
@@ -80,12 +80,12 @@ async function findLessons(where: Where, limit = 0): Promise<Lesson[]> {
 // ── Lessons: the flashcard player ────────────────────────────────────────────
 
 const cachedListLessons = unstable_cache(
-  async (prefecture: string, includeInactive: boolean): Promise<LessonListItem[]> => {
+  async (prefecture: string, includeInactive: boolean): Promise<Lesson[]> => {
     const clauses: Where[] = [FLASHCARD];
     if (prefecture) clauses.push({ prefecture: { equals: prefecture } });
     if (!includeInactive) clauses.push(PUBLISHED);
 
-    return (await findLessons(and(...clauses))).map(toLessonListItem);
+    return findLessons(and(...clauses));
   },
   ["content", "listLessons"],
   { tags: [TAGS.lessons], revalidate: REVALIDATE }
@@ -94,7 +94,7 @@ const cachedListLessons = unstable_cache(
 export function listLessons(params?: {
   prefecture?: string;
   includeInactive?: boolean;
-}): Promise<LessonListItem[]> {
+}): Promise<Lesson[]> {
   return cachedListLessons(
     (params?.prefecture || "").trim(),
     params?.includeInactive === true
@@ -105,7 +105,7 @@ export function listLessons(params?: {
  * Looks up by slug, then falls back to the original Mongo id so links like
  * /lesson/<ObjectId> that people already bookmarked keep working.
  */
-export function getLessonBySlug(slugOrLegacyId: string): Promise<LessonDoc | null> {
+export function getLessonBySlug(slugOrLegacyId: string): Promise<Lesson | null> {
   const key = String(slugOrLegacyId || "").trim();
   if (!key) return Promise.resolve(null);
 
@@ -113,9 +113,9 @@ export function getLessonBySlug(slugOrLegacyId: string): Promise<LessonDoc | nul
   // `unstable_cache` fixes its tags when the wrapper is created, not when it
   // runs. The key goes in `keyParts` so each slug gets its own entry.
   return unstable_cache(
-    async (): Promise<LessonDoc | null> => {
+    async (): Promise<Lesson | null> => {
       const [lesson] = await findLessons(and(FLASHCARD, PUBLISHED, byKey(key)), 1);
-      return lesson ? toLessonDoc(lesson) : null;
+      return lesson ?? null;
     },
     ["content", "getLessonBySlug", key],
     { tags: [TAGS.lessons, TAGS.lesson(key)], revalidate: REVALIDATE }
@@ -125,11 +125,11 @@ export function getLessonBySlug(slugOrLegacyId: string): Promise<LessonDoc | nul
 // ── New lessons: the step-through player ─────────────────────────────────────
 
 const cachedListNewLessons = unstable_cache(
-  async (includeInactive: boolean): Promise<NewLessonListItem[]> => {
+  async (includeInactive: boolean): Promise<Lesson[]> => {
     const clauses: Where[] = [STEP];
     if (!includeInactive) clauses.push(PUBLISHED);
 
-    return (await findLessons(and(...clauses))).map(toNewLessonListItem);
+    return findLessons(and(...clauses));
   },
   ["content", "listNewLessons"],
   { tags: [TAGS.newLessons], revalidate: REVALIDATE }
@@ -137,60 +137,85 @@ const cachedListNewLessons = unstable_cache(
 
 export function listNewLessons(params?: {
   includeInactive?: boolean;
-}): Promise<NewLessonListItem[]> {
+}): Promise<Lesson[]> {
   return cachedListNewLessons(params?.includeInactive === true);
 }
 
-/*
- * `nextSlug` used to be a stored pointer to the lesson that follows. Course
- * order replaces it (#18): the next lesson is the next one along in the same
- * course. Resolved as its own one-row query rather than by loading the course
- * and its lessons, so a long course costs the same as a short one.
- */
-async function nextSlugFor(lesson: Lesson): Promise<string | undefined> {
-  const courseId = typeof lesson.course === "object" ? lesson.course?.id : lesson.course;
-  if (courseId === null || courseId === undefined || lesson.order === null || lesson.order === undefined) {
-    return undefined;
-  }
-
-  const payload = await payloadClient();
-  const result = await payload.find({
-    collection: "lessons",
-    where: and(STEP, PUBLISHED, {
-      course: { equals: courseId },
-      order: { greater_than: lesson.order },
-    }),
-    limit: 1,
-    // Deliberately 0: this reads one field, `slug`. Nothing to populate.
-    depth: 0,
-    sort: "order",
-    overrideAccess: false,
-  });
-
-  return result.docs[0]?.slug;
-}
-
-export function getNewLessonBySlug(slug: string): Promise<NewLessonDoc | null> {
+export function getNewLessonBySlug(slug: string): Promise<Lesson | null> {
   const key = String(slug || "").trim();
   if (!key) return Promise.resolve(null);
 
   return unstable_cache(
-    async (): Promise<NewLessonDoc | null> => {
+    async (): Promise<Lesson | null> => {
       const [lesson] = await findLessons(and(STEP, PUBLISHED, byKey(key)), 1);
-      if (!lesson) return null;
-      return toNewLessonDoc(lesson, await nextSlugFor(lesson));
+      return lesson ?? null;
     },
     ["content", "getNewLessonBySlug", key],
-    // Tagged with the lessons tag too: an edit to the *next* lesson changes
-    // this document's `nextSlug`, and only the whole-collection tag catches it.
     { tags: [TAGS.newLessons, TAGS.newLesson(key)], revalidate: REVALIDATE }
+  )();
+}
+
+// ── What comes next ──────────────────────────────────────────────────────────
+
+/*
+ * The lesson that follows, as a link.
+ *
+ * `nextSlug` used to be a stored pointer. Course order replaces it (#18): the
+ * next lesson is the next one along in the same course. Resolved as its own
+ * one-row query rather than by loading the course and its lessons, so a long
+ * course costs the same as a short one.
+ *
+ * Two changes in 4b. It is a *href* rather than a slug, because the two formats
+ * play on different paths and the caller was hardcoding `/newlesson/` — a
+ * flashcard lesson followed by a flashcard lesson would have linked into the
+ * wrong player. And it no longer filters to step lessons only, which is what
+ * made that latent: both formats have course order, and both now use it.
+ */
+export function getNextLessonHref(lesson: Lesson): Promise<string | undefined> {
+  const courseId = typeof lesson.course === "object" ? lesson.course?.id : lesson.course;
+  if (
+    courseId === null ||
+    courseId === undefined ||
+    lesson.order === null ||
+    lesson.order === undefined
+  ) {
+    return Promise.resolve(undefined);
+  }
+
+  const order = lesson.order;
+  const format = lesson.format;
+
+  return unstable_cache(
+    async (): Promise<string | undefined> => {
+      const payload = await payloadClient();
+      const result = await payload.find({
+        collection: "lessons",
+        where: and(PUBLISHED, {
+          format: { equals: format },
+          course: { equals: courseId },
+          order: { greater_than: order },
+        }),
+        limit: 1,
+        // Deliberately 0: this reads two fields, `slug` and `format`.
+        depth: 0,
+        sort: "order",
+        overrideAccess: false,
+      });
+
+      const next = result.docs[0];
+      return next ? lessonHref(next.format, next.slug) : undefined;
+    },
+    ["content", "getNextLessonHref", String(courseId), String(format), String(order)],
+    // The whole-collection tags, not a per-slug one: this answer changes when a
+    // *different* lesson is added, reordered or unpublished.
+    { tags: [TAGS.lessons, TAGS.newLessons], revalidate: REVALIDATE }
   )();
 }
 
 // ── Resources ────────────────────────────────────────────────────────────────
 
 export const getResources = unstable_cache(
-  async (): Promise<ResourceGroup[]> => {
+  async (): Promise<Resource[]> => {
     const payload = await payloadClient();
     const result = await payload.find({
       collection: "resources",
@@ -207,7 +232,7 @@ export const getResources = unstable_cache(
       overrideAccess: false,
       pagination: false,
     });
-    return result.docs.map(toResourceGroup);
+    return result.docs;
   },
   ["content", "getResources"],
   { tags: [TAGS.resources], revalidate: REVALIDATE }
@@ -263,13 +288,13 @@ export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | nu
  * The three lookups below answer for Live Preview, and differ on every one of
  * those axes.
  *
- * They return the raw Payload document rather than the view model the players
- * consume. The preview wrapper needs the raw shape because `useLivePreview`
- * merges the editor's unsaved form state into it and hands back another raw
- * document, and the wrapper then runs the same adapters this module runs — on
- * the client. That works only because `adapters.ts` is deliberately free of
- * `server-only`, and it is what keeps preview from growing a second copy of the
- * document-to-player mapping that could drift from this one.
+ * They differ from the published lookups in one thing less than they used to.
+ * Both paths now return the same raw Payload document: the wrapper used to have
+ * to re-run `adapters.ts` on the client so preview would not grow a second copy
+ * of the document-to-player mapping, and with no mapping left there is nothing
+ * to re-run. `useLivePreview` merges the editor's unsaved form state into the
+ * document and hands back another document of the same shape, which goes
+ * straight to the same component the public path uses.
  *
  * Not wrapped in `unstable_cache`. A preview load is one query, once, so there
  * is nothing to win, and a cached draft is a wrong answer waiting to be served
@@ -334,7 +359,7 @@ export async function getDraftLesson(
  * they just added as the one that follows, not skip over it to the last
  * published one.
  */
-export async function getDraftNextSlug(
+export async function getDraftNextHref(
   lesson: Lesson,
   user: TypedUser
 ): Promise<string | undefined> {
@@ -346,7 +371,10 @@ export async function getDraftNextSlug(
   const payload = await payloadClient();
   const result = await payload.find({
     collection: "lessons",
-    where: and(STEP, {
+    where: and({
+      // Matches `getNextLessonHref`: the next lesson of the same format, not the
+      // next step lesson regardless of what this one is.
+      format: { equals: lesson.format },
       course: { equals: courseId },
       order: { greater_than: lesson.order },
     }),
@@ -359,7 +387,8 @@ export async function getDraftNextSlug(
     user,
   });
 
-  return result.docs[0]?.slug;
+  const next = result.docs[0];
+  return next ? lessonHref(next.format, next.slug) : undefined;
 }
 
 export async function getDraftResources(user: TypedUser): Promise<Resource[]> {

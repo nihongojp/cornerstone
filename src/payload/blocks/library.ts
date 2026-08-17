@@ -2,7 +2,10 @@ import type { Block, Field } from "payload";
 
 import { audioField, imageField, videoField } from "../fields/media";
 import { sentenceEditor } from "../fields/prose";
-import { LIBRARY_BLOCK_SLUGS as LIBRARY_SLUGS } from "./librarySlugs";
+import {
+  LIBRARY_BLOCK_SLUGS as LIBRARY_SLUGS,
+  PRACTICE_BLOCK_SLUGS as PRACTICE_SLUGS,
+} from "./librarySlugs";
 
 /*
  * The block library: ten blocks an author composes a screen from.
@@ -197,11 +200,15 @@ export const VocabList: Block = {
         { label: "List", value: "list" },
         { label: "Flashcards to flip", value: "flashcards" },
         { label: "Image grid", value: "grid" },
+        { label: "Spotlight one character", value: "spotlight" },
       ],
       admin: {
         description:
           "`format` on the old Terms page was free text (\"Flashcard\", …) that the renderer " +
-          "guessed at. This is the same decision, made explicitly.",
+          "guessed at. This is the same decision, made explicitly. " +
+          "Spotlight shows one character large with its stroke-order diagram, and is the " +
+          "authored form of the screens the flashcard player used to generate from a " +
+          "hardcoded table.",
       },
     },
   ],
@@ -575,8 +582,26 @@ export { LIBRARY_BLOCK_SLUGS } from "./librarySlugs";
       "payload/blocks/librarySlugs.ts is out of step with the blocks registered in library.ts." +
         (missing.length ? ` Missing: ${missing.join(", ")}.` : "") +
         (extra.length ? ` Not registered: ${extra.join(", ")}.` : "") +
-        " That list is duplicated on purpose — adapters.ts runs in the browser and cannot import" +
-        " this file — so fix the list rather than this check."
+        " That list is duplicated on purpose — the shuffle and the render path run in the" +
+        " browser and cannot import this file — so fix the list rather than this check."
+    );
+  }
+
+  /*
+   * And the same for the split, which is load-bearing now rather than a heading.
+   *
+   * `lib/content/shuffle.ts` reorders a run of consecutive Practice screens and
+   * leaves everything else where the author put it. If a block were Practice here
+   * and Content there, the symptom would be a narrative screen quietly changing
+   * places between visits — the sort of thing noticed months later, by a learner.
+   */
+  const practiceHere = practiceBlocks.map((block) => block.slug).sort().join(",");
+  const practiceThere = [...PRACTICE_SLUGS].sort().join(",");
+  if (practiceHere !== practiceThere) {
+    throw new Error(
+      "PRACTICE_BLOCK_SLUGS in librarySlugs.ts does not match the blocks grouped 'Practice' here." +
+        ` Registered: ${practiceHere}. Declared: ${practiceThere}.` +
+        " lib/content/shuffle.ts only reorders Practice screens, so a disagreement moves content."
     );
   }
 }

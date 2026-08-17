@@ -1,7 +1,5 @@
 import type { CollectionConfig } from "payload";
 
-import { grammarBlocks } from "../blocks/grammar";
-import { escapeHatchBlocks, legacyBlocks } from "../blocks/legacy";
 import { libraryBlocks } from "../blocks/library";
 import { guardLessonDelete } from "../hooks/guardLessonDelete";
 import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
@@ -33,22 +31,20 @@ import { readPublishedOrEditor } from "../access/readPublished";
  */
 
 /*
- * An exercise is one screen, and since Phase 4a a screen can hold several blocks.
+ * An exercise is one screen, and a screen is an ordered list of blocks.
  *
  * That is the change that makes this a CMS rather than a transcription: the
  * `maxRows: 1` that used to be on `components` meant a screen could only ever be
  * one block, so every new layout needed a developer. It is gone.
  *
- * The catch during 4a, and only during 4a: the two old players consume a flat
- * list of items, one per screen, so several *old* blocks in one exercise still
- * arrive as several screens. Blocks from the new library are carried through
- * whole and composed onto one screen — see `lib/content/adapters.ts`. Phase 4b
- * deletes the old blocks and the distinction with them.
+ * The seventeen blocks this replaced — one per legacy JSON shape, split into
+ * "Grammar lesson" and "Legacy lesson" groups because the two families could not
+ * mix — were deleted in Phase 4b along with the flattening layer that fed them
+ * to two separate players. There is one library and one runner.
  */
 const AUTHORING_CONVENTION =
   "One exercise is one screen. Blocks from Content and Practice compose onto that screen in " +
-  "order. The seventeen older blocks are being retired — they still render, but one per " +
-  "exercise; a second one becomes its own screen. Prefer the Content and Practice blocks.";
+  "order — a prose introduction followed by the exercise it sets up is one screen, not two.";
 
 export const Lessons: CollectionConfig = {
   slug: "lessons",
@@ -156,8 +152,10 @@ export const Lessons: CollectionConfig = {
       defaultValue: true,
       admin: {
         description:
-          "Shuffle exercises within each generated group when the lesson is rendered. " +
-          "Turn off for lessons where the order teaches something.",
+          "Vary the order of consecutive practice screens of the same kind, so a learner " +
+          "repeating the lesson does not get the same sequence. Screens that present " +
+          "material never move, and a run never moves out of its place in the lesson. " +
+          "Turn off where the order within a run teaches something.",
       },
     },
     {
@@ -184,7 +182,7 @@ export const Lessons: CollectionConfig = {
           minRows: 1,
           // `maxRows: 1` was here. Removing it is what turns a screen into an
           // ordered block list — see the note on AUTHORING_CONVENTION above.
-          blocks: [...libraryBlocks, ...grammarBlocks, ...legacyBlocks, ...escapeHatchBlocks],
+          blocks: libraryBlocks,
           admin: { description: AUTHORING_CONVENTION },
         },
       ],

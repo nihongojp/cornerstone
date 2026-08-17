@@ -9,15 +9,20 @@
 // off Cloudinary and holds the fixed list of source URLs — add new entries
 // there too, or a freshly seeded database will be missing the media rows.
 /*
- * SUPERSEDED, still wired. This data now also lives in the `terms` collection —
- * every kana term carries `strokes` and a `strokeOrder` upload, seeded from the
- * table below by `scripts/content/derive-terms.ts`.
+ * SEED INPUT ONLY, and no longer part of the app.
  *
- * It survives here because `LessonPlayer` still reads it directly, and the
- * player only gets terms once blocks reference them by relationship (Phase 4).
- * Until then the two copies can drift: the CMS is the one an editor can change,
- * this one needs a deploy. If they disagree, the CMS is right. Delete this file
- * with the flashcard player rewrite, not before.
+ * This data lives in the `terms` collection now — every kana term carries
+ * `strokes` and a `strokeOrder` upload, seeded from the table below by
+ * `derive-terms.ts`, and the lessons hold authored `vocabList` blocks with
+ * `layout: "spotlight"` that render from the term.
+ *
+ * It lived at `src/data/kanaStrokeOrder.ts` and was read at render time by
+ * `LessonPlayer`, which generated a stroke-order screen per character from it.
+ * Phase 4b deleted that player, so the two copies can no longer drift: the CMS
+ * is the only one the app reads, and this is the record of where it came from.
+ * `06-cloudinary-to-blob.ts` still needs it to place the media rows in a freshly
+ * seeded database. Delete it with the rest of `scripts/migrate` when Mongo
+ * decommissions on 2026-09-15.
  */
 export type KanaStrokeOrder = { imageUrl: string; strokes: number };
 

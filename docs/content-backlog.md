@@ -1,16 +1,23 @@
 # Content backlog
 
-Four things in the CMS need an author rather than a developer. None of them break the site;
-all four were invisible before the recent CMS work and are now countable, which is the only
+Five things in the CMS need an author rather than a developer. None of them break the site;
+all five were invisible before the recent CMS work and are now countable, which is the only
 reason this list exists.
 
-Written 2026-08-17, against the `claude/payload-cms-improvements-3b72de` branch. The counts come
-from `npm run content:verify`, which reprints them on every run — treat that as the live version
-of this document.
+Written 2026-08-17, against the `claude/payload-cms-improvements-3b72de` branch, and updated after
+Phase 4b. The counts come from `npm run content:verify`, which reprints them on every run — treat
+that as the live version of this document.
 
 ## What changed in the admin first
 
 Two things look different, and both matter for the work below.
+
+**Every screen is authored.** The player used to invent some of them: it generated the
+stroke-order screens from a table in the code, and generated the practice batches fresh on every
+visit. Both are real, editable exercises now, so what you see in the Exercises list is what a
+learner gets. One consequence worth knowing: a lesson with **Shuffle Exercises** ticked varies the
+order of consecutive practice screens of the same kind per learner, so two people can meet the
+same exercises in different orders. Screens that present material never move.
 
 **Media is a picker now, not a URL box.** Component fields used to say "Image URL" and expect you
 to upload a file, copy its address, and paste it in. They now say "Image", "Audio" or "Video" and
@@ -25,40 +32,33 @@ different exercises and its audio attached to whichever copy someone happened to
 
 ---
 
-## 1. Placeholder text is live on the site
+## 1. Placeholder text — removed from the site, waiting on the real copy
 
-**Where:** lesson `l1-v2`, ten places across eight exercises.
+**Status: no longer live.** Phase 4b removed these eight blocks from `l1-v2` rather than
+carrying them onto the new block library. Learners no longer see `PLACEHOLDER_PHRASE_SAN`,
+`PLACEHOLDER_PHRASE_JIN` or `PLACEHOLDER_TRANSLATION` anywhere. The lesson stayed published and
+lost eight screens, going from 32 exercises to 24.
 
-Learners currently see the literal strings `PLACEHOLDER_PHRASE_SAN`, `PLACEHOLDER_PHRASE_JIN` and
-`PLACEHOLDER_TRANSLATION` on screen. These came through the Mongo import as-is — the import
-blanked out placeholder *file* addresses but left placeholder *text* alone, and nothing since has
-looked at it.
+Nothing was thrown away: every removed block is in `content/quarantine.json` with its lesson, its
+position and all of its field values. **That file is now the only copy** — restore from it, not
+from the site.
 
-| Exercise | Block | Field | Value |
-|---|---|---|---|
-| 16 | Matching exercise | item 1 phrase | `PLACEHOLDER_PHRASE_SAN` |
-| 16 | Matching exercise | item 1 English translation | `PLACEHOLDER_TRANSLATION` |
-| 16 | Matching exercise | item 2 phrase | `PLACEHOLDER_PHRASE_JIN` |
-| 16 | Matching exercise | item 2 English translation | `PLACEHOLDER_TRANSLATION` |
-| 17 | Match audio | phrase | `PLACEHOLDER_PHRASE_SAN` |
-| 18 | Match audio | phrase | `PLACEHOLDER_PHRASE_JIN` |
-| 25 | Pronunciation | phrase | `PLACEHOLDER_PHRASE_SAN` |
-| 26 | Pronunciation | phrase | `PLACEHOLDER_PHRASE_JIN` |
-| 33 | Term media seed | term | `PLACEHOLDER_PHRASE_SAN` |
-| 34 | Term media seed | term | `PLACEHOLDER_PHRASE_JIN` |
+Removing them cost nothing, because none of the eight worked. All had `audio: null` and
+`image: null`, so the two "match the audio" screens played silence, the two pronunciation screens
+had no reference recording to score against, the two term-media seeds seeded nothing, and the
+matching exercise paired two placeholder strings with two placeholder translations. The eighth
+was a text page that only ever had a title.
 
-**The intent, from the lesson itself.** Exercise 16's own description field reads *"Matches of
-phrases using ~ san and ~ jin"*. Exercise 15 teaches `~ san` as a grammar pattern, and exercise 38
-lists `~ san` and `~ jin` on a Terms page, in that order — matching the order of the two
-placeholders. So `SAN` wants `~ san` and `JIN` wants `~ jin`, and the two `PLACEHOLDER_TRANSLATION`
-values want their English.
+**What is still owed, and it is an authoring decision.** Exercise 16's own description read
+*"Matches of phrases using ~ san and ~ jin"*. Exercise 15 teaches `~ san` as a grammar pattern and
+exercise 38 lists `~ san` and `~ jin` on a Terms page, in the same order as the two placeholders —
+so `SAN` wanted `~ san` and `JIN` wanted `~ jin`. What was never written down is the actual
+phrases these exercises were meant to drill: "using ~ san" implies a name plus the suffix, not the
+bare pattern. That is the part only an author can supply.
 
-What is missing is the actual phrases these exercises were meant to drill — "using ~ san" implies
-an example like a name plus the suffix, not the bare pattern. That part is a genuine authoring
-decision, not a transcription.
-
-**Two ways to fix it.** Replace the ten values in the admin, or unpublish `l1-v2` until the copy
-is finished. Unpublishing is a status change and loses nothing; drafts are enabled on lessons.
+**To put them back**, author the phrases as `terms` in the Vocabulary section, then add
+`listenAndChoose`, `speakAndScore` and `matchPairs` blocks referencing them. The new blocks read
+audio and images from the term, so a recording added once covers every exercise using that word.
 
 ## 2. 24 of 41 vocabulary terms have no Japanese script
 

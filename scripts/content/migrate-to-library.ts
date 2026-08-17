@@ -4,6 +4,7 @@
  *   npm run content:migrate-blocks                    # dry run: a report
  *   npm run content:migrate-blocks -- --lesson l1-v1  # one lesson at a time
  *   npm run content:migrate-blocks -- --lesson l1-v1 --yes
+ *   npm run content:migrate-blocks -- --yes --drop-held   # 4b: held blocks go
  *
  * Then `npm run content:import -- --yes` and `npm run content:verify`.
  *
@@ -48,6 +49,20 @@ const QUARANTINE = path.resolve("content/quarantine.json");
 const args = process.argv.slice(2);
 const WRITE = args.includes("--yes");
 const ONLY = args.includes("--lesson") ? args[args.indexOf("--lesson") + 1] : null;
+/*
+ * Phase 4b: a held block is removed from the snapshot rather than left in it.
+ *
+ * Through 4a, "held" meant *keep the old block* — the old and new definitions
+ * were registered side by side, so an unmappable block could sit there while the
+ * five lessons moved one at a time. 4b deletes the old block definitions, which
+ * closes that window: a block whose type no longer exists cannot be imported at
+ * all. So the quarantine record stops being a note about a block still in the
+ * content and becomes the only copy of it.
+ *
+ * Opt-in, because this is the one path in the repo that deletes real published
+ * content. The dry run says which blocks it would take.
+ */
+const DROP_HELD = args.includes("--drop-held");
 
 type Block = Record<string, unknown>;
 type Ref = { $ref: string; $collection: string };
@@ -773,7 +788,9 @@ function main() {
             drops++;
           } else {
             stat.held++;
-            next.push(block);
+            // Under `--drop-held` the quarantine entry above is the only copy
+            // that survives; otherwise the old block stays where it is.
+            if (!DROP_HELD) next.push(block);
           }
           perType.set(type, stat);
         });
@@ -826,7 +843,11 @@ function main() {
   }
 
   if (quarantine.length) {
-    console.log(`\n  Flagged for review — not converted unless noted:`);
+    console.log(
+      DROP_HELD
+        ? `\n  Flagged for review — removed from the content, quarantine.json is the only copy:`
+        : `\n  Flagged for review — not converted unless noted:`
+    );
     const grouped = new Map<string, Quarantined[]>();
     for (const q of quarantine) {
       const list = grouped.get(`${q.blockType}: ${q.reason}`) ?? [];
@@ -862,8 +883,11 @@ function main() {
 
   console.log(
     `\n✓ written. Next: \`npm run content:import -- --yes\` then \`npm run content:verify\`.\n` +
-      `  ${quarantine.length} block(s) appended to content/quarantine.json — those are still the old\n` +
-      `  block type in the snapshot, and stay that way until they are reviewed.\n`
+      (DROP_HELD
+        ? `  ${quarantine.length} block(s) appended to content/quarantine.json and removed from the\n` +
+          `  snapshot. That file is now the only copy — restore from it, not from the content.\n`
+        : `  ${quarantine.length} block(s) appended to content/quarantine.json — those are still the old\n` +
+          `  block type in the snapshot, and stay that way until they are reviewed.\n`)
   );
 }
 

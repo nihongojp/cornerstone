@@ -38,7 +38,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import path from "node:path";
 
 import { kanaToRomaji } from "../../src/utils/kana";
-import { kanaStrokeOrder } from "../../src/data/kanaStrokeOrder";
+import { kanaStrokeOrder } from "./kana-stroke-order";
 
 const SNAPSHOT = path.resolve("content/snapshot/lessons.json");
 const OUT = path.resolve("content/terms.json");

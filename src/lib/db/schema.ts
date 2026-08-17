@@ -47,6 +47,17 @@ export const userProgress = pgTable(
       .default("in_progress"),
     lastStep: integer("last_step").notNull().default(0),
     stepKey: text("step_key").notNull().default(""),
+    /*
+     * How many times this learner has finished this lesson.
+     *
+     * The seed for the exercise shuffle (`lib/content/shuffle.ts`) is
+     * `userId + lessonId + attempt`, and this is the attempt. Without it the
+     * order would be fixed per learner forever — a seeded shuffle has to be
+     * given something that changes, or it is just a permutation of the authored
+     * order. It deliberately does *not* change on a refresh: re-shuffling
+     * mid-lesson would move the screens under someone who is partway through.
+     */
+    completions: integer("completions").notNull().default(0),
     accuracyPct: real("accuracy_pct").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),

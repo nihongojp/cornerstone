@@ -31,20 +31,33 @@
  * block and forgetting this file fails immediately and loudly rather than making
  * one screen quietly render nothing.
  */
-export const LIBRARY_BLOCK_SLUGS = [
-  // Content
+/** Blocks that present material. A screen of these is read, not answered. */
+export const CONTENT_BLOCK_SLUGS = [
   "prose",
   "dialogue",
   "videoLesson",
   "grammarPoint",
   "vocabList",
   "mediaFigure",
-  // Practice
+] as const;
+
+/**
+ * Blocks the learner answers. A screen made only of these is interchangeable
+ * with its neighbours of the same shape, which is what `lib/content/shuffle.ts`
+ * needs to know — the Content/Practice split used to be a comment here and a
+ * `group` in `library.ts`, and a shuffle cannot read either.
+ */
+export const PRACTICE_BLOCK_SLUGS = [
   "matchPairs",
   "listenAndChoose",
   "buildSentence",
   "speakAndScore",
   "multipleChoice",
+] as const;
+
+export const LIBRARY_BLOCK_SLUGS = [
+  ...CONTENT_BLOCK_SLUGS,
+  ...PRACTICE_BLOCK_SLUGS,
 ] as const;
 
 export type LibraryBlockSlug = (typeof LIBRARY_BLOCK_SLUGS)[number];

@@ -43,7 +43,7 @@ const DRY_RUN = process.argv.includes("--dry-run");
 
 /*
  * Stroke-order images are compiled into the bundle rather than stored in the
- * database (`src/data/kanaStrokeOrder.ts`), so no query finds them — they need
+ * database (`scripts/content/kana-stroke-order.ts`), so no query finds them — they need
  * their own pass or they stay on Cloudinary while everything else moves.
  *
  * The list is a hardcoded constant rather than something scraped out of the
@@ -66,7 +66,7 @@ const SOURCE_ASSET_URLS = [
   "https://res.cloudinary.com/dxxezusx5/image/upload/v1786657161/Screenshot_2026-08-13_at_2.38.43_PM_cd7s34.png",
 ] as const;
 
-const SOURCE_ASSET_FILE = "src/data/kanaStrokeOrder.ts";
+const SOURCE_ASSET_FILE = "scripts/content/kana-stroke-order.ts";
 
 /*
  * Not content. Nulled rather than transferred — see the header. Matched on the

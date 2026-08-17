@@ -591,5 +591,136 @@
       "blockName": null,
       "blockType": "pronunciationExercise"
     }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[12].components[0]",
+    "blockType": "contentPage",
+    "reason": "a text-only page with no body — only a title was ever set",
+    "block": {
+      "id": "6a80d50512409c84ac2321e3",
+      "title": "Introduce particle \"ga\"",
+      "description": null,
+      "content": null,
+      "blockName": null,
+      "blockType": "contentPage"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[15].components[0]",
+    "blockType": "matchingExercise",
+    "reason": "phrases not in the catalogue: PLACEHOLDER_PHRASE_SAN, PLACEHOLDER_PHRASE_JIN",
+    "block": {
+      "id": "6a80d50512409c84ac2321ec",
+      "instructions": "Match to corresponding English translation - connect the dots",
+      "description": "Matches of phrases using ~ san and ~ jin",
+      "blockName": null,
+      "items": [
+        {
+          "id": "6a80d50512409c84ac2321ea",
+          "phrase": "PLACEHOLDER_PHRASE_SAN",
+          "englishTranslation": "PLACEHOLDER_TRANSLATION",
+          "audio": null,
+          "image": null
+        },
+        {
+          "id": "6a80d50512409c84ac2321eb",
+          "phrase": "PLACEHOLDER_PHRASE_JIN",
+          "englishTranslation": "PLACEHOLDER_TRANSLATION",
+          "audio": null,
+          "image": null
+        }
+      ],
+      "blockType": "matchingExercise",
+      "rows": [],
+      "dragDropOptions": []
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[16].components[0]",
+    "blockType": "matchAudioExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_SAN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321ee",
+      "phrase": "PLACEHOLDER_PHRASE_SAN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "matchAudioExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[17].components[0]",
+    "blockType": "matchAudioExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_JIN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321f0",
+      "phrase": "PLACEHOLDER_PHRASE_JIN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "matchAudioExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[24].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_SAN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac2321fe",
+      "phrase": "PLACEHOLDER_PHRASE_SAN",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[25].components[0]",
+    "blockType": "pronunciationExercise",
+    "reason": "\"PLACEHOLDER_PHRASE_JIN\" is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac232200",
+      "phrase": "PLACEHOLDER_PHRASE_JIN",
+      "transcript": null,
+      "video": null,
+      "audio": null,
+      "blockName": null,
+      "blockType": "pronunciationExercise"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[26].components[0]",
+    "blockType": "termMediaSeed",
+    "reason": "media seed for \"PLACEHOLDER_PHRASE_SAN\", which is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac23220e",
+      "term": "PLACEHOLDER_PHRASE_SAN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "termMediaSeed"
+    }
+  },
+  {
+    "lesson": "l1-v2",
+    "where": "exercise[27].components[0]",
+    "blockType": "termMediaSeed",
+    "reason": "media seed for \"PLACEHOLDER_PHRASE_JIN\", which is not in the catalogue",
+    "block": {
+      "id": "6a80d50512409c84ac232210",
+      "term": "PLACEHOLDER_PHRASE_JIN",
+      "audio": null,
+      "image": null,
+      "blockName": null,
+      "blockType": "termMediaSeed"
+    }
   }
 ]

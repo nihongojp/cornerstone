@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../../../../lib/db";
 import { userProgress } from "../../../../lib/db/schema";
 import { getSession } from "../../../../lib/session";
@@ -47,11 +47,19 @@ export async function POST(request: Request) {
     updatedAt: new Date(),
   };
 
+  /*
+   * Finishing a lesson bumps the completion count, which is what the exercise
+   * shuffle seeds the next run from. Incremented in the UPDATE rather than read
+   * and written back, so two tabs finishing at once cannot both write the same
+   * number. A save that is not a completion leaves it alone.
+   */
+  const completed = values.status === "completed";
+
   // Mirrors the Mongo findOneAndUpdate({userId, lessonId}, …, {upsert:true}),
   // backed by the unique index on (user_id, lesson_id).
   const [row] = await db
     .insert(userProgress)
-    .values(values)
+    .values({ ...values, completions: completed ? 1 : 0 })
     .onConflictDoUpdate({
       target: [userProgress.userId, userProgress.lessonId],
       set: {
@@ -60,6 +68,9 @@ export async function POST(request: Request) {
         stepKey: values.stepKey,
         accuracyPct: values.accuracyPct,
         updatedAt: values.updatedAt,
+        ...(completed
+          ? { completions: sql`${userProgress.completions} + 1` }
+          : {}),
       },
     })
     .returning();

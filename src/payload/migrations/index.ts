@@ -6,6 +6,8 @@ import * as migration_20260817_103837_terms_collection from './20260817_103837_t
 import * as migration_20260817_123651_richtext_prose from './20260817_123651_richtext_prose';
 import * as migration_20260817_140611_block_library from './20260817_140611_block_library';
 import * as migration_20260817_143501_dialogue_block from './20260817_143501_dialogue_block';
+import * as migration_20260817_214000_phase4b_spotlight_layout from './20260817_214000_phase4b_spotlight_layout';
+import * as migration_20260817_214041_phase4b_drop_old_blocks from './20260817_214041_phase4b_drop_old_blocks';
 
 export const migrations = [
   {
@@ -46,6 +48,16 @@ export const migrations = [
   {
     up: migration_20260817_143501_dialogue_block.up,
     down: migration_20260817_143501_dialogue_block.down,
-    name: '20260817_143501_dialogue_block'
+    name: '20260817_143501_dialogue_block',
+  },
+  {
+    up: migration_20260817_214000_phase4b_spotlight_layout.up,
+    down: migration_20260817_214000_phase4b_spotlight_layout.down,
+    name: '20260817_214000_phase4b_spotlight_layout',
+  },
+  {
+    up: migration_20260817_214041_phase4b_drop_old_blocks.up,
+    down: migration_20260817_214041_phase4b_drop_old_blocks.down,
+    name: '20260817_214041_phase4b_drop_old_blocks'
   },
 ];

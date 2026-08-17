@@ -7,7 +7,7 @@ import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { ChoiceCandidate } from "../utils/expandLessonItems";
+import type { ChoiceCandidate } from "../utils/buildChoiceOptions";
 import { buildChoiceOptions } from "../utils/buildChoiceOptions";
 
 const BRAND = "#B43D20";

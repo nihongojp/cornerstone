@@ -19,6 +19,7 @@ import type {
   VocabListBlock,
 } from "../../payload/payload-types";
 
+import CharacterSpotlight from "../CharacterSpotlight";
 import DragDropCombination from "../DragDropCombination";
 import Fact from "../Fact";
 import FlashcardReview, { type FlashcardReviewTerm } from "../FlashcardReview";
@@ -264,6 +265,22 @@ const VocabListView: React.FC<VocabListBlock> = ({ title, intro, terms, layout }
       )}
     </>
   );
+
+  if (layout === "spotlight") {
+    /*
+     * One character per screen. The old flashcard player generated these from a
+     * hardcoded table; they are authored exercises now, so the block renders
+     * whatever terms it was given rather than one fixed set.
+     */
+    return (
+      <Box sx={{ width: "100%", height: "100%" }}>
+        {header}
+        {list.map((t) => (
+          <CharacterSpotlight key={t.id} term={t} />
+        ))}
+      </Box>
+    );
+  }
 
   if (layout === "flashcards") {
     /*

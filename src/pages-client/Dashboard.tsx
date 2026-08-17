@@ -6,20 +6,21 @@ import { Box, Typography, IconButton, CircularProgress, Divider } from "@mui/mat
 import * as d3 from "d3";
 import Bart from "../components/Menut";
 import Link from "next/link";
-import { LessonListItem } from "../lib/types/lessons";
+import { lessonHref } from "../lib/content/routes";
+import type { Lesson as LessonDoc } from "../payload/payload-types";
 import { getUpNextLesson, UpNextLesson } from "../lib/progress-client";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 
-type Lesson = {
-  slug: string;
-  title: string;
-  version: string;
-  flashcards: string[];
-  prefecture: string;
-  isActive?: boolean;
-};
+/*
+ * The generated document, not a restatement of it. This was a hand-written
+ * subset that `lib/content/adapters.ts` produced; Phase 4b deleted the adapter,
+ * so the dashboard reads the lesson as it is stored. `flashcards` is gone from
+ * it — that was the flattened deck, and a deck references catalogue terms now —
+ * and nothing here used it.
+ */
+type Lesson = LessonDoc;
 
 // ── Teardrop / map-pin SVG path ──────────────────────────────────────────────
 // Tip sits at (0, 0). Circle centre is at (0, -16), radius 9.
@@ -30,7 +31,7 @@ const PIN_PATH = "M 0,0 C -4,-5 -9,-9 -9,-16 A 9,9 0 1,1 9,-16 C 9,-9 4,-5 0,0 Z
 const PIN_DOT_CY = -16;
 const PIN_DOT_R  = 3.5;
 
-const Dashboard = ({ allLessons }: { allLessons: LessonListItem[] }) => {
+const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
   const gRef        = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null);
   const svgRef      = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -431,7 +432,7 @@ const Dashboard = ({ allLessons }: { allLessons: LessonListItem[] }) => {
                     )}
                     <Box
                       component={Link}
-                      href={`/lesson/${lesson.slug}`}
+                      href={lessonHref(lesson.format, lesson.slug)}
                       sx={{
                         display: "flex",
                         alignItems: "center",

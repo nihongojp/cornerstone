@@ -60,14 +60,25 @@ export const MEDIA_POPULATE = {
     sizes: true,
   },
   /*
-   * The fields a `termRef` renders from — `TermLike` in `lib/content/furigana.ts`
-   * — plus the audio the `showAudio` toggle plays. Depth 2 would otherwise pull
-   * whole term documents (notes, tags, JLPT level, stroke order) through
-   * `unstable_cache` for a word appearing in one sentence.
+   * What a term renders from: the written forms and reading a `termRef` shows,
+   * the audio the `showAudio` toggle plays, and the picture and stroke-order
+   * diagram the lesson blocks use. Depth 2 would otherwise pull whole term
+   * documents — notes, tags, JLPT level — through `unstable_cache` for a word
+   * appearing in one sentence.
    *
-   * Adding a field to what `termRef` shows means adding it here as well, and the
-   * failure if you forget is the usual silent one: the field is simply absent.
-   * `npm run content:verify` reads at this exact populate for that reason.
+   * **Adding a field a term is rendered from means adding it here as well**, and
+   * the failure if you forget is the usual silent one: the field is simply
+   * absent. That is not hypothetical. `image`, `strokes` and `strokeOrder` were
+   * missing from this list from Phase 4a until 4b, so `termImage` returned
+   * undefined for all four terms that have a picture and every `vocabList` grid
+   * and `listenAndChoose` rendered "Image soon" instead — with nothing failing
+   * anywhere. It surfaced only when the stroke-order spotlight was authored as a
+   * block and its diagram did not appear either.
+   *
+   * `npm run content:verify` reads at this exact populate, which is what makes it
+   * the deterministic check — and also why it cannot catch an omission *here*:
+   * a field this list does not request is a field it never sees. Adding one is
+   * the moment to look at the screen.
    */
   terms: {
     key: true,
@@ -78,5 +89,8 @@ export const MEDIA_POPULATE = {
     meaning: true,
     furigana: true,
     audio: true,
+    image: true,
+    strokes: true,
+    strokeOrder: true,
   },
 } as const;

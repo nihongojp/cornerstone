@@ -15,6 +15,91 @@
       "shuffleExercises": false,
       "exercises": [
         {
+          "label": "Spotlight あ-ア",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "あ-ア",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight い-イ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "い-イ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight う-ウ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "う-ウ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight え-エ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "え-エ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight お-オ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "お-オ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
           "id": "6a80d50012409c84ac232144",
           "label": "Flashcards",
           "components": [
@@ -515,6 +600,91 @@
       "cardTitle": null,
       "shuffleExercises": false,
       "exercises": [
+        {
+          "label": "Spotlight か-カ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "か-カ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight き-キ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "き-キ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight く-ク",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "く-ク",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight け-ケ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "け-ケ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
+        {
+          "label": "Spotlight こ-コ",
+          "components": [
+            {
+              "blockType": "vocabList",
+              "title": null,
+              "intro": null,
+              "terms": [
+                {
+                  "$ref": "こ-コ",
+                  "$collection": "terms"
+                }
+              ],
+              "layout": "spotlight"
+            }
+          ]
+        },
         {
           "id": "6a80d50212409c84ac232167",
           "label": "Flashcards",
@@ -3130,20 +3300,6 @@
           ]
         },
         {
-          "id": "6a80d50512409c84ac2321e4",
-          "label": "Introduce particle \"ga\"",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac2321e3",
-              "title": "Introduce particle \"ga\"",
-              "description": null,
-              "content": null,
-              "blockName": null,
-              "blockType": "contentPage"
-            }
-          ]
-        },
-        {
           "id": "6a80d50512409c84ac2321e6",
           "label": null,
           "components": [
@@ -3344,65 +3500,6 @@
           ]
         },
         {
-          "id": "6a80d50512409c84ac2321ed",
-          "label": "Match to corresponding English translation - connect the dots",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac2321ec",
-              "instructions": "Match to corresponding English translation - connect the dots",
-              "description": "Matches of phrases using ~ san and ~ jin",
-              "blockName": null,
-              "items": [
-                {
-                  "id": "6a80d50512409c84ac2321ea",
-                  "phrase": "PLACEHOLDER_PHRASE_SAN",
-                  "englishTranslation": "PLACEHOLDER_TRANSLATION",
-                  "audio": null,
-                  "image": null
-                },
-                {
-                  "id": "6a80d50512409c84ac2321eb",
-                  "phrase": "PLACEHOLDER_PHRASE_JIN",
-                  "englishTranslation": "PLACEHOLDER_TRANSLATION",
-                  "audio": null,
-                  "image": null
-                }
-              ],
-              "blockType": "matchingExercise",
-              "rows": [],
-              "dragDropOptions": []
-            }
-          ]
-        },
-        {
-          "id": "6a80d50512409c84ac2321ef",
-          "label": "PLACEHOLDER_PHRASE_SAN",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac2321ee",
-              "phrase": "PLACEHOLDER_PHRASE_SAN",
-              "audio": null,
-              "image": null,
-              "blockName": null,
-              "blockType": "matchAudioExercise"
-            }
-          ]
-        },
-        {
-          "id": "6a80d50512409c84ac2321f1",
-          "label": "PLACEHOLDER_PHRASE_JIN",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac2321f0",
-              "phrase": "PLACEHOLDER_PHRASE_JIN",
-              "audio": null,
-              "image": null,
-              "blockName": null,
-              "blockType": "matchAudioExercise"
-            }
-          ]
-        },
-        {
           "id": "6a80d50512409c84ac2321f3",
           "label": "Ogennki desuka",
           "components": [
@@ -3495,64 +3592,6 @@
               },
               "transcript": null,
               "video": null
-            }
-          ]
-        },
-        {
-          "id": "6a80d50512409c84ac2321ff",
-          "label": "PLACEHOLDER_PHRASE_SAN",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac2321fe",
-              "phrase": "PLACEHOLDER_PHRASE_SAN",
-              "transcript": null,
-              "video": null,
-              "audio": null,
-              "blockName": null,
-              "blockType": "pronunciationExercise"
-            }
-          ]
-        },
-        {
-          "id": "6a80d50512409c84ac232201",
-          "label": "PLACEHOLDER_PHRASE_JIN",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac232200",
-              "phrase": "PLACEHOLDER_PHRASE_JIN",
-              "transcript": null,
-              "video": null,
-              "audio": null,
-              "blockName": null,
-              "blockType": "pronunciationExercise"
-            }
-          ]
-        },
-        {
-          "id": "6a80d50512409c84ac23220f",
-          "label": "PLACEHOLDER_PHRASE_SAN",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac23220e",
-              "term": "PLACEHOLDER_PHRASE_SAN",
-              "audio": null,
-              "image": null,
-              "blockName": null,
-              "blockType": "termMediaSeed"
-            }
-          ]
-        },
-        {
-          "id": "6a80d50512409c84ac232211",
-          "label": "PLACEHOLDER_PHRASE_JIN",
-          "components": [
-            {
-              "id": "6a80d50512409c84ac232210",
-              "term": "PLACEHOLDER_PHRASE_JIN",
-              "audio": null,
-              "image": null,
-              "blockName": null,
-              "blockType": "termMediaSeed"
             }
           ]
         },

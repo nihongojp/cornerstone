@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import { Box, CircularProgress, Container, Paper, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 
-import { NewLessonListItem, LessonListItem } from "../lib/types/lessons";
+import { lessonHref } from "../lib/content/routes";
+import { termText } from "../components/blocks/termText";
+import type { Lesson, Term } from "../payload/payload-types";
 import { getProgress } from "../lib/progress-client";
 
 // A card's color reflects the signed-in user's progress on that specific
@@ -44,8 +46,30 @@ function pushVersion(map: Map<number, Version[]>, lesson: number, v: Version) {
 // they cover (e.g. "あ/ア、い/イ、う/ウ"), matching the format Lesson 1 was
 // given manually. Deriving it from the flashcards means every lesson gets
 // the same treatment without needing a cardTitle typed into MongoDB.
-function deriveReadingCardTitle(flashcards?: string[]): string | undefined {
-  return flashcards && flashcards.length ? flashcards.join("、") : undefined;
+/*
+ * A Reading & Writing card with no title of its own shows the characters it
+ * teaches — "あ、い、う…".
+ *
+ * The strings used to arrive pre-flattened on the list item, because
+ * `flashcardDeck.cards` was an array of strings on the block. A deck references
+ * catalogue terms now, so the characters come off the terms — which is also why
+ * the list read populates to `CONTENT_DEPTH`: at depth 0 every term would be a
+ * bare id and every card here would fall back to "Add a title".
+ */
+function deriveReadingCardTitle(lesson: Lesson): string | undefined {
+  const characters = (lesson.exercises ?? [])
+    .flatMap((exercise) => exercise.components ?? [])
+    // A predicate rather than a plain `filter`: `components` is a union of every
+    // block type, and only the narrowed one has `terms`.
+    .filter(
+      (block): block is Extract<typeof block, { blockType: "vocabList" }> =>
+        block.blockType === "vocabList" && block.layout === "flashcards"
+    )
+    .flatMap((block) => block.terms ?? [])
+    .map((term) => termText(term as Term | number))
+    .filter(Boolean);
+
+  return characters.length ? characters.join("、") : undefined;
 }
 
 const cardBase = {
@@ -180,8 +204,8 @@ const LessonColumn: React.FC<{
 };
 
 const NewLessonsListPage: React.FC<{
-  newLessons: NewLessonListItem[];
-  lessons: LessonListItem[];
+  newLessons: Lesson[];
+  lessons: Lesson[];
 }> = ({ newLessons, lessons: prefLessons }) => {
   const [grammar, setGrammar] = useState<Map<number, Version[]>>(new Map());
   const [reading, setReading] = useState<Map<number, Version[]>>(new Map());
@@ -196,7 +220,14 @@ const NewLessonsListPage: React.FC<{
       const grammarMap = new Map<number, Version[]>();
       for (const l of newLessons) {
         const p = parseSlug(l.slug);
-        if (p) pushVersion(grammarMap, p.lesson, { lesson: p.lesson, version: p.version, to: `/newlesson/${l.slug}`, slug: l.slug, cardTitle: l.cardTitle });
+        if (p)
+          pushVersion(grammarMap, p.lesson, {
+            lesson: p.lesson,
+            version: p.version,
+            to: lessonHref(l.format, l.slug),
+            slug: l.slug,
+            cardTitle: l.cardTitle ?? undefined,
+          });
       }
 
       // Reading & Writing column ← prefecture lessons (slug like "hiragana-l1-v2-hokkaido").
@@ -207,9 +238,9 @@ const NewLessonsListPage: React.FC<{
           pushVersion(readingMap, p.lesson, {
             lesson: p.lesson,
             version: p.version,
-            to: `/lesson/${l.slug}`,
+            to: lessonHref(l.format, l.slug),
             slug: l.slug,
-            cardTitle: l.cardTitle || deriveReadingCardTitle(l.flashcards),
+            cardTitle: l.cardTitle || deriveReadingCardTitle(l),
           });
         }
       }
