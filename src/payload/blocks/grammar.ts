@@ -72,8 +72,11 @@ export const VideoPage: Block = {
       hasMany: true,
       admin: {
         description:
-          "Free-text notes about the video's form, carried over from the source data. " +
-          "Purely descriptive — nothing renders off it.",
+          "The dialogue, one line per speaker, alternating. This IS rendered — " +
+          "`NewLessonPageItem.tsx:279` branches on it and lays the lines out as a two-speaker " +
+          "conversation. The earlier note here said nothing rendered off it, which was wrong: 16 " +
+          "of the 20 pages of this type have no video at all and this field is their entire " +
+          "content. Do not drop it.",
       },
     },
     audioField({ description: "Optional standalone audio for this page (stored as `audioURL` in the old data)." }),
