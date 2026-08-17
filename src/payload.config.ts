@@ -43,13 +43,7 @@ export default buildConfig({
           process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
         return `${baseUrl}/api/preview?slug=${data.slug}&collection=${collectionConfig?.slug ?? ""}`;
       },
-      collections: [
-        Courses.slug,
-        Lessons.slug,
-        Resources.slug,
-        Media.slug,
-        CmsAdmins.slug,
-      ], // Collections supporting Live Preview
+      collections: [Courses.slug, Lessons.slug, Resources.slug, Media.slug], // Collections supporting Live Preview
     },
   },
   collections: [Courses, Lessons, Resources, Media],
