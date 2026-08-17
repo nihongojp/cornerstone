@@ -8,9 +8,10 @@
  * rejected. That invariant is the reason this design was chosen; if Sign Up
  * ever starts *refusing* existing accounts, it has reverted to two flows.
  *
- * Name is collected AFTER the user returns through the link, not before it is
- * sent — so a new account exists briefly with no name, and the first thing
- * anyone types is one field rather than three.
+ * Name is collected on the Sign Up side, before the link is sent. The
+ * alternative — collecting it after the user returns through the link — was
+ * built and rejected: it kept both sides identical up to the point of proving
+ * the address, but left the account briefly nameless.
  *
  * Type an email containing "old" to simulate a legacy account with a password.
  */
@@ -34,7 +35,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { GoogleButton, OrDivider, StateReadout, fakeLookup, sleep } from "./stubs";
 
 type Mode = "login" | "signup";
-type Stage = "email" | "password" | "sent" | "otp" | "name" | "done";
+type Stage = "email" | "password" | "sent" | "otp" | "done";
 
 /* Same asset the current AuthForm uses, so this reads as the existing app. */
 function Cat() {
@@ -59,8 +60,9 @@ export default function AuthPrototype() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // Stubbed: an address we have never seen is a new account, whichever side of
-  // the toggle the user happens to be on.
+  // Surfaced in the state readout only — nothing branches on it any more. It is
+  // what the lookup learns about an address, which is exactly the leak #59 is
+  // about.
   const isNewAccount = fakeLookup(email) !== "has-password";
 
   const submitEmail = async () => {
@@ -82,7 +84,6 @@ export default function AuthPrototype() {
     password: mode === "login" ? "Welcome Back!" : "Create Account",
     sent: mode === "login" ? "Welcome Back!" : "Create Account",
     otp: mode === "login" ? "Welcome Back!" : "Create Account",
-    name: "Almost there",
     done: "You're in!",
   };
 
@@ -102,7 +103,7 @@ export default function AuthPrototype() {
             {/* One way back, everywhere. Returning to the email step is
                 implicitly how you use a different address. Not offered once
                 the account exists — there is nothing to go back to. */}
-            {stage !== "email" && stage !== "name" && stage !== "done" && (
+            {stage !== "email" && stage !== "done" && (
               <IconButton
                 aria-label="Back"
                 onClick={reset}
@@ -142,6 +143,23 @@ export default function AuthPrototype() {
                   label={mode === "login" ? "Sign in with Google" : "Sign up with Google"}
                 />
                 <OrDivider />
+
+                {mode === "signup" && (
+                  <Box display="flex" gap={1} mb={1}>
+                    <TextField
+                      label="First name"
+                      fullWidth
+                      value={first}
+                      onChange={(e) => setFirst(e.target.value)}
+                    />
+                    <TextField
+                      label="Last name"
+                      fullWidth
+                      value={last}
+                      onChange={(e) => setLast(e.target.value)}
+                    />
+                  </Box>
+                )}
 
                 <TextField
                   label="Email"
@@ -235,7 +253,7 @@ export default function AuthPrototype() {
                       size="large"
                       variant="contained"
                       disabled={code.length !== 6}
-                      onClick={() => setStage(isNewAccount ? "name" : "done")}
+                      onClick={() => setStage("done")}
                       sx={{ mt: 2, py: 1.25, textTransform: "none" }}
                     >
                       Sign in
@@ -248,42 +266,6 @@ export default function AuthPrototype() {
                     Didn&apos;t arrive? <Link component="button" underline="hover">Resend</Link>
                   </Typography>
                 </Box>
-              </Box>
-            )}
-
-            {/* Reached only after the link or code is verified — the account
-                already exists by this point, which is why there is no way back
-                and no way to skip past it. */}
-            {stage === "name" && (
-              <Box textAlign="center">
-                <Typography variant="body2" color="text.secondary" mb={2}>
-                  What should we call you?
-                </Typography>
-                <Box display="flex" gap={1}>
-                  <TextField
-                    label="First name"
-                    fullWidth
-                    autoFocus
-                    value={first}
-                    onChange={(e) => setFirst(e.target.value)}
-                  />
-                  <TextField
-                    label="Last name"
-                    fullWidth
-                    value={last}
-                    onChange={(e) => setLast(e.target.value)}
-                  />
-                </Box>
-                <Button
-                  fullWidth
-                  size="large"
-                  variant="contained"
-                  disabled={!first}
-                  onClick={() => setStage("done")}
-                  sx={{ mt: 2, py: 1.25, textTransform: "none" }}
-                >
-                  Start learning
-                </Button>
               </Box>
             )}
 
