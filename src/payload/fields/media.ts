@@ -3,18 +3,21 @@ import type { TextField } from "payload";
 /*
  * Media on components is a plain URL string, not an `upload` relationship.
  *
- * Decided in #12: the existing Cloudinary URLs are grandfathered and carried
- * across verbatim by the import, so every component media field has to be able
- * to hold an arbitrary absolute URL. The `media` collection (Vercel Blob) is
- * for *new* uploads — paste the uploaded file's URL into one of these fields.
+ * Decided in #12, when the existing Cloudinary URLs were grandfathered and
+ * carried across verbatim by the import, so every field had to hold an
+ * arbitrary absolute URL. Those assets have since been migrated into the
+ * private Blob store (`scripts/migrate/06-cloudinary-to-blob.ts`), so what these
+ * fields hold in practice is now Payload's own `/api/media/file/<filename>`
+ * route — but they remain free-text, and an absolute third-party URL still
+ * works. Upload to `media`, then paste the resulting URL here.
  *
  * Placeholder sentinels ("PLACEHOLDER_AUDIO_URL", …) are dropped to empty at
  * import so an unfilled slot reads as unfilled rather than as a broken URL.
  */
 
 const HOW_TO_FILL =
-  "Paste an absolute URL. Existing Cloudinary URLs work as-is; " +
-  "for new files, upload to Media first and paste the resulting URL here.";
+  "Upload to Media first, then paste the resulting URL here. " +
+  "An absolute URL to an external file also works.";
 
 type MediaUrlOptions = {
   name: string;
