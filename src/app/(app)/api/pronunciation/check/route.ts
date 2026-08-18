@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "../../../../../lib/session";
+import { resolveReferenceAudio } from "../../../../../lib/pronunciation-reference";
 
 /*
  * Proxies pronunciation scoring to the standalone container service.
@@ -66,9 +67,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const resolved = await resolveReferenceAudio(referenceAudioUrl, request);
+  if ("error" in resolved) {
+    return NextResponse.json({ message: resolved.error }, { status: resolved.status });
+  }
+
   const upstream = new FormData();
   upstream.append("recording", recording, "recording.webm");
-  upstream.append("referenceAudioUrl", referenceAudioUrl);
+  upstream.append("referenceAudioUrl", resolved.url);
 
   try {
     const res = await fetch(`${serviceUrl.replace(/\/$/, "")}/check`, {
