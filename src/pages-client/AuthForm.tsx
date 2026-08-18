@@ -67,7 +67,7 @@ export default function AuthForm(): React.ReactElement {
   const searchParams = useSearchParams();
 
   // Where the proxy wanted the user to end up before it bounced them here.
-  const from = searchParams.get("from") || "/new-lessons";
+  const from = searchParams.get("from") || "/lessons";
 
   /*
    * Better Auth redirects a failed magic-link verification back here with

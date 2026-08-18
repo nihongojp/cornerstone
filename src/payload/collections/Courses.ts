@@ -4,6 +4,7 @@ import { revalidateCourse, revalidateCourseDelete } from "../hooks/revalidate";
 import { readPublishedOrEditor } from "../access/readPublished";
 import { draftingVersions } from "../versions";
 import { isAdmin } from "../access/isAdmin";
+import { validateSlugFormat } from "../fields/slugFormat";
 
 /*
  * A course is an ordered track of lessons. It replaces the old `nextSlug`
@@ -34,10 +35,12 @@ export const Courses: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      validate: validateSlugFormat,
       admin: {
         position: "sidebar",
         description:
-          "URL segment. Lowercase, hyphenated. Changing it breaks existing links.",
+          "Kebab-case, descriptive noun phrase — e.g. \"grammar-and-conversation\". " +
+          "Changing it breaks existing links.",
       },
     },
     {

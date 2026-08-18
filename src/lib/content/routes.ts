@@ -9,11 +9,15 @@
  * The lesson mapping lived inline in `getLessonRoute` until live preview needed
  * it too. It is stated once here rather than twice, because the two copies
  * would be the same fact: which player a lesson plays in.
+ *
+ * Both lesson formats play at the same URL family since Phase 4b merged the
+ * two players into one runner — `format` no longer selects a path, only
+ * which list/dashboard the lesson surfaces in (see `content.ts`).
  */
 
-/** Which player a lesson plays in. Mirrors `format` on the Lessons collection. */
-export function lessonHref(format: string | null | undefined, slug: string): string {
-  return format === "flashcard" ? `/lesson/${slug}` : `/newlesson/${slug}`;
+/** Where a lesson plays. One URL family for both formats. */
+export function lessonHref(slug: string): string {
+  return `/lessons/${slug}`;
 }
 
 /**
@@ -33,7 +37,7 @@ export function previewPath(
   if (collection === "lessons") {
     const slug = typeof doc?.slug === "string" ? doc.slug.trim() : "";
     if (!slug) return null;
-    return lessonHref(typeof doc?.format === "string" ? doc.format : null, slug);
+    return lessonHref(slug);
   }
 
   return null;
@@ -42,7 +46,7 @@ export function previewPath(
 /*
  * The allowlist `/api/preview` redirects against.
  *
- * Matching the two real path families exactly, rather than testing that the
+ * Matching the one real path family exactly, rather than testing that the
  * path is relative. Payload's own documentation sample checks
  * `path.startsWith('/')`, which "//evil.com" satisfies — that is a
  * protocol-relative URL, and it would turn the preview route into an open
@@ -50,7 +54,7 @@ export function previewPath(
  * unreserved URL character set; every slug in the content model is narrower
  * than that.
  */
-const PREVIEWABLE = /^\/(?:lesson|newlesson)\/[A-Za-z0-9._~-]+$|^\/resources$/;
+const PREVIEWABLE = /^\/lessons\/[A-Za-z0-9._~-]+$|^\/resources$/;
 
 export function isPreviewablePath(path: string): boolean {
   return PREVIEWABLE.test(path);

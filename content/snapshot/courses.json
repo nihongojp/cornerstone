@@ -9,32 +9,32 @@
       "description": {
         "root": {
           "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
           "children": [
             {
               "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
               "children": [
                 {
+                  "mode": "normal",
+                  "text": "Learn the hiragana syllabary one prefecture at a time.",
                   "type": "text",
+                  "style": "",
                   "detail": 0,
                   "format": 0,
-                  "mode": "normal",
-                  "style": "",
-                  "text": "Learn the hiragana syllabary one prefecture at a time.",
                   "version": 1
                 }
               ],
               "direction": "ltr",
-              "format": "",
-              "indent": 0,
-              "textFormat": 0,
               "textStyle": "",
-              "version": 1
+              "textFormat": 0
             }
           ],
-          "direction": "ltr",
-          "format": "",
-          "indent": 0,
-          "version": 1
+          "direction": "ltr"
         }
       },
       "_status": "published"
@@ -50,32 +50,32 @@
       "description": {
         "root": {
           "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
           "children": [
             {
               "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
               "children": [
                 {
+                  "mode": "normal",
+                  "text": "Greetings, everyday phrases, and the grammar that holds them together.",
                   "type": "text",
+                  "style": "",
                   "detail": 0,
                   "format": 0,
-                  "mode": "normal",
-                  "style": "",
-                  "text": "Greetings, everyday phrases, and the grammar that holds them together.",
                   "version": 1
                 }
               ],
               "direction": "ltr",
-              "format": "",
-              "indent": 0,
-              "textFormat": 0,
               "textStyle": "",
-              "version": 1
+              "textFormat": 0
             }
           ],
-          "direction": "ltr",
-          "format": "",
-          "indent": 0,
-          "version": 1
+          "direction": "ltr"
         }
       },
       "_status": "published"

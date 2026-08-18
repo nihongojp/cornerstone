@@ -139,7 +139,7 @@ export interface Course {
   id: number;
   title: string;
   /**
-   * URL segment. Lowercase, hyphenated. Changing it breaks existing links.
+   * Kebab-case, descriptive noun phrase — e.g. "grammar-and-conversation". Changing it breaks existing links.
    */
   slug: string;
   /**
@@ -189,11 +189,11 @@ export interface Lesson {
    */
   title: string;
   /**
-   * URL segment and the key learner progress is recorded against. A database foreign key cascades renames into existing progress rows, but bookmarked lesson URLs still break — rename rarely.
+   * URL segment and the key learner progress is recorded against. Canonical format: <family>-l<level>-v<version>[-<variant>], e.g. "grammar-l1-v1" or "hiragana-l2-v1-akita" (the variant only when family+level+version would otherwise collide). A database foreign key cascades renames into existing progress rows, but bookmarked lesson URLs still break — rename rarely.
    */
   slug: string;
   /**
-   * Which player renders this lesson, and which list it appears in. Step-through lessons play one component per screen at /newlesson/<slug>; flashcard lessons open with a deck and then run their exercises at /lesson/<slug>, and are the only ones pinned to the dashboard map. Pick the family your components come from — mixing families in one lesson will not render.
+   * Which player renders this lesson, and which list it appears in. Both formats play at /lessons/<slug> through the same runner; flashcard lessons are the ones pinned to the dashboard map. Pick the family your components come from — mixing families in one lesson will not render.
    */
   format: 'step' | 'flashcard';
   /**
@@ -293,7 +293,7 @@ export interface Lesson {
     xp?: number | null;
   };
   /**
-   * The MongoDB `_id` this lesson was imported from. Re-running the import matches on it, and old `/lesson/<ObjectId>` links resolve through it. Do not edit or reuse.
+   * The MongoDB `_id` this lesson was imported from. Re-running the import matches on it, and old `/lessons/<ObjectId>` links resolve through it. Do not edit or reuse.
    */
   sourceId?: string | null;
   updatedAt: string;
@@ -555,7 +555,7 @@ export interface VocabListBlock {
 export interface Term {
   id: number;
   /**
-   * Stable identifier, lowercase. Seeding and re-import match on this, so changing it creates a new term rather than renaming one.
+   * Stable identifier: kebab-case for romanized terms, or the kana/kanji itself for kana and kanji entries (e.g. "あ-ア") — script-shaped terms have no ASCII form to key on. Seeding and re-import match on this, so changing it creates a new term rather than renaming one.
    */
   key: string;
   kind: 'vocab' | 'phrase' | 'kana' | 'kanji';

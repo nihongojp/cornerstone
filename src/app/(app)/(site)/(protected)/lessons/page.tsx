@@ -1,4 +1,4 @@
-import NewLessonsListPage from "../../../../../pages-client/NewLessonsListPage";
+import LessonsListPage from "../../../../../pages-client/LessonsListPage";
 import { listLessons, listNewLessons } from "../../../../../lib/content/content";
 
 export default async function Page() {
@@ -9,5 +9,5 @@ export default async function Page() {
     listLessons().catch(() => []),
   ]);
 
-  return <NewLessonsListPage newLessons={newLessons} lessons={lessons} />;
+  return <LessonsListPage newLessons={newLessons} lessons={lessons} />;
 }

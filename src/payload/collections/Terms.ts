@@ -99,8 +99,10 @@ export const Terms: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Stable identifier, lowercase. Seeding and re-import match on this, so changing it " +
-          "creates a new term rather than renaming one.",
+          "Stable identifier: kebab-case for romanized terms, or the kana/kanji itself for " +
+          "kana and kanji entries (e.g. \"あ-ア\") — script-shaped terms have no ASCII form to " +
+          "key on. Seeding and re-import match on this, so changing it creates a new term " +
+          "rather than renaming one.",
       },
     },
     {

@@ -77,7 +77,7 @@ async function findLessons(where: Where, limit = 0): Promise<Lesson[]> {
   return result.docs;
 }
 
-// ── Lessons: the flashcard player ────────────────────────────────────────────
+// ── Lessons: the flashcard player's own listing ──────────────────────────────
 
 const cachedListLessons = unstable_cache(
   async (prefecture: string, includeInactive: boolean): Promise<Lesson[]> => {
@@ -101,28 +101,7 @@ export function listLessons(params?: {
   );
 }
 
-/**
- * Looks up by slug, then falls back to the original Mongo id so links like
- * /lesson/<ObjectId> that people already bookmarked keep working.
- */
-export function getLessonBySlug(slugOrLegacyId: string): Promise<Lesson | null> {
-  const key = String(slugOrLegacyId || "").trim();
-  if (!key) return Promise.resolve(null);
-
-  // Built per call, because the per-slug tag depends on the argument and
-  // `unstable_cache` fixes its tags when the wrapper is created, not when it
-  // runs. The key goes in `keyParts` so each slug gets its own entry.
-  return unstable_cache(
-    async (): Promise<Lesson | null> => {
-      const [lesson] = await findLessons(and(FLASHCARD, PUBLISHED, byKey(key)), 1);
-      return lesson ?? null;
-    },
-    ["content", "getLessonBySlug", key],
-    { tags: [TAGS.lessons, TAGS.lesson(key)], revalidate: REVALIDATE }
-  )();
-}
-
-// ── New lessons: the step-through player ─────────────────────────────────────
+// ── New lessons: the step-through player's own listing ───────────────────────
 
 const cachedListNewLessons = unstable_cache(
   async (includeInactive: boolean): Promise<Lesson[]> => {
@@ -141,17 +120,28 @@ export function listNewLessons(params?: {
   return cachedListNewLessons(params?.includeInactive === true);
 }
 
-export function getNewLessonBySlug(slug: string): Promise<Lesson | null> {
-  const key = String(slug || "").trim();
+// ── Lesson detail: one route, either format ──────────────────────────────────
+
+/**
+ * Looks up by slug, then falls back to the original Mongo id so links like
+ * /lessons/<ObjectId> that people already bookmarked keep working. Spans
+ * both formats — the merged /lessons/<slug> route serves either, and the
+ * runner reads `lesson.format` itself to pick how it renders.
+ */
+export function getLessonBySlug(slugOrLegacyId: string): Promise<Lesson | null> {
+  const key = String(slugOrLegacyId || "").trim();
   if (!key) return Promise.resolve(null);
 
+  // Built per call, because the per-slug tag depends on the argument and
+  // `unstable_cache` fixes its tags when the wrapper is created, not when it
+  // runs. The key goes in `keyParts` so each slug gets its own entry.
   return unstable_cache(
     async (): Promise<Lesson | null> => {
-      const [lesson] = await findLessons(and(STEP, PUBLISHED, byKey(key)), 1);
+      const [lesson] = await findLessons(and(PUBLISHED, byKey(key)), 1);
       return lesson ?? null;
     },
-    ["content", "getNewLessonBySlug", key],
-    { tags: [TAGS.newLessons, TAGS.newLesson(key)], revalidate: REVALIDATE }
+    ["content", "getLessonBySlug", key],
+    { tags: [TAGS.lessons, TAGS.newLessons, TAGS.lesson(key), TAGS.newLesson(key)], revalidate: REVALIDATE }
   )();
 }
 
@@ -203,7 +193,7 @@ export function getNextLessonHref(lesson: Lesson): Promise<string | undefined> {
       });
 
       const next = result.docs[0];
-      return next ? lessonHref(next.format, next.slug) : undefined;
+      return next ? lessonHref(next.slug) : undefined;
     },
     ["content", "getNextLessonHref", String(courseId), String(format), String(order)],
     // The whole-collection tags, not a per-slug one: this answer changes when a
@@ -245,7 +235,6 @@ export type LessonRoute = {
   title: string;
   version: string;
   prefecture: string;
-  /** Where this lesson actually plays — the two formats live on different paths. */
   href: string;
 };
 
@@ -253,9 +242,10 @@ export type LessonRoute = {
  * The lesson behind a progress row, whichever player it belongs to.
  *
  * Progress is recorded against a slug with no note of which system the lesson
- * came from, so resuming has to look across both — the old lookup only saw
- * flashcard lessons and sent everything else to /lesson/<slug>, which is the
- * wrong player for a step lesson (#20).
+ * came from, so resuming has to look across both — both formats resolve to
+ * the same merged /lessons/<slug> route now, so there is no wrong-player
+ * fallback to get wrong (the old fallback to /lesson/<slug>, the flashcard
+ * player, was a known bug for step lessons — #20).
  */
 export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | null> {
   const key = String(slugOrLegacyId || "").trim();
@@ -271,7 +261,7 @@ export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | nu
         title: lesson.title,
         version: lesson.version ?? "",
         prefecture: lesson.prefecture ?? "",
-        href: lessonHref(lesson.format, lesson.slug),
+        href: lessonHref(lesson.slug),
       };
     },
     ["content", "getLessonRoute", key],
@@ -306,10 +296,6 @@ export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | nu
  * `getPreviewEditor` in `lib/session.ts`).
  */
 
-/** Which player to narrow a draft lookup to. The public lookups use these too. */
-export const DRAFT_FLASHCARD = FLASHCARD;
-export const DRAFT_STEP = STEP;
-
 async function findDrafts(
   where: Where,
   user: TypedUser,
@@ -334,22 +320,19 @@ async function findDrafts(
 }
 
 /**
- * The draft behind a preview URL, raw.
- *
- * Narrowed by `format` exactly as the published lookups are, so /lesson/<slug>
- * still cannot preview a step lesson in the wrong player. The slug-then-
- * `sourceId` fallback is kept as well: a legacy id remains a valid way to reach
- * a lesson, and the preview URL is built from whatever the editor has open.
+ * The draft behind a preview URL, raw. Spans both formats, same as
+ * `getLessonBySlug` — one route, either format. The slug-then-`sourceId`
+ * fallback is kept: a legacy id remains a valid way to reach a lesson, and
+ * the preview URL is built from whatever the editor has open.
  */
 export async function getDraftLesson(
   slugOrLegacyId: string,
-  format: Where,
   user: TypedUser
 ): Promise<Lesson | null> {
   const key = String(slugOrLegacyId || "").trim();
   if (!key) return null;
 
-  const [lesson] = await findDrafts(and(format, byKey(key)), user, 1);
+  const [lesson] = await findDrafts(byKey(key), user, 1);
   return lesson ?? null;
 }
 
@@ -388,7 +371,7 @@ export async function getDraftNextHref(
   });
 
   const next = result.docs[0];
-  return next ? lessonHref(next.format, next.slug) : undefined;
+  return next ? lessonHref(next.slug) : undefined;
 }
 
 export async function getDraftResources(user: TypedUser): Promise<Resource[]> {

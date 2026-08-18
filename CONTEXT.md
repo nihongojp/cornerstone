@@ -49,3 +49,38 @@ A registered learner. The tier paid features would eventually attach to.
 
 **user**:
 The unentitled tier.
+
+## Routing
+
+Route segments, groups and dynamic params follow Next.js's own App Router
+conventions, and CMS field conventions follow Payload's own — this section
+only records what neither framework's docs can decide for us.
+
+**Dynamic params** are named for what the value structurally is, not the
+collection it came from — a Payload `slug` field is a `[slug]`, not an
+`[id]` or a `[lessonId]`, unless the value really is a database identifier.
+
+**CMS slug format** (`lessons.slug`, `courses.slug` — URL-facing, ASCII):
+`<family>-l<level>-v<version>[-<variant>]` — e.g. `grammar-l1-v1`,
+`hiragana-l2-v1-akita`. `<family>` is the content line (`hiragana`,
+`grammar`, ...), always present. `<variant>` is optional, present only
+when family+level+version alone would collide (today: the prefecture a
+hiragana lesson is tied to). It is *not* guaranteed to match the lesson's
+own `prefecture` field — the two are independently editable. Courses use a
+plain kebab-case descriptive phrase instead (no level/version). Enforced
+by a field-level `validate` (`src/payload/fields/slugFormat.ts`);
+uniqueness is each field's own `unique: true`. `terms.key` is deliberately
+excluded — it isn't routed, and kana/kanji entries key on the script
+itself (`あ-ア`), which an ASCII rule would reject outright.
+
+**Route groups**, which auth gate + which chrome:
+
+| Group | Auth gate | Chrome |
+|---|---|---|
+| `(dashboard)` | signed-in | Header, no Footer |
+| `(site)/(protected)` | signed-in | Header + Footer |
+| `(site)/(public-only)` | signed-out only | Header + Footer |
+| `(player)` | learner session **or** CMS editor previewing | none |
+
+A new page picks whichever row matches the auth + chrome it needs — these
+are two independent axes, not four competing patterns.

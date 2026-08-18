@@ -167,7 +167,7 @@ Everyone who signs in can see the full content and the list of who else has an a
 ## What still needs an author
 
 See [`content-backlog.md`](./content-backlog.md). In short: six placeholder phrases are live in
-lesson `l1-v2`, 24 of 41 terms have no Japanese script (romaji only), 30 terms have no pronunciation
+lesson `grammar-l1-v2`, 24 of 41 terms have no Japanese script (romaji only), 30 terms have no pronunciation
 recording — leaving 21 listening exercises with nothing to play — the media catalogue has no alt
 text, and four merged vocabulary entries want a human glance.
 

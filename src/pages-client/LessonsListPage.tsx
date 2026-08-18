@@ -28,7 +28,7 @@ type Version = {
 const BASE_LESSON_NUMBERS = [1, 2, 3];
 
 // Parse a lesson number + version out of a slug like:
-//   "l1-v1"                     (newlessons / Grammar)
+//   "grammar-l1-v1"             (Grammar)
 //   "hiragana-l2-v3-akita"      (prefecture / Reading & Writing)
 function parseSlug(slug: string): { lesson: number; version: number } | null {
   const m = /l(\d+)-v(\d+)/i.exec(slug || "");
@@ -203,7 +203,7 @@ const LessonColumn: React.FC<{
   );
 };
 
-const NewLessonsListPage: React.FC<{
+const LessonsListPage: React.FC<{
   newLessons: Lesson[];
   lessons: Lesson[];
 }> = ({ newLessons, lessons: prefLessons }) => {
@@ -216,7 +216,7 @@ const NewLessonsListPage: React.FC<{
   useEffect(() => {
     let mounted = true;
     void (async () => {
-      // Grammar column ← newlessons (slug like "l1-v1").
+      // Grammar column ← step-format lessons (slug like "grammar-l1-v1").
       const grammarMap = new Map<number, Version[]>();
       for (const l of newLessons) {
         const p = parseSlug(l.slug);
@@ -224,7 +224,7 @@ const NewLessonsListPage: React.FC<{
           pushVersion(grammarMap, p.lesson, {
             lesson: p.lesson,
             version: p.version,
-            to: lessonHref(l.format, l.slug),
+            to: lessonHref(l.slug),
             slug: l.slug,
             cardTitle: l.cardTitle ?? undefined,
           });
@@ -238,7 +238,7 @@ const NewLessonsListPage: React.FC<{
           pushVersion(readingMap, p.lesson, {
             lesson: p.lesson,
             version: p.version,
-            to: lessonHref(l.format, l.slug),
+            to: lessonHref(l.slug),
             slug: l.slug,
             cardTitle: l.cardTitle || deriveReadingCardTitle(l),
           });
@@ -316,4 +316,4 @@ const NewLessonsListPage: React.FC<{
   );
 };
 
-export default NewLessonsListPage;
+export default LessonsListPage;

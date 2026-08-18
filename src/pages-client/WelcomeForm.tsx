@@ -51,7 +51,7 @@ export default function WelcomeForm(): React.ReactElement {
     setBusy(false);
 
     if (error) return setError(error.message ?? "That didn't save. Try again.");
-    router.push("/new-lessons");
+    router.push("/lessons");
   }
 
   return (
@@ -119,7 +119,7 @@ export default function WelcomeForm(): React.ReactElement {
             <Box textAlign="center" mt={2}>
               <Button
                 variant="text"
-                onClick={() => router.push("/new-lessons")}
+                onClick={() => router.push("/lessons")}
                 sx={{ textTransform: "none", color: "text.secondary" }}
               >
                 Skip for now

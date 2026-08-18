@@ -9,8 +9,8 @@ import { getCharacterById } from '../data/characters';
 const RouterLink = Link;
 
 const CharInfo: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const char = id ? getCharacterById(id) : undefined;
+  const { slug } = useParams<{ slug: string }>();
+  const char = slug ? getCharacterById(slug) : undefined;
 
   if (!char) {
     return (

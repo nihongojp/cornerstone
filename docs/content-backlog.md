@@ -34,7 +34,7 @@ different exercises and its audio attached to whichever copy someone happened to
 
 ## 1. Placeholder text — removed from the site, waiting on the real copy
 
-**Status: no longer live.** Phase 4b removed these eight blocks from `l1-v2` rather than
+**Status: no longer live.** Phase 4b removed these eight blocks from `grammar-l1-v2` rather than
 carrying them onto the new block library. Learners no longer see `PLACEHOLDER_PHRASE_SAN`,
 `PLACEHOLDER_PHRASE_JIN` or `PLACEHOLDER_TRANSLATION` anywhere. The lesson stayed published and
 lost eight screens, going from 32 exercises to 24.
@@ -125,8 +125,8 @@ The five kana sets are the biggest block of it:
 |---|---|
 | `あ-ア` `い-イ` `う-ウ` `え-エ` `お-オ` | 5 listening exercises in `hiragana-l1-v1-hokkaido` |
 | `か-カ` `き-キ` `く-ク` `け-ケ` `こ-コ` | 5 listening exercises in `hiragana-l2-v1-iwate` |
-| `desu` `desu-ka` | 2 in `l1-v2` |
-| `sumimasen-wakarimasen`, `mouichido-onegaishimasu`, `yukkuri-onegaishimasu`, `kore`, `sore`, `are`, `dore`, `kore-ha-nandesuka`, `sore-ha-nandesuka` | the rest, in `l2-v1` |
+| `desu` `desu-ka` | 2 in `grammar-l1-v2` |
+| `sumimasen-wakarimasen`, `mouichido-onegaishimasu`, `yukkuri-onegaishimasu`, `kore`, `sore`, `are`, `dore`, `kore-ha-nandesuka`, `sore-ha-nandesuka` | the rest, in `grammar-l2-v1` |
 
 A recording on the term fixes every exercise that references it at once — that is the whole point of
 the vocabulary collection. Upload the clip to the term's own Audio field in the CMS

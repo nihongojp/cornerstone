@@ -38,9 +38,7 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard",
-    "/lesson/:path*",
-    "/newlesson/:path*",
-    "/new-lessons",
+    "/lessons/:path*",
     "/watch",
     "/talk",
     "/profile",
