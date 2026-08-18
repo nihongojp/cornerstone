@@ -108,32 +108,56 @@ export async function findReferences(target: "terms" | "media", id: number | str
   const { sql } = await import("drizzle-orm");
 
   const fks = await setNullReferencesTo(target, db as never, sql);
+  if (fks.length === 0) return { owners: [], unattributed: 0, live: 0, inVersions: 0 };
+
+  /*
+   * One query, not one per table. Asking each referencing table separately
+   * costs a network round trip each, and Media has 55 of them — measured at
+   * 386ms per document, which a bulk delete multiplies by every row it touches
+   * (~16s to wipe 41 terms during the round-trip test). A UNION ALL collapses
+   * that to a single trip.
+   *
+   * `id` is cast to text because the branches must agree on a type and Payload
+   * uses integer ids for documents and varchar for block rows.
+   */
+  const branches = fks.map(
+    (fk) => sql`SELECT ${fk.table}::text AS src, id::text AS row_id
+                  FROM ${sql.identifier("payload")}.${sql.identifier(fk.table)}
+                 WHERE ${sql.identifier(fk.column)} = ${id}`,
+  );
+  const matches = rowsOf(await db.execute(sql.join(branches, sql` UNION ALL `)));
 
   const owners = new Set<string>();
   let unattributed = 0;
   let live = 0;
   let inVersions = 0;
 
-  for (const fk of fks) {
-    const found = rowsOf(
-      await db.execute(
-        sql`SELECT id FROM ${sql.identifier("payload")}.${sql.identifier(fk.table)}
-             WHERE ${sql.identifier(fk.column)} = ${id}`,
-      ),
-    );
-    if (found.length === 0) continue;
+  /*
+   * Resolving an owner costs a query per hop, so a file referenced from
+   * hundreds of rows would undo the saving above. The cap bounds that: past it
+   * the references are still counted, they are just not named. Nobody needs a
+   * list of two hundred lessons to know the delete is unsafe.
+   */
+  const MAX_OWNER_LOOKUPS = 50;
+  let lookups = 0;
 
-    if (isVersionTable(fk.table)) {
-      inVersions += found.length;
+  for (const match of matches) {
+    const table = String(match.src);
+    if (isVersionTable(table)) {
+      inVersions++;
       continue;
     }
 
-    live += found.length;
-    for (const row of found) {
-      const owner = await ownerFor(fk.table, row.id as string | number, db as never, sql);
-      if (owner) owners.add(owner);
-      else unattributed++;
+    live++;
+    if (lookups >= MAX_OWNER_LOOKUPS) {
+      unattributed++;
+      continue;
     }
+    lookups++;
+
+    const owner = await ownerFor(table, String(match.row_id), db as never, sql);
+    if (owner) owners.add(owner);
+    else unattributed++;
   }
 
   return { owners: [...owners].sort(), unattributed, live, inVersions };
@@ -162,7 +186,7 @@ async function ownerFor(
   for (let hop = 0; hop < 4; hop++) {
     if (currentTable === "lessons") {
       const row = rowsOf(
-        await db.execute(sql`SELECT title FROM payload.lessons WHERE id = ${currentId}`),
+        await db.execute(sql`SELECT title FROM payload.lessons WHERE id::text = ${String(currentId)}`),
       )[0];
       const title = row?.title;
       return typeof title === "string" && title ? title : null;
@@ -173,7 +197,7 @@ async function ownerFor(
     // count, because it names the thing the editor has to go and edit.
     if (currentTable === "terms") {
       const row = rowsOf(
-        await db.execute(sql`SELECT display, key FROM payload.terms WHERE id = ${currentId}`),
+        await db.execute(sql`SELECT display, key FROM payload.terms WHERE id::text = ${String(currentId)}`),
       )[0];
       const label = (row?.display || row?.key) as string | undefined;
       return label ? `the term "${label}"` : null;
@@ -200,7 +224,7 @@ async function parentOf(
       await db.execute(sql`
         SELECT ${sql.identifier(cached.column)} AS parent_id
           FROM ${sql.identifier("payload")}.${sql.identifier(table)}
-         WHERE id = ${rowId}
+         WHERE id::text = ${String(rowId)}
       `),
     )[0];
     const parentId = row?.parent_id;
@@ -231,7 +255,7 @@ async function parentOf(
       await db.execute(sql`
         SELECT ${sql.identifier(column)} AS parent_id
           FROM ${sql.identifier("payload")}.${sql.identifier(table)}
-         WHERE id = ${rowId}
+         WHERE id::text = ${String(rowId)}
       `),
     )[0];
     const parentId = row?.parent_id;
