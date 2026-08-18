@@ -121,29 +121,27 @@ const ROUTES = [
   { path: "/charinfo", guard: "redirect", to: "/gallery", chrome: null },
   { path: "/definitely/not/a/route", guard: "redirect", to: "/", chrome: null },
 
-  // Signed-out only — a signed-in user is bounced to /new-lessons.
+  // Signed-out only — a signed-in user is bounced to /lessons.
   { path: "/auth", guard: "public-only", chrome: "both" },
 
   /*
-   * There is one sign-in surface now (#52), so these two only forward to it.
-   * They still sit inside the (public-only) group, which means a signed-in
-   * visitor is bounced to /new-lessons by the layout before the page's own
-   * redirect ever runs — the destination therefore depends on auth state,
-   * which "redirect" alone cannot express.
+   * There is one sign-in surface (#52), and no live users to preserve old
+   * bookmarks for — the shims that used to forward here are gone, so these
+   * paths now fall through to the catchall like any other unmapped route.
    */
-  { path: "/login", guard: "public-only-redirect", to: "/auth", chrome: null },
-  { path: "/signup", guard: "public-only-redirect", to: "/auth?mode=signup", chrome: null },
+  { path: "/login", guard: "redirect", to: "/", chrome: null },
+  { path: "/signup", guard: "redirect", to: "/", chrome: null },
 
   // Signed-in only — a signed-out user is bounced to /auth.
   { path: "/dashboard", guard: "protected", chrome: "header" },
-  { path: "/new-lessons", guard: "protected", chrome: "both" },
+  { path: "/lessons", guard: "protected", chrome: "both" },
   { path: "/watch", guard: "protected", chrome: "both" },
   { path: "/talk", guard: "protected", chrome: "both" },
   { path: "/profile", guard: "protected", chrome: "both" },
   // Where a brand-new account lands after proving its address (#55).
   { path: "/welcome", guard: "protected", chrome: "both" },
-  { path: "/lesson/hiragana-l1-v1-hokkaido", guard: "protected", chrome: "none" },
-  { path: "/newlesson/l1-v1", guard: "protected", chrome: "none" },
+  { path: "/lessons/hiragana-l1-v1-hokkaido", guard: "protected", chrome: "none" },
+  { path: "/lessons/grammar-l1-v1", guard: "protected", chrome: "none" },
 ];
 
 const HEADER_MARK = "Nihon-Go!";
@@ -212,7 +210,7 @@ const CMS = {
      * the server HTML carries the document, not the screen.
      */
     {
-      path: "/lesson/hiragana-l1-v1-hokkaido",
+      path: "/lessons/hiragana-l1-v1-hokkaido",
       unit: "content marks",
       marks: ["あ-ア", "い-イ", "う-ウ", "え-エ", "お-オ", "vocabList", "listenAndChoose"],
     },
@@ -238,7 +236,7 @@ const CMS = {
      * upload.
      */
     {
-      path: "/newlesson/l1-v1",
+      path: "/lessons/grammar-l1-v1",
       unit: "media marks",
       marks: [
         "/api/media/file/",
@@ -396,10 +394,7 @@ async function visit(path, cookie) {
 function expected(route, signedIn) {
   if (route.guard === "redirect") return { kind: "redirect", to: route.to };
   if (route.guard === "protected" && !signedIn) return { kind: "redirect", to: "/auth" };
-  if (route.guard === "public-only" && signedIn) return { kind: "redirect", to: "/new-lessons" };
-  if (route.guard === "public-only-redirect") {
-    return { kind: "redirect", to: signedIn ? "/new-lessons" : route.to };
-  }
+  if (route.guard === "public-only" && signedIn) return { kind: "redirect", to: "/lessons" };
   return { kind: "render" };
 }
 
@@ -418,11 +413,8 @@ async function check(route, signedIn, cookie) {
   let ok, note;
 
   if (want.kind === "redirect") {
-    /*
-     * Path only, unless the expectation names a query — /signup forwards to
-     * /auth?mode=signup, and comparing pathname alone would pass on a redirect
-     * that dropped the mode and quietly landed everyone on the Login side.
-     */
+    // Path only, unless the expectation itself names a query — comparing
+    // pathname alone would pass on a redirect that silently dropped it.
     const url = got.location ? new URL(got.location, BASE) : null;
     const target = url
       ? want.to.includes("?")

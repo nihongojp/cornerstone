@@ -8,22 +8,25 @@ import { getSession } from "../../../../../lib/session";
 // the client treats null as "start from the top".
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ lessonId: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const { lessonId } = await params;
+  const { slug } = await params;
 
+  // `userProgress.lessonId` is a Postgres column name, not a database id —
+  // it holds a lesson slug. Left as-is: renaming the column is a separate,
+  // riskier schema change than renaming this route's param.
   const [row] = await db
     .select()
     .from(userProgress)
     .where(
       and(
         eq(userProgress.userId, session.user.id),
-        eq(userProgress.lessonId, decodeURIComponent(lessonId))
+        eq(userProgress.lessonId, decodeURIComponent(slug))
       )
     )
     .limit(1);

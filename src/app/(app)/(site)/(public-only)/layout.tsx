@@ -8,6 +8,6 @@ export default async function PublicOnlyLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (await getSession()) redirect("/new-lessons");
+  if (await getSession()) redirect("/lessons");
   return <>{children}</>;
 }

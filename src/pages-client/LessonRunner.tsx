@@ -281,7 +281,7 @@ const LessonRunner: React.FC<{
   function advance(accuracyPct: number) {
     if (isLast) {
       save("completed", step, accuracyPct);
-      router.push(nextHref ?? "/new-lessons");
+      router.push(nextHref ?? "/lessons");
       return;
     }
     const next = step + 1;
@@ -325,7 +325,7 @@ const LessonRunner: React.FC<{
 
   const handleSaveAndExit = () => {
     save("in_progress", step, accuracy);
-    router.push("/new-lessons");
+    router.push("/lessons");
   };
 
   if (!total) {

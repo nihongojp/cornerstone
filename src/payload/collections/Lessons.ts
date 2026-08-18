@@ -7,6 +7,7 @@ import { generatePreviewURL } from "../preview";
 import { readPublishedOrEditor } from "../access/readPublished";
 import { draftingVersions } from "../versions";
 import { isAdmin } from "../access/isAdmin";
+import { validateSlugFormat } from "../fields/slugFormat";
 
 /*
  * One `lessons` collection replaces both Mongo collections — legacy `lessons`
@@ -99,12 +100,15 @@ export const Lessons: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      validate: validateSlugFormat,
       admin: {
         position: "sidebar",
         description:
-          "URL segment and the key learner progress is recorded against. A database foreign " +
-          "key cascades renames into existing progress rows, but bookmarked lesson URLs still " +
-          "break — rename rarely.",
+          "URL segment and the key learner progress is recorded against. Canonical format: " +
+          "<family>-l<level>-v<version>[-<variant>], e.g. \"grammar-l1-v1\" or " +
+          "\"hiragana-l2-v1-akita\" (the variant only when family+level+version would " +
+          "otherwise collide). A database foreign key cascades renames into existing progress " +
+          "rows, but bookmarked lesson URLs still break — rename rarely.",
       },
     },
     {
@@ -120,9 +124,8 @@ export const Lessons: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Which player renders this lesson, and which list it appears in. Step-through lessons " +
-          "play one component per screen at /newlesson/<slug>; flashcard lessons open with a deck " +
-          "and then run their exercises at /lesson/<slug>, and are the only ones pinned to the " +
+          "Which player renders this lesson, and which list it appears in. Both formats play at " +
+          "/lessons/<slug> through the same runner; flashcard lessons are the ones pinned to the " +
           "dashboard map. Pick the family your components come from — mixing families in one " +
           "lesson will not render.",
       },
@@ -253,7 +256,7 @@ export const Lessons: CollectionConfig = {
         readOnly: true,
         description:
           "The MongoDB `_id` this lesson was imported from. Re-running the import matches on " +
-          "it, and old `/lesson/<ObjectId>` links resolve through it. Do not edit or reuse.",
+          "it, and old `/lessons/<ObjectId>` links resolve through it. Do not edit or reuse.",
       },
     },
   ],

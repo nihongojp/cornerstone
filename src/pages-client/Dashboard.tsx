@@ -432,7 +432,7 @@ const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
                     )}
                     <Box
                       component={Link}
-                      href={lessonHref(lesson.format, lesson.slug)}
+                      href={lessonHref(lesson.slug)}
                       sx={{
                         display: "flex",
                         alignItems: "center",
@@ -629,7 +629,7 @@ const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
         {/* ── New Lessons panel ──────────────────────────────────────────── */}
         <Box
           component={Link}
-          href="/newlesson/l1-v1"
+          href="/lessons/grammar-l1-v1"
           sx={{
             position: "absolute",
             right: 16,

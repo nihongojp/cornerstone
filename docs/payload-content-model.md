@@ -17,10 +17,11 @@ resources        media (uploads → Vercel Blob)        cms_admins (admin login)
 - **`lessons`** — one collection for both old Mongo collections, legacy
   `lessons` and `newlessons`. Display field is `title`; `newlessons` called it
   `lesson` and the import renames it. Drafts replace the old `isActive`.
-  **`format`** is what survives of the split between the two: `flashcard`
-  lessons play at `/lesson/<slug>` and are the only ones pinned to the
-  dashboard map, `step` lessons play at `/newlesson/<slug>`, and the two lists
-  on `/new-lessons` are the two values. It is a stored field rather than
+  **`format`** is what survives of the split between the two: both formats
+  play at the same `/lessons/<slug>` route now (merged once Phase 4b made
+  them render the same runner), so `format` no longer selects a URL — it
+  only selects which list a lesson appears in, and `flashcard` lessons are
+  the ones pinned to the dashboard map. It is a stored field rather than
   something derived because the course a lesson sits in is a product decision
   an editor can change, and deriving it from the blocks present would force
   every list query to load every lesson's exercises (#20).
@@ -52,12 +53,12 @@ order), and `isActive` (draft/publish).
 
 ## How the app reads it
 
-Everything goes through `src/lib/content/content.ts`, which keeps the five
-signatures the app has had since the Express controllers — `listLessons`,
-`getLessonBySlug`, `listNewLessons`, `getNewLessonBySlug`, `getResources` —
-plus `getLessonRoute` for resuming, which spans both formats and returns the
-`href` of the player a lesson actually belongs to. `adapters.ts` flattens
-exercises → components back to the flat `items[]` / `flashcards[]` +
+Everything goes through `src/lib/content/content.ts` — `listLessons` and
+`listNewLessons` still filter by format for their own listing pages, but
+`getLessonBySlug` (the detail lookup) no longer does: it spans both formats,
+since they share one route now. Plus `getResources`, and `getLessonRoute` for
+resuming, which spans both formats and returns the `href` of the lesson.
+`adapters.ts` flattens exercises → components back to the flat `items[]` / `flashcards[]` +
 `exercises[]` shapes in `src/lib/types/lessons.ts`; while one-component-per-
 exercise holds, that flattening is item-for-item, so step counts and `stepKey`
 resume are unchanged. `nextSlug` is synthesised from course order.
@@ -146,8 +147,8 @@ to Save opens the same page in its own tab instead.
 
 Only `lessons` and `resources` have it. A course is a grouping with no page of
 its own, and media is an upload; neither has anything for the panel to load.
-Lessons open in whichever player `format` selects, so flipping `format` moves
-the panel between `/lesson/<slug>` and `/newlesson/<slug>`.
+Both lesson formats preview at the same `/lessons/<slug>` route; `format`
+only changes which player renders inside it.
 
 Two environment variables turn it on: `PREVIEW_SECRET` and
 `NEXT_PUBLIC_SERVER_URL`. Without the secret the feature hides itself rather
