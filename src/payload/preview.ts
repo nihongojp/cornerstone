@@ -23,8 +23,29 @@ import { previewPath } from "../lib/content/routes";
  * session separately.
  */
 
-function serverURL(): string {
-  return process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000";
+/*
+ * Fails closed, like the secret below, and for the same reason — it used to
+ * default to `http://localhost:3000`.
+ *
+ * That default is only ever right on the machine that happens to be serving the
+ * admin from port 3000. Anywhere else it sends the editor's browser to a
+ * *different server*: on a deployment with the variable unset, to the editor's
+ * own laptop. The request then arrives with no `payload-token` for that origin,
+ * `payload.auth()` finds no user, and /api/preview answers
+ * "You are not allowed to preview this page" — which reads as a permissions
+ * problem and is really a wrong hostname.
+ *
+ * Returning null hides the Preview button and the Live Preview panel instead,
+ * which is a question somebody can answer. `.env.example` carries the variable.
+ *
+ * Note this cannot fix the near-miss version: with the variable *set* to
+ * localhost:3000 and `next dev` bound to some other port because 3000 was
+ * taken, preview still points at whatever owns 3000. The value has to match the
+ * port the admin is actually served from — there is no way to know that here,
+ * because Payload builds these URLs on the server where there is no `window`.
+ */
+function serverURL(): string | null {
+  return process.env.NEXT_PUBLIC_SERVER_URL?.trim() || null;
 }
 
 function buildPreviewURL(
@@ -34,13 +55,16 @@ function buildPreviewURL(
   const path = previewPath(collection, doc);
   if (!path) return null;
 
+  const origin = serverURL();
+  if (!origin) return null;
+
   // Fail closed. /api/preview refuses every request when the secret is unset,
   // so returning null here hides preview in the admin rather than offering a
   // button that always 403s.
   const secret = process.env.PREVIEW_SECRET;
   if (!secret) return null;
 
-  const url = new URL("/api/preview", serverURL());
+  const url = new URL("/api/preview", origin);
   url.searchParams.set("previewSecret", secret);
   url.searchParams.set("collection", collection);
   url.searchParams.set("path", path);
