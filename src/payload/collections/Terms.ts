@@ -2,6 +2,7 @@ import type { CollectionConfig } from "payload";
 
 import { audioField, imageField } from "../fields/media";
 import { isAdmin } from "../access/isAdmin";
+import { guardTermDelete } from "../hooks/guardReferencedDelete";
 // Safe as a static import: `utils/kana.ts` is a pure lookup table with no
 // imports of its own, so it does not drag anything into the Payload CLI paths
 // (unlike `@/lib/auth`, which is why Media.ts defers its import to request time).
@@ -247,6 +248,7 @@ export const Terms: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeDelete: [guardTermDelete],
     afterChange: [revalidateTerm],
     afterDelete: [revalidateTermDelete],
     beforeChange: [

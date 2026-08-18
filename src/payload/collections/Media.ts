@@ -1,6 +1,7 @@
 import type { Access, CollectionConfig } from "payload";
 
 import { isAdmin } from "../access/isAdmin";
+import { guardMediaDelete } from "../hooks/guardReferencedDelete";
 
 /*
  * Uploads. Backed by a **private** Vercel Blob store — see
@@ -126,6 +127,7 @@ export const Media: CollectionConfig = {
    * nothing, across however many lessons referenced it.
    */
   access: { read: readMedia, delete: isAdmin },
+  hooks: { beforeDelete: [guardMediaDelete] },
   upload: {
     mimeTypes: ["image/*", "audio/*", "video/*"],
     /*
