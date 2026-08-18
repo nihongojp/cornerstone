@@ -133,17 +133,25 @@ Format selects. The **preview** button opens the same thing full-width in a new 
 
 ## What you can and cannot do
 
-Two roles.
+All three of us are admins, so in practice: everything. The CMS *has* an editor role — create, edit
+and publish, but not delete or manage accounts — and it is there for whenever somebody joins who
+should not be able to empty the media library. Nobody is on it today.
 
-**Editor** — create, edit and publish everything: lessons, courses, vocabulary, media, resources.
-This is what authoring needs, and it is the default.
+What will stop you is not a permission. **Deleting a word or a file is refused while anything still
+points at it**, and the message names what:
 
-**Admin** — the above, plus deleting content and managing who has an account.
+> The term "kore" is still referenced 2 times. It is used by Lesson 1, Lesson 2. Deleting it would
+> empty those references without any error — remove them first.
 
-If a Delete button refuses, that is the role, not a bug. Deletion is separated out because it is the
-one action with no undo: deleting a word blanks it out of every lesson that referenced it, and
-deleting a media file removes the file itself. Ask an admin, who can also tell you what else pointed
-at the thing.
+That guard exists because the failure it prevents is invisible. Nothing errors when you delete a
+referenced word: every lesson using it keeps working, the word just silently stops appearing,
+because a word reference with no word renders nothing at all. Same for a media file — the file goes,
+and every block pointing at it renders empty. So the check happens before, with a list, rather than
+after, with nothing.
+
+References inside *saved versions* do not block a delete — every draft ever autosaved keeps a copy
+of what it referenced, and enforcing those would make a word undeletable forever. The message
+mentions them so you know they exist.
 
 Everyone who signs in can see the full content and the list of who else has an account.
 
