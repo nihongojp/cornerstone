@@ -1120,7 +1120,7 @@
     }
   },
   {
-    "key": "grammar-l1-v1",
+    "key": "l1-v1",
     "status": "published",
     "latest": {
       "title": "Lesson 1 Pt. 1",
@@ -2665,7 +2665,7 @@
     }
   },
   {
-    "key": "grammar-l1-v2",
+    "key": "l1-v2",
     "status": "published",
     "latest": {
       "title": "Lesson 1 Pt. 2",
@@ -3989,7 +3989,7 @@
     }
   },
   {
-    "key": "grammar-l2-v1",
+    "key": "l2-v1",
     "status": "published",
     "latest": {
       "title": "Lesson 2 V1",
