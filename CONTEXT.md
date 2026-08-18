@@ -38,17 +38,28 @@ _Avoid_: admin (overloaded — see the `admin` role value)
 
 ### Roles
 
-Values of `role` on a **Learner account**. They describe entitlement, not
-identity.
+Values of `role` on a **Learner account**.
+
+`role` **gates nothing, and nothing currently planned changes that.** Access is
+decided solely by whether a request carries a session — `requireSession()` /
+`requirePlayerAccess()` — and every registered learner gets the whole product.
+There is no free tier and no per-course entitlement; both were considered and
+rejected (#56).
+
+The column is kept because it costs nothing to keep and would have to be re-added
+the day there is something to charge for. Until then, treat these values as
+reserved names rather than a live permission system, and do not write code that
+branches on them without settling #56 first.
 
 **admin**:
-Elevated privilege over other learner accounts.
+Reserved for elevated privilege over other learner accounts. Nothing reads it.
 
 **member**:
-A registered learner. The tier paid features would eventually attach to.
+A registered learner.
 
 **user**:
-The unentitled tier.
+The default for a new account. Despite the name, not a lesser tier than
+`member` today — nothing distinguishes them.
 
 ## Routing
 
