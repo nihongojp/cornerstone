@@ -32,6 +32,8 @@ config({ path: ".env.local" });
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+import type { Payload, Where } from "payload";
+
 import {
   CONTENT_COLLECTIONS,
   NATURAL_KEY,
@@ -212,14 +214,7 @@ async function main() {
     let updated = 0;
 
     for (const entry of snapshot[collection]) {
-      const existing = await payload.find({
-        collection,
-        where: { [naturalKeyField(collection, entry)]: { equals: entry.key } },
-        limit: 1,
-        depth: 0,
-        pagination: false,
-        overrideAccess: true,
-      });
+      const existing = await findExisting(payload, collection, entry);
 
       /*
        * A document with unpublished edits is written twice: the published
@@ -277,6 +272,50 @@ async function main() {
 function naturalKeyField(collection: ContentCollection, entry: SnapshotDoc): string {
   if (collection !== "resources") return NATURAL_KEY[collection];
   return typeof entry.latest.sourceId === "string" && entry.latest.sourceId ? "sourceId" : "category";
+}
+
+/*
+ * The row this entry updates, or nothing when it is genuinely new.
+ *
+ * Two lookups, natural key first, because a snapshot that *renames* the natural
+ * key cannot find its own row by the new name. A rename travels as `key` (the
+ * old value, to match on) plus `latest.slug` (the new one, to write), which
+ * works exactly once: run the same import again and the row now carries the new
+ * slug, the match misses, and the upsert tries to *create* a duplicate — which
+ * dies on the unique index, having reported nothing useful about why.
+ *
+ * That is not hypothetical. It is how the steps/level/part rename failed on a
+ * re-run of its own pull request, because the Neon preview branch is reused
+ * between runs rather than re-forked, so the second run met a database the
+ * first had already renamed. Production would have hit it the same way on any
+ * repeat import.
+ *
+ * `sourceId` is the Mongo `_id` a document was imported from: immutable,
+ * unique, and never rewritten by a rename — so it is the identity to fall back
+ * to. Sequential rather than an `or`, so a slug and a sourceId pointing at two
+ * *different* rows (mid-swap, say) resolves to the natural key deterministically
+ * instead of whichever the database returned first. `content.ts` reads by the
+ * same pair for the same reason.
+ */
+async function findExisting(
+  payload: Payload,
+  collection: ContentCollection,
+  entry: SnapshotDoc
+): Promise<{ docs: Array<{ id: unknown }> }> {
+  const find = (where: Where) =>
+    payload.find({ collection, where, limit: 1, depth: 0, pagination: false, overrideAccess: true });
+
+  const byNaturalKey = await find({
+    [naturalKeyField(collection, entry)]: { equals: entry.key },
+  });
+  if (byNaturalKey.docs.length) return byNaturalKey;
+
+  // Only for the collections that carry one; querying a field a collection does
+  // not have is an error, not an empty result.
+  const sourceId = entry.latest.sourceId;
+  if (typeof sourceId !== "string" || !sourceId) return byNaturalKey;
+
+  return find({ sourceId: { equals: sourceId } });
 }
 
 main().catch((err) => {
