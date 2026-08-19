@@ -39,6 +39,7 @@ import {
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useRouter, useSearchParams } from "next/navigation";
 import { emailOtp, signIn } from "../lib/auth-client";
+import { safeReturnPath } from "../lib/return-path";
 import AuthCat from "../components/AuthCat";
 import GoogleMark from "../components/GoogleMark";
 
@@ -66,8 +67,16 @@ export default function AuthForm(): React.ReactElement {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Where the proxy wanted the user to end up before it bounced them here.
-  const from = searchParams.get("from") || "/lessons";
+  /*
+   * Where the proxy wanted the user to end up before it bounced them here.
+   *
+   * Narrowed to a relative path at the point it is read, so every use below is
+   * already safe: the two `router.push(from)` calls finish on this page and
+   * never reach Better Auth's own server-side `callbackURL` check, which is
+   * what an off-site value would otherwise sail straight through. See
+   * `lib/return-path.ts`.
+   */
+  const from = safeReturnPath(searchParams.get("from"));
 
   /*
    * Better Auth redirects a failed magic-link verification back here with
