@@ -233,7 +233,10 @@ export const getResources = unstable_cache(
 export type LessonRoute = {
   slug: string;
   title: string;
-  version: string;
+  /** Which numbered lesson, across courses — the "Lesson 3" heading. */
+  level: number;
+  /** Which part of it — rendered as "Lesson 3.2". */
+  part: number;
   prefecture: string;
   href: string;
 };
@@ -259,7 +262,8 @@ export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | nu
       return {
         slug: lesson.slug,
         title: lesson.title,
-        version: lesson.version ?? "",
+        level: lesson.level,
+        part: lesson.part,
         prefecture: lesson.prefecture ?? "",
         href: lessonHref(lesson.slug),
       };

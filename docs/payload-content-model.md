@@ -7,8 +7,8 @@ explains why Payload and drizzle-kit share one database.
 ## Shape
 
 ```
-courses ──< lessons ──< exercises[] ──< components[]
-                            (array)       (blocks, one per exercise)
+courses ──< lessons ──< steps[] ──< components[]
+                         (array)      (blocks; a step is one screen)
 resources        media (uploads → Vercel Blob)        cms_admins (admin login)
 ```
 
@@ -24,11 +24,17 @@ resources        media (uploads → Vercel Blob)        cms_admins (admin login)
   the ones pinned to the dashboard map. It is a stored field rather than
   something derived because the course a lesson sits in is a product decision
   an editor can change, and deriving it from the blocks present would force
-  every list query to load every lesson's exercises (#20).
-- **`exercises`** — an array field on the lesson, not a collection. An exercise
-  belongs to exactly one lesson, is order-sensitive, and has no independent
-  lifecycle.
-- **components** — a `blocks` field inside each exercise, one block type per
+  every list query to load every lesson's steps (#20).
+- **`level` / `part`** — what a learner is shown: the lessons list groups into
+  "Lesson `<level>`" sections and labels cards "Lesson `<level>`.`<part>`".
+  `level` spans courses, so it is not a within-course position (`order` is).
+  They were parsed out of the slug with a regex until they became real fields;
+  `version` (text, `"v1"`) held the part number redundantly and is gone.
+- **`steps`** — an array field on the lesson, not a collection. A step is one
+  screen, belongs to exactly one lesson, is order-sensitive, and has no
+  independent lifecycle. It is not necessarily a question — a prose-only step
+  is normal; the blocks on it decide. Called `exercises` until #70's follow-up.
+- **components** — a `blocks` field inside each step, one block type per
   entry in `KNOWN_GRAMMAR_TYPES` / `KNOWN_LEGACY_TYPES` in
   `src/lib/content/item-schemas.ts`, which stays the source of truth.
 

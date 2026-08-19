@@ -16,7 +16,7 @@
  *
  * The catalogue already carries the same data (`strokes` and `strokeOrder` on a
  * kana term, seeded from that very table by `derive-terms`). So each generated
- * screen becomes a real exercise holding `vocabList` with `layout: "spotlight"`,
+ * screen becomes a real step holding `vocabList` with `layout: "spotlight"`,
  * inserted immediately before the flashcard deck it used to precede — the order
  * the learner already sees. Then the table is deleted.
  *
@@ -33,7 +33,7 @@ const DIR = path.resolve("content/snapshot");
 const WRITE = process.argv.slice(2).includes("--yes");
 
 type Block = Record<string, unknown>;
-type Exercise = { id?: string; label?: string | null; components?: Block[] };
+type Step = { id?: string; label?: string | null; components?: Block[] };
 type Ref = { $ref: string; $collection: string };
 
 const isRef = (v: unknown): v is Ref =>
@@ -42,7 +42,7 @@ const isRef = (v: unknown): v is Ref =>
 /*
  * References travel as natural keys in the snapshot (Phase 0b), so a term is a
  * `{$ref: key}` here rather than a numeric id — which is exactly why the new
- * exercises can be written as plain JSON and imported without knowing what row
+ * steps can be written as plain JSON and imported without knowing what row
  * ids the database will assign.
  */
 const termSnapshot: SnapshotDoc[] = JSON.parse(
@@ -56,7 +56,7 @@ function hasStrokeOrder(key: string): boolean {
   return Boolean(state && state.kind === "kana" && state.strokeOrder);
 }
 
-function spotlightExercise(termRef: Ref, character: string): Exercise {
+function spotlightStep(termRef: Ref, character: string): Step {
   return {
     // No `id`: Payload assigns the row id on import, and that id is what
     // progress is keyed on from 4b onward.
@@ -85,12 +85,12 @@ function main() {
   for (const doc of lessons) {
     for (const state of [doc.latest, doc.published]) {
       if (!state) continue;
-      const exercises = (Array.isArray(state.exercises) ? state.exercises : []) as Exercise[];
+      const steps = (Array.isArray(state.steps) ? state.steps : []) as Step[];
 
       // Which characters already have a spotlight, so a second run is a no-op.
       const already = new Set<string>();
-      for (const exercise of exercises) {
-        for (const block of exercise.components ?? []) {
+      for (const step of steps) {
+        for (const block of step.components ?? []) {
           if (block.blockType !== "vocabList" || block.layout !== "spotlight") continue;
           for (const term of (block.terms as unknown[]) ?? []) {
             if (isRef(term)) already.add(term.$ref);
@@ -98,10 +98,10 @@ function main() {
         }
       }
 
-      const next: Exercise[] = [];
+      const next: Step[] = [];
 
-      for (const exercise of exercises) {
-        const deck = (exercise.components ?? []).find(
+      for (const step of steps) {
+        const deck = (step.components ?? []).find(
           (block) => block.blockType === "vocabList" && block.layout === "flashcards"
         );
 
@@ -116,23 +116,23 @@ function main() {
               continue;
             }
             already.add(term.$ref);
-            next.push(spotlightExercise(term, term.$ref));
+            next.push(spotlightStep(term, term.$ref));
             inserted++;
-            report.push(`${doc.key}: spotlight ${term.$ref} before "${exercise.label ?? "deck"}"`);
+            report.push(`${doc.key}: spotlight ${term.$ref} before "${step.label ?? "deck"}"`);
           }
         }
 
-        next.push(exercise);
+        next.push(step);
       }
 
-      state.exercises = next;
+      state.steps = next;
     }
   }
 
   console.log(`\n${WRITE ? "Authoring" : "Dry run —"} the stroke-order screens\n`);
   for (const line of report) console.log(`  ${line}`);
   console.log(
-    `\n  ${inserted} spotlight exercise(s) inserted; ` +
+    `\n  ${inserted} spotlight step(s) inserted; ` +
       `${skippedNoDiagram} deck term(s) skipped — no stroke-order diagram, so nothing to spotlight.`
   );
 

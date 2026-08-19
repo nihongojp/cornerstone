@@ -20,7 +20,7 @@ import RewardInfo from "../components/RewardInfo";
 import RenderExercise from "../components/blocks/RenderExercise";
 import RichText from "../components/richtext/RichText";
 
-import { exerciseSeed, shuffleExercises } from "../lib/content/shuffle";
+import { stepSeed, shuffleSteps } from "../lib/content/shuffle";
 import { PRACTICE_BLOCK_SLUGS } from "../payload/blocks/librarySlugs";
 import { getProgress, submitAttempt, upsertProgress } from "../lib/progress-client";
 import type { Lesson } from "../payload/payload-types";
@@ -61,14 +61,15 @@ import type { Lesson } from "../payload/payload-types";
  * reads, and "after the deck" was a position no one chose.
  */
 
-type Exercise = NonNullable<Lesson["exercises"]>[number];
+/** One authored row of `lesson.steps`. */
+type AuthoredStep = NonNullable<Lesson["steps"]>[number];
 
 const PRACTICE = new Set<string>(PRACTICE_BLOCK_SLUGS);
 
-/** A step: one authored exercise, or one of the lesson's own trailing screens. */
+/** A screen to play: one authored step, or one of the lesson's own trailing screens. */
 type Step = {
   /*
-   * What progress is keyed on. For an exercise it is the array row's Payload id
+   * What progress is keyed on. For an authored step it is the array row's Payload id
    * — stable across edits, and the whole reason 4b re-keys `user_progress`. The
    * content-derived keys it replaces (`stepKeyForItem`, `stepKeyFromExercise`)
    * could not key a composite screen at all, and changed whenever the copy did.
@@ -89,30 +90,30 @@ type Step = {
   render: (onResult: (r: { result: "correct" | "incorrect" }) => void) => React.ReactNode;
 };
 
-function blockTypes(exercise: Exercise): string[] {
-  return (exercise.components ?? []).map((block) => block.blockType);
+function blockTypes(step: AuthoredStep): string[] {
+  return (step.components ?? []).map((block) => block.blockType);
 }
 
 function buildSteps(lesson: Lesson, seed: string): Step[] {
-  const authored = shuffleExercises(lesson.exercises ?? [], {
+  const authored = shuffleSteps(lesson.steps ?? [], {
     seed,
     // The field has existed since the import and nothing has ever read it.
     // Defaulting to true matches the collection's own default.
-    enabled: lesson.shuffleExercises !== false,
+    enabled: lesson.shuffleSteps !== false,
   });
 
-  const steps: Step[] = authored.map((exercise, index) => {
-    const types = blockTypes(exercise);
+  const steps: Step[] = authored.map((step, index) => {
+    const types = blockTypes(step);
     return {
       // Payload assigns the row id on save. Live Preview streams rows the editor
       // has only just added, which have none yet — the index keeps those
       // renderable rather than collapsing every unsaved screen onto one key.
-      key: exercise.id ?? `unsaved:${index}`,
-      label: exercise.label?.trim() || "Exercise",
+      key: step.id ?? `unsaved:${index}`,
+      label: step.label?.trim() || "Step",
       graded: types.some((type) => PRACTICE.has(type)),
       autoAdvance: !types.includes("buildSentence"),
       render: (onResult) => (
-        <RenderExercise blocks={exercise.components ?? []} onResult={onResult} />
+        <RenderExercise blocks={step.components ?? []} onResult={onResult} />
       ),
     };
   });
@@ -183,7 +184,7 @@ const LessonRunner: React.FC<{
   const slug = lesson.slug;
 
   const steps = useMemo(
-    () => buildSteps(lesson, exerciseSeed({ userId, lessonId: slug, attempt })),
+    () => buildSteps(lesson, stepSeed({ userId, lessonId: slug, attempt })),
     [lesson, userId, slug, attempt]
   );
 

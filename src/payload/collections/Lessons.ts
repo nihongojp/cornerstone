@@ -18,12 +18,12 @@ import { validateSlugFormat } from "../fields/slugFormat";
  * renderers on two URL families, so which one a lesson belongs to has to be
  * stated rather than guessed — deriving it from the course would weld product
  * structure to rendering, and deriving it from the blocks present would make
- * every list query load every lesson's exercises (#20).
+ * every list query load every lesson's steps (#20).
  *
- * Shape: lesson → `exercises` (ordered array) → `components` (blocks).
- * `exercises` is an array field rather than its own collection on purpose — an
- * exercise belongs to exactly one lesson, is order-sensitive, and has no
- * independent lifecycle.
+ * Shape: course → lesson → `steps` (ordered array) → `components` (blocks),
+ * and a block may reference `terms`. `steps` is an array field rather than its
+ * own collection on purpose — a step belongs to exactly one lesson, is
+ * order-sensitive, and has no independent lifecycle.
  *
  * Not modelled, deliberately:
  *  - `nextSlug` — course + order replaces the linked list (#27, #18).
@@ -34,7 +34,14 @@ import { validateSlugFormat } from "../fields/slugFormat";
  */
 
 /*
- * An exercise is one screen, and a screen is an ordered list of blocks.
+ * A step is one screen, and a screen is an ordered list of blocks.
+ *
+ * It was called an `exercise` until the word became a liability: a step can be
+ * pure prose with nothing to answer, so "exercise" promised a question that
+ * half of them do not have. `step` is the word the rest of the stack already
+ * uses — `user_progress.last_step`, `step_key`, the step-through player — so
+ * one thing now has one name from the CMS through to the progress table.
+ * Blocks are still what makes a step interactive; see `PRACTICE_BLOCK_SLUGS`.
  *
  * That is the change that makes this a CMS rather than a transcription: the
  * `maxRows: 1` that used to be on `components` meant a screen could only ever be
@@ -46,8 +53,8 @@ import { validateSlugFormat } from "../fields/slugFormat";
  * to two separate players. There is one library and one runner.
  */
 const AUTHORING_CONVENTION =
-  "One exercise is one screen. Blocks from Content and Practice compose onto that screen in " +
-  "order — a prose introduction followed by the exercise it sets up is one screen, not two.";
+  "One step is one screen. Blocks from Content and Practice compose onto that screen in " +
+  "order — a prose introduction followed by the practice it sets up is one step, not two.";
 
 export const Lessons: CollectionConfig = {
   slug: "lessons",
@@ -149,6 +156,47 @@ export const Lessons: CollectionConfig = {
           "Position within the course, ascending. This is what decides which lesson comes next.",
       },
     },
+    /*
+     * `level` and `part` are what a learner is shown: the lessons list groups
+     * every course's lessons into "Lesson <level>" sections and labels each
+     * card "Lesson <level>.<part>".
+     *
+     * They were encoded in the slug (`grammar-l1-v2`) and recovered with
+     * `/l(\d+)-v(\d+)/` in the list page — the schema living inside a string,
+     * the same shape as the `"あ/ア"` slash-delimited kana this content model
+     * already moved into real fields. `version` held the part number too, as
+     * text ("v1"), so the number existed twice and neither copy was typed.
+     *
+     * `level` deliberately spans courses: "Lesson 1" is one section holding
+     * both the grammar and the hiragana lesson, so it is not a position
+     * within a course — `order` is that.
+     */
+    {
+      name: "level",
+      type: "number",
+      required: true,
+      index: true,
+      admin: {
+        position: "sidebar",
+        step: 1,
+        description:
+          "Which numbered lesson this belongs to, across every course — the " +
+          '"Lesson 3" heading on the lessons list. Not a position within a course; that is Order.',
+      },
+    },
+    {
+      name: "part",
+      type: "number",
+      required: true,
+      defaultValue: 1,
+      admin: {
+        position: "sidebar",
+        step: 1,
+        description:
+          'Which part of that lesson this is — shown as "Lesson 3.2". Start at 1; ' +
+          "a lesson taught in one sitting just stays 1.",
+      },
+    },
     {
       name: "cardTitle",
       type: "text",
@@ -158,7 +206,7 @@ export const Lessons: CollectionConfig = {
       },
     },
     {
-      name: "shuffleExercises",
+      name: "shuffleSteps",
       type: "checkbox",
       defaultValue: true,
       admin: {
@@ -170,9 +218,9 @@ export const Lessons: CollectionConfig = {
       },
     },
     {
-      name: "exercises",
+      name: "steps",
       type: "array",
-      labels: { singular: "Exercise", plural: "Exercises" },
+      labels: { singular: "Step", plural: "Steps" },
       admin: {
         initCollapsed: true,
         description: `Ordered — drag to resequence. ${AUTHORING_CONVENTION}`,
@@ -214,15 +262,6 @@ export const Lessons: CollectionConfig = {
       type: "text",
       hasMany: true,
       admin: { position: "sidebar" },
-    },
-    {
-      name: "version",
-      type: "text",
-      admin: {
-        position: "sidebar",
-        description:
-          'Content revision label carried over from the old data, e.g. "v1".',
-      },
     },
     {
       name: "funFact",

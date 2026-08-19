@@ -205,24 +205,32 @@ export interface Lesson {
    */
   order?: number | null;
   /**
+   * Which numbered lesson this belongs to, across every course — the "Lesson 3" heading on the lessons list. Not a position within a course; that is Order.
+   */
+  level: number;
+  /**
+   * Which part of that lesson this is — shown as "Lesson 3.2". Start at 1; a lesson taught in one sitting just stays 1.
+   */
+  part: number;
+  /**
    * Heading shown on the lessons list card. Falls back to the title.
    */
   cardTitle?: string | null;
   /**
    * Vary the order of consecutive practice screens of the same kind, so a learner repeating the lesson does not get the same sequence. Screens that present material never move, and a run never moves out of its place in the lesson. Turn off where the order within a run teaches something.
    */
-  shuffleExercises?: boolean | null;
+  shuffleSteps?: boolean | null;
   /**
-   * Ordered — drag to resequence. One exercise is one screen. Blocks from Content and Practice compose onto that screen in order — a prose introduction followed by the exercise it sets up is one screen, not two.
+   * Ordered — drag to resequence. One step is one screen. Blocks from Content and Practice compose onto that screen in order — a prose introduction followed by the practice it sets up is one step, not two.
    */
-  exercises?:
+  steps?:
     | {
         /**
          * Optional name, for your own navigation. Not shown to learners.
          */
         label?: string | null;
         /**
-         * One exercise is one screen. Blocks from Content and Practice compose onto that screen in order — a prose introduction followed by the exercise it sets up is one screen, not two.
+         * One step is one screen. Blocks from Content and Practice compose onto that screen in order — a prose introduction followed by the practice it sets up is one step, not two.
          */
         components: (
           | ProseBlock
@@ -245,10 +253,6 @@ export interface Lesson {
    */
   prefecture?: string | null;
   tags?: string[] | null;
-  /**
-   * Content revision label carried over from the old data, e.g. "v1".
-   */
-  version?: string | null;
   /**
    * Shown at the end of the lesson.
    */
@@ -997,9 +1001,11 @@ export interface LessonsSelect<T extends boolean = true> {
   format?: T;
   course?: T;
   order?: T;
+  level?: T;
+  part?: T;
   cardTitle?: T;
-  shuffleExercises?: T;
-  exercises?:
+  shuffleSteps?: T;
+  steps?:
     | T
     | {
         label?: T;
@@ -1022,7 +1028,6 @@ export interface LessonsSelect<T extends boolean = true> {
       };
   prefecture?: T;
   tags?: T;
-  version?: T;
   funFact?: T;
   notes?: T;
   achievement?:

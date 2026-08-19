@@ -48,7 +48,9 @@ export async function GET() {
         lessonId: latest.lessonId,
         slug: latest.lessonId,
         title: "Continue lesson",
-        version: "",
+        // The lesson row is gone, so there is no level/part to report.
+        level: null,
+        part: null,
         prefecture: "",
         // The lesson is gone; this is just a best-guess link so the card
         // still resolves to a real page rather than a dead one.
@@ -65,7 +67,8 @@ export async function GET() {
       lessonId: latest.lessonId,
       slug: lesson.slug,
       title: lesson.title,
-      version: lesson.version,
+      level: lesson.level,
+      part: lesson.part,
       prefecture: lesson.prefecture,
       href: lesson.href,
       lastStep: latest.lastStep ?? 0,
