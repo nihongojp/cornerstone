@@ -79,6 +79,14 @@ export default function AuthForm(): React.ReactElement {
   const from = safeReturnPath(searchParams.get("from"));
 
   /*
+   * Where Better Auth sends someone whose link or provider hop failed. It has
+   * to carry `from` too, or a retry after an expired magic link quietly loses
+   * the destination they were originally headed for — the failure would cost
+   * them the trip as well as the attempt.
+   */
+  const authRetry = `/auth?from=${encodeURIComponent(from)}`;
+
+  /*
    * Better Auth redirects a failed magic-link verification back here with
    * `?error=`. Note it cannot tell us *why*: `consumeVerificationValue` returns
    * nothing whether the token expired, was already used, or was superseded by a
@@ -133,7 +141,7 @@ export default function AuthForm(): React.ReactElement {
       // Only used when the address turns out to be new. This is what makes
       // "ask for a name" a post-verification step rather than a signup field.
       newUserCallbackURL: "/welcome",
-      errorCallbackURL: "/auth",
+      errorCallbackURL: authRetry,
     });
     setBusy(false);
 
@@ -289,7 +297,7 @@ export default function AuthForm(): React.ReactElement {
                       callbackURL: from,
                       // Without this, a refused link lands on Better Auth's own
                       // error page instead of the recovery path below.
-                      errorCallbackURL: "/auth",
+                      errorCallbackURL: authRetry,
                     })
                   }
                   sx={{
@@ -552,7 +560,7 @@ export default function AuthForm(): React.ReactElement {
                       signIn.social({
                         provider: "google",
                         callbackURL: from,
-                        errorCallbackURL: "/auth",
+                        errorCallbackURL: authRetry,
                       })
                     }
                     sx={{

@@ -90,8 +90,11 @@ itself (`あ-ア`), which an ASCII rule would reject outright.
 |---|---|---|
 | `(dashboard)` | signed-in | Header, no Footer |
 | `(site)/(protected)` | signed-in | Header + Footer |
-| `(site)/(public-only)` | signed-out only | Header + Footer |
 | `(player)` | learner session **or** CMS editor previewing | none |
 
 A new page picks whichever row matches the auth + chrome it needs — these
-are two independent axes, not four competing patterns.
+are two independent axes, not competing patterns.
+
+`/auth` is the exception and guards itself, in `auth/page.tsx`: it sends a
+signed-in visitor to their `from` destination, and a layout is never given
+`searchParams`, so the rule cannot live in a group.
