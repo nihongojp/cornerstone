@@ -121,8 +121,24 @@ const ROUTES = [
   { path: "/charinfo", guard: "redirect", to: "/gallery", chrome: null },
   { path: "/definitely/not/a/route", guard: "redirect", to: "/", chrome: null },
 
-  // Signed-out only — a signed-in user is bounced to /lessons.
+  // Signed-out only — a signed-in user with nowhere particular to be is
+  // bounced to /lessons.
   { path: "/auth", guard: "public-only", chrome: "both" },
+
+  /*
+   * ...but one who arrived carrying a destination is returned to it, rather
+   * than dumped on the default. `from` is narrowed to a relative path first
+   * (`lib/return-path.ts`), which is why the off-site case below lands on
+   * /lessons instead of leaving the site — that one is a security regression
+   * test, not a preference.
+   */
+  { path: "/auth?from=%2Fprofile", guard: "public-only-from", to: "/profile", chrome: "both" },
+  {
+    path: "/auth?from=https%3A%2F%2Fattacker.example.com",
+    guard: "public-only-from",
+    to: "/lessons",
+    chrome: "both",
+  },
 
   /*
    * There is one sign-in surface (#52), and no live users to preserve old
@@ -395,6 +411,9 @@ function expected(route, signedIn) {
   if (route.guard === "redirect") return { kind: "redirect", to: route.to };
   if (route.guard === "protected" && !signedIn) return { kind: "redirect", to: "/auth" };
   if (route.guard === "public-only" && signedIn) return { kind: "redirect", to: "/lessons" };
+  // Same rule, but the destination is the route's own — signed out it still
+  // just renders the sign-in screen.
+  if (route.guard === "public-only-from" && signedIn) return { kind: "redirect", to: route.to };
   return { kind: "render" };
 }
 

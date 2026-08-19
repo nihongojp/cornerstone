@@ -106,8 +106,8 @@ src/
     (app)/          The site itself. Folders in (parens) are route groups —
                     they set layout/auth rules without appearing in the URL.
       (site)/         Header + Footer
-        (public-only)/  signed-out only  → signed-in users get redirected away
         (protected)/    signed-in only   → signed-out users get sent to /auth
+        auth/           the sign-in surface; guards itself (see CONTEXT.md)
       (dashboard)/    Header, no Footer
       (player)/       No chrome — the two lesson players
       api/            Route handlers (auth, progress, pronunciation)
