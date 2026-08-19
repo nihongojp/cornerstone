@@ -29,9 +29,16 @@ export function proxy(request: NextRequest) {
   if (request.cookies.has("__prerender_bypass")) return NextResponse.next();
 
   const url = new URL("/auth", request.url);
-  // Preserves the CRA behaviour of returning the user to the page they wanted
-  // (react-router carried this in location.state.from).
-  url.searchParams.set("from", request.nextUrl.pathname);
+  /*
+   * Where the visitor was actually going, so sign-in can put them back there.
+   *
+   * Path *and* query: the query is often the half that matters — a filtered
+   * list or a deep link is a different destination from its bare path, and
+   * dropping it silently returns someone to a page that has forgotten what
+   * they asked for. `lib/return-path.ts` accepts a query string for this
+   * reason, and is what narrows the value again on the way back out.
+   */
+  url.searchParams.set("from", request.nextUrl.pathname + request.nextUrl.search);
   return NextResponse.redirect(url);
 }
 
