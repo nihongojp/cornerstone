@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { exerciseSeed, seededShuffle, shuffleExercises } from "./shuffle";
+import { stepSeed, seededShuffle, shuffleSteps } from "./shuffle";
 
 /*
  * The seeded shuffle exists to delete a workaround, so the property that matters
@@ -64,8 +64,8 @@ test("a signed-out learner gets a stable seed rather than a random one", () => {
   // signed out sees the same order, which is fine; what matters is that it is
   // the same order on the server and in the browser.
   assert.equal(
-    exerciseSeed({ userId: undefined, lessonId: "l1-v2", attempt: 0 }),
-    exerciseSeed({ userId: undefined, lessonId: "l1-v2", attempt: 0 })
+    stepSeed({ userId: undefined, lessonId: "l1-v2", attempt: 0 }),
+    stepSeed({ userId: undefined, lessonId: "l1-v2", attempt: 0 })
   );
 });
 
@@ -73,14 +73,14 @@ test("the seed separates its parts so they cannot run together", () => {
   // "ab" + "c" and "a" + "bc" must not be one seed. Without a separator a user
   // switching lessons could silently land on the order of a different one.
   assert.notEqual(
-    exerciseSeed({ userId: "ab", lessonId: "c", attempt: 0 }),
-    exerciseSeed({ userId: "a", lessonId: "bc", attempt: 0 })
+    stepSeed({ userId: "ab", lessonId: "c", attempt: 0 }),
+    stepSeed({ userId: "a", lessonId: "bc", attempt: 0 })
   );
 });
 
 // ── The grouping policy ──────────────────────────────────────────────────────
 /*
- * `shuffleExercises` shuffles *within a run of consecutive exercises of the same
+ * `shuffleSteps` shuffles *within a run of consecutive exercises of the same
  * shape*, not across the whole lesson. That is what the old code did — each
  * generated batch was shuffled on its own, so a batch's position relative to the
  * other batches never moved — and it is the behaviour the lesson field describes.
@@ -103,7 +103,7 @@ test("a prose screen never moves", () => {
     ex("p3", "listenAndChoose"),
     ex("outro", "prose"),
   ];
-  const out = shuffleExercises(list, { seed: "u1:l1:0", enabled: true });
+  const out = shuffleSteps(list, { seed: "u1:l1:0", enabled: true });
   assert.equal(out[0].id, "intro");
   assert.equal(out[4].id, "outro");
   assert.deepEqual(ids(out).slice(1, 4).sort(), ["p1", "p2", "p3"]);
@@ -116,7 +116,7 @@ test("two runs of different shapes do not mix", () => {
     ex("b1", "speakAndScore"),
     ex("b2", "speakAndScore"),
   ];
-  const out = shuffleExercises(list, { seed: "u1:l1:0", enabled: true });
+  const out = shuffleSteps(list, { seed: "u1:l1:0", enabled: true });
   assert.deepEqual(ids(out).slice(0, 2).sort(), ["a1", "a2"]);
   assert.deepEqual(ids(out).slice(2, 4).sort(), ["b1", "b2"]);
 });
@@ -127,21 +127,21 @@ test("consecutive Content screens are never shuffled with each other", () => {
   // Practice runs shuffle, which is what the old per-batch shuffling did.
   const list = ["c1", "c2", "c3", "c4"].map((id) => ex(id, "prose"));
   for (const seed of ["s1", "s2", "s3", "s4", "s5"]) {
-    assert.deepEqual(ids(shuffleExercises(list, { seed, enabled: true })), ids(list));
+    assert.deepEqual(ids(shuffleSteps(list, { seed, enabled: true })), ids(list));
   }
 });
 
 test("a run does get reordered for some seed", () => {
   const list = ["p1", "p2", "p3", "p4", "p5"].map((id) => ex(id, "listenAndChoose"));
   const orders = ["s1", "s2", "s3", "s4", "s5"].map((seed) =>
-    ids(shuffleExercises(list, { seed, enabled: true }))
+    ids(shuffleSteps(list, { seed, enabled: true }))
   );
   assert.ok(orders.some((order) => order.join() !== ids(list).join()));
 });
 
 test("disabled means authored order, exactly", () => {
   const list = ["p1", "p2", "p3", "p4"].map((id) => ex(id, "listenAndChoose"));
-  assert.deepEqual(ids(shuffleExercises(list, { seed: "u1:l1:0", enabled: false })), ids(list));
+  assert.deepEqual(ids(shuffleSteps(list, { seed: "u1:l1:0", enabled: false })), ids(list));
 });
 
 test("a composite screen is its own shape, not the shape of its first block", () => {
@@ -153,12 +153,12 @@ test("a composite screen is its own shape, not the shape of its first block", ()
     ex("p1", "listenAndChoose"),
     ex("p2", "listenAndChoose"),
   ];
-  const out = shuffleExercises(list, { seed: "u1:l1:0", enabled: true });
+  const out = shuffleSteps(list, { seed: "u1:l1:0", enabled: true });
   assert.equal(out[0].id, "c1");
 });
 
 test("the whole thing is stable across calls, which is the SSR/hydration claim", () => {
   const list = ["p1", "p2", "p3", "p4", "p5", "p6"].map((id) => ex(id, "listenAndChoose"));
-  const opts = { seed: exerciseSeed({ userId: "u1", lessonId: "l1-v2", attempt: 2 }), enabled: true };
-  assert.deepEqual(ids(shuffleExercises(list, opts)), ids(shuffleExercises(list, opts)));
+  const opts = { seed: stepSeed({ userId: "u1", lessonId: "l1-v2", attempt: 2 }), enabled: true };
+  assert.deepEqual(ids(shuffleSteps(list, opts)), ids(shuffleSteps(list, opts)));
 });

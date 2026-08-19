@@ -25,9 +25,11 @@ export type UpNextLesson = {
   lessonId: string;
   slug: string;
   title: string;
-  version?: string;
+  /** Null when the lesson row is gone and only the progress row survives. */
+  level?: number | null;
+  part?: number | null;
   prefecture?: string;
-  /** Where to resume — the two lesson formats play on different paths. */
+  /** Where to resume. */
   href: string;
   lastStep: number;
   accuracyPct?: number;

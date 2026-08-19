@@ -61,6 +61,47 @@ A registered learner.
 The default for a new account. Despite the name, not a lesser tier than
 `member` today — nothing distinguishes them.
 
+## Content model
+
+What the CMS holds, and how the pieces relate:
+
+```
+Course ──< Lesson ──< Step ──< Block ──> Term
+                                          ▲
+         user_progress ─── keyed on lesson slug
+```
+
+**Course**: an ordered track (`hiragana-and-prefectures`, `grammar-and-conversation`).
+A lesson's place in it is `lessons.order`.
+
+**Lesson**: one playable thing. `level` and `part` are what a learner is shown —
+the lessons list groups every course's lessons into "Lesson `<level>`" sections
+and labels each card "Lesson `<level>`.`<part>`". **`level` spans courses**: the
+"Lesson 1" heading holds both the grammar lesson and the hiragana one, so it is
+not a position within a course — `order` is that.
+
+**Step**: one screen. An ordered row of `lesson.steps`. A step is *not*
+necessarily a question — it can be pure prose. What makes it interactive is the
+blocks on it (`PRACTICE_BLOCK_SLUGS`). Named `step` to match
+`user_progress.last_step` / `step_key` and the step-through player; it was
+`exercise`, which promised a question half of them do not have.
+
+**Block**: one authored widget on a step — prose, a flashcard deck, a multiple
+choice. Schemas live in `src/payload/blocks/` (what an author picks in `/admin`);
+the React renderers live in `src/components/blocks/`. Two layers, on purpose:
+Payload's config is loaded by its CLI in plain Node, where a `"use client"`
+component would break it.
+
+**Term**: one vocabulary entry — a kana character, a kanji, a word, or a phrase,
+discriminated by `kind`. One collection rather than three because they share
+almost every field and any block referencing one could reference any of them.
+A single character *is* an entry: あ carries audio, stroke order, romaji and its
+katakana counterpart, exactly as a word does.
+
+**Progress** (`user_progress`, Postgres `public` — not Payload) keys on the
+lesson **slug**, not a database id, and resumes by `step_key`. It is per-lesson
+only; there is no per-term mastery or review queue yet.
+
 ## Routing
 
 Route segments, groups and dynamic params follow Next.js's own App Router

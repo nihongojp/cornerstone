@@ -89,11 +89,11 @@ function gitSha(): string {
  */
 function scanForQuarantine(lessons: SnapshotDoc[], q: Quarantine): void {
   for (const lesson of lessons) {
-    const exercises = (lesson.latest.exercises ?? []) as Array<Record<string, unknown>>;
-    if (!Array.isArray(exercises)) continue;
+    const steps = (lesson.latest.steps ?? []) as Array<Record<string, unknown>>;
+    if (!Array.isArray(steps)) continue;
 
-    exercises.forEach((exercise, index) => {
-      const components = (exercise?.components ?? []) as Array<Record<string, unknown>>;
+    steps.forEach((step, index) => {
+      const components = (step?.components ?? []) as Array<Record<string, unknown>>;
       if (!Array.isArray(components)) return;
 
       for (const block of components) {

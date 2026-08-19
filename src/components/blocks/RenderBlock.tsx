@@ -60,7 +60,7 @@ import { renderableTerm } from "../../lib/content/furigana";
  */
 
 export type BlockOf = NonNullable<
-  NonNullable<import("../../payload/payload-types").Lesson["exercises"]>[number]["components"]
+  NonNullable<import("../../payload/payload-types").Lesson["steps"]>[number]["components"]
 >[number];
 
 export type ResultCallback = (r: { result: "correct" | "incorrect" }) => void;

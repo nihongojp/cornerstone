@@ -329,17 +329,17 @@ async function main() {
 
   for (const lesson of lessons) {
     const slug = String(lesson.slug);
-    const exercises = Array.isArray(lesson.exercises) ? lesson.exercises : [];
+    const steps = Array.isArray(lesson.steps) ? lesson.steps : [];
 
     // Lesson-level prose is rich text too, and can hold both kinds of reference.
     walk(slug, lesson.funFact, "funFact");
     walk(slug, lesson.notes, "notes");
 
-    exercises.forEach((exercise, index) => {
-      const components = Array.isArray(exercise?.components) ? exercise.components : [];
+    steps.forEach((step, index) => {
+      const components = Array.isArray(step?.components) ? step.components : [];
       components.forEach((block: unknown, b: number) => {
         const blockType = String((block as { blockType?: string })?.blockType ?? "?");
-        const where = `exercise[${index}].components[${b}]`;
+        const where = `step[${index}].components[${b}]`;
         if (blockType === "legacyJson") {
           todos.push({
             doc: slug,
@@ -360,9 +360,9 @@ async function main() {
   // Count unfilled slots separately: absent media is legitimate (most blocks
   // have optional image/audio), it is just worth knowing how much is missing.
   for (const lesson of lessons) {
-    const exercises = Array.isArray(lesson.exercises) ? lesson.exercises : [];
-    for (const exercise of exercises) {
-      for (const block of exercise?.components ?? []) {
+    const steps = Array.isArray(lesson.steps) ? lesson.steps : [];
+    for (const step of steps) {
+      for (const block of step?.components ?? []) {
         for (const field of MEDIA_FIELDS) {
           if (field in (block as object) && (block as Record<string, unknown>)[field] == null) empty++;
         }

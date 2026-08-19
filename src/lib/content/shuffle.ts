@@ -74,7 +74,7 @@ export function seededShuffle<T>(items: readonly T[], seed: string): T[] {
  * `|` because it cannot occur in a user id or a lesson slug — the slug field is
  * a URL segment and the ids are generated.
  */
-export function exerciseSeed({
+export function stepSeed({
   userId,
   lessonId,
   attempt,
@@ -86,9 +86,9 @@ export function exerciseSeed({
   return `${userId ?? ""}|${lessonId}|${attempt}`;
 }
 
-// ── Which exercises may move ─────────────────────────────────────────────────
+// ── Which steps may move ─────────────────────────────────────────────────
 
-type ShufflableExercise = {
+type ShufflableStep = {
   components?: readonly { blockType: string }[] | null;
 };
 
@@ -102,8 +102,8 @@ const PRACTICE = new Set<string>(PRACTICE_BLOCK_SLUGS);
  * swapping one for the other would move an explanation away from the practice it
  * introduces.
  */
-function shapeOf(exercise: ShufflableExercise): string {
-  return (exercise.components ?? []).map((c) => c.blockType).join("+");
+function shapeOf(step: ShufflableStep): string {
+  return (step.components ?? []).map((c) => c.blockType).join("+");
 }
 
 /**
@@ -114,8 +114,8 @@ function shapeOf(exercise: ShufflableExercise): string {
  * explanation — and a composite screen carries its own introduction, so it stays
  * where the author put it.
  */
-function isShufflable(exercise: ShufflableExercise): boolean {
-  const components = exercise.components ?? [];
+function isShufflable(step: ShufflableStep): boolean {
+  const components = step.components ?? [];
   return components.length > 0 && components.every((c) => PRACTICE.has(c.blockType));
 }
 
@@ -124,40 +124,40 @@ function isShufflable(exercise: ShufflableExercise): boolean {
  *
  * Not across the whole lesson: a run's position relative to the other runs never
  * moves, which is what the old per-batch shuffling did and what the lesson's
- * `shuffleExercises` field describes. Shuffling the whole list would put a
+ * `shuffleSteps` field describes. Shuffling the whole list would put a
  * grammar point after the practice that depends on it.
  */
-export function shuffleExercises<T extends ShufflableExercise>(
-  exercises: readonly T[],
+export function shuffleSteps<T extends ShufflableStep>(
+  steps: readonly T[],
   { seed, enabled }: { seed: string; enabled: boolean }
 ): T[] {
-  if (!enabled) return [...exercises];
+  if (!enabled) return [...steps];
 
   const out: T[] = [];
   let i = 0;
 
-  while (i < exercises.length) {
-    const exercise = exercises[i];
+  while (i < steps.length) {
+    const step = steps[i];
 
-    if (!isShufflable(exercise)) {
-      out.push(exercise);
+    if (!isShufflable(step)) {
+      out.push(step);
       i++;
       continue;
     }
 
-    const shape = shapeOf(exercise);
+    const shape = shapeOf(step);
     let end = i + 1;
     while (
-      end < exercises.length &&
-      isShufflable(exercises[end]) &&
-      shapeOf(exercises[end]) === shape
+      end < steps.length &&
+      isShufflable(steps[end]) &&
+      shapeOf(steps[end]) === shape
     ) {
       end++;
     }
 
     // Each run gets its own seed, so two runs of the same length in one lesson
     // are not permuted identically.
-    out.push(...seededShuffle(exercises.slice(i, end), `${seed}|${shape}|${i}`));
+    out.push(...seededShuffle(steps.slice(i, end), `${seed}|${shape}|${i}`));
     i = end;
   }
 

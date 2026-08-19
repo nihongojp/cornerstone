@@ -9,6 +9,7 @@ import * as migration_20260817_143501_dialogue_block from './20260817_143501_dia
 import * as migration_20260817_214000_phase4b_spotlight_layout from './20260817_214000_phase4b_spotlight_layout';
 import * as migration_20260817_223731_phase5_autosave_roles from './20260817_223731_phase5_autosave_roles';
 import * as migration_20260818_000000_phase4b_drop_old_blocks from './20260818_000000_phase4b_drop_old_blocks';
+import * as migration_20260819_110607_content_model_steps_level_part from './20260819_110607_content_model_steps_level_part';
 
 export const migrations = [
   {
@@ -65,5 +66,10 @@ export const migrations = [
     up: migration_20260818_000000_phase4b_drop_old_blocks.up,
     down: migration_20260818_000000_phase4b_drop_old_blocks.down,
     name: '20260818_000000_phase4b_drop_old_blocks',
+  },
+  {
+    up: migration_20260819_110607_content_model_steps_level_part.up,
+    down: migration_20260819_110607_content_model_steps_level_part.down,
+    name: '20260819_110607_content_model_steps_level_part'
   },
 ];

@@ -10,36 +10,32 @@ import type { Lesson, Term } from "../payload/payload-types";
 import { getProgress } from "../lib/progress-client";
 
 // A card's color reflects the signed-in user's progress on that specific
-// lesson version, rather than which column (Grammar vs Reading & Writing)
-// it lives in.
+// part, rather than which column (Grammar vs Reading & Writing) it lives in.
 type CardProgressStatus = "not_started" | "in_progress" | "completed";
 
-// One playable variant of a lesson (a specific version).
-type Version = {
-  lesson: number;
-  version: number;
+/*
+ * One playable card: a single part of a numbered lesson.
+ *
+ * `level` and `part` are read straight off the document. They used to be
+ * recovered from the slug with `/l(\d+)-v(\d+)/`, which meant renaming a slug
+ * silently reshuffled this page.
+ */
+type Part = {
+  level: number;
+  part: number;
   to: string;
   slug: string;
   cardTitle?: string;
   progressStatus?: CardProgressStatus;
 };
 
-// Sections are always shown for at least these lesson numbers.
-const BASE_LESSON_NUMBERS = [1, 2, 3];
+// Sections are always shown for at least these levels.
+const BASE_LEVELS = [1, 2, 3];
 
-// Parse a lesson number + version out of a slug like:
-//   "grammar-l1-v1"             (Grammar)
-//   "hiragana-l2-v3-akita"      (prefecture / Reading & Writing)
-function parseSlug(slug: string): { lesson: number; version: number } | null {
-  const m = /l(\d+)-v(\d+)/i.exec(slug || "");
-  if (!m) return null;
-  return { lesson: Number(m[1]), version: Number(m[2]) };
-}
-
-function pushVersion(map: Map<number, Version[]>, lesson: number, v: Version) {
-  const arr = map.get(lesson) ?? [];
-  arr.push(v);
-  map.set(lesson, arr);
+function pushPart(map: Map<number, Part[]>, level: number, p: Part) {
+  const arr = map.get(level) ?? [];
+  arr.push(p);
+  map.set(level, arr);
 }
 
 // Reading & Writing cards title themselves after the hiragana/katakana pairs
@@ -57,8 +53,8 @@ function pushVersion(map: Map<number, Version[]>, lesson: number, v: Version) {
  * bare id and every card here would fall back to "Add a title".
  */
 function deriveReadingCardTitle(lesson: Lesson): string | undefined {
-  const characters = (lesson.exercises ?? [])
-    .flatMap((exercise) => exercise.components ?? [])
+  const characters = (lesson.steps ?? [])
+    .flatMap((step) => step.components ?? [])
     // A predicate rather than a plain `filter`: `components` is a union of every
     // block type, and only the narrowed one has `terms`.
     .filter(
@@ -140,21 +136,20 @@ const Placeholder: React.FC = () => (
   </Box>
 );
 
-// A single version rendered as a card: the big title up top (MongoDB's
-// cardTitle field when set — e.g. Grammar lessons — otherwise derived
-// automatically for Reading & Writing, with a placeholder only if neither
-// is available), and the auto-numbered "Lesson N.M" shown as the caption
-// underneath.
-const VersionCard: React.FC<{ v: Version }> = ({ v }) => {
-  const status = v.progressStatus ?? "not_started";
+// A single part rendered as a card: the big title up top (the `cardTitle`
+// field when set — e.g. Grammar lessons — otherwise derived automatically for
+// Reading & Writing, with a placeholder only if neither is available), and
+// "Lesson <level>.<part>" shown as the caption underneath.
+const PartCard: React.FC<{ p: Part }> = ({ p }) => {
+  const status = p.progressStatus ?? "not_started";
   const sx = CARD_STYLE_BY_STATUS[status];
   const captionColor = CAPTION_COLOR_BY_STATUS[status];
 
   return (
-    <Paper component={Link} href={v.to} elevation={0} sx={sx}>
-      {v.cardTitle ? (
+    <Paper component={Link} href={p.to} elevation={0} sx={sx}>
+      {p.cardTitle ? (
         <Typography sx={{ fontWeight: 800, fontSize: "0.95rem" }}>
-          {v.cardTitle}
+          {p.cardTitle}
         </Typography>
       ) : (
         <Typography sx={{ fontWeight: 800, fontSize: "0.95rem", fontStyle: "italic", color: captionColor }}>
@@ -162,18 +157,18 @@ const VersionCard: React.FC<{ v: Version }> = ({ v }) => {
         </Typography>
       )}
       <Typography sx={{ fontSize: "0.78rem", color: captionColor, mt: 0.5 }}>
-        Lesson {v.lesson}.{v.version}
+        Lesson {p.level}.{p.part}
       </Typography>
     </Paper>
   );
 };
 
-// A titled column of version cards (or a placeholder if empty).
+// A titled column of part cards (or a placeholder if empty).
 const LessonColumn: React.FC<{
   heading: string;
-  versions: Version[];
-}> = ({ heading, versions }) => {
-  const sorted = [...versions].sort((a, b) => a.version - b.version);
+  parts: Part[];
+}> = ({ heading, parts }) => {
+  const sorted = [...parts].sort((a, b) => a.part - b.part);
 
   return (
     <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -192,8 +187,8 @@ const LessonColumn: React.FC<{
 
       {sorted.length > 0 ? (
         <Stack gap={1.25}>
-          {sorted.map((v) => (
-            <VersionCard key={v.to} v={v} />
+          {sorted.map((p) => (
+            <PartCard key={p.to} p={p} />
           ))}
         </Stack>
       ) : (
@@ -207,8 +202,8 @@ const LessonsListPage: React.FC<{
   newLessons: Lesson[];
   lessons: Lesson[];
 }> = ({ newLessons, lessons: prefLessons }) => {
-  const [grammar, setGrammar] = useState<Map<number, Version[]>>(new Map());
-  const [reading, setReading] = useState<Map<number, Version[]>>(new Map());
+  const [grammar, setGrammar] = useState<Map<number, Part[]>>(new Map());
+  const [reading, setReading] = useState<Map<number, Part[]>>(new Map());
   // Still meaningful: the lesson lists now arrive as props, but each card's
   // progress status is still looked up per lesson after mount.
   const [loading, setLoading] = useState(true);
@@ -216,46 +211,41 @@ const LessonsListPage: React.FC<{
   useEffect(() => {
     let mounted = true;
     void (async () => {
-      // Grammar column ← step-format lessons (slug like "grammar-l1-v1").
-      const grammarMap = new Map<number, Version[]>();
+      // Grammar column ← step-format lessons.
+      const grammarMap = new Map<number, Part[]>();
       for (const l of newLessons) {
-        const p = parseSlug(l.slug);
-        if (p)
-          pushVersion(grammarMap, p.lesson, {
-            lesson: p.lesson,
-            version: p.version,
-            to: lessonHref(l.slug),
-            slug: l.slug,
-            cardTitle: l.cardTitle ?? undefined,
-          });
+        pushPart(grammarMap, l.level, {
+          level: l.level,
+          part: l.part,
+          to: lessonHref(l.slug),
+          slug: l.slug,
+          cardTitle: l.cardTitle ?? undefined,
+        });
       }
 
-      // Reading & Writing column ← prefecture lessons (slug like "hiragana-l1-v2-hokkaido").
-      const readingMap = new Map<number, Version[]>();
+      // Reading & Writing column ← prefecture lessons.
+      const readingMap = new Map<number, Part[]>();
       for (const l of prefLessons) {
-        const p = parseSlug(l.slug);
-        if (p) {
-          pushVersion(readingMap, p.lesson, {
-            lesson: p.lesson,
-            version: p.version,
-            to: lessonHref(l.slug),
-            slug: l.slug,
-            cardTitle: l.cardTitle || deriveReadingCardTitle(l),
-          });
-        }
+        pushPart(readingMap, l.level, {
+          level: l.level,
+          part: l.part,
+          to: lessonHref(l.slug),
+          slug: l.slug,
+          cardTitle: l.cardTitle || deriveReadingCardTitle(l),
+        });
       }
 
-      // Look up each version's saved progress (by the same slug the lesson
+      // Look up each part's saved progress (by the same slug the lesson
       // pages themselves use as their progress key) so cards can be colored
       // by "not started" / "in progress" / "completed" instead of column.
       // getProgress() already swallows per-request failures and resolves to
       // null, so one bad lookup can't break the rest of the list.
       // The page sits behind a server-side session guard, so the user is
       // always signed in here — the old isAuthed() check is redundant.
-      const allVersions = [...grammarMap.values(), ...readingMap.values()].flat();
-      const docs = await Promise.all(allVersions.map((v) => getProgress(v.slug)));
-      allVersions.forEach((v, i) => {
-        v.progressStatus = docs[i]?.status ?? "not_started";
+      const allParts = [...grammarMap.values(), ...readingMap.values()].flat();
+      const docs = await Promise.all(allParts.map((p) => getProgress(p.slug)));
+      allParts.forEach((p, i) => {
+        p.progressStatus = docs[i]?.status ?? "not_started";
       });
 
       if (!mounted) return;
@@ -266,9 +256,9 @@ const LessonsListPage: React.FC<{
     return () => { mounted = false; };
   }, [newLessons, prefLessons]);
 
-  // Show the base sections plus any additional lesson numbers found in the data.
-  const lessonNumbers = Array.from(
-    new Set<number>([...BASE_LESSON_NUMBERS, ...grammar.keys(), ...reading.keys()])
+  // Show the base sections plus any additional levels found in the data.
+  const levels = Array.from(
+    new Set<number>([...BASE_LEVELS, ...grammar.keys(), ...reading.keys()])
   ).sort((a, b) => a - b);
 
   return (
@@ -295,17 +285,17 @@ const LessonsListPage: React.FC<{
           </Stack>
         ) : (
           <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            {lessonNumbers.map((n) => (
+            {levels.map((n) => (
               <Box key={n}>
                 {/* Section header */}
                 <Typography sx={{ fontWeight: 800, fontSize: "1.15rem", color: "#1C1917", mb: 1.5 }}>
                   Lesson {n}
                 </Typography>
 
-                {/* Two columns side by side; each stacks its versions vertically. */}
+                {/* Two columns side by side; each stacks its parts vertically. */}
                 <Stack direction={{ xs: "column", sm: "row" }} gap={2} alignItems="flex-start">
-                  <LessonColumn heading="Grammar" versions={grammar.get(n) ?? []} />
-                  <LessonColumn heading="Reading & Writing" versions={reading.get(n) ?? []} />
+                  <LessonColumn heading="Grammar" parts={grammar.get(n) ?? []} />
+                  <LessonColumn heading="Reading & Writing" parts={reading.get(n) ?? []} />
                 </Stack>
               </Box>
             ))}

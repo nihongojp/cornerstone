@@ -453,7 +453,7 @@ const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
                           {lesson.title}
                         </Typography>
                         <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                          {lesson.version}
+                          Lesson {lesson.level}.{lesson.part}
                         </Typography>
                       </Box>
                       <ArrowForwardRoundedIcon
@@ -540,9 +540,9 @@ const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
                   sx={{ fontWeight: 800, fontSize: "0.92rem", lineHeight: 1.35, color: "#1a1a1a" }}
                 >
                   {upNext.title}
-                  {upNext.version ? (
+                  {upNext.level != null && upNext.part != null ? (
                     <Box component="span" sx={{ fontWeight: 400, color: "text.secondary", ml: 0.5 }}>
-                      ({upNext.version})
+                      (Lesson {upNext.level}.{upNext.part})
                     </Box>
                   ) : null}
                 </Typography>

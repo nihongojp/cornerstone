@@ -733,12 +733,12 @@ function main() {
 
     for (const state of [doc.latest, doc.published]) {
       if (!state) continue;
-      const exercises = (Array.isArray(state.exercises) ? state.exercises : []) as Block[];
+      const steps = (Array.isArray(state.steps) ? state.steps : []) as Block[];
       // Per lesson state, in play order: a checkpoint adds to it, the practice
       // after it reads from it.
       const pool: Ref[] = [];
 
-      exercises.forEach((exercise, ei) => {
+      steps.forEach((exercise, ei) => {
         const blocks = (Array.isArray(exercise.components) ? exercise.components : []) as Block[];
         const next: Block[] = [];
 
@@ -805,13 +805,13 @@ function main() {
        * job is now the `distractors` on the practice blocks, so the empty screen
        * goes with it rather than being imported as an invalid row.
        */
-      const kept = exercises.filter((exercise) => {
+      const kept = steps.filter((exercise) => {
         const components = Array.isArray(exercise.components) ? exercise.components : [];
         if (components.length) return true;
         emptyExercises++;
         return false;
       });
-      if (kept.length !== exercises.length) state.exercises = kept;
+      if (kept.length !== steps.length) state.steps = kept;
     }
   }
 
@@ -866,7 +866,7 @@ function main() {
 
   writeFileSync(path.join(DIR, "lessons.json"), `${JSON.stringify(lessons, null, 2)}\n`);
 
-  // The catalogue gains the media and glosses that were living on exercises.
+  // The catalogue gains the media and glosses that were living on steps.
   writeFileSync(path.join(DIR, "terms.json"), `${JSON.stringify(termSnapshot, null, 2)}\n`);
 
   const existing = (() => {

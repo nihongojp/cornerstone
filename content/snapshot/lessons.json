@@ -12,8 +12,49 @@
       },
       "order": 1,
       "cardTitle": null,
-      "shuffleExercises": false,
-      "exercises": [
+      "prefecture": "Hokkaido",
+      "tags": [],
+      "funFact": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Hiragana is used for Japanese-origin words! Katakana is used for loan-words from other languages!",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            }
+          ],
+          "direction": "ltr"
+        }
+      },
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": 10
+      },
+      "sourceId": "699a45660d11ac7a2b8a8d7e",
+      "_status": "published",
+      "level": 1,
+      "part": 1,
+      "steps": [
         {
           "id": "6a83f02bb78e2c76b66a864c",
           "label": "Spotlight あ-ア",
@@ -587,9 +628,24 @@
           ]
         }
       ],
-      "prefecture": "Hokkaido",
+      "shuffleSteps": false
+    }
+  },
+  {
+    "key": "hiragana-l2-v1-iwate",
+    "status": "published",
+    "latest": {
+      "title": "Lesson 2",
+      "slug": "hiragana-l2-v1-iwate",
+      "format": "flashcard",
+      "course": {
+        "$ref": "hiragana-and-prefectures",
+        "$collection": "courses"
+      },
+      "order": 2,
+      "cardTitle": null,
+      "prefecture": "Iwate",
       "tags": [],
-      "version": "V1",
       "funFact": {
         "root": {
           "type": "root",
@@ -605,7 +661,7 @@
               "children": [
                 {
                   "mode": "normal",
-                  "text": "Hiragana is used for Japanese-origin words! Katakana is used for loan-words from other languages!",
+                  "text": "Hiragana usually restarts with the あいうえお vowels every five characters! From now on, it'll just be new consonants at the start!",
                   "type": "text",
                   "style": "",
                   "detail": 0,
@@ -626,25 +682,11 @@
         "title": null,
         "xp": 10
       },
-      "sourceId": "699a45660d11ac7a2b8a8d7e",
-      "_status": "published"
-    }
-  },
-  {
-    "key": "hiragana-l2-v1-iwate",
-    "status": "published",
-    "latest": {
-      "title": "Lesson 2",
-      "slug": "hiragana-l2-v1-iwate",
-      "format": "flashcard",
-      "course": {
-        "$ref": "hiragana-and-prefectures",
-        "$collection": "courses"
-      },
-      "order": 2,
-      "cardTitle": null,
-      "shuffleExercises": false,
-      "exercises": [
+      "sourceId": "699a45910d11ac7a2b8a8d86",
+      "_status": "published",
+      "level": 2,
+      "part": 1,
+      "steps": [
         {
           "id": "6a83f02cb78e2c76b66a8665",
           "label": "Spotlight か-カ",
@@ -1076,47 +1118,7 @@
           ]
         }
       ],
-      "prefecture": "Iwate",
-      "tags": [],
-      "version": "V1",
-      "funFact": {
-        "root": {
-          "type": "root",
-          "format": "",
-          "indent": 0,
-          "version": 1,
-          "children": [
-            {
-              "type": "paragraph",
-              "format": "",
-              "indent": 0,
-              "version": 1,
-              "children": [
-                {
-                  "mode": "normal",
-                  "text": "Hiragana usually restarts with the あいうえお vowels every five characters! From now on, it'll just be new consonants at the start!",
-                  "type": "text",
-                  "style": "",
-                  "detail": 0,
-                  "format": 0,
-                  "version": 1
-                }
-              ],
-              "direction": "ltr",
-              "textStyle": "",
-              "textFormat": 0
-            }
-          ],
-          "direction": "ltr"
-        }
-      },
-      "notes": null,
-      "achievement": {
-        "title": null,
-        "xp": 10
-      },
-      "sourceId": "699a45910d11ac7a2b8a8d86",
-      "_status": "published"
+      "shuffleSteps": false
     }
   },
   {
@@ -1132,8 +1134,19 @@
       },
       "order": 1,
       "cardTitle": "First Greetings — Part 1",
-      "shuffleExercises": true,
-      "exercises": [
+      "prefecture": null,
+      "tags": [],
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a4f5136a670a646ec413f25",
+      "_status": "published",
+      "level": 1,
+      "part": 1,
+      "steps": [
         {
           "id": "6a80d50312409c84ac23217b",
           "label": "Hajimemashite",
@@ -2651,17 +2664,7 @@
           ]
         }
       ],
-      "prefecture": null,
-      "tags": [],
-      "version": null,
-      "funFact": null,
-      "notes": null,
-      "achievement": {
-        "title": null,
-        "xp": null
-      },
-      "sourceId": "6a4f5136a670a646ec413f25",
-      "_status": "published"
+      "shuffleSteps": true
     }
   },
   {
@@ -2677,8 +2680,19 @@
       },
       "order": 2,
       "cardTitle": "First Greetings — Part 2",
-      "shuffleExercises": true,
-      "exercises": [
+      "prefecture": null,
+      "tags": [],
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a62a173a51d5d6db4f1219f",
+      "_status": "published",
+      "level": 1,
+      "part": 2,
+      "steps": [
         {
           "id": "6a80d50512409c84ac2321c2",
           "label": "Ogenki desuka",
@@ -3975,17 +3989,7 @@
           ]
         }
       ],
-      "prefecture": null,
-      "tags": [],
-      "version": null,
-      "funFact": null,
-      "notes": null,
-      "achievement": {
-        "title": null,
-        "xp": null
-      },
-      "sourceId": "6a62a173a51d5d6db4f1219f",
-      "_status": "published"
+      "shuffleSteps": true
     }
   },
   {
@@ -4001,8 +4005,19 @@
       },
       "order": 3,
       "cardTitle": "Common Phrases\n",
-      "shuffleExercises": true,
-      "exercises": [
+      "prefecture": null,
+      "tags": [],
+      "funFact": null,
+      "notes": null,
+      "achievement": {
+        "title": null,
+        "xp": null
+      },
+      "sourceId": "6a51cc61a670a646ec413f28",
+      "_status": "published",
+      "level": 2,
+      "part": 1,
+      "steps": [
         {
           "id": "6a80d50712409c84ac23222a",
           "label": "Sumimasen, wakarimasen",
@@ -5650,17 +5665,7 @@
           ]
         }
       ],
-      "prefecture": null,
-      "tags": [],
-      "version": null,
-      "funFact": null,
-      "notes": null,
-      "achievement": {
-        "title": null,
-        "xp": null
-      },
-      "sourceId": "6a51cc61a670a646ec413f28",
-      "_status": "published"
+      "shuffleSteps": true
     }
   }
 ]
