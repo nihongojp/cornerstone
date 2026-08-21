@@ -303,6 +303,7 @@ const Lesson: React.FC<{ lessonId: string; lesson: LessonDoc }> = ({ lessonId, l
                 script="Hiragana"
                 imageUrl={strokeOrder.imageUrl}
                 strokes={strokeOrder.strokes}
+                audioUrl={charAudio[ch]}
               />
             ),
           });

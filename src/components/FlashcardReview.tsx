@@ -44,7 +44,9 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
         perspective: "1000px",
         width: { xs: "100%", sm: 220 },
         maxWidth: 260,
+        minWidth: 160,
         height: 180,
+        minHeight: 180,
         cursor: "pointer",
         flexShrink: 0,
       }}

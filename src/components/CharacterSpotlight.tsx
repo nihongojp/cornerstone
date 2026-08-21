@@ -9,12 +9,16 @@ interface CharacterSpotlightProps {
   script: "Hiragana" | "Katakana";
   imageUrl: string;
   strokes: number;
+  audioUrl?: string;
 }
 
 // Full-screen "spotlight" for a single character, shown before the
 // flashcards step so each new hiragana/katakana gets its own moment.
-// Audio isn't wired up yet — the button is a visual placeholder.
-const CharacterSpotlight: React.FC<CharacterSpotlightProps> = ({ character, script, imageUrl, strokes }) => {
+const CharacterSpotlight: React.FC<CharacterSpotlightProps> = ({ character, script, imageUrl, strokes, audioUrl }) => {
+  const playAudio = () => {
+    if (!audioUrl) return;
+    new Audio(audioUrl).play().catch(() => {});
+  };
   return (
     <Box
       sx={{
@@ -52,12 +56,16 @@ const CharacterSpotlight: React.FC<CharacterSpotlightProps> = ({ character, scri
 
       <IconButton
         aria-label="Play audio"
-        disabled
+        onClick={playAudio}
+        disabled={!audioUrl}
         sx={{
           width: 48,
           height: 48,
-          color: "rgba(0,0,0,0.3)",
-          bgcolor: "rgba(0,0,0,0.08)",
+          color: "#fff",
+          bgcolor: audioUrl ? "#B43D20" : "rgba(0,0,0,0.15)",
+          boxShadow: audioUrl ? "0 2px 10px rgba(180,61,32,0.3)" : "none",
+          "&:hover": { bgcolor: audioUrl ? "#9D351C" : "rgba(0,0,0,0.15)" },
+          "&.Mui-disabled": { color: "rgba(255,255,255,0.7)" },
         }}
       >
         <VolumeUpRoundedIcon />

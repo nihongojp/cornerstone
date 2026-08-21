@@ -56,6 +56,7 @@
     "graphql": "^16.14.2",
     "lucide-react": "^0.541.0",
     "mongodb": "^7.5.0",
+    "neondatabase": "^0.0.1-security",
     "next": "^16.3.0",
     "payload": "3.88.0",
     "pg": "^8.23.0",

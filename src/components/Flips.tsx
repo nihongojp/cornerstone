@@ -18,13 +18,11 @@ const defaultCards: CardData[] = [
   { id: 2, front: "う / ウ" },
 ];
 
-// Cards like "あ / ア" show one character on each face of the flashcard.
-function splitFaces(card: CardData): { frontFace: string; backFace: string } {
+// Cards like "あ / ア" pair hiragana with katakana, but only hiragana is
+// shown — the front face is audio-only and the back face is the character.
+function hiraganaFace(card: CardData): string {
   const parts = card.front.split("/").map((s) => s.trim()).filter(Boolean);
-  if (parts.length > 1) {
-    return { frontFace: parts[0], backFace: parts[1] };
-  }
-  return { frontFace: card.front, backFace: card.back || card.front };
+  return parts[0] || card.front;
 }
 
 const Flips: React.FC<FlipsProps> = ({
@@ -39,7 +37,8 @@ const Flips: React.FC<FlipsProps> = ({
     setFlipped((p) => ({ ...p, [id]: !p[id] }));
   };
 
-  const playAudio = (src?: string) => {
+  const playAudio = (e: React.MouseEvent, src?: string) => {
+    e.stopPropagation();
     if (!src) return;
     new Audio(src).play().catch(() => {});
   };
@@ -89,7 +88,7 @@ const Flips: React.FC<FlipsProps> = ({
       >
         {cards.map((card) => {
           const isFlipped = !!flipped[card.id];
-          const { frontFace, backFace } = splitFaces(card);
+          const hiragana = hiraganaFace(card);
 
           return (
             <Box
@@ -100,6 +99,8 @@ const Flips: React.FC<FlipsProps> = ({
                 alignItems: "center",
                 gap: 1,
                 width: { xs: 160, sm: 220 },
+                minWidth: 140,
+                flexShrink: 0,
               }}
             >
               <Box
@@ -108,6 +109,7 @@ const Flips: React.FC<FlipsProps> = ({
                   perspective: "1000px",
                   width: "100%",
                   height: 180,
+                  minHeight: 180,
                   cursor: "pointer",
                 }}
               >
@@ -121,16 +123,15 @@ const Flips: React.FC<FlipsProps> = ({
                     transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
                   }}
                 >
+                  {/* Front face: audio button only */}
                   <Box
                     sx={{
                       position: "absolute",
                       inset: 0,
                       backfaceVisibility: "hidden",
                       display: "flex",
-                      flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: 1,
                       border: "2px solid rgba(0,0,0,0.1)",
                       borderRadius: "16px",
                       bgcolor: "#FFFFFF",
@@ -138,23 +139,25 @@ const Flips: React.FC<FlipsProps> = ({
                       userSelect: "none",
                     }}
                   >
-                    <Typography sx={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
-                      {frontFace}
-                    </Typography>
-                    <Typography
-                      variant="caption"
+                    <IconButton
+                      onClick={(e) => playAudio(e, card.audio)}
+                      disabled={!card.audio}
+                      aria-label="Play audio"
                       sx={{
-                        color: "text.secondary",
-                        fontWeight: 600,
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        fontSize: "0.65rem",
+                        width: 52,
+                        height: 52,
+                        color: "#fff",
+                        bgcolor: card.audio ? "#B43D20" : "rgba(0,0,0,0.15)",
+                        boxShadow: card.audio ? "0 2px 10px rgba(180,61,32,0.3)" : "none",
+                        "&:hover": { bgcolor: card.audio ? "#9D351C" : "rgba(0,0,0,0.15)" },
+                        "&.Mui-disabled": { color: "rgba(255,255,255,0.7)" },
                       }}
                     >
-                      Hiragana
-                    </Typography>
+                      <VolumeUpRoundedIcon />
+                    </IconButton>
                   </Box>
 
+                  {/* Back face: hiragana character */}
                   <Box
                     sx={{
                       position: "absolute",
@@ -174,7 +177,7 @@ const Flips: React.FC<FlipsProps> = ({
                     }}
                   >
                     <Typography sx={{ fontSize: "2rem", fontWeight: 700, letterSpacing: "-0.02em" }}>
-                      {backFace}
+                      {hiragana}
                     </Typography>
                     <Typography
                       variant="caption"
@@ -186,29 +189,11 @@ const Flips: React.FC<FlipsProps> = ({
                         fontSize: "0.65rem",
                       }}
                     >
-                      Katakana
+                      Hiragana
                     </Typography>
                   </Box>
                 </Box>
               </Box>
-
-              {card.audio && (
-                <IconButton
-                  size="small"
-                  onClick={() => playAudio(card.audio)}
-                  aria-label="Play audio"
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    color: "#fff",
-                    bgcolor: "#B43D20",
-                    boxShadow: "0 2px 10px rgba(180,61,32,0.3)",
-                    "&:hover": { bgcolor: "#9D351C" },
-                  }}
-                >
-                  <VolumeUpRoundedIcon fontSize="small" />
-                </IconButton>
-              )}
             </Box>
           );
         })}
