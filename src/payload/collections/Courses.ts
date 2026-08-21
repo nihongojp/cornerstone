@@ -2,6 +2,9 @@ import type { CollectionConfig } from "payload";
 
 import { revalidateCourse, revalidateCourseDelete } from "../hooks/revalidate";
 import { readPublishedOrEditor } from "../access/readPublished";
+import { draftingVersions } from "../versions";
+import { isAdmin } from "../access/isAdmin";
+import { validateSlugFormat } from "../fields/slugFormat";
 
 /*
  * A course is an ordered track of lessons. It replaces the old `nextSlug`
@@ -10,7 +13,7 @@ import { readPublishedOrEditor } from "../access/readPublished";
  */
 export const Courses: CollectionConfig = {
   slug: "courses",
-  versions: { drafts: true },
+  versions: draftingVersions,
   labels: { singular: "Course", plural: "Courses" },
   admin: {
     useAsTitle: "title",
@@ -18,7 +21,8 @@ export const Courses: CollectionConfig = {
     group: "Content",
     description: "Tracks that group lessons into an ordered sequence.",
   },
-  access: { read: readPublishedOrEditor },
+  // Deleting a course orphans every lesson pointing at it. Admins only.
+  access: { read: readPublishedOrEditor, delete: isAdmin },
   hooks: {
     afterChange: [revalidateCourse],
     afterDelete: [revalidateCourseDelete],
@@ -31,10 +35,12 @@ export const Courses: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      validate: validateSlugFormat,
       admin: {
         position: "sidebar",
         description:
-          "URL segment. Lowercase, hyphenated. Changing it breaks existing links.",
+          "Kebab-case, descriptive noun phrase — e.g. \"grammar-and-conversation\". " +
+          "Changing it breaks existing links.",
       },
     },
     {
@@ -58,7 +64,7 @@ export const Courses: CollectionConfig = {
     },
     {
       name: "description",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Shown on the course card. A sentence or two." },
     },
     {

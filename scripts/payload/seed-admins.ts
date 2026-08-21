@@ -59,11 +59,30 @@ config({ path: ".env.local" });
  *
  * Command-line entries behave exactly like roster entries, idempotency
  * included, so it is fine to add someone by flag now and by roster line later.
+ * They are always editors — there is no flag syntax for granting admin, on
+ * purpose: promoting someone is a deliberate act in the admin UI, not something
+ * that happens in the middle of a cutover command.
  */
-type Admin = { name: string; email: string };
+type Role = "admin" | "editor";
+type Admin = { name: string; email: string; roles?: Role[] };
 
+/*
+ * Roles, and what they mean here — see `src/payload/access/isAdmin.ts`.
+ *
+ *   editor  create, edit and publish all content. The default, and what
+ *           authoring actually needs.
+ *   admin   the above, plus deleting content and managing these accounts.
+ *
+ * `roles` is omitted rather than spelled out for editors so that the default
+ * lives in exactly one place, the field definition. An entry with no `roles`
+ * gets `["editor"]` from Payload.
+ *
+ * Only new accounts are affected. The script never touches an existing row, so
+ * changing a line here does not demote or promote anyone who already has an
+ * account — that is done in the admin UI, deliberately, by an admin.
+ */
 const ROSTER: Admin[] = [
-  { name: "Justin Lee", email: "me@jlee.cool" },
+  { name: "Justin Lee", email: "me@jlee.cool", roles: ["admin"] },
   { name: "Sachi", email: "2631sachi@gmail.com" },
   { name: "Ryoko", email: "tsunoryoko@gmail.com" },
   // Dev: add a line once the address is confirmed.
@@ -132,8 +151,12 @@ function resolveRoster(admins: Admin[]): Admin[] {
   for (const admin of admins) {
     const email = admin.email.trim().toLowerCase();
     if (!isEmail(email)) throw new UsageError(`Not an email address: ${admin.email}`);
-    // First mention wins, so a roster line keeps its name over a duplicate flag.
-    if (!byEmail.has(email)) byEmail.set(email, { name: admin.name.trim(), email });
+    // First mention wins, so a roster line keeps its name and roles over a
+    // duplicate flag — which is why the roster is spread before the argv
+    // entries at the call site.
+    if (!byEmail.has(email)) {
+      byEmail.set(email, { name: admin.name.trim(), email, roles: admin.roles });
+    }
   }
   return [...byEmail.values()];
 }
@@ -208,12 +231,22 @@ async function main() {
       const password = generatePassword();
       await payload.create({
         collection: "cms_admins",
-        data: { email: admin.email, name: admin.name, password },
+        /*
+         * `roles` is spread rather than always set: leaving the key off lets
+         * the field's own `defaultValue` apply, so "the default is editor" is
+         * stated once in the collection instead of twice.
+         */
+        data: {
+          email: admin.email,
+          name: admin.name,
+          password,
+          ...(admin.roles ? { roles: admin.roles } : {}),
+        },
         depth: 0,
         overrideAccess: true,
       });
       created++;
-      console.log(`  + ${admin.email.padEnd(28)} created`);
+      console.log(`  + ${admin.email.padEnd(28)} created  [${(admin.roles ?? ["editor"]).join(", ")}]`);
       console.log(`      password: ${password}`);
     }
   } finally {

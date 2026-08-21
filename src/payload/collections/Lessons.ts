@@ -1,11 +1,13 @@
 import type { CollectionConfig } from "payload";
 
-import { grammarBlocks } from "../blocks/grammar";
-import { escapeHatchBlocks, legacyBlocks } from "../blocks/legacy";
+import { libraryBlocks } from "../blocks/library";
 import { guardLessonDelete } from "../hooks/guardLessonDelete";
 import { revalidateLesson, revalidateLessonDelete } from "../hooks/revalidate";
 import { generatePreviewURL } from "../preview";
 import { readPublishedOrEditor } from "../access/readPublished";
+import { draftingVersions } from "../versions";
+import { isAdmin } from "../access/isAdmin";
+import { validateSlugFormat } from "../fields/slugFormat";
 
 /*
  * One `lessons` collection replaces both Mongo collections — legacy `lessons`
@@ -16,12 +18,12 @@ import { readPublishedOrEditor } from "../access/readPublished";
  * renderers on two URL families, so which one a lesson belongs to has to be
  * stated rather than guessed — deriving it from the course would weld product
  * structure to rendering, and deriving it from the blocks present would make
- * every list query load every lesson's exercises (#20).
+ * every list query load every lesson's steps (#20).
  *
- * Shape: lesson → `exercises` (ordered array) → `components` (blocks).
- * `exercises` is an array field rather than its own collection on purpose — an
- * exercise belongs to exactly one lesson, is order-sensitive, and has no
- * independent lifecycle.
+ * Shape: course → lesson → `steps` (ordered array) → `components` (blocks),
+ * and a block may reference `terms`. `steps` is an array field rather than its
+ * own collection on purpose — a step belongs to exactly one lesson, is
+ * order-sensitive, and has no independent lifecycle.
  *
  * Not modelled, deliberately:
  *  - `nextSlug` — course + order replaces the linked list (#27, #18).
@@ -31,10 +33,28 @@ import { readPublishedOrEditor } from "../access/readPublished";
  *  - item `number` — unreliable in the source data; array position is the order.
  */
 
+/*
+ * A step is one screen, and a screen is an ordered list of blocks.
+ *
+ * It was called an `exercise` until the word became a liability: a step can be
+ * pure prose with nothing to answer, so "exercise" promised a question that
+ * half of them do not have. `step` is the word the rest of the stack already
+ * uses — `user_progress.last_step`, `step_key`, the step-through player — so
+ * one thing now has one name from the CMS through to the progress table.
+ * Blocks are still what makes a step interactive; see `PRACTICE_BLOCK_SLUGS`.
+ *
+ * That is the change that makes this a CMS rather than a transcription: the
+ * `maxRows: 1` that used to be on `components` meant a screen could only ever be
+ * one block, so every new layout needed a developer. It is gone.
+ *
+ * The seventeen blocks this replaced — one per legacy JSON shape, split into
+ * "Grammar lesson" and "Legacy lesson" groups because the two families could not
+ * mix — were deleted in Phase 4b along with the flattening layer that fed them
+ * to two separate players. There is one library and one runner.
+ */
 const AUTHORING_CONVENTION =
-  "Convention: one component per exercise. The player renders an exercise as a single screen " +
-  "and there is no composite renderer yet, so a second block in the same exercise will not " +
-  "show. Add another exercise instead.";
+  "One step is one screen. Blocks from Content and Practice compose onto that screen in " +
+  "order — a prose introduction followed by the practice it sets up is one step, not two.";
 
 export const Lessons: CollectionConfig = {
   slug: "lessons",
@@ -56,7 +76,13 @@ export const Lessons: CollectionConfig = {
     // The Live Preview panel is the same destination, side by side instead.
     preview: generatePreviewURL("lessons"),
   },
-  access: { read: readPublishedOrEditor },
+  /*
+   * `guardLessonDelete` already refuses to delete a lesson that learner
+   * progress references, so this is the second of two locks rather than the
+   * only one — but the first is about referential integrity and this one is
+   * about authority, and a lesson nobody has started yet passes the first.
+   */
+  access: { read: readPublishedOrEditor, delete: isAdmin },
   hooks: {
     beforeDelete: [guardLessonDelete],
     afterChange: [revalidateLesson],
@@ -64,7 +90,7 @@ export const Lessons: CollectionConfig = {
   },
   defaultSort: "order",
   // Replaces the old `isActive` flag: unpublished lessons are drafts.
-  versions: { drafts: true },
+  versions: draftingVersions,
   fields: [
     {
       name: "title",
@@ -81,12 +107,15 @@ export const Lessons: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      validate: validateSlugFormat,
       admin: {
         position: "sidebar",
         description:
-          "URL segment and the key learner progress is recorded against. A database foreign " +
-          "key cascades renames into existing progress rows, but bookmarked lesson URLs still " +
-          "break — rename rarely.",
+          "URL segment and the key learner progress is recorded against. Canonical format: " +
+          "<family>-l<level>-v<version>[-<variant>], e.g. \"grammar-l1-v1\" or " +
+          "\"hiragana-l2-v1-akita\" (the variant only when family+level+version would " +
+          "otherwise collide). A database foreign key cascades renames into existing progress " +
+          "rows, but bookmarked lesson URLs still break — rename rarely.",
       },
     },
     {
@@ -102,9 +131,8 @@ export const Lessons: CollectionConfig = {
       admin: {
         position: "sidebar",
         description:
-          "Which player renders this lesson, and which list it appears in. Step-through lessons " +
-          "play one component per screen at /newlesson/<slug>; flashcard lessons open with a deck " +
-          "and then run their exercises at /lesson/<slug>, and are the only ones pinned to the " +
+          "Which player renders this lesson, and which list it appears in. Both formats play at " +
+          "/lessons/<slug> through the same runner; flashcard lessons are the ones pinned to the " +
           "dashboard map. Pick the family your components come from — mixing families in one " +
           "lesson will not render.",
       },
@@ -128,6 +156,47 @@ export const Lessons: CollectionConfig = {
           "Position within the course, ascending. This is what decides which lesson comes next.",
       },
     },
+    /*
+     * `level` and `part` are what a learner is shown: the lessons list groups
+     * every course's lessons into "Lesson <level>" sections and labels each
+     * card "Lesson <level>.<part>".
+     *
+     * They were encoded in the slug (`grammar-l1-v2`) and recovered with
+     * `/l(\d+)-v(\d+)/` in the list page — the schema living inside a string,
+     * the same shape as the `"あ/ア"` slash-delimited kana this content model
+     * already moved into real fields. `version` held the part number too, as
+     * text ("v1"), so the number existed twice and neither copy was typed.
+     *
+     * `level` deliberately spans courses: "Lesson 1" is one section holding
+     * both the grammar and the hiragana lesson, so it is not a position
+     * within a course — `order` is that.
+     */
+    {
+      name: "level",
+      type: "number",
+      required: true,
+      index: true,
+      admin: {
+        position: "sidebar",
+        step: 1,
+        description:
+          "Which numbered lesson this belongs to, across every course — the " +
+          '"Lesson 3" heading on the lessons list. Not a position within a course; that is Order.',
+      },
+    },
+    {
+      name: "part",
+      type: "number",
+      required: true,
+      defaultValue: 1,
+      admin: {
+        position: "sidebar",
+        step: 1,
+        description:
+          'Which part of that lesson this is — shown as "Lesson 3.2". Start at 1; ' +
+          "a lesson taught in one sitting just stays 1.",
+      },
+    },
     {
       name: "cardTitle",
       type: "text",
@@ -137,19 +206,21 @@ export const Lessons: CollectionConfig = {
       },
     },
     {
-      name: "shuffleExercises",
+      name: "shuffleSteps",
       type: "checkbox",
       defaultValue: true,
       admin: {
         description:
-          "Shuffle exercises within each generated group when the lesson is rendered. " +
-          "Turn off for lessons where the order teaches something.",
+          "Vary the order of consecutive practice screens of the same kind, so a learner " +
+          "repeating the lesson does not get the same sequence. Screens that present " +
+          "material never move, and a run never moves out of its place in the lesson. " +
+          "Turn off where the order within a run teaches something.",
       },
     },
     {
-      name: "exercises",
+      name: "steps",
       type: "array",
-      labels: { singular: "Exercise", plural: "Exercises" },
+      labels: { singular: "Step", plural: "Steps" },
       admin: {
         initCollapsed: true,
         description: `Ordered — drag to resequence. ${AUTHORING_CONVENTION}`,
@@ -168,8 +239,9 @@ export const Lessons: CollectionConfig = {
           type: "blocks",
           required: true,
           minRows: 1,
-          maxRows: 1,
-          blocks: [...grammarBlocks, ...legacyBlocks, ...escapeHatchBlocks],
+          // `maxRows: 1` was here. Removing it is what turns a screen into an
+          // ordered block list — see the note on AUTHORING_CONVENTION above.
+          blocks: libraryBlocks,
           admin: { description: AUTHORING_CONVENTION },
         },
       ],
@@ -192,22 +264,13 @@ export const Lessons: CollectionConfig = {
       admin: { position: "sidebar" },
     },
     {
-      name: "version",
-      type: "text",
-      admin: {
-        position: "sidebar",
-        description:
-          'Content revision label carried over from the old data, e.g. "v1".',
-      },
-    },
-    {
       name: "funFact",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Shown at the end of the lesson." },
     },
     {
       name: "notes",
-      type: "textarea",
+      type: "richText",
       admin: { description: "Learner-facing notes." },
     },
     {
@@ -232,7 +295,7 @@ export const Lessons: CollectionConfig = {
         readOnly: true,
         description:
           "The MongoDB `_id` this lesson was imported from. Re-running the import matches on " +
-          "it, and old `/lesson/<ObjectId>` links resolve through it. Do not edit or reuse.",
+          "it, and old `/lessons/<ObjectId>` links resolve through it. Do not edit or reuse.",
       },
     },
   ],

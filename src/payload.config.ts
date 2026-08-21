@@ -3,15 +3,18 @@ import { fileURLToPath } from "node:url";
 
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { buildConfig } from "payload";
+import sharp from "sharp";
 
 import { vercelPrivateBlobStorage } from "./payload/storage/vercelPrivateBlob";
 import { livePreviewURL } from "./payload/preview";
+import { proseEditor } from "./payload/fields/prose";
 
 import { CmsAdmins } from "./payload/collections/CmsAdmins";
 import { Courses } from "./payload/collections/Courses";
 import { Lessons } from "./payload/collections/Lessons";
 import { Media } from "./payload/collections/Media";
 import { Resources } from "./payload/collections/Resources";
+import { Terms } from "./payload/collections/Terms";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,6 +40,18 @@ export default buildConfig({
   admin: {
     user: CmsAdmins.slug,
     meta: { titleSuffix: "— Nihon-Go! CMS" },
+    /*
+     * Where a component path like `/payload/blocks/BlockRowLabel#BlockRowLabel`
+     * is resolved from. Payload defaults this to `process.cwd()`, which would
+     * make every path start with `/src` — stating it once here keeps the paths in
+     * the collection configs short and makes it obvious they are repo-relative
+     * rather than package specifiers.
+     *
+     * Changing which components exist means regenerating the map:
+     * `npm run payload:importmap`. It is not a migration and it is easy to
+     * forget — `39f1e3f` had to fix a stale one by hand.
+     */
+    importMap: { baseDir: path.resolve(dirname) },
     /*
      * Live Preview renders the real front end in a panel beside the editing
      * form and pushes the unsaved form state into it over `postMessage`, so an
@@ -65,7 +80,19 @@ export default buildConfig({
   // CmsAdmins is `admin.user` above — leaving it out of this list points the
   // admin panel at a collection that was never registered, which takes out
   // /admin login and `npm run payload:seed-admins` with it.
-  collections: [Courses, Lessons, Resources, Media, CmsAdmins],
+  collections: [Courses, Lessons, Terms, Resources, Media, CmsAdmins],
+  /*
+   * The root editor. A `richText` field that names no `editor` of its own
+   * inherits this one, which is the point: the nine prose fields converted in
+   * Phase 3, and every one added after, get the same toolbar and the same
+   * blocks without anyone wiring it up per field. See `payload/fields/prose.ts`
+   * for what is in it and why furigana is two inline blocks rather than a
+   * custom Lexical node.
+   *
+   * Adding a Lexical feature or block changes which client components the admin
+   * panel needs, so it needs `npm run payload:importmap` — not a migration.
+   */
+  editor: proseEditor,
   db: postgresAdapter({
     schemaName: "payload",
     push: false,
@@ -92,5 +119,12 @@ export default buildConfig({
       token: process.env.BLOB_READ_WRITE_TOKEN,
     }),
   ],
-  sharp: undefined,
+  /*
+   * Payload does no image processing without this — no `imageSizes`, no
+   * `adminThumbnail`, so every Media row rendered as a bare id and every
+   * `<img>` on the site downloaded the full-resolution original. `withPayload`
+   * already lists sharp in `serverExternalPackages`, so it needs nothing in
+   * next.config.ts.
+   */
+  sharp,
 });

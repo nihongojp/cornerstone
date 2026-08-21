@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     courses: Course;
     lessons: Lesson;
+    terms: Term;
     resources: Resource;
     media: Media;
     cms_admins: CmsAdmin;
@@ -85,6 +86,7 @@ export interface Config {
   collectionsSelect: {
     courses: CoursesSelect<false> | CoursesSelect<true>;
     lessons: LessonsSelect<false> | LessonsSelect<true>;
+    terms: TermsSelect<false> | TermsSelect<true>;
     resources: ResourcesSelect<false> | ResourcesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     cms_admins: CmsAdminsSelect<false> | CmsAdminsSelect<true>;
@@ -137,7 +139,7 @@ export interface Course {
   id: number;
   title: string;
   /**
-   * URL segment. Lowercase, hyphenated. Changing it breaks existing links.
+   * Kebab-case, descriptive noun phrase — e.g. "grammar-and-conversation". Changing it breaks existing links.
    */
   slug: string;
   /**
@@ -147,7 +149,21 @@ export interface Course {
   /**
    * Shown on the course card. A sentence or two.
    */
-  description?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Every lesson pointing at this course, read-only here. Sequence comes from each lesson's Order field — set it on the lesson, not here.
    */
@@ -173,11 +189,11 @@ export interface Lesson {
    */
   title: string;
   /**
-   * URL segment and the key learner progress is recorded against. A database foreign key cascades renames into existing progress rows, but bookmarked lesson URLs still break — rename rarely.
+   * URL segment and the key learner progress is recorded against. Canonical format: <family>-l<level>-v<version>[-<variant>], e.g. "grammar-l1-v1" or "hiragana-l2-v1-akita" (the variant only when family+level+version would otherwise collide). A database foreign key cascades renames into existing progress rows, but bookmarked lesson URLs still break — rename rarely.
    */
   slug: string;
   /**
-   * Which player renders this lesson, and which list it appears in. Step-through lessons play one component per screen at /newlesson/<slug>; flashcard lessons open with a deck and then run their exercises at /lesson/<slug>, and are the only ones pinned to the dashboard map. Pick the family your components come from — mixing families in one lesson will not render.
+   * Which player renders this lesson, and which list it appears in. Both formats play at /lessons/<slug> through the same runner; flashcard lessons are the ones pinned to the dashboard map. Pick the family your components come from — mixing families in one lesson will not render.
    */
   format: 'step' | 'flashcard';
   /**
@@ -189,43 +205,45 @@ export interface Lesson {
    */
   order?: number | null;
   /**
+   * Which numbered lesson this belongs to, across every course — the "Lesson 3" heading on the lessons list. Not a position within a course; that is Order.
+   */
+  level: number;
+  /**
+   * Which part of that lesson this is — shown as "Lesson 3.2". Start at 1; a lesson taught in one sitting just stays 1.
+   */
+  part: number;
+  /**
    * Heading shown on the lessons list card. Falls back to the title.
    */
   cardTitle?: string | null;
   /**
-   * Shuffle exercises within each generated group when the lesson is rendered. Turn off for lessons where the order teaches something.
+   * Vary the order of consecutive practice screens of the same kind, so a learner repeating the lesson does not get the same sequence. Screens that present material never move, and a run never moves out of its place in the lesson. Turn off where the order within a run teaches something.
    */
-  shuffleExercises?: boolean | null;
+  shuffleSteps?: boolean | null;
   /**
-   * Ordered — drag to resequence. Convention: one component per exercise. The player renders an exercise as a single screen and there is no composite renderer yet, so a second block in the same exercise will not show. Add another exercise instead.
+   * Ordered — drag to resequence. One step is one screen. Blocks from Content and Practice compose onto that screen in order — a prose introduction followed by the practice it sets up is one step, not two.
    */
-  exercises?:
+  steps?:
     | {
         /**
          * Optional name, for your own navigation. Not shown to learners.
          */
         label?: string | null;
         /**
-         * Convention: one component per exercise. The player renders an exercise as a single screen and there is no composite renderer yet, so a second block in the same exercise will not show. Add another exercise instead.
+         * One step is one screen. Blocks from Content and Practice compose onto that screen in order — a prose introduction followed by the practice it sets up is one step, not two.
          */
         components: (
-          | VideoPageBlock
-          | TermsPageBlock
-          | GrammarPageBlock
-          | ContentPageBlock
-          | MatchingExerciseBlock
-          | DragAndDropPuzzleBlock
-          | TermMediaSeedBlock
-          | MatchAudioExerciseBlock
-          | PronunciationExerciseBlock
-          | InfoBreakBlock
-          | LifeUsefulFactBlock
-          | ConnectTheDotsBlock
-          | MatchAudioLetterBlock
-          | VocabularyDragDropBlock
-          | FactBreakBlock
-          | FlashcardDeckBlock
-          | LegacyJsonBlock
+          | ProseBlock
+          | DialogueBlock
+          | VideoLessonBlock
+          | GrammarPointBlock
+          | VocabListBlock
+          | MediaFigureBlock
+          | MatchPairsBlock
+          | ListenAndChooseBlock
+          | BuildSentenceBlock
+          | SpeakAndScoreBlock
+          | MultipleChoiceBlock
         )[];
         id?: string | null;
       }[]
@@ -236,17 +254,41 @@ export interface Lesson {
   prefecture?: string | null;
   tags?: string[] | null;
   /**
-   * Content revision label carried over from the old data, e.g. "v1".
-   */
-  version?: string | null;
-  /**
    * Shown at the end of the lesson.
    */
-  funFact?: string | null;
+  funFact?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Learner-facing notes.
    */
-  notes?: string | null;
+  notes?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   /**
    * Awarded on completion. Leave the title empty for no award.
    */
@@ -255,7 +297,7 @@ export interface Lesson {
     xp?: number | null;
   };
   /**
-   * The MongoDB `_id` this lesson was imported from. Re-running the import matches on it, and old `/lesson/<ObjectId>` links resolve through it. Do not edit or reuse.
+   * The MongoDB `_id` this lesson was imported from. Re-running the import matches on it, and old `/lessons/<ObjectId>` links resolve through it. Do not edit or reuse.
    */
   sourceId?: string | null;
   updatedAt: string;
@@ -264,427 +306,499 @@ export interface Lesson {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "VideoPageBlock".
+ * via the `definition` "ProseBlock".
  */
-export interface VideoPageBlock {
-  title: string;
+export interface ProseBlock {
+  tone: 'page' | 'card' | 'fact' | 'lifeTip';
   /**
-   * The lesson video. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * Optional heading. The fact and tip tones show it in their band.
    */
-  videoUrl?: string | null;
+  title?: string | null;
   /**
-   * Free-text notes about the video's form, carried over from the source data. Purely descriptive — nothing renders off it.
+   * Use Ruby and Term for furigana; Example sentence for a worked line.
    */
-  videoForm?: string[] | null;
-  /**
-   * Optional standalone audio for this page (stored as `audioURL` in the old data). Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Optional sub-heading shown under the title.
-   */
-  description?: string | null;
-  /**
-   * Optional body copy shown under the description.
-   */
-  content?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
   id?: string | null;
   blockName?: string | null;
-  blockType: 'videoPage';
+  blockType: 'prose';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TermsPageBlock".
+ * via the `definition` "DialogueBlock".
  */
-export interface TermsPageBlock {
-  title: string;
+export interface DialogueBlock {
+  title?: string | null;
   /**
-   * Free text in the source data ("Flashcard", …), not an enum. Presentation hint only.
+   * The first speaker's name, as shown beside their lines.
    */
-  format?: string | null;
+  speakerA: string;
+  speakerB: string;
   /**
-   * The vocabulary introduced on this page, in display order.
+   * Optional recording of the conversation.
    */
-  terms?:
-    | {
-        term: string;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        imageUrl?: string | null;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        audioUrl?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Optional sub-heading shown under the title.
-   */
-  description?: string | null;
-  /**
-   * Optional body copy shown under the description.
-   */
-  content?: string | null;
+  video?: (number | null) | Media;
+  lines: {
+    /**
+     * Which of the two is talking. The old data had no speakers at all — the renderer coloured lines by whether their index was even, so inserting a line silently reassigned every line after it.
+     */
+    speaker: 'a' | 'b';
+    /**
+     * What they say. Ruby and Term work in here.
+     */
+    japanese: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    };
+    romaji?: string | null;
+    english?: string | null;
+    /**
+     * This line, spoken.
+     */
+    audio?: (number | null) | Media;
+    id?: string | null;
+  }[];
   id?: string | null;
   blockName?: string | null;
-  blockType: 'termsPage';
+  blockType: 'dialogue';
+}
+/**
+ * Images, audio and video. Upload once here, then pick the file from the media field of whichever component needs it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  /**
+   * What the image shows, for screen readers. Required for images; leave empty for audio and video.
+   */
+  alt?: string | null;
+  /**
+   * Optional visible caption.
+   */
+  caption?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    wide?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "GrammarPageBlock".
+ * via the `definition` "VideoLessonBlock".
  */
-export interface GrammarPageBlock {
+export interface VideoLessonBlock {
   title: string;
-  grammarPoints?:
+  /**
+   * The lesson video.
+   */
+  video?: (number | null) | Media;
+  /**
+   * Optional standalone audio for this screen.
+   */
+  audio?: (number | null) | Media;
+  /**
+   * Notes shown under the video.
+   */
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'videoLesson';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GrammarPointBlock".
+ */
+export interface GrammarPointBlock {
+  title?: string | null;
+  points?:
     | {
         /**
-         * The pattern being taught, e.g. `〜は〜です`.
+         * The pattern being taught, e.g. 〜は〜です.
          */
         pattern: string;
         /**
-         * One sentence per entry.
+         * The explanation. Add Example sentence blocks for worked examples.
          */
-        examples?: string[] | null;
+        explanation: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'grammarPoint';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VocabListBlock".
+ */
+export interface VocabListBlock {
+  title?: string | null;
+  /**
+   * Optional copy above the list.
+   */
+  intro?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * The words introduced here, in order. Their audio and images come with them.
+   */
+  terms: (number | Term)[];
+  /**
+   * `format` on the old Terms page was free text ("Flashcard", …) that the renderer guessed at. This is the same decision, made explicitly. Spotlight shows one character large with its stroke-order diagram, and is the authored form of the screens the flashcard player used to generate from a hardcoded table.
+   */
+  layout: 'list' | 'flashcards' | 'grid' | 'spotlight';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'vocabList';
+}
+/**
+ * Words, phrases, kana and kanji. Author a term once here and reference it from lessons — its audio, image and readings then follow it everywhere.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "terms".
+ */
+export interface Term {
+  id: number;
+  /**
+   * Stable identifier: kebab-case for romanized terms, or the kana/kanji itself for kana and kanji entries (e.g. "あ-ア") — script-shaped terms have no ASCII form to key on. Seeding and re-import match on this, so changing it creates a new term rather than renaming one.
+   */
+  key: string;
+  kind: 'vocab' | 'phrase' | 'kana' | 'kanji';
+  /**
+   * How this term is labelled in lists and pickers. Derived from the fields below.
+   */
+  display?: string | null;
+  /**
+   * The written form — 初めまして, あ, 食べる. Required for kana and kanji. Much of the imported catalogue has only romaji so far; filling this in is the backlog.
+   */
+  japanese?: string | null;
+  /**
+   * The katakana counterpart. This is what the old "あ/ア" strings encoded with a slash; how the pair is displayed is now the renderer's decision, not the data's.
+   */
+  katakana?: string | null;
+  /**
+   * Kana reading of the written form — はじめまして.
+   */
+  reading?: string | null;
+  /**
+   * Filled in automatically from the reading when left empty. Set it by hand to override.
+   */
+  romaji?: string | null;
+  /**
+   * The written form split into segments, each with its reading. Leave a segment's reading empty for okurigana and other parts that take no ruby: 食(た)+べる is two segments.
+   */
+  furigana?:
+    | {
+        /**
+         * The characters.
+         */
+        base: string;
+        /**
+         * Their reading, or empty for none.
+         */
+        ruby?: string | null;
         id?: string | null;
       }[]
     | null;
   /**
-   * Optional sub-heading shown under the title.
+   * English gloss.
    */
-  description?: string | null;
+  meaning?: string | null;
+  partOfSpeech?: ('noun' | 'verb' | 'adjective' | 'adverb' | 'particle' | 'expression') | null;
+  jlpt?: ('N5' | 'N4' | 'N3' | 'N2' | 'N1') | null;
+  strokes?: number | null;
   /**
-   * Optional body copy shown under the description.
+   * Stroke-order diagram. Replaces src/data/kanaStrokeOrder.ts, which hardcoded ten of these as media URLs in a TypeScript constant kept in sync with a migration script by hand.
    */
-  content?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'grammarPage';
+  strokeOrder?: (number | null) | Media;
+  /**
+   * Pronunciation. Referencing blocks read it from here.
+   */
+  audio?: (number | null) | Media;
+  /**
+   * A picture of the thing, for image-choice exercises.
+   */
+  image?: (number | null) | Media;
+  tags?: string[] | null;
+  /**
+   * Usage notes for the learner — when to use this word and when not to. Reference other terms inline rather than retyping them.
+   */
+  notes?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentPageBlock".
+ * via the `definition` "MediaFigureBlock".
  */
-export interface ContentPageBlock {
-  title: string;
+export interface MediaFigureBlock {
+  image?: (number | null) | Media;
+  audio?: (number | null) | Media;
+  video?: (number | null) | Media;
   /**
-   * Optional sub-heading shown under the title.
+   * Shown under the file.
    */
-  description?: string | null;
-  /**
-   * Optional body copy shown under the description.
-   */
-  content?: string | null;
+  caption?: string | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'contentPage';
+  blockType: 'mediaFigure';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MatchingExerciseBlock".
+ * via the `definition` "MatchPairsBlock".
  */
-export interface MatchingExerciseBlock {
+export interface MatchPairsBlock {
+  /**
+   * Shown above the exercise. One line.
+   */
   instructions: string;
   /**
-   * The pairs the learner has to match.
+   * The words to match. Two or more.
    */
-  items?:
-    | {
-        phrase: string;
-        englishTranslation?: string | null;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        audioUrl?: string | null;
-        /**
-         * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        imageUrl?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  terms: (number | Term)[];
   /**
-   * Free-text layout hints from the source data ("audio buttons", "image"). Presentation only.
+   * What the two sides are. Hiragana ↔ katakana is what the old "あ/ア" strings encoded with a slash; it reads both scripts off the term now.
    */
-  rows?: string[] | null;
-  /**
-   * Author-curated wrong answers. Leave empty to let the player derive distractors from the terms introduced earlier in the lesson.
-   */
-  dragDropOptions?: string[] | null;
-  description?: string | null;
+  pairing: 'meaning' | 'reading' | 'kana' | 'audio';
   id?: string | null;
   blockName?: string | null;
-  blockType: 'matchingExercise';
+  blockType: 'matchPairs';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "DragAndDropPuzzleBlock".
+ * via the `definition` "ListenAndChooseBlock".
  */
-export interface DragAndDropPuzzleBlock {
+export interface ListenAndChooseBlock {
   /**
-   * The term this puzzle is about. Stored as `_term` in the source data — it is the only identifying field these carried.
+   * Shown above the exercise. One line.
    */
-  term: string;
+  instructions?: string | null;
+  /**
+   * The word the learner hears and has to pick. Its own audio is what plays, so there is no per-exercise audio field to drift from the word it belongs to.
+   */
+  term: number | Term;
+  /**
+   * The wrong answers. Leave empty and the player draws them from the words introduced earlier in the lesson.
+   */
+  distractors?: (number | Term)[] | null;
+  answerWith: 'text' | 'image';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'listenAndChoose';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BuildSentenceBlock".
+ */
+export interface BuildSentenceBlock {
+  /**
+   * Shown above the exercise. One line.
+   */
+  instructions?: string | null;
+  /**
+   * The word or phrase being built, when there is one. Supplies the picture and the audio.
+   */
+  term?: (number | null) | Term;
+  /**
+   * Every tile offered, including the wrong ones.
+   */
+  tiles: string[];
   /**
    * The tiles in the order that counts as correct.
    */
   correctSequence: string[];
-  /**
-   * Every tile offered, including the wrong ones.
-   */
-  options: string[];
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
+  tileScript: 'asAuthored' | 'romaji';
   id?: string | null;
   blockName?: string | null;
-  blockType: 'dragAndDropPuzzle';
+  blockType: 'buildSentence';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TermMediaSeedBlock".
+ * via the `definition` "SpeakAndScoreBlock".
  */
-export interface TermMediaSeedBlock {
+export interface SpeakAndScoreBlock {
   /**
-   * Stored as `_term` in the source data.
+   * Shown above the exercise. One line.
    */
-  term: string;
+  instructions?: string | null;
   /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * What to say. Its audio is what the recording is graded against — without audio on the term there is nothing to score, which is why this is required.
    */
-  audioUrl?: string | null;
+  term: number | Term;
   /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'termMediaSeed';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MatchAudioExerciseBlock".
- */
-export interface MatchAudioExerciseBlock {
-  phrase: string;
-  /**
-   * The clip the learner hears. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'matchAudioExercise';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "PronunciationExerciseBlock".
- */
-export interface PronunciationExerciseBlock {
-  phrase: string;
-  /**
-   * Longer display text. The player falls back to the phrase if empty.
+   * Optional longer text to show and score against, when the term's own form is not what you want said. Plain text — the scorer reads it as a string.
    */
   transcript?: string | null;
   /**
-   * Optional demonstration video. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
+   * Optional demonstration of the mouth shape.
    */
-  videoUrl?: string | null;
-  /**
-   * Dedicated reference audio for scoring — NOT the video's audio track. Without it the pronunciation service has nothing to grade against. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
+  video?: (number | null) | Media;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'pronunciationExercise';
+  blockType: 'speakAndScore';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "InfoBreakBlock".
+ * via the `definition` "MultipleChoiceBlock".
  */
-export interface InfoBreakBlock {
-  /**
-   * Ungraded copy shown between exercises. Some imported bodies are authoring briefs rather than learner-facing text — those need an editorial pass.
-   */
-  content: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'infoBreak';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LifeUsefulFactBlock".
- */
-export interface LifeUsefulFactBlock {
-  content: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'lifeUsefulFact';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ConnectTheDotsBlock".
- */
-export interface ConnectTheDotsBlock {
-  /**
-   * Stable, human-meaningful id (e.g. `l3_vocab_5_bonus`). Progress and attempt records key off it — changing it detaches existing learner progress.
-   */
-  exerciseId: string;
-  prompt?: string | null;
-  /**
-   * Every option shown to the learner.
-   */
-  items: string[];
-  /**
-   * The subset of `items` that counts as correct. Match them exactly.
-   */
-  correctAnswers: string[];
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'connectTheDots';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MatchAudioLetterBlock".
- */
-export interface MatchAudioLetterBlock {
-  /**
-   * Stable id — see the note on Connect the dots.
-   */
-  exerciseId: string;
-  prompt?: string | null;
-  /**
-   * The clip the learner hears. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Every letter offered.
-   */
-  items: string[];
-  /**
-   * A list for historical reasons — every observed record has exactly one entry. Add one unless you know the player handles more.
-   */
-  correctAnswers: string[];
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'matchAudioLetter';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "VocabularyDragDropBlock".
- */
-export interface VocabularyDragDropBlock {
-  /**
-   * Stable id — see the note on Connect the dots.
-   */
-  exerciseId: string;
-  prompt?: string | null;
-  /**
-   * The tiles offered, including distractors.
-   */
-  characterBank: string[];
-  /**
-   * The assembled answer, as one string.
-   */
-  correctAnswer: string;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  audioUrl?: string | null;
-  /**
-   * Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  imageUrl?: string | null;
-  /**
-   * Back-compat alias some imported documents still use. Prefer Image URL above; only fill this in if you are matching an existing record. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-   */
-  image?: string | null;
-  /**
-   * V2+ bonus batch: hiragana tiles with no Japanese caption hint. Harder variant.
-   */
-  bonus?: boolean | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'vocabularyDragDrop';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FactBreakBlock".
- */
-export interface FactBreakBlock {
-  /**
-   * Stable id — see the note on Connect the dots.
-   */
-  exerciseId: string;
-  title?: string | null;
-  content?: string | null;
-  prompt?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'factBreak';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FlashcardDeckBlock".
- */
-export interface FlashcardDeckBlock {
-  /**
-   * Optional heading for the deck.
-   */
-  title?: string | null;
-  /**
-   * Replaces the old `flashcards` / `flashcardsAudio` parallel arrays — card and audio travel together, so they cannot fall out of alignment.
-   */
-  cards?:
-    | {
-        /**
-         * The card face, e.g. "あ/ア".
-         */
-        card: string;
-        /**
-         * Optional pronunciation for this card. Upload to Media first, then paste the resulting URL here. An absolute URL to an external file also works.
-         */
-        audioUrl?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'flashcardDeck';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LegacyJsonBlock".
- */
-export interface LegacyJsonBlock {
-  /**
-   * The `type` string the source document carried.
-   */
-  originalType: string;
-  /**
-   * The source item, carried across verbatim because the import did not recognise its shape. This renders nothing. Every one of these is a to-do: re-author it as a real block, or delete it.
-   */
-  data:
-    | {
+export interface MultipleChoiceBlock {
+  question: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
         [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  options: {
+    label: string;
+    /**
+     * Exactly one option is the answer.
+     */
+    isCorrect?: boolean | null;
+    id?: string | null;
+  }[];
+  /**
+   * Shown after answering, right or wrong.
+   */
+  explanation?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   id?: string | null;
   blockName?: string | null;
-  blockType: 'legacyJson';
+  blockType: 'multipleChoice';
 }
 /**
  * Link collections shown on the Resources page, grouped by category.
@@ -712,7 +826,21 @@ export interface Resource {
          * Absolute URL. Opens in a new tab. Optional on purpose: an entry with a title and description but no link yet is a real state the site already handles — it renders as "(No URL)" — and it keeps a planned resource visible as a to-do instead of losing the note.
          */
         url?: string | null;
-        description?: string | null;
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
         id?: string | null;
       }[]
     | null;
@@ -723,35 +851,6 @@ export interface Resource {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * Images, audio and video uploaded here. Copy a file's URL into the media field of whichever component needs it.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  /**
-   * What the image shows, for screen readers. Required for images; leave empty for audio and video.
-   */
-  alt?: string | null;
-  /**
-   * Optional visible caption.
-   */
-  caption?: string | null;
-  prefix?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * People who can sign in to this admin. Not learner accounts.
@@ -765,6 +864,10 @@ export interface CmsAdmin {
    * Display name shown in the admin UI.
    */
   name?: string | null;
+  /**
+   * Editors can create, edit and publish all content. Admins can additionally delete content and manage these accounts. Everyone who signs in here is at least an editor.
+   */
+  roles: ('admin' | 'editor')[];
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -815,6 +918,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'lessons';
         value: number | Lesson;
+      } | null)
+    | ({
+        relationTo: 'terms';
+        value: number | Term;
       } | null)
     | ({
         relationTo: 'resources';
@@ -894,38 +1001,33 @@ export interface LessonsSelect<T extends boolean = true> {
   format?: T;
   course?: T;
   order?: T;
+  level?: T;
+  part?: T;
   cardTitle?: T;
-  shuffleExercises?: T;
-  exercises?:
+  shuffleSteps?: T;
+  steps?:
     | T
     | {
         label?: T;
         components?:
           | T
           | {
-              videoPage?: T | VideoPageBlockSelect<T>;
-              termsPage?: T | TermsPageBlockSelect<T>;
-              grammarPage?: T | GrammarPageBlockSelect<T>;
-              contentPage?: T | ContentPageBlockSelect<T>;
-              matchingExercise?: T | MatchingExerciseBlockSelect<T>;
-              dragAndDropPuzzle?: T | DragAndDropPuzzleBlockSelect<T>;
-              termMediaSeed?: T | TermMediaSeedBlockSelect<T>;
-              matchAudioExercise?: T | MatchAudioExerciseBlockSelect<T>;
-              pronunciationExercise?: T | PronunciationExerciseBlockSelect<T>;
-              infoBreak?: T | InfoBreakBlockSelect<T>;
-              lifeUsefulFact?: T | LifeUsefulFactBlockSelect<T>;
-              connectTheDots?: T | ConnectTheDotsBlockSelect<T>;
-              matchAudioLetter?: T | MatchAudioLetterBlockSelect<T>;
-              vocabularyDragDrop?: T | VocabularyDragDropBlockSelect<T>;
-              factBreak?: T | FactBreakBlockSelect<T>;
-              flashcardDeck?: T | FlashcardDeckBlockSelect<T>;
-              legacyJson?: T | LegacyJsonBlockSelect<T>;
+              prose?: T | ProseBlockSelect<T>;
+              dialogue?: T | DialogueBlockSelect<T>;
+              videoLesson?: T | VideoLessonBlockSelect<T>;
+              grammarPoint?: T | GrammarPointBlockSelect<T>;
+              vocabList?: T | VocabListBlockSelect<T>;
+              mediaFigure?: T | MediaFigureBlockSelect<T>;
+              matchPairs?: T | MatchPairsBlockSelect<T>;
+              listenAndChoose?: T | ListenAndChooseBlockSelect<T>;
+              buildSentence?: T | BuildSentenceBlockSelect<T>;
+              speakAndScore?: T | SpeakAndScoreBlockSelect<T>;
+              multipleChoice?: T | MultipleChoiceBlockSelect<T>;
             };
         id?: T;
       };
   prefecture?: T;
   tags?: T;
-  version?: T;
   funFact?: T;
   notes?: T;
   achievement?:
@@ -941,231 +1043,184 @@ export interface LessonsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "VideoPageBlock_select".
+ * via the `definition` "ProseBlock_select".
  */
-export interface VideoPageBlockSelect<T extends boolean = true> {
+export interface ProseBlockSelect<T extends boolean = true> {
+  tone?: T;
   title?: T;
-  videoUrl?: T;
-  videoForm?: T;
-  audioUrl?: T;
-  description?: T;
   content?: T;
   id?: T;
   blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TermsPageBlock_select".
+ * via the `definition` "DialogueBlock_select".
  */
-export interface TermsPageBlockSelect<T extends boolean = true> {
+export interface DialogueBlockSelect<T extends boolean = true> {
   title?: T;
-  format?: T;
-  terms?:
+  speakerA?: T;
+  speakerB?: T;
+  video?: T;
+  lines?:
     | T
     | {
-        term?: T;
-        imageUrl?: T;
-        audioUrl?: T;
+        speaker?: T;
+        japanese?: T;
+        romaji?: T;
+        english?: T;
+        audio?: T;
         id?: T;
       };
-  description?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "VideoLessonBlock_select".
+ */
+export interface VideoLessonBlockSelect<T extends boolean = true> {
+  title?: T;
+  video?: T;
+  audio?: T;
   content?: T;
   id?: T;
   blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "GrammarPageBlock_select".
+ * via the `definition` "GrammarPointBlock_select".
  */
-export interface GrammarPageBlockSelect<T extends boolean = true> {
+export interface GrammarPointBlockSelect<T extends boolean = true> {
   title?: T;
-  grammarPoints?:
+  points?:
     | T
     | {
         pattern?: T;
-        examples?: T;
+        explanation?: T;
         id?: T;
       };
-  description?: T;
-  content?: T;
   id?: T;
   blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContentPageBlock_select".
+ * via the `definition` "VocabListBlock_select".
  */
-export interface ContentPageBlockSelect<T extends boolean = true> {
+export interface VocabListBlockSelect<T extends boolean = true> {
   title?: T;
-  description?: T;
-  content?: T;
+  intro?: T;
+  terms?: T;
+  layout?: T;
   id?: T;
   blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MatchingExerciseBlock_select".
+ * via the `definition` "MediaFigureBlock_select".
  */
-export interface MatchingExerciseBlockSelect<T extends boolean = true> {
-  instructions?: T;
-  items?:
-    | T
-    | {
-        phrase?: T;
-        englishTranslation?: T;
-        audioUrl?: T;
-        imageUrl?: T;
-        id?: T;
-      };
-  rows?: T;
-  dragDropOptions?: T;
-  description?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "DragAndDropPuzzleBlock_select".
- */
-export interface DragAndDropPuzzleBlockSelect<T extends boolean = true> {
-  term?: T;
-  correctSequence?: T;
-  options?: T;
-  audioUrl?: T;
-  imageUrl?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TermMediaSeedBlock_select".
- */
-export interface TermMediaSeedBlockSelect<T extends boolean = true> {
-  term?: T;
-  audioUrl?: T;
-  imageUrl?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MatchAudioExerciseBlock_select".
- */
-export interface MatchAudioExerciseBlockSelect<T extends boolean = true> {
-  phrase?: T;
-  audioUrl?: T;
-  imageUrl?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "PronunciationExerciseBlock_select".
- */
-export interface PronunciationExerciseBlockSelect<T extends boolean = true> {
-  phrase?: T;
-  transcript?: T;
-  videoUrl?: T;
-  audioUrl?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "InfoBreakBlock_select".
- */
-export interface InfoBreakBlockSelect<T extends boolean = true> {
-  content?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LifeUsefulFactBlock_select".
- */
-export interface LifeUsefulFactBlockSelect<T extends boolean = true> {
-  content?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ConnectTheDotsBlock_select".
- */
-export interface ConnectTheDotsBlockSelect<T extends boolean = true> {
-  exerciseId?: T;
-  prompt?: T;
-  items?: T;
-  correctAnswers?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MatchAudioLetterBlock_select".
- */
-export interface MatchAudioLetterBlockSelect<T extends boolean = true> {
-  exerciseId?: T;
-  prompt?: T;
-  audioUrl?: T;
-  items?: T;
-  correctAnswers?: T;
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "VocabularyDragDropBlock_select".
- */
-export interface VocabularyDragDropBlockSelect<T extends boolean = true> {
-  exerciseId?: T;
-  prompt?: T;
-  characterBank?: T;
-  correctAnswer?: T;
-  audioUrl?: T;
-  imageUrl?: T;
+export interface MediaFigureBlockSelect<T extends boolean = true> {
   image?: T;
-  bonus?: T;
+  audio?: T;
+  video?: T;
+  caption?: T;
   id?: T;
   blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FactBreakBlock_select".
+ * via the `definition` "MatchPairsBlock_select".
  */
-export interface FactBreakBlockSelect<T extends boolean = true> {
-  exerciseId?: T;
-  title?: T;
-  content?: T;
-  prompt?: T;
+export interface MatchPairsBlockSelect<T extends boolean = true> {
+  instructions?: T;
+  terms?: T;
+  pairing?: T;
   id?: T;
   blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "FlashcardDeckBlock_select".
+ * via the `definition` "ListenAndChooseBlock_select".
  */
-export interface FlashcardDeckBlockSelect<T extends boolean = true> {
-  title?: T;
-  cards?:
+export interface ListenAndChooseBlockSelect<T extends boolean = true> {
+  instructions?: T;
+  term?: T;
+  distractors?: T;
+  answerWith?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BuildSentenceBlock_select".
+ */
+export interface BuildSentenceBlockSelect<T extends boolean = true> {
+  instructions?: T;
+  term?: T;
+  tiles?: T;
+  correctSequence?: T;
+  tileScript?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SpeakAndScoreBlock_select".
+ */
+export interface SpeakAndScoreBlockSelect<T extends boolean = true> {
+  instructions?: T;
+  term?: T;
+  transcript?: T;
+  video?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MultipleChoiceBlock_select".
+ */
+export interface MultipleChoiceBlockSelect<T extends boolean = true> {
+  question?: T;
+  options?:
     | T
     | {
-        card?: T;
-        audioUrl?: T;
+        label?: T;
+        isCorrect?: T;
         id?: T;
       };
+  explanation?: T;
   id?: T;
   blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "LegacyJsonBlock_select".
+ * via the `definition` "terms_select".
  */
-export interface LegacyJsonBlockSelect<T extends boolean = true> {
-  originalType?: T;
-  data?: T;
-  id?: T;
-  blockName?: T;
+export interface TermsSelect<T extends boolean = true> {
+  key?: T;
+  kind?: T;
+  display?: T;
+  japanese?: T;
+  katakana?: T;
+  reading?: T;
+  romaji?: T;
+  furigana?:
+    | T
+    | {
+        base?: T;
+        ruby?: T;
+        id?: T;
+      };
+  meaning?: T;
+  partOfSpeech?: T;
+  jlpt?: T;
+  strokes?: T;
+  strokeOrder?: T;
+  audio?: T;
+  image?: T;
+  tags?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1206,6 +1261,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        wide?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1213,6 +1302,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CmsAdminsSelect<T extends boolean = true> {
   name?: T;
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1279,6 +1369,103 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RubyInlineBlock".
+ */
+export interface RubyInlineBlock {
+  /**
+   * The characters the reading sits above — 漢字.
+   */
+  base: string;
+  /**
+   * The reading — かんじ.
+   */
+  ruby: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ruby';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TermRefInlineBlock".
+ */
+export interface TermRefInlineBlock {
+  /**
+   * A word from the vocabulary catalogue. Its reading, furigana and audio come with it, so correcting the term corrects every sentence that references it.
+   */
+  term: number | Term;
+  /**
+   * Which form of the term to show here. Falls back to the reading and then the romaji for the entries that have no Japanese script yet.
+   */
+  display: 'furigana' | 'plain' | 'reading' | 'romaji' | 'meaning';
+  /**
+   * Add a play button after the word, using the term's own pronunciation audio. Nothing renders if the term has no audio.
+   */
+  showAudio?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'termRef';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutProseBlock".
+ */
+export interface CalloutProseBlock {
+  tone: 'note' | 'tip' | 'warning';
+  title?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ExampleSentenceProseBlock".
+ */
+export interface ExampleSentenceProseBlock {
+  /**
+   * The sentence. Use Ruby for a one-off reading and Term for a word from the catalogue.
+   */
+  japanese: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  romaji?: string | null;
+  english?: string | null;
+  /**
+   * Someone reading the sentence aloud.
+   */
+  audio?: (number | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'exampleSentence';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

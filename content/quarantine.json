@@ -1,0 +1,6 @@
+{
+  "takenAt": "2026-08-18T05:40:18.263Z",
+  "note": "Content that needs a human decision. Everything listed here is STILL IN THE SNAPSHOT and still round-trips — this is a to-do list, not a removal log. legacyJson blocks have never rendered (adapters.ts drops them); Phase 4 re-authors or deletes each one. placeholders are unfinished copy that IS on the site right now — a learner sees the sentinel string.",
+  "legacyJson": [],
+  "placeholders": []
+}

@@ -19,15 +19,16 @@ export * from "./auth-schema";
  * It carries a foreign key to `payload.lessons(slug)`, ON UPDATE CASCADE and
  * ON DELETE RESTRICT (#11, #21) — but you will not find it below. The target
  * is Payload's table in another schema, invisible to `schema.ts`, so the
- * constraint lives in a hand-written migration:
- * `drizzle/0002_user_progress_lesson_fk.sql`. `drizzle-kit generate` cannot
- * see it and will never re-emit it; `drizzle-kit push` would propose dropping
- * it, which is why there is no `db:push` script. Renaming a lesson slug
- * rewrites these rows automatically; deleting a lesson anyone has progress on
- * is refused.
+ * constraint lives in a hand-written migration —
+ * `src/payload/migrations/20260815_120000_user_progress_lesson_fk.ts`, on the
+ * Payload side of the order because `payload.lessons` does not exist when
+ * drizzle runs (#44). `drizzle-kit generate` cannot see it and will never
+ * re-emit it; `drizzle-kit push` would propose dropping it, which is why there
+ * is no `db:push` script. Renaming a lesson slug rewrites these rows
+ * automatically; deleting a lesson anyone has progress on is refused.
  *
  * `stepKey` is a content-derived resume key. The grammar player reshuffles its
- * exercises on every visit (client/src/utils/expandLessonItems.ts), so a raw
+ * exercises on every visit (`src/utils/expandLessonItems.ts`), so a raw
  * step index would resume at the wrong exercise; the key identifies the item by
  * its content instead. It is opaque to the server — store and return verbatim.
  */
@@ -46,6 +47,17 @@ export const userProgress = pgTable(
       .default("in_progress"),
     lastStep: integer("last_step").notNull().default(0),
     stepKey: text("step_key").notNull().default(""),
+    /*
+     * How many times this learner has finished this lesson.
+     *
+     * The seed for the exercise shuffle (`lib/content/shuffle.ts`) is
+     * `userId + lessonId + attempt`, and this is the attempt. Without it the
+     * order would be fixed per learner forever — a seeded shuffle has to be
+     * given something that changes, or it is just a permutation of the authored
+     * order. It deliberately does *not* change on a refresh: re-shuffling
+     * mid-lesson would move the screens under someone who is partway through.
+     */
+    completions: integer("completions").notNull().default(0),
     accuracyPct: real("accuracy_pct").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),

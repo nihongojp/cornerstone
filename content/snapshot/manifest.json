@@ -1,0 +1,12 @@
+{
+  "takenAt": "2026-08-18T05:40:18.263Z",
+  "gitSha": "a5f1e0bdccca411860cd233883ed5c1c69a8a44a",
+  "payloadVersion": "3.88.0",
+  "counts": {
+    "courses": 2,
+    "terms": 41,
+    "lessons": 5,
+    "resources": 8,
+    "media": 33
+  }
+}

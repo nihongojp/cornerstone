@@ -119,10 +119,10 @@ const Header = (): React.ReactElement => {
 
               <Button
                 component={Link}
-                href="/new-lessons"
+                href="/lessons"
                 sx={{
-                  fontWeight: isActive("/new-lessons") ? 800 : 600,
-                  color: isActive("/new-lessons") ? "#b43d20" : "text.primary",
+                  fontWeight: isActive("/lessons") ? 800 : 600,
+                  color: isActive("/lessons") ? "#b43d20" : "text.primary",
                 }}
               >
                 Learn
@@ -194,7 +194,7 @@ const Header = (): React.ReactElement => {
 
               <ListItemButton
                 component={Link}
-                href="/new-lessons"
+                href="/lessons"
                 onClick={() => setDrawerOpen(false)}
               >
                 <ListItemText primary="Learn" />

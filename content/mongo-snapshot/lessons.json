@@ -1,0 +1,412 @@
+[
+  {
+    "_id": "699a45660d11ac7a2b8a8d7e",
+    "slug": "hiragana-l1-v1-hokkaido",
+    "title": "Lesson 1",
+    "version": "V1",
+    "flashcards": [
+      "あ/ア",
+      "い/イ",
+      "う/ウ",
+      "え/エ",
+      "お/オ"
+    ],
+    "funFact": "Hiragana is used for Japanese-origin words! Katakana is used for loan-words from other languages!",
+    "exercises": [
+      {
+        "exerciseId": "l1_cd",
+        "type": "connectTheDots",
+        "items": [
+          "あ/ア",
+          "い/イ",
+          "う/ウ",
+          "え/エ",
+          "お/オ"
+        ],
+        "correctAnswers": [
+          "あ/ア",
+          "い/イ",
+          "う/ウ",
+          "え/エ",
+          "お/オ"
+        ]
+      },
+      {
+        "exerciseId": "l1_am",
+        "type": "matchAudioLetter",
+        "items": [
+          "あ/ア",
+          "い/イ",
+          "う/ウ",
+          "え/エ",
+          "お/オ"
+        ],
+        "correctAnswers": [
+          "あ/ア"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l1_am_2",
+        "type": "matchAudioLetter",
+        "items": [
+          "あ/ア",
+          "い/イ",
+          "う/ウ",
+          "え/エ",
+          "お/オ"
+        ],
+        "correctAnswers": [
+          "い/イ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l1_am_3",
+        "type": "matchAudioLetter",
+        "items": [
+          "あ/ア",
+          "い/イ",
+          "う/ウ",
+          "え/エ",
+          "お/オ"
+        ],
+        "correctAnswers": [
+          "う/ウ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l1_am_4",
+        "type": "matchAudioLetter",
+        "items": [
+          "あ/ア",
+          "い/イ",
+          "う/ウ",
+          "え/エ",
+          "お/オ"
+        ],
+        "correctAnswers": [
+          "え/エ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l1_am_5",
+        "type": "matchAudioLetter",
+        "items": [
+          "あ/ア",
+          "い/イ",
+          "う/ウ",
+          "え/エ",
+          "お/オ"
+        ],
+        "correctAnswers": [
+          "お/オ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l1_vocab_ao",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "あお",
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l1_vocab_ue",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "うえ",
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l1_vocab_au",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "あう",
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l1_vocab_ooi",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "おおい",
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l1_vocab_ao_bonus",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "あお",
+        "bonus": true,
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l1_vocab_ue_bonus",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "うえ",
+        "bonus": true,
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l1_vocab_au_bonus",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "あう",
+        "bonus": true,
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l1_vocab_ooi_bonus",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "え",
+          "お"
+        ],
+        "correctAnswer": "おおい",
+        "bonus": true,
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      }
+    ],
+    "achievement": {
+      "title": "",
+      "xp": 10
+    },
+    "prefecture": "Hokkaido",
+    "cardTitle": "",
+    "flashcardsAudio": [
+      "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+      "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+      "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+      "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+      "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3"
+    ],
+    "isActive": true,
+    "updatedAt": "2026-08-15T03:49:37.759Z"
+  },
+  {
+    "_id": "699a45910d11ac7a2b8a8d86",
+    "slug": "hiragana-l2-v1-iwate",
+    "title": "Lesson 2",
+    "version": "V1",
+    "flashcards": [
+      "か/カ",
+      "き/キ",
+      "く/ク",
+      "け/ケ",
+      "こ/コ"
+    ],
+    "funFact": "Hiragana usually restarts with the あいうえお vowels every five characters! From now on, it'll just be new consonants at the start!",
+    "exercises": [
+      {
+        "exerciseId": "l2_cd",
+        "type": "connectTheDots",
+        "items": [
+          "か/カ",
+          "き/キ",
+          "く/ク",
+          "け/ケ",
+          "こ/コ"
+        ],
+        "correctAnswers": [
+          "か/カ",
+          "き/キ",
+          "く/ク",
+          "け/ケ",
+          "こ/コ"
+        ]
+      },
+      {
+        "exerciseId": "l2_am",
+        "type": "matchAudioLetter",
+        "items": [
+          "か/カ",
+          "き/キ",
+          "く/ク",
+          "け/ケ",
+          "こ/コ"
+        ],
+        "correctAnswers": [
+          "か/カ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l2_am_2",
+        "type": "matchAudioLetter",
+        "items": [
+          "か/カ",
+          "き/キ",
+          "く/ク",
+          "け/ケ",
+          "こ/コ"
+        ],
+        "correctAnswers": [
+          "き/キ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l2_am_3",
+        "type": "matchAudioLetter",
+        "items": [
+          "か/カ",
+          "き/キ",
+          "く/ク",
+          "け/ケ",
+          "こ/コ"
+        ],
+        "correctAnswers": [
+          "く/ク"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l2_am_4",
+        "type": "matchAudioLetter",
+        "items": [
+          "か/カ",
+          "き/キ",
+          "く/ク",
+          "け/ケ",
+          "こ/コ"
+        ],
+        "correctAnswers": [
+          "け/ケ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l2_am_5",
+        "type": "matchAudioLetter",
+        "items": [
+          "か/カ",
+          "き/キ",
+          "く/ク",
+          "け/ケ",
+          "こ/コ"
+        ],
+        "correctAnswers": [
+          "こ/コ"
+        ],
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "prompt": "Listen and choose the character you hear"
+      },
+      {
+        "exerciseId": "l2_vocab_koke",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "か",
+          "き",
+          "く",
+          "け",
+          "こ"
+        ],
+        "correctAnswer": "こけ",
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l2_vocab_ike",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "い",
+          "う",
+          "か",
+          "け"
+        ],
+        "correctAnswer": "いけ",
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      },
+      {
+        "exerciseId": "l2_vocab_oke",
+        "type": "vocabulary_drag_drop",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1778114881/dummy_audio.mp3",
+        "characterBank": [
+          "あ",
+          "う",
+          "お",
+          "か",
+          "け"
+        ],
+        "correctAnswer": "おけ",
+        "imageUrl": "https://res.cloudinary.com/demo/image/upload/sample.jpg"
+      }
+    ],
+    "achievement": {
+      "title": "",
+      "xp": 10
+    },
+    "prefecture": "Iwate",
+    "updatedAt": "2026-08-15T03:49:37.874Z",
+    "cardTitle": "",
+    "flashcardsAudio": [],
+    "isActive": true
+  }
+]

@@ -1,0 +1,1126 @@
+[
+  {
+    "key": "69757225298565a7fdb85b92",
+    "status": "published",
+    "latest": {
+      "category": "News",
+      "items": [
+        {
+          "id": "6a80d50812409c84ac232295",
+          "itemId": "news_nhk",
+          "title": "NHK",
+          "url": "https://www3.nhk.or.jp/nhknews/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Japan’s national broadcaster news site with up-to-date articles and video clips.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50812409c84ac232296",
+          "itemId": "news_ohayo_nihon",
+          "title": "Ohayo Nihon",
+          "url": "https://www.nhk.jp/p/ohayou/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "NHK morning news program page—good for daily listening practice and headlines.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50812409c84ac232297",
+          "itemId": "news_asahi",
+          "title": "Asahi",
+          "url": "https://www.asahi.com/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Major Japanese newspaper covering politics, business, culture, and society.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50812409c84ac232298",
+          "itemId": "news_nhk_easy",
+          "title": "NHK News Web Easy",
+          "url": "https://www3.nhk.or.jp/news/easy/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Simplified Japanese news with furigana and audio, designed for learners.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50812409c84ac232299",
+          "itemId": "news_places",
+          "title": "Places",
+          "url": "https://www.japan.travel/en/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Japan travel and places guide—useful vocabulary for locations, food, and culture.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b92",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b93",
+    "status": "published",
+    "latest": {
+      "category": "Textbooks",
+      "items": [
+        {
+          "id": "6a80d50912409c84ac23229a",
+          "itemId": "tb_genki",
+          "title": "Genki",
+          "url": "https://genki.japantimes.co.jp/en/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Popular beginner Japanese textbook series with structured lessons and exercises.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50912409c84ac23229b",
+          "itemId": "tb_busy_people",
+          "title": "Japanese for Busy People",
+          "url": "https://www.kodansha.us/book/japanese-for-busy-people/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Practical Japanese textbook focused on everyday conversations and quick learning.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50912409c84ac23229c",
+          "itemId": "tb_random",
+          "title": "Random",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for any extra textbook or PDF you want to add later.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b93",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b94",
+    "status": "published",
+    "latest": {
+      "category": "Videos",
+      "items": [
+        {
+          "id": "6a80d50912409c84ac23229d",
+          "itemId": "vid_nhk_school",
+          "title": "NHK for School",
+          "url": "https://www.nhk.or.jp/school/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Educational videos for Japanese students—great for real native-speed exposure.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50912409c84ac23229e",
+          "itemId": "vid_youtube_channel",
+          "title": "Youtube channel",
+          "url": "https://www.youtube.com/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "General YouTube entry—replace with your favorite Japanese learning channel.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50912409c84ac23229f",
+          "itemId": "vid_doraemon",
+          "title": "Doraemon",
+          "url": "https://www.youtube.com/results?search_query=doraemon+japanese",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Search results for Doraemon in Japanese—easy listening with familiar context.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50912409c84ac2322a0",
+          "itemId": "vid_some_youtube",
+          "title": "Some youtube",
+          "url": "https://www.youtube.com/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for another YouTube playlist or a specific video series.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b94",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b95",
+    "status": "published",
+    "latest": {
+      "category": "Shows",
+      "items": [
+        {
+          "id": "6a80d50a12409c84ac2322a1",
+          "itemId": "show_some_anime",
+          "title": "Some anime",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for any anime series you want to add as a study resource.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a2",
+          "itemId": "show_gegege",
+          "title": "Gegege no Kitaro",
+          "url": "https://www.toei-anim.co.jp/tv/kitaro/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Official series page—useful for learning folklore-related vocabulary and expressions.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a3",
+          "itemId": "show_doraemon",
+          "title": "Doraemon",
+          "url": "https://www.tv-asahi.co.jp/doraemon/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Official Doraemon page—great beginner-friendly conversations and daily phrases.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a4",
+          "itemId": "show_some_youtube",
+          "title": "Some youtube",
+          "url": "https://www.youtube.com/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for a show playlist or episodes hosted on YouTube.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b95",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b96",
+    "status": "published",
+    "latest": {
+      "category": "Organizations",
+      "items": [
+        {
+          "id": "6a80d50a12409c84ac2322a5",
+          "itemId": "org_jsnc",
+          "title": "Japan Society of Northern California",
+          "url": "https://www.usajapan.org/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Community organization with events and cultural programs related to Japan.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a6",
+          "itemId": "org_culture",
+          "title": "Culture",
+          "url": "https://www.japan.go.jp/",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Japanese government portal with cultural and informational resources about Japan.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50a12409c84ac2322a7",
+          "itemId": "org_random",
+          "title": "Random",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for any local Japanese organization or language community.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b96",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b97",
+    "status": "published",
+    "latest": {
+      "category": "Writing",
+      "items": [
+        {
+          "id": "6a80d50b12409c84ac2322a8",
+          "itemId": "write_sheets",
+          "title": "Exercise sheets",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Printable practice sheets for handwriting, stroke order, and drills.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50b12409c84ac2322a9",
+          "itemId": "write_more_practice",
+          "title": "More practice",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Extra writing prompts or grammar drills you add later.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50b12409c84ac2322aa",
+          "itemId": "write_ex3",
+          "title": "Exercise 3",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "A specific writing exercise placeholder (e.g., lesson-based worksheet).",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b97",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b98",
+    "status": "published",
+    "latest": {
+      "category": "Podcasts",
+      "items": [
+        {
+          "id": "6a80d50b12409c84ac2322ab",
+          "itemId": "pod_ex1",
+          "title": "Example 1",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for a beginner-friendly Japanese podcast recommendation.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50b12409c84ac2322ac",
+          "itemId": "pod_ex2",
+          "title": "Example 2",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for an intermediate Japanese listening podcast.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50b12409c84ac2322ad",
+          "itemId": "pod_ex3",
+          "title": "Example 3",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for a casual/native-speed Japanese podcast resource.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b98",
+      "_status": "published"
+    }
+  },
+  {
+    "key": "69757225298565a7fdb85b99",
+    "status": "published",
+    "latest": {
+      "category": "Reading",
+      "items": [
+        {
+          "id": "6a80d50b12409c84ac2322ae",
+          "itemId": "read_ame_nimo_makezu",
+          "title": "Ame nimo makezu",
+          "url": "https://www.aozora.gr.jp/cards/000081/files/45630_23908.html",
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Classic Japanese poem on Aozora Bunko—good for reading practice and vocabulary.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50b12409c84ac2322af",
+          "itemId": "read_book_2",
+          "title": "Book 2",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for an easy Japanese reader (graded reader or children’s book).",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        },
+        {
+          "id": "6a80d50b12409c84ac2322b0",
+          "itemId": "read_poem_3",
+          "title": "Poem 3",
+          "url": null,
+          "description": {
+            "root": {
+              "type": "root",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "type": "paragraph",
+                  "format": "",
+                  "indent": 0,
+                  "version": 1,
+                  "children": [
+                    {
+                      "mode": "normal",
+                      "text": "Placeholder for another short poem or text to read for practice.",
+                      "type": "text",
+                      "style": "",
+                      "detail": 0,
+                      "format": 0,
+                      "version": 1
+                    }
+                  ],
+                  "direction": "ltr",
+                  "textStyle": "",
+                  "textFormat": 0
+                }
+              ],
+              "direction": "ltr"
+            }
+          }
+        }
+      ],
+      "sourceId": "69757225298565a7fdb85b99",
+      "_status": "published"
+    }
+  }
+]

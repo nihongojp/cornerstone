@@ -1,0 +1,45 @@
+name: CI
+
+# The checks that need nothing but the source tree.
+#
+# Split from `neon-preview-branch.yml` on purpose. That workflow is gated on
+# `vars.NEON_PROJECT_ID`, so with the variable unset — or on a fork, or if
+# branch creation fails — every check in it skips and a pull request goes green
+# having run nothing at all. The tests and the typecheck need no database, no
+# secrets and no network, so there is no reason for them to share that fate.
+#
+# Anything that needs a database lives in `neon-preview-branch.yml` instead.
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # The pure transforms — `textToLexical`, the furigana fallback chain, the
+      # snapshot's lexical reference walking, the seeded practice shuffle and
+      # the two access predicates. Every one of them fails silently in
+      # production: a shuffle that ignores its seed still returns a list, and a
+      # revalidation guard that never fires just makes the site quietly slow.
+      - name: Test
+        run: npm test
+
+      # Covers `scripts/` as well as the app — see the second tsconfig.
+      - name: Typecheck
+        run: npm run typecheck

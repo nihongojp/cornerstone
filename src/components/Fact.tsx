@@ -6,7 +6,12 @@ import LightbulbRoundedIcon from "@mui/icons-material/LightbulbRounded";
 
 interface FactProps {
   title: string;
-  description: string;
+  /*
+   * A node rather than a string: the copy behind this is rich text now, so the
+   * caller hands over a rendered `<RichText>` and this component is only the box
+   * it sits in. Plain strings still work — every other caller passes one.
+   */
+  description: React.ReactNode;
   imageUrl?: string; // optional — no hardcoded fallback
   imageAlt?: string;
 }
@@ -77,7 +82,14 @@ const Fact: React.FC<FactProps> = ({ title, description, imageUrl, imageAlt }) =
 
         {/* Body */}
         <Box sx={{ px: { xs: 2.5, sm: 3 }, py: { xs: 2.5, sm: 3 } }}>
-          <Typography
+          {/*
+            A Box, not a Typography: rich text renders block elements —
+            paragraphs, lists, a figure — and nesting those inside the <p> a
+            Typography emits by default is invalid HTML that React warns about
+            and browsers silently reflow. The type styles are applied here
+            instead and inherited.
+          */}
+          <Box
             sx={{
               fontSize: { xs: "1rem", sm: "1.1rem" },
               lineHeight: 1.7,
@@ -85,7 +97,7 @@ const Fact: React.FC<FactProps> = ({ title, description, imageUrl, imageAlt }) =
             }}
           >
             {description}
-          </Typography>
+          </Box>
         </Box>
       </Box>
 

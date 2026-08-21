@@ -7,8 +7,8 @@ explains why Payload and drizzle-kit share one database.
 ## Shape
 
 ```
-courses ──< lessons ──< exercises[] ──< components[]
-                            (array)       (blocks, one per exercise)
+courses ──< lessons ──< steps[] ──< components[]
+                         (array)      (blocks; a step is one screen)
 resources        media (uploads → Vercel Blob)        cms_admins (admin login)
 ```
 
@@ -17,17 +17,24 @@ resources        media (uploads → Vercel Blob)        cms_admins (admin login)
 - **`lessons`** — one collection for both old Mongo collections, legacy
   `lessons` and `newlessons`. Display field is `title`; `newlessons` called it
   `lesson` and the import renames it. Drafts replace the old `isActive`.
-  **`format`** is what survives of the split between the two: `flashcard`
-  lessons play at `/lesson/<slug>` and are the only ones pinned to the
-  dashboard map, `step` lessons play at `/newlesson/<slug>`, and the two lists
-  on `/new-lessons` are the two values. It is a stored field rather than
+  **`format`** is what survives of the split between the two: both formats
+  play at the same `/lessons/<slug>` route now (merged once Phase 4b made
+  them render the same runner), so `format` no longer selects a URL — it
+  only selects which list a lesson appears in, and `flashcard` lessons are
+  the ones pinned to the dashboard map. It is a stored field rather than
   something derived because the course a lesson sits in is a product decision
   an editor can change, and deriving it from the blocks present would force
-  every list query to load every lesson's exercises (#20).
-- **`exercises`** — an array field on the lesson, not a collection. An exercise
-  belongs to exactly one lesson, is order-sensitive, and has no independent
-  lifecycle.
-- **components** — a `blocks` field inside each exercise, one block type per
+  every list query to load every lesson's steps (#20).
+- **`level` / `part`** — what a learner is shown: the lessons list groups into
+  "Lesson `<level>`" sections and labels cards "Lesson `<level>`.`<part>`".
+  `level` spans courses, so it is not a within-course position (`order` is).
+  They were parsed out of the slug with a regex until they became real fields;
+  `version` (text, `"v1"`) held the part number redundantly and is gone.
+- **`steps`** — an array field on the lesson, not a collection. A step is one
+  screen, belongs to exactly one lesson, is order-sensitive, and has no
+  independent lifecycle. It is not necessarily a question — a prose-only step
+  is normal; the blocks on it decide. Called `exercises` until #70's follow-up.
+- **components** — a `blocks` field inside each step, one block type per
   entry in `KNOWN_GRAMMAR_TYPES` / `KNOWN_LEGACY_TYPES` in
   `src/lib/content/item-schemas.ts`, which stays the source of truth.
 
@@ -52,12 +59,12 @@ order), and `isActive` (draft/publish).
 
 ## How the app reads it
 
-Everything goes through `src/lib/content/content.ts`, which keeps the five
-signatures the app has had since the Express controllers — `listLessons`,
-`getLessonBySlug`, `listNewLessons`, `getNewLessonBySlug`, `getResources` —
-plus `getLessonRoute` for resuming, which spans both formats and returns the
-`href` of the player a lesson actually belongs to. `adapters.ts` flattens
-exercises → components back to the flat `items[]` / `flashcards[]` +
+Everything goes through `src/lib/content/content.ts` — `listLessons` and
+`listNewLessons` still filter by format for their own listing pages, but
+`getLessonBySlug` (the detail lookup) no longer does: it spans both formats,
+since they share one route now. Plus `getResources`, and `getLessonRoute` for
+resuming, which spans both formats and returns the `href` of the lesson.
+`adapters.ts` flattens exercises → components back to the flat `items[]` / `flashcards[]` +
 `exercises[]` shapes in `src/lib/types/lessons.ts`; while one-component-per-
 exercise holds, that flattening is item-for-item, so step counts and `stepKey`
 resume are unchanged. `nextSlug` is synthesised from course order.
@@ -88,7 +95,8 @@ could not be migrated at all: `payload.lessons` does not exist when drizzle
 runs, and because drizzle applies its whole pending set in one transaction, the
 failure rolled back the `CREATE SCHEMA payload` that Payload needed next. The
 migration is guarded on `pg_constraint`, so it is a no-op on every database
-that already had the constraint from the old `drizzle/0002`.
+that already had the constraint from the drizzle migration it replaced (deleted
+in #44; the `0002` slot in `drizzle/` is free for unrelated work).
 
 Consequences worth knowing:
 
@@ -145,8 +153,8 @@ to Save opens the same page in its own tab instead.
 
 Only `lessons` and `resources` have it. A course is a grouping with no page of
 its own, and media is an upload; neither has anything for the panel to load.
-Lessons open in whichever player `format` selects, so flipping `format` moves
-the panel between `/lesson/<slug>` and `/newlesson/<slug>`.
+Both lesson formats preview at the same `/lessons/<slug>` route; `format`
+only changes which player renders inside it.
 
 Two environment variables turn it on: `PREVIEW_SECRET` and
 `NEXT_PUBLIC_SERVER_URL`. Without the secret the feature hides itself rather

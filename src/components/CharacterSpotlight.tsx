@@ -1,24 +1,33 @@
 "use client";
 
 import React from "react";
-import { Box, IconButton, Typography } from "@mui/material";
-import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
+import { Box, Typography } from "@mui/material";
 
-interface CharacterSpotlightProps {
-  character: string;
-  script: "Hiragana" | "Katakana";
-  imageUrl: string;
-  strokes: number;
-  audioUrl?: string;
-}
+import type { Term } from "../payload/payload-types";
+import MediaAudio from "./media/MediaAudio";
+import MediaImage from "./media/MediaImage";
 
-// Full-screen "spotlight" for a single character, shown before the
-// flashcards step so each new hiragana/katakana gets its own moment.
-const CharacterSpotlight: React.FC<CharacterSpotlightProps> = ({ character, script, imageUrl, strokes, audioUrl }) => {
-  const playAudio = () => {
-    if (!audioUrl) return;
-    new Audio(audioUrl).play().catch(() => {});
-  };
+/*
+ * One character, large, with its stroke-order diagram.
+ *
+ * This used to be a screen the flashcard player generated: it walked the
+ * lesson's flashcard strings, looked each character up in `data/kanaStrokeOrder.ts`
+ * — a hardcoded table of ten media URLs — and pushed a step per hit. So the
+ * screens existed in no lesson, could not be reordered, edited or removed by an
+ * author, and had no Payload row to key progress on.
+ *
+ * The catalogue holds the same data (`strokes` and the `strokeOrder` upload on a
+ * kana term), so it is a `vocabList` with `layout: "spotlight"` now — an authored
+ * screen like any other, and the hardcoded table is gone.
+ *
+ * The audio button was a permanently-disabled placeholder. The term carries its
+ * own recording, so it plays when there is one and is absent when there is not,
+ * rather than being present and dead.
+ */
+const CharacterSpotlight: React.FC<{ term: Term }> = ({ term }) => {
+  const character = term.japanese ?? term.romaji ?? term.key;
+  const script = term.katakana ? "Hiragana" : "Character";
+
   return (
     <Box
       sx={{
@@ -43,37 +52,25 @@ const CharacterSpotlight: React.FC<CharacterSpotlightProps> = ({ character, scri
         {script}
       </Typography>
 
-      <Box
-        component="img"
-        src={imageUrl}
-        alt={character}
-        sx={{
-          width: { xs: 200, sm: 260 },
-          height: { xs: 200, sm: 260 },
-          objectFit: "contain",
-        }}
-      />
+      {term.strokeOrder ? (
+        <Box sx={{ width: { xs: 200, sm: 260 } }}>
+          <MediaImage value={term.strokeOrder} size="card" />
+        </Box>
+      ) : (
+        // No diagram for this character. The character itself is the content —
+        // better than an empty frame where a picture is meant to be.
+        <Typography sx={{ fontSize: { xs: "7rem", sm: "9rem" }, lineHeight: 1, fontWeight: 700 }}>
+          {character}
+        </Typography>
+      )}
 
-      <IconButton
-        aria-label="Play audio"
-        onClick={playAudio}
-        disabled={!audioUrl}
-        sx={{
-          width: 48,
-          height: 48,
-          color: "#fff",
-          bgcolor: audioUrl ? "#B43D20" : "rgba(0,0,0,0.15)",
-          boxShadow: audioUrl ? "0 2px 10px rgba(180,61,32,0.3)" : "none",
-          "&:hover": { bgcolor: audioUrl ? "#9D351C" : "rgba(0,0,0,0.15)" },
-          "&.Mui-disabled": { color: "rgba(255,255,255,0.7)" },
-        }}
-      >
-        <VolumeUpRoundedIcon />
-      </IconButton>
+      <MediaAudio value={term.audio} />
 
-      <Typography sx={{ fontWeight: 600, fontSize: "0.95rem", color: "text.secondary" }}>
-        Strokes: {strokes}
-      </Typography>
+      {typeof term.strokes === "number" && (
+        <Typography sx={{ fontWeight: 600, fontSize: "0.95rem", color: "text.secondary" }}>
+          Strokes: {term.strokes}
+        </Typography>
+      )}
     </Box>
   );
 };

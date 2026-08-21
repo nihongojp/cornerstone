@@ -24,6 +24,14 @@ import type { Access } from "payload";
  * `req.user` is a `cms_admins` user, not a learner: this is the CMS identity,
  * which is why the draft readers in `content.ts` pass the authenticated editor
  * through as `user` rather than switching `overrideAccess` off.
+ *
+ * This `Where` also applies to Payload's default `findByID`, so
+ * `GET /api/lessons/<numeric-id>` is reachable alongside the slug-based
+ * lookups the app itself uses — intentionally left open rather than closed
+ * with bespoke access logic. The filter is on publish status, not on lookup
+ * key, so an id-based request can't reach anything a slug-based one
+ * couldn't; app code never uses it, so it's an unused surface, not a
+ * privilege gap.
  */
 export const readPublishedOrEditor: Access = ({ req }) =>
   req.user ? true : { _status: { equals: "published" } };

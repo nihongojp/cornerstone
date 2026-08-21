@@ -1,0 +1,926 @@
+[
+  {
+    "_id": "6a4f5136a670a646ec413f25",
+    "lesson": "Lesson 1 Pt. 1",
+    "slug": "l1-v1",
+    "items": [
+      {
+        "type": "page",
+        "number": 1,
+        "title": "Hajimemashite",
+        "videoForm": [
+          "Hajimemashite, Nakamura desu",
+          "Hajimemashite, Suu desu."
+        ],
+        "videoUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784647623/Hajimemashite_cqfhtl.mp4",
+        "newTerms": [],
+        "audioURL": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784648221/Hajimemashite_aodjal.m4a",
+        "description": "Meeting first time, polite"
+      },
+      {
+        "type": "page",
+        "number": 2,
+        "title": "Konnnichiwa",
+        "videoForm": [
+          "Konnnichiwa",
+          "Konnnichiwa"
+        ],
+        "videoUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784352350/Konnnichiwa_so1c8p.mp4",
+        "newTerms": [],
+        "audioURL": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784649196/Konnichiwa_putqgw.m4a",
+        "description": ""
+      },
+      {
+        "type": "page",
+        "number": 3,
+        "title": "Ohayou gozaimasu",
+        "videoForm": [
+          "Ohayou gozaimasu",
+          "Ohayou gozaimasu"
+        ],
+        "videoUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784649095/Ohayou_gozaimasu_d4iguz.mp4",
+        "newTerms": [],
+        "audioURL": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784649257/Ohayou_Gozaimasu_i5zn0p.m4a",
+        "description": "Polite"
+      },
+      {
+        "type": "page",
+        "number": 4,
+        "title": "Konnbannwa",
+        "videoForm": [
+          "Konnbannwa",
+          "Konnbannwa"
+        ],
+        "videoUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784649439/Konnbannwa_kbmnhf.mp4",
+        "newTerms": [],
+        "audioURL": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784649466/Konnwannwa_u3kvxq.m4a",
+        "description": "Polite"
+      },
+      {
+        "type": "matchingExercise",
+        "rows": [
+          "audio buttons",
+          "image"
+        ],
+        "instructions": "Match phrase to appropriate situation - connect the dots",
+        "items": [
+          {
+            "phrase": "Hajimemashite",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837469/New_Recording_37_xskjfk.m4a",
+            "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784728558/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png"
+          },
+          {
+            "phrase": "Konnnichiwa",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784838247/Konnnichiha_R_bov8g7.m4a",
+            "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784355165/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png"
+          },
+          {
+            "phrase": "Ohayou gozaimasu",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837601/Ohayougozaimasu_R_r5go97.m4a",
+            "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784728513/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png"
+          },
+          {
+            "phrase": "Konnbannwa",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837425/Konnnichiha_ibgete.m4a",
+            "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784728456/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png"
+          }
+        ]
+      },
+      {
+        "type": "page",
+        "number": 5,
+        "title": "Sumimasen",
+        "videoForm": [
+          "[...]",
+          "Sumimasen"
+        ],
+        "videoUrl": "",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 6,
+        "title": "Arigatougozaimasu",
+        "videoForm": [
+          "[...]",
+          "Arigatougozaimasu"
+        ],
+        "videoUrl": "",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 7,
+        "title": "Sayounara",
+        "videoForm": [
+          "Sayounara",
+          "Sayounara"
+        ],
+        "videoUrl": "",
+        "newTerms": []
+      },
+      {
+        "type": "matchingExercise",
+        "rows": [
+          "audio buttons",
+          "image"
+        ],
+        "instructions": "Match phrase to appropriate situation - connect the dots",
+        "items": [
+          {
+            "phrase": "Sumimasen",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837822/Sumimasen_R_otzedy.m4a",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Arigatougozaimasu",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837723/Arigatougozaimasu_R_hikobv.m4a",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Sayounara",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837661/Sayounara_R_nyjeau.m4a",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          }
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Hajimemashite",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837469/New_Recording_37_xskjfk.m4a",
+        "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784728558/Screenshot_2026-07-22_at_6.55.43_AM_gq3vlz.png",
+        "correctSequence": [
+          "hajime",
+          "mashite"
+        ],
+        "options": [
+          "masu",
+          "hajime",
+          "bann",
+          "konn",
+          "mashite"
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Konnnichiwa",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784838247/Konnnichiha_R_bov8g7.m4a",
+        "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784355165/Screenshot_2026-07-17_at_11.12.30_PM_tlzgf6.png",
+        "correctSequence": [
+          "konn",
+          "nichi",
+          "ha"
+        ],
+        "options": [
+          "konn",
+          "bann",
+          "ha",
+          "nichi",
+          "hajime"
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Ohayou gozaimasu",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837601/Ohayougozaimasu_R_r5go97.m4a",
+        "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784728513/Screenshot_2026-07-22_at_6.54.54_AM_lvi7dq.png",
+        "correctSequence": [
+          "ohayou",
+          "gozai",
+          "masu"
+        ],
+        "options": [
+          "arigatou",
+          "masu",
+          "gozai",
+          "ohayou",
+          "sayou"
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Konnbannwa",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837425/Konnnichiha_ibgete.m4a",
+        "imageUrl": "https://res.cloudinary.com/dxxezusx5/image/upload/v1784728456/Screenshot_2026-07-21_at_9.13.07_AM_mhk2ud.png",
+        "correctSequence": [
+          "konn",
+          "bann",
+          "ha"
+        ],
+        "options": [
+          "konn",
+          "bann",
+          "nichi",
+          "ha",
+          "nara"
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Sumimasen",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837822/Sumimasen_R_otzedy.m4a",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL",
+        "correctSequence": [
+          "sumi",
+          "masenn"
+        ],
+        "options": [
+          "sumi",
+          "ohayou",
+          "mashite",
+          "masenn",
+          "masu"
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Arigatougozaimasu",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837723/Arigatougozaimasu_R_hikobv.m4a",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL",
+        "correctSequence": [
+          "arigatou",
+          "gozai",
+          "masu"
+        ],
+        "options": [
+          "haji",
+          "arigatou",
+          "gozai",
+          "mashite",
+          "masu"
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Sayounara",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784837661/Sayounara_R_nyjeau.m4a",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL",
+        "options": [
+          "haji",
+          "sayou",
+          "mashite",
+          "nara",
+          "gozaimasu"
+        ],
+        "correctSequence": [
+          "sayou",
+          "nara"
+        ]
+      },
+      {
+        "type": "infoBreak",
+        "content": "Topic: Consonant + vowel build. Format: Short paragraph text bubble form."
+      },
+      {
+        "type": "infoBreak",
+        "content": "In certain words in Japanese, there is a vowel extension. Ifyou noticed, \"ohayougozaimasu\" is pronounced \"ohayoogozaimasu\", where the end of the \"ohayou\" is stretched out to an \"ohayoo\". Similarly, \"arigatougozaimasu\" is stretched out to \"arigatoogozaimasu\", and \"sayounara\" is stretched out to \"sayoonara\" You will get used to it over time! "
+      }
+    ],
+    "cardTitle": "First Greetings — Part 1",
+    "__v": 4,
+    "isActive": true,
+    "tags": [],
+    "updatedAt": "2026-07-24T00:26:25.900Z",
+    "nextSlug": "l1-v2"
+  },
+  {
+    "_id": "6a51cc61a670a646ec413f28",
+    "lesson": "Lesson 2 V1",
+    "slug": "l2-v1",
+    "items": [
+      {
+        "type": "page",
+        "number": 1,
+        "title": "Sumimasen, wakarimasen",
+        "videoForm": [
+          "[...]",
+          "Sumimasen, wakarimasen"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 2,
+        "title": "Mouichido, onegaishimasu",
+        "videoForm": [
+          "[...]",
+          "Mouichido, onegaishimasu",
+          "[...]"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 3,
+        "title": "Yukkuri, onegaishimasu",
+        "videoForm": [
+          "[...]",
+          "Yukkuri, onegaishimasu",
+          "[...]"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "matchingExercise",
+        "rows": [
+          "audio buttons",
+          "image"
+        ],
+        "instructions": "Match phrase to appropriate situation - connect the dots",
+        "items": [
+          {
+            "phrase": "Sumimasen, wakarimasen",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Mouichido, onegaishimasu",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Yukkuri, onegaishimasu",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          }
+        ]
+      },
+      {
+        "type": "infoBreak",
+        "content": "Explain particle \"ha\"."
+      },
+      {
+        "type": "page",
+        "number": 4,
+        "title": "Kore",
+        "videoForm": [
+          "[...]",
+          "Kore"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 5,
+        "title": "Sore",
+        "videoForm": [
+          "[...]",
+          "Sore"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 6,
+        "title": "Are",
+        "videoForm": [
+          "[...]",
+          "Are"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 7,
+        "title": "dore",
+        "videoForm": [
+          "[...]",
+          "Dore"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "matchingExercise",
+        "rows": [
+          "audio buttons",
+          "image"
+        ],
+        "instructions": "Match phrase to appropriate situation - connect the dots",
+        "items": [
+          {
+            "phrase": "Kore",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Sore",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Are",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Dore",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          }
+        ]
+      },
+      {
+        "type": "infoBreak",
+        "content": "To be filled in"
+      },
+      {
+        "type": "page",
+        "number": 8,
+        "title": "Kore ha nandesuka",
+        "videoForm": [
+          "[...]",
+          "Kore ha nandesuka"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 9,
+        "title": "Sore ha nandesuka",
+        "videoForm": [
+          "[...]",
+          "Sore ha nandesuka"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "matchingExercise",
+        "rows": [
+          "audio buttons",
+          "image"
+        ],
+        "instructions": "Match phrase to appropriate situation - connect the dots",
+        "items": [
+          {
+            "phrase": "Kore ha nandesuka",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Sore ha nandesuka",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          }
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Sumimasen, wakarimasen",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Mouichido, onegaishimasu",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Yukkuri, onegaishimasu",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Kore",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Sore",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Are",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Dore",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Kore ha nandesuka",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Sore ha nandesuka",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "lifeUsefulFact",
+        "content": "Trash sorting?"
+      },
+      {
+        "type": "page",
+        "number": 10,
+        "title": "Flashcard review",
+        "format": "Flashcard",
+        "terms": [
+          {
+            "term": "Sumimasen, wakarimasen",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Mouichido, onegaishimasu",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Yukkuri, onegaishimasu",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          }
+        ]
+      },
+      {
+        "type": "page",
+        "number": 11,
+        "title": "Flashcard review",
+        "format": "Flashcard",
+        "terms": [
+          {
+            "term": "Kore",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Sore",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Are",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "dore",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          }
+        ]
+      },
+      {
+        "type": "page",
+        "number": 12,
+        "title": "Flashcard review",
+        "format": "Flashcard",
+        "terms": [
+          {
+            "term": "Kore ha nandesuka",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Sore ha nandesuka",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          }
+        ]
+      }
+    ],
+    "cardTitle": "Common Phrases\n",
+    "__v": 1,
+    "isActive": true,
+    "nextSlug": "",
+    "tags": [],
+    "updatedAt": "2026-07-23T23:48:50.812Z"
+  },
+  {
+    "_id": "6a62a173a51d5d6db4f1219f",
+    "lesson": "Lesson 1 Pt. 2",
+    "cardTitle": "First Greetings — Part 2",
+    "slug": "l1-v2",
+    "nextSlug": "",
+    "items": [
+      {
+        "type": "page",
+        "number": 8,
+        "title": "Ogenki desuka",
+        "videoForm": [
+          "[...]",
+          "Ogenki desuka"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 9,
+        "title": "Okagesama de",
+        "videoForm": [
+          "Ogenki desuka",
+          "Okagesama de"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 10,
+        "title": "Hai",
+        "videoForm": [
+          "[...]",
+          "Hai"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 11,
+        "title": "Iie",
+        "videoForm": [
+          "[...]",
+          "Iie"
+        ],
+        "videoUrl": "PLACEHOLDER_VIDEO_URL",
+        "newTerms": []
+      },
+      {
+        "type": "page",
+        "number": 10,
+        "title": "Introduce common phrases",
+        "format": "Paragraph form",
+        "grammarPoints": [
+          {
+            "pattern": "~ desu",
+            "examples": [
+              "___ desu"
+            ]
+          },
+          {
+            "pattern": "~ desu ka",
+            "examples": [
+              "___ desu ka."
+            ]
+          }
+        ]
+      },
+      {
+        "type": "infoBreak",
+        "content": "In Japanese, question marks \"?\" are not used at the end of questions. Instead, all sentences, including questions, end with a maru \"。\" (circle, in Japanese). However, some may still use exclamation marks \"!\" for sentences with strong emotion. "
+      },
+      {
+        "type": "matchingExercise",
+        "rows": [
+          "audio buttons",
+          "image"
+        ],
+        "instructions": "Match phrase to appropriate situation - connect the dots",
+        "items": [
+          {
+            "phrase": "Ogennki desuka",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843719/Ogenkidesuka_R_bsdnch.m4a",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Okagesamade",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843656/Okagesamade_R_oemvy4.m4a",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "Hai",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843987/Hai_R_diaf22.m4a",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "iie",
+            "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843489/Iie_R_uxvz7f.m4a",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "~ desu",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          },
+          {
+            "phrase": "~ desu ka",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL"
+          }
+        ]
+      },
+      {
+        "type": "page",
+        "number": 11,
+        "title": "Introduce particle \"ga\"",
+        "format": "Small paragraph-style explanation",
+        "content": ""
+      },
+      {
+        "type": "infoBreak",
+        "content": "In Japanese, people rarely refer to each other with the pronoun \"you\". Instead, people refer to each other by their last names with and a title added to the name. "
+      },
+      {
+        "type": "page",
+        "number": 12,
+        "title": "Introduce people-referring",
+        "grammarPoints": [
+          {
+            "pattern": "~ san",
+            "examples": [
+              "[famous people] san",
+              "[job position] san desu.",
+              "[relationship position] san desu."
+            ]
+          }
+        ]
+      },
+      {
+        "type": "matchingExercise",
+        "description": "Matches of phrases using ~ san and ~ jin",
+        "instructions": "Match to corresponding English translation - connect the dots",
+        "items": [
+          {
+            "phrase": "PLACEHOLDER_PHRASE_SAN",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "englishTranslation": "PLACEHOLDER_TRANSLATION"
+          },
+          {
+            "phrase": "PLACEHOLDER_PHRASE_JIN",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL",
+            "englishTranslation": "PLACEHOLDER_TRANSLATION"
+          }
+        ]
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Ogennki desuka",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843719/Ogenkidesuka_R_bsdnch.m4a",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Okagesamade",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843656/Okagesamade_R_oemvy4.m4a",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "Hai",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843987/Hai_R_diaf22.m4a",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "iie",
+        "audioUrl": "https://res.cloudinary.com/dxxezusx5/video/upload/v1784843489/Iie_R_uxvz7f.m4a",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "~ desu",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "~ desu ka",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "PLACEHOLDER_PHRASE_SAN",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "dragAndDropExercise",
+        "_term": "PLACEHOLDER_PHRASE_JIN",
+        "audioUrl": "PLACEHOLDER_AUDIO_URL",
+        "imageUrl": "PLACEHOLDER_IMAGE_URL"
+      },
+      {
+        "type": "lifeUsefulFact",
+        "content": "There are two separate emergency phone numbers in Japan. Dial 119 to reach the emergency medical and fire help. Dial 110 to reach the police. "
+      },
+      {
+        "type": "page",
+        "number": 13,
+        "title": "Flashcard review",
+        "format": "Flashcard",
+        "terms": [
+          {
+            "term": "Hajimemashite",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Konnichiwa",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Ohayou gozaimasu",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Konnbannwa",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Sumimasen",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Arigatougozaimasu",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Sayounara",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          }
+        ]
+      },
+      {
+        "type": "page",
+        "number": 14,
+        "title": "Flashcard review",
+        "format": "Flashcard",
+        "terms": [
+          {
+            "term": "Ogennki desuka",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Okagesama de",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "Hai",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "iie",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          }
+        ]
+      },
+      {
+        "type": "page",
+        "number": 15,
+        "title": "Flashcard review",
+        "format": "Flashcard",
+        "terms": [
+          {
+            "term": "~ desu",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "~ desu ka.",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "~ san",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          },
+          {
+            "term": "~ jin",
+            "imageUrl": "PLACEHOLDER_IMAGE_URL",
+            "audioUrl": "PLACEHOLDER_AUDIO_URL"
+          }
+        ]
+      }
+    ],
+    "isActive": true,
+    "tags": [],
+    "createdAt": "2026-07-23T23:19:15.823Z",
+    "updatedAt": "2026-07-23T23:48:50.645Z",
+    "__v": 1
+  }
+]

@@ -1,0 +1,84 @@
+[
+  {
+    "key": "hiragana-and-prefectures",
+    "status": "published",
+    "latest": {
+      "title": "Hiragana & prefectures",
+      "slug": "hiragana-and-prefectures",
+      "trackType": "beginner-to-intermediate",
+      "description": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Learn the hiragana syllabary one prefecture at a time.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            }
+          ],
+          "direction": "ltr"
+        }
+      },
+      "_status": "published"
+    }
+  },
+  {
+    "key": "grammar-and-conversation",
+    "status": "published",
+    "latest": {
+      "title": "Grammar & conversation",
+      "slug": "grammar-and-conversation",
+      "trackType": "beginner-to-intermediate",
+      "description": {
+        "root": {
+          "type": "root",
+          "format": "",
+          "indent": 0,
+          "version": 1,
+          "children": [
+            {
+              "type": "paragraph",
+              "format": "",
+              "indent": 0,
+              "version": 1,
+              "children": [
+                {
+                  "mode": "normal",
+                  "text": "Greetings, everyday phrases, and the grammar that holds them together.",
+                  "type": "text",
+                  "style": "",
+                  "detail": 0,
+                  "format": 0,
+                  "version": 1
+                }
+              ],
+              "direction": "ltr",
+              "textStyle": "",
+              "textFormat": 0
+            }
+          ],
+          "direction": "ltr"
+        }
+      },
+      "_status": "published"
+    }
+  }
+]

@@ -39,6 +39,7 @@ import {
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useRouter, useSearchParams } from "next/navigation";
 import { emailOtp, signIn } from "../lib/auth-client";
+import { safeReturnPath } from "../lib/return-path";
 import AuthCat from "../components/AuthCat";
 import GoogleMark from "../components/GoogleMark";
 
@@ -66,8 +67,24 @@ export default function AuthForm(): React.ReactElement {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Where the proxy wanted the user to end up before it bounced them here.
-  const from = searchParams.get("from") || "/new-lessons";
+  /*
+   * Where the proxy wanted the user to end up before it bounced them here.
+   *
+   * Narrowed to a relative path at the point it is read, so every use below is
+   * already safe: the two `router.push(from)` calls finish on this page and
+   * never reach Better Auth's own server-side `callbackURL` check, which is
+   * what an off-site value would otherwise sail straight through. See
+   * `lib/return-path.ts`.
+   */
+  const from = safeReturnPath(searchParams.get("from"));
+
+  /*
+   * Where Better Auth sends someone whose link or provider hop failed. It has
+   * to carry `from` too, or a retry after an expired magic link quietly loses
+   * the destination they were originally headed for — the failure would cost
+   * them the trip as well as the attempt.
+   */
+  const authRetry = `/auth?from=${encodeURIComponent(from)}`;
 
   /*
    * Better Auth redirects a failed magic-link verification back here with
@@ -124,7 +141,7 @@ export default function AuthForm(): React.ReactElement {
       // Only used when the address turns out to be new. This is what makes
       // "ask for a name" a post-verification step rather than a signup field.
       newUserCallbackURL: "/welcome",
-      errorCallbackURL: "/auth",
+      errorCallbackURL: authRetry,
     });
     setBusy(false);
 
@@ -280,7 +297,7 @@ export default function AuthForm(): React.ReactElement {
                       callbackURL: from,
                       // Without this, a refused link lands on Better Auth's own
                       // error page instead of the recovery path below.
-                      errorCallbackURL: "/auth",
+                      errorCallbackURL: authRetry,
                     })
                   }
                   sx={{
@@ -543,7 +560,7 @@ export default function AuthForm(): React.ReactElement {
                       signIn.social({
                         provider: "google",
                         callbackURL: from,
-                        errorCallbackURL: "/auth",
+                        errorCallbackURL: authRetry,
                       })
                     }
                     sx={{
