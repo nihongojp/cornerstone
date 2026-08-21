@@ -27,6 +27,7 @@ import path from "node:path";
 import { Pool } from "pg";
 
 import { textToLexical } from "../../src/lib/content/textToLexical";
+import { pinSslMode } from "../../src/lib/db/connection";
 
 /** Mirrors PROSE_COLUMNS in the migration. Kept beside it deliberately: if the
  *  two disagree, this reports a column the migration did not convert. */
@@ -89,7 +90,9 @@ const keyOf = (table: string, column: string) => `${table}.${column}`;
 
 async function main() {
   const mode = process.argv.includes("--after") ? "after" : "before";
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error("DATABASE_URL is not set — see .env.example");
+  const pool = new Pool({ connectionString: pinSslMode(url) });
 
   const dataType = async (table: string, column: string): Promise<string | null> => {
     const { rows } = await pool.query<{ data_type: string }>(
