@@ -1,4 +1,4 @@
-import { requirePlayerAccess } from "../../../lib/session";
+import { requirePlayerAccess } from "@/lib/session";
 
 /*
  * Lesson players render without Header or Footer — the CRA app did this with

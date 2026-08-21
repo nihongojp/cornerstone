@@ -49,11 +49,19 @@ So a PR that changes the *shape* of content leaves production serving blank less
 until somebody runs that. If your change touches `src/payload/`, read
 [production-merge-runbook.md](production-merge-runbook.md) **before** you merge, not after.
 
-**5. Folders in parentheses are route groups.** `src/app/(app)/(site)/gallery/page.tsx`
-serves `/gallery` — `(app)` and `(site)` are *not* in the URL. They exist to attach a
-layout and an auth rule, and they are the single most confusing thing in our tree.
-That tree is also mid-restructure ([#77](https://github.com/nihongojp/cornerstone/issues/77)),
-so trust this over any diagram, including the one in the README:
+**5. Folders in parentheses are route groups.** `src/app/(app)/(public)/gallery/page.tsx`
+serves `/gallery` — `(app)` and `(public)` are *not* in the URL. They exist to attach a
+layout and an auth rule. Pick the group by who is allowed to see the page:
+
+| Group | Auth | Chrome |
+|---|---|---|
+| `(public)` | none | Header and Footer |
+| `(learn)` | `requireSession()` | Header and Footer |
+| `(dashboard)` | `requireSession()` | Header only |
+| `(player)` | `requirePlayerAccess()` | none |
+
+`(player)` is a sibling of `(learn)` so a CMS editor can preview a draft without a
+learner session. `/auth` guards itself: a layout is never given `searchParams`.
 
 ```bash
 find src/app -type d | sort
