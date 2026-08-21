@@ -107,7 +107,7 @@ and are product roadmap, not renames of current code.
 src/
 ├── app/
 │   ├── (payload)/             # Payload admin UI + its /api — generated, do not modify
-│   ├── (marketing)/           # Public: discovery, culture pages, sign-in surfaces
+│   ├── (public)/              # Public: discovery, culture pages, sign-in surfaces
 │   │   ├── layout.tsx         # Header + Footer chrome
 │   │   ├── page.tsx           # Home landing page
 │   │   ├── courses/           # NEW — public catalog (courses render nowhere today)
