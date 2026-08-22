@@ -191,15 +191,21 @@ DATABASE_URL="$DB_URL" npm run payload:migrate
 # fail with its own explanation instead, which says the same thing.
 if [ "$OWNED" = true ]; then
   say "Clearing copied learner progress on '$BRANCH'"
-  DATABASE_URL="$DB_URL" node -e '
-    const { Client } = require("pg");
-    (async () => {
-      const c = new Client({ connectionString: process.env.DATABASE_URL });
+  DATABASE_URL="$DB_URL" node --import tsx/esm -e '
+    import { Client } from "pg";
+    import { pinSslMode } from "./src/lib/db/connection.ts";
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error("DATABASE_URL is not set");
+    const c = new Client({ connectionString: pinSslMode(url) });
+    try {
       await c.connect();
       const r = await c.query("DELETE FROM public.user_progress");
       console.log(`  removed ${r.rowCount} progress row(s) — this is a fork, not the original`);
       await c.end();
-    })().catch((e) => { console.error(e.message); process.exit(1); });
+    } catch (e) {
+      console.error(e instanceof Error ? e.message : e);
+      process.exit(1);
+    }
   '
 fi
 
