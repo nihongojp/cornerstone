@@ -124,9 +124,11 @@ src/app/
         └── lessons/[slug]/    Both lesson formats at /lessons/<slug>
 
 src/features/
-├── learning/components/       LessonRunner, LessonsListPage, Dashboard, LessonPreview
+├── learning/                  LessonRunner, list, dashboard, preview
+│   └── actions.ts             upsertProgress
 ├── exercises/components/      Block renderers and exercise widgets
-└── account/components/        AuthForm, Profile, password recovery, WelcomeForm
+└── account/                   AuthForm, Profile, recovery, WelcomeForm
+    └── actions.ts             Profile and welcome mutations
 ```
 
 `(player)` is a sibling of `(learn)`, not a child. It admits a CMS editor with no learner session, which a `requireSession()` layout would refuse.

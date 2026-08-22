@@ -27,7 +27,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { updateUser } from "@/lib/auth-client";
+import { saveWelcomeName } from "@/features/account/actions";
 import AuthCat from "@/components/AuthCat";
 
 export default function WelcomeForm(): React.ReactElement {
@@ -40,17 +40,13 @@ export default function WelcomeForm(): React.ReactElement {
   async function save() {
     setBusy(true);
     setError(null);
-    const { error } = await updateUser({
+    const { error } = await saveWelcomeName({
       firstName: first.trim(),
       lastName: last.trim(),
-      // `name` is what Better Auth itself stores and what the account was
-      // created with (empty, for a magic-link signup). Keeping it in step means
-      // anything reading the built-in field shows something sensible.
-      name: [first.trim(), last.trim()].filter(Boolean).join(" "),
     });
     setBusy(false);
 
-    if (error) return setError(error.message ?? "That didn't save. Try again.");
+    if (error) return setError(error);
     router.push("/lessons");
   }
 

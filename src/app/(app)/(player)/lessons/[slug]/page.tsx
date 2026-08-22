@@ -6,7 +6,7 @@ import {
   getLessonBySlug,
   getNextLessonHref,
 } from "@/lib/content/content";
-import { getShuffleIdentity } from "@/lib/progress-server";
+import { getShuffleIdentity, getProgress } from "@/lib/progress-server";
 import { getPreviewEditor } from "@/lib/session";
 import LessonPreview from "@/features/learning/components/preview/LessonPreview";
 import LessonRunner from "@/features/learning/components/LessonRunner";
@@ -56,6 +56,7 @@ export default async function Page({
       nextHref={await getNextLessonHref(lesson)}
       userId={userId}
       attempt={attempt}
+      initialProgress={await getProgress(lesson.slug)}
     />
   );
 }

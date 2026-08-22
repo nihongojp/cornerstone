@@ -22,7 +22,8 @@ import RichText from "@/components/richtext/RichText";
 
 import { stepSeed, shuffleSteps } from "@/lib/content/shuffle";
 import { PRACTICE_BLOCK_SLUGS } from "@/payload/blocks/librarySlugs";
-import { getProgress, submitAttempt, upsertProgress } from "@/lib/progress-client";
+import { upsertProgress } from "@/features/learning/actions";
+import type { ProgressDoc } from "@/features/learning/types";
 import type { Lesson } from "@/payload/payload-types";
 
 /*
@@ -171,7 +172,9 @@ const LessonRunner: React.FC<{
   userId?: string;
   /** How many times this learner has finished this lesson. Also server-side. */
   attempt?: number;
-}> = ({ lesson, nextHref, userId, attempt = 0 }) => {
+  /** Resume cursor, fetched on the server. Absent in Live Preview. */
+  initialProgress?: ProgressDoc | null;
+}> = ({ lesson, nextHref, userId, attempt = 0, initialProgress = null }) => {
   const router = useRouter();
 
   const [step, setStep] = useState(0);
@@ -229,18 +232,12 @@ const LessonRunner: React.FC<{
     if (!slug || !steps.length || resumedRef.current) return;
     resumedRef.current = true;
 
-    let cancelled = false;
-    void (async () => {
-      const saved = await getProgress(slug);
-      if (cancelled || !saved || saved.status !== "in_progress") return;
-      const index = saved.stepKey ? steps.findIndex((s) => s.key === saved.stepKey) : -1;
-      if (index >= 0) setStep(index);
-      else if (saved.lastStep > 0 && saved.lastStep < steps.length) setStep(saved.lastStep);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [slug, steps]);
+    const saved = initialProgress;
+    if (!saved || saved.status !== "in_progress") return;
+    const index = saved.stepKey ? steps.findIndex((s) => s.key === saved.stepKey) : -1;
+    if (index >= 0) setStep(index);
+    else if (saved.lastStep > 0 && saved.lastStep < steps.length) setStep(saved.lastStep);
+  }, [slug, steps, initialProgress]);
 
   const total = steps.length;
   const active = steps[step];
@@ -274,8 +271,6 @@ const LessonRunner: React.FC<{
     setAttemptCount(attempts);
     setCorrectCount(corrects);
 
-    if (graded && slug) void submitAttempt({ lessonId: slug, stepIndex: step, result });
-
     return attempts ? Math.round((100 * corrects) / attempts) : accuracy;
   }
 
@@ -297,7 +292,6 @@ const LessonRunner: React.FC<{
       // A wrong answer counts against accuracy but does not move on — the
       // learner stays on the screen and tries again.
       setAttemptCount((c) => c + 1);
-      if (slug) void submitAttempt({ lessonId: slug, stepIndex: step, result });
       return;
     }
 

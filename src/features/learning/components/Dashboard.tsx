@@ -2,13 +2,13 @@
 
 // src/pages/Dashboard.tsx
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
-import { Box, Typography, IconButton, CircularProgress, Divider } from "@mui/material";
+import { Box, Typography, IconButton, Divider } from "@mui/material";
 import * as d3 from "d3";
 import Bart from "@/components/Menut";
 import Link from "next/link";
 import { lessonHref } from "@/lib/content/routes";
 import type { Lesson as LessonDoc } from "@/payload/payload-types";
-import { getUpNextLesson, UpNextLesson } from "@/lib/progress-client";
+import type { UpNextLesson } from "@/features/learning/types";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
@@ -31,7 +31,13 @@ const PIN_PATH = "M 0,0 C -4,-5 -9,-9 -9,-16 A 9,9 0 1,1 9,-16 C 9,-9 4,-5 0,0 Z
 const PIN_DOT_CY = -16;
 const PIN_DOT_R  = 3.5;
 
-const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
+const Dashboard = ({
+  allLessons,
+  upNext,
+}: {
+  allLessons: LessonDoc[];
+  upNext: UpNextLesson | null;
+}) => {
   const gRef        = useRef<d3.Selection<SVGGElement, unknown, null, undefined> | null>(null);
   const svgRef      = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -45,9 +51,6 @@ const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
   const [popup, setPopup] = useState<{ x: number; y: number; name: string } | null>(null);
 
   const [prefLessons, setPrefLessons]   = useState<Lesson[]>([]);
-
-  const [upNext, setUpNext]             = useState<UpNextLesson | null>(null);
-  const [upNextLoading, setUpNextLoading] = useState(false);
 
   // ── Prefecture name → English code ─────────────────────────────────────────
   const PREF_NAME_TO_CODE = useMemo<Record<string, string>>(() => ({
@@ -117,24 +120,6 @@ const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
     const rect = el.getBoundingClientRect();
     if (rect.width > 0 && rect.height > 0) setContainerSize({ width: rect.width, height: rect.height });
     return () => ro.disconnect();
-  }, []);
-
-  // ── Load up-next lesson ──────────────────────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        setUpNextLoading(true);
-        const data = await getUpNextLesson();
-        if (!cancelled) setUpNext(data);
-      } catch (e) {
-        console.error("[Dashboard] up-next failed:", e);
-        if (!cancelled) setUpNext(null);
-      } finally {
-        if (!cancelled) setUpNextLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
   }, []);
 
   // ── Load lessons for selected prefecture ─────────────────────────────────────
@@ -525,12 +510,7 @@ const Dashboard = ({ allLessons }: { allLessons: LessonDoc[] }) => {
 
           {/* Panel body */}
           <Box sx={{ px: 2, py: 1.75 }}>
-            {upNextLoading ? (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <CircularProgress size={14} sx={{ color: "#b4441d" }} />
-                <Typography variant="body2" color="text.secondary">Loading…</Typography>
-              </Box>
-            ) : !upNext ? (
+            {!upNext ? (
               <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
                 No saved lesson yet. Pick a prefecture to start!
               </Typography>

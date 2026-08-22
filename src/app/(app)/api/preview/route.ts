@@ -19,7 +19,7 @@ import { isPreviewablePath } from "../../../../lib/content/routes";
  * This route sits in the (app) group while Payload's REST catch-all sits at
  * (payload)/api/[...slug]. They do not collide: Next only rejects two files
  * resolving to the *same* path, and a literal segment wins over a catch-all.
- * /api/progress and /api/pronunciation/check already live here the same way.
+ * /api/pronunciation/check already lives here the same way.
  */
 export async function GET(request: Request): Promise<Response> {
   const { searchParams } = new URL(request.url);

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, Container, Paper, Stack, Typography } from "@mui/material";
+import React, { useMemo } from "react";
+import { Box, Container, Paper, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 
 import { lessonHref } from "@/lib/content/routes";
 import { termText } from "@/features/exercises/components/termText";
 import type { Lesson, Term } from "@/payload/payload-types";
-import { getProgress } from "@/lib/progress-client";
+import type { ProgressStatus } from "@/features/learning/types";
 
 // A card's color reflects the signed-in user's progress on that specific
 // part, rather than which column (Grammar vs Reading & Writing) it lives in.
@@ -201,60 +201,35 @@ const LessonColumn: React.FC<{
 const LessonsListPage: React.FC<{
   newLessons: Lesson[];
   lessons: Lesson[];
-}> = ({ newLessons, lessons: prefLessons }) => {
-  const [grammar, setGrammar] = useState<Map<number, Part[]>>(new Map());
-  const [reading, setReading] = useState<Map<number, Part[]>>(new Map());
-  // Still meaningful: the lesson lists now arrive as props, but each card's
-  // progress status is still looked up per lesson after mount.
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-    void (async () => {
-      // Grammar column ← step-format lessons.
-      const grammarMap = new Map<number, Part[]>();
-      for (const l of newLessons) {
-        pushPart(grammarMap, l.level, {
-          level: l.level,
-          part: l.part,
-          to: lessonHref(l.slug),
-          slug: l.slug,
-          cardTitle: l.cardTitle ?? undefined,
-        });
-      }
-
-      // Reading & Writing column ← prefecture lessons.
-      const readingMap = new Map<number, Part[]>();
-      for (const l of prefLessons) {
-        pushPart(readingMap, l.level, {
-          level: l.level,
-          part: l.part,
-          to: lessonHref(l.slug),
-          slug: l.slug,
-          cardTitle: l.cardTitle || deriveReadingCardTitle(l),
-        });
-      }
-
-      // Look up each part's saved progress (by the same slug the lesson
-      // pages themselves use as their progress key) so cards can be colored
-      // by "not started" / "in progress" / "completed" instead of column.
-      // getProgress() already swallows per-request failures and resolves to
-      // null, so one bad lookup can't break the rest of the list.
-      // The page sits behind a server-side session guard, so the user is
-      // always signed in here — the old isAuthed() check is redundant.
-      const allParts = [...grammarMap.values(), ...readingMap.values()].flat();
-      const docs = await Promise.all(allParts.map((p) => getProgress(p.slug)));
-      allParts.forEach((p, i) => {
-        p.progressStatus = docs[i]?.status ?? "not_started";
+  progressBySlug: Record<string, ProgressStatus>;
+}> = ({ newLessons, lessons: prefLessons, progressBySlug }) => {
+  const { grammar, reading } = useMemo(() => {
+    const grammarMap = new Map<number, Part[]>();
+    for (const l of newLessons) {
+      pushPart(grammarMap, l.level, {
+        level: l.level,
+        part: l.part,
+        to: lessonHref(l.slug),
+        slug: l.slug,
+        cardTitle: l.cardTitle ?? undefined,
+        progressStatus: progressBySlug[l.slug] ?? "not_started",
       });
+    }
 
-      if (!mounted) return;
-      setGrammar(grammarMap);
-      setReading(readingMap);
-      setLoading(false);
-    })();
-    return () => { mounted = false; };
-  }, [newLessons, prefLessons]);
+    const readingMap = new Map<number, Part[]>();
+    for (const l of prefLessons) {
+      pushPart(readingMap, l.level, {
+        level: l.level,
+        part: l.part,
+        to: lessonHref(l.slug),
+        slug: l.slug,
+        cardTitle: l.cardTitle || deriveReadingCardTitle(l),
+        progressStatus: progressBySlug[l.slug] ?? "not_started",
+      });
+    }
+
+    return { grammar: grammarMap, reading: readingMap };
+  }, [newLessons, prefLessons, progressBySlug]);
 
   // Show the base sections plus any additional levels found in the data.
   const levels = Array.from(
@@ -276,15 +251,7 @@ const LessonsListPage: React.FC<{
           </Typography>
         </Box>
 
-        {loading ? (
-          <Stack alignItems="center" gap={2} sx={{ pt: 6 }}>
-            <CircularProgress sx={{ color: "#B43D20" }} />
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              Loading lessons…
-            </Typography>
-          </Stack>
-        ) : (
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {levels.map((n) => (
               <Box key={n}>
                 {/* Section header */}
@@ -300,7 +267,6 @@ const LessonsListPage: React.FC<{
               </Box>
             ))}
           </Box>
-        )}
       </Container>
     </Box>
   );
