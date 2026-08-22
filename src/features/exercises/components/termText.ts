@@ -1,6 +1,6 @@
-import { renderableTerm, type TermDisplay, type TermLike } from "../../lib/content/furigana";
-import { mediaSrc, renderableImage } from "../../lib/content/media";
-import type { Term } from "../../payload/payload-types";
+import { renderableTerm, type TermDisplay, type TermLike } from "@/lib/content/furigana";
+import { mediaSrc, renderableImage } from "@/lib/content/media";
+import type { Term } from "@/payload/payload-types";
 
 /*
  * Reading a referenced term for the exercise blocks.

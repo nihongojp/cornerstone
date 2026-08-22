@@ -1,4 +1,4 @@
-import Watch from "@/pages-client/Watch";
+import Watch from "./Watch";
 
 export default function Page() {
   return <Watch />;

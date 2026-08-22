@@ -27,8 +27,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { updateUser } from "../lib/auth-client";
-import AuthCat from "../components/AuthCat";
+import { updateUser } from "@/lib/auth-client";
+import AuthCat from "@/components/AuthCat";
 
 export default function WelcomeForm(): React.ReactElement {
   const router = useRouter();

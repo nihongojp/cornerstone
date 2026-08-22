@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { safeReturnPath } from "@/lib/return-path";
 import { getSession } from "@/lib/session";
-import AuthForm from "@/pages-client/AuthForm";
+import AuthForm from "@/features/account/components/AuthForm";
 
 /*
  * The one sign-in surface. Signed-in visitors never see it — they go straight

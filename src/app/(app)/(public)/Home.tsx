@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useSession } from "../lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 
 const MotionCard = motion(Card);
 const EASE = [0.16, 1, 0.3, 1] as const;

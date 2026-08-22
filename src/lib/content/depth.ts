@@ -4,7 +4,8 @@
  * There are two paths that load content and they must agree:
  *
  *  - the public one, `payload.find` in `content.ts` (server)
- *  - the CMS Live Preview one, `useLivePreview` in `pages-client/preview/*`
+ *  - the CMS Live Preview one, `useLivePreview` in the colocated
+ *    `ResourcesPreview` / `features/learning/components/preview/LessonPreview`
  *    (browser)
  *
  * If they disagree, media renders in one and silently vanishes in the other —

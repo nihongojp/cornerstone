@@ -1,4 +1,4 @@
-import Profile from "@/pages-client/Profile";
+import Profile from "@/features/account/components/Profile";
 
 export default function Page() {
   return <Profile />;

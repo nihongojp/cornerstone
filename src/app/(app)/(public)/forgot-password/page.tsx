@@ -1,4 +1,4 @@
-import ForgotPassword from "@/pages-client/ForgotPassword";
+import ForgotPassword from "@/features/account/components/ForgotPassword";
 
 // Public, matching the CRA route — it was never behind the PublicOnly guard.
 export default function Page() {

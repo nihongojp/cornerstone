@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import ResetPassword from "@/pages-client/ResetPassword";
+import ResetPassword from "@/features/account/components/ResetPassword";
 
 /*
  * Reachable with or without a session on purpose: someone can be signed in on

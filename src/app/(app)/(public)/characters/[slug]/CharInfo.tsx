@@ -3,8 +3,8 @@ import React from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Box, Button } from '@mui/material';
-import Bart from '../components/Menut';
-import { getCharacterById } from '../data/characters';
+import Bart from '@/components/Menut';
+import { getCharacterById } from '@/data/characters';
 
 const RouterLink = Link;
 

@@ -12,7 +12,7 @@ import {
   Stack,
   IconButton,
 } from "@mui/material";
-import Bart from "../components/Menut";
+import Bart from "@/components/Menut";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";

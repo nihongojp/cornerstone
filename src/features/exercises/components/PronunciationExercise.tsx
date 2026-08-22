@@ -8,7 +8,7 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
-import { checkPronunciation, PronunciationCheckResult } from "../lib/pronunciation-client";
+import { checkPronunciation, PronunciationCheckResult } from "@/lib/pronunciation-client";
 
 /**
  * Grammar / vocab pronunciation practice item.

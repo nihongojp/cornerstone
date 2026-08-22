@@ -2,11 +2,11 @@
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
-import { CONTENT_DEPTH } from "../../lib/content/depth";
-import { previewOrigin } from "../../lib/content/previewOrigin";
+import { CONTENT_DEPTH } from "@/lib/content/depth";
+import { previewOrigin } from "@/lib/content/previewOrigin";
 
-import Resources from "../Resources";
-import type { Resource } from "../../payload/payload-types";
+import Resources from "./Resources";
+import type { Resource } from "@/payload/payload-types";
 
 /*
  * The Live Preview seam for /resources.

@@ -3,9 +3,9 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
-import type { Term } from "../payload/payload-types";
-import MediaAudio from "./media/MediaAudio";
-import MediaImage from "./media/MediaImage";
+import type { Term } from "@/payload/payload-types";
+import MediaAudio from "@/components/media/MediaAudio";
+import MediaImage from "@/components/media/MediaImage";
 
 /*
  * One character, large, with its stroke-order diagram.

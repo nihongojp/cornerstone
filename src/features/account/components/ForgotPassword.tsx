@@ -12,22 +12,20 @@ import {
   Alert,
   AlertColor,
 } from "@mui/material";
-import { useRouter, useSearchParams } from "next/navigation";
-import { resetPassword } from "../lib/auth-client";
+import { useRouter } from "next/navigation";
+import { requestPasswordReset } from "@/lib/auth-client";
 
 /*
- * Step 2 of the password reset: the destination of the emailed link. The token
- * in the query string is the proof of email ownership that the old
- * reset-password endpoint never asked for.
+ * Step 1 of the password reset. This page used to take an email plus a new
+ * password and reset the account outright, which let anyone take over any
+ * account just by knowing its email address. It now only sends a tokened link;
+ * the new password is chosen on /reset-password, which requires that token.
  */
-const ResetPassword = (): React.ReactElement => {
+const ForgotPassword = (): React.ReactElement => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
-  const linkError = searchParams.get("error");
-
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ newPassword: "", confirmPassword: "" });
+  const [sent, setSent] = useState(false);
+  const [formData, setFormData] = useState({ email: "" });
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifMsg, setNotifMsg] = useState("");
   const [notifSeverity, setNotifSeverity] = useState<AlertColor>("info");
@@ -46,40 +44,28 @@ const ResetPassword = (): React.ReactElement => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (formData.newPassword !== formData.confirmPassword) {
-      notify("Passwords do not match", "error");
-      return;
-    }
-
-    if (formData.newPassword.length < 8) {
-      notify("Password must be at least 8 characters", "error");
-      return;
-    }
-
-    if (!token) {
-      notify("This reset link is invalid or has expired", "error");
-      return;
-    }
-
     setLoading(true);
     try {
-      const { error } = await resetPassword({ newPassword: formData.newPassword, token });
+      const { error } = await requestPasswordReset({
+        email: formData.email,
+        redirectTo: "/reset-password",
+      });
 
       if (error) {
-        notify(error.message || "This reset link is invalid or has expired", "error");
+        notify(error.message || "Network error", "error");
         return;
       }
 
-      notify("Password reset successfully! Redirecting to login…", "success");
-      setTimeout(() => router.push("/auth"), 2000);
+      // Deliberately the same response whether or not the address has an
+      // account, so this page can't be used to discover who is registered.
+      setSent(true);
+      notify("If that email has an account, a reset link is on its way.", "success");
     } catch (err: any) {
       notify(err?.message || "Network error", "error");
     } finally {
       setLoading(false);
     }
   };
-
-  const tokenMissing = !token || Boolean(linkError);
 
   return (
     <Box display="flex" flexDirection="column" minHeight="100vh">
@@ -96,43 +82,24 @@ const ResetPassword = (): React.ReactElement => {
           <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
             <Box textAlign="center" mb={3}>
               <Typography variant="h5" fontWeight="bold">
-                Choose a New Password
+                Reset Password
               </Typography>
               <Typography variant="body2" color="text.secondary" mt={0.5}>
-                {tokenMissing
-                  ? "This reset link is invalid or has expired. Request a new one."
-                  : "Enter a new password for your account."}
+                {sent
+                  ? "Check your inbox for a link to choose a new password. The link expires in one hour."
+                  : "Enter your email and we'll send you a reset link."}
               </Typography>
             </Box>
 
-            {tokenMissing ? (
-              <Button
-                variant="contained"
-                fullWidth
-                sx={{ mt: 1, borderRadius: 2 }}
-                onClick={() => router.push("/forgot-password")}
-              >
-                Request a New Link
-              </Button>
-            ) : (
+            {!sent && (
               <form onSubmit={handleSubmit}>
                 <TextField
-                  label="New Password"
-                  name="newPassword"
-                  type="password"
+                  label="Email"
+                  name="email"
+                  type="email"
                   fullWidth
                   margin="normal"
-                  value={formData.newPassword}
-                  onChange={handleInputChange}
-                  required
-                />
-                <TextField
-                  label="Confirm New Password"
-                  name="confirmPassword"
-                  type="password"
-                  fullWidth
-                  margin="normal"
-                  value={formData.confirmPassword}
+                  value={formData.email}
                   onChange={handleInputChange}
                   required
                 />
@@ -144,7 +111,7 @@ const ResetPassword = (): React.ReactElement => {
                   sx={{ mt: 2, borderRadius: 2 }}
                   disabled={loading}
                 >
-                  {loading ? "Resetting…" : "Reset Password"}
+                  {loading ? "Sending…" : "Send Reset Link"}
                 </Button>
               </form>
             )}
@@ -177,4 +144,4 @@ const ResetPassword = (): React.ReactElement => {
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;

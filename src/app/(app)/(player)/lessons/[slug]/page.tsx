@@ -8,8 +8,8 @@ import {
 } from "@/lib/content/content";
 import { getShuffleIdentity } from "@/lib/progress-server";
 import { getPreviewEditor } from "@/lib/session";
-import LessonPreview from "@/pages-client/preview/LessonPreview";
-import LessonRunner from "@/pages-client/LessonRunner";
+import LessonPreview from "@/features/learning/components/preview/LessonPreview";
+import LessonRunner from "@/features/learning/components/LessonRunner";
 
 /*
  * The one lesson route, either format. Was two routes (/lesson/[lessonId],

@@ -1,4 +1,4 @@
-import Gallery from "@/pages-client/Gallery";
+import Gallery from "./Gallery";
 
 export default function Page() {
   return <Gallery />;
