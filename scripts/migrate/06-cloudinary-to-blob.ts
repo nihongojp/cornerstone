@@ -35,6 +35,8 @@ import { resolve } from "node:path";
 import { config } from "dotenv";
 import { Pool } from "pg";
 
+import { pinSslMode } from "../../src/lib/db/connection";
+
 config({ path: ".env.local" });
 
 import type { Payload } from "payload";
@@ -196,7 +198,7 @@ async function main() {
     );
   }
 
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new Pool({ connectionString: pinSslMode(process.env.DATABASE_URL) });
   const { getPayload } = await import("payload");
   const { default: configPromise } = await import("../../src/payload.config");
   const payload = await getPayload({ config: configPromise });

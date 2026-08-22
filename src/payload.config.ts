@@ -15,6 +15,7 @@ import { Lessons } from "./payload/collections/Lessons";
 import { Media } from "./payload/collections/Media";
 import { Resources } from "./payload/collections/Resources";
 import { Terms } from "./payload/collections/Terms";
+import { pinSslMode } from "./lib/db/connection";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -97,7 +98,11 @@ export default buildConfig({
     schemaName: "payload",
     push: false,
     migrationDir: path.resolve(dirname, "payload/migrations"),
-    pool: { connectionString: process.env.DATABASE_URL },
+    pool: {
+      connectionString: process.env.DATABASE_URL
+        ? pinSslMode(process.env.DATABASE_URL)
+        : process.env.DATABASE_URL,
+    },
   }),
   secret: process.env.PAYLOAD_SECRET ?? "",
   typescript: {

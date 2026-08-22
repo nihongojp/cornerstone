@@ -19,6 +19,8 @@
 import { config } from "dotenv";
 import { Pool } from "pg";
 
+import { pinSslMode } from "../../src/lib/db/connection";
+
 // `quiet` keeps dotenv's banner off stdout — this script's stdout IS the report.
 config({ path: ".env.local", quiet: true });
 
@@ -57,7 +59,7 @@ async function main() {
   if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not set — see .env.example");
   }
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new Pool({ connectionString: pinSslMode(process.env.DATABASE_URL) });
 
   try {
     const { rows: columns } = await pool.query<Column>(COLUMN_QUERY);

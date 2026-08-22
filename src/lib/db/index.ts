@@ -2,6 +2,7 @@ import { drizzle as drizzleNeon } from "drizzle-orm/neon-http";
 import { drizzle as drizzleNode } from "drizzle-orm/node-postgres";
 import { neon } from "@neondatabase/serverless";
 import { Pool } from "pg";
+import { pinSslMode } from "./connection";
 import * as schema from "./schema";
 
 const connectionString = process.env.DATABASE_URL;
@@ -20,6 +21,6 @@ const isNeon = /\.neon\.tech|neon\.build/.test(connectionString);
 
 export const db = isNeon
   ? drizzleNeon(neon(connectionString), { schema })
-  : drizzleNode(new Pool({ connectionString }), { schema });
+  : drizzleNode(new Pool({ connectionString: pinSslMode(connectionString) }), { schema });
 
 export { schema };
