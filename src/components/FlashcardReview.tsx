@@ -37,14 +37,47 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
     audioRef.current.play().catch(() => setPlaying(false));
   };
 
+  // Round brand-styled audio button. Reused on whichever face is the "front"
+  // for this card (see hasVideo branch below) — always wired through
+  // playAudio, which stops propagation so pressing it never also flips the
+  // card via the outer Box's onClick.
+  const audioButton = (
+    <Box
+      onClick={playAudio}
+      sx={{
+        width: 52,
+        height: 52,
+        borderRadius: "50%",
+        bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.1)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: hasAudio ? "pointer" : "default",
+        boxShadow: hasAudio ? "0 4px 14px rgba(180,61,32,0.35)" : "none",
+        animation: playing ? "audioPulse 1.2s ease-in-out infinite" : "none",
+        "@keyframes audioPulse": {
+          "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
+          "50%": { boxShadow: "0 0 0 12px rgba(180,61,32,0)" },
+        },
+        transition: "box-shadow 0.3s",
+        flexShrink: 0,
+      }}
+    >
+      {playing
+        ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1.4rem" }} />
+        : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.25)", fontSize: "1.4rem" }} />}
+    </Box>
+  );
+
   return (
     <Box
       onClick={() => setFlipped((f) => !f)}
       sx={{
         perspective: "1000px",
-        width: { xs: "100%", sm: 220 },
-        maxWidth: 260,
-        height: 180,
+        width: { xs: "calc(50% - 8px)", sm: 220 },
+        minWidth: 130,
+        maxWidth: 220,
+        minHeight: 190,
         cursor: "pointer",
         flexShrink: 0,
       }}
@@ -59,7 +92,18 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
         }}
       >
-        {/* ── Front face: video placeholder ─────────────────────────────── */}
+        {/* Audio source — not visible UI, just needs to be mounted once
+            regardless of which face the button lives on. */}
+        {hasAudio && (
+          <audio
+            ref={audioRef}
+            src={term.audioUrl}
+            preload="auto"
+            onEnded={() => setPlaying(false)}
+          />
+        )}
+
+        {/* ── Front face: video (grammar cards) or audio button (reading/writing cards) ── */}
         <Box
           sx={{
             position: "absolute",
@@ -99,44 +143,10 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
               />
             </Box>
           ) : (
-            <Box
-              sx={{
-                width: "80%",
-                aspectRatio: "16/9",
-                borderRadius: "10px",
-                bgcolor: "rgba(0,0,0,0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                position: "relative",
-                overflow: "hidden",
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  inset: 0,
-                  background:
-                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)",
-                  animation: "shimmer 1.8s ease-in-out infinite",
-                },
-                "@keyframes shimmer": {
-                  "0%": { transform: "translateX(-100%)" },
-                  "100%": { transform: "translateX(100%)" },
-                },
-              }}
-            >
-              {/* Play triangle */}
-              <Box
-                sx={{
-                  width: 0,
-                  height: 0,
-                  borderTop: "8px solid transparent",
-                  borderBottom: "8px solid transparent",
-                  borderLeft: "14px solid rgba(0,0,0,0.22)",
-                  ml: "3px",
-                  zIndex: 1,
-                }}
-              />
-            </Box>
+            // No video for this card (reading/writing terms) — lead with the
+            // audio button instead of a video placeholder that implies a
+            // video is coming. Flipping still reveals the term on the back.
+            audioButton
           )}
 
           <Typography
@@ -152,7 +162,7 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
           </Typography>
         </Box>
 
-        {/* ── Back face: audio button + term ────────────────────────────── */}
+        {/* ── Back face: term (+ audio button when the front was video) ──── */}
         <Box
           sx={{
             position: "absolute",
@@ -171,41 +181,10 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
             px: 1.5,
           }}
         >
-          {hasAudio && (
-            <audio
-              ref={audioRef}
-              src={term.audioUrl}
-              preload="auto"
-              onEnded={() => setPlaying(false)}
-            />
-          )}
-
-          {/* Audio button */}
-          <Box
-            onClick={playAudio}
-            sx={{
-              width: 52,
-              height: 52,
-              borderRadius: "50%",
-              bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: hasAudio ? "pointer" : "default",
-              boxShadow: hasAudio ? "0 4px 14px rgba(180,61,32,0.35)" : "none",
-              animation: playing ? "audioPulse 1.2s ease-in-out infinite" : "none",
-              "@keyframes audioPulse": {
-                "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
-                "50%": { boxShadow: "0 0 0 12px rgba(180,61,32,0)" },
-              },
-              transition: "box-shadow 0.3s",
-              flexShrink: 0,
-            }}
-          >
-            {playing
-              ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1.4rem" }} />
-              : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.25)", fontSize: "1.4rem" }} />}
-          </Box>
+          {/* Grammar cards (video front) keep the audio button on the back,
+              next to the term. Reading/writing cards (no video) already put
+              the audio button on the front, so the back is just the term. */}
+          {hasVideo && audioButton}
 
           {/* Term text */}
           <Typography
