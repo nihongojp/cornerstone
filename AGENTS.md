@@ -65,10 +65,19 @@ mentions left in `src/` are historical comments. Content comes from Payload.
 
 - **Migration order is fixed**: `npm run db:migrate` before `npm run payload:migrate`.
   Payload never issues `CREATE SCHEMA`, so Drizzle has to create `payload` first.
-- **There is no test suite.** A change is verified by `npm run typecheck` plus
-  `npm run parity [url]`, which checks all 40 routes in both auth states and then
-  asserts the CMS is up and serving real content. Both must pass before you call
-  something done.
+- **Four checks, and each proves something different.** All of them pass before you
+  call something done, because none of them subsumes another:
+
+  | Command | Proves | Does not prove |
+  |---|---|---|
+  | `npm run typecheck` | types line up | that anything runs |
+  | `npm test` | pure logic is right | that any page renders |
+  | `npm run parity [url]` | every route's guard and chrome, in both auth states | that content is correct — it reads through `unstable_cache` and has passed a whole pre-migration lesson |
+  | `npm run content:verify` | every media and term reference resolves, uncached | that a page renders |
+
+  `parity` passing is not evidence about content. When a change touches Payload or
+  `content/snapshot/`, `content:verify` is the one that cannot be answered from a
+  stale cache entry. Neither replaces opening the page.
 - **Node 24 LTS**, pinned in `.nvmrc` and floored at 24.11.0 in `engines`. CI
   reads `.nvmrc` via `node-version-file`, so that file is the one to change.
 - `npm run dev` rewrites the managed block at the bottom of this file. Leave it alone

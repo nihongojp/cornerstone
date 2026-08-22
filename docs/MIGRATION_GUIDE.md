@@ -51,8 +51,8 @@ In this codebase the split is deliberately simple:
 
 ```
 src/app/**/page.tsx                    server — fetches data, passes it down as props
-src/features/**/components/*.tsx       client — screens used by more than one route
-src/app/**/<Name>.tsx                  client — a screen used by that route only
+src/features/<domain>/                 client — a domain that owns more than components
+src/app/**/<Name>.tsx                  client — a screen with no such domain behind it
 src/components/*.tsx                   client — chrome, media, richtext, shared widgets
 ```
 
@@ -230,7 +230,7 @@ Drizzle always migrates first — Payload never issues `CREATE SCHEMA`.
 
 **Change lesson rendering.** `src/components/` — the exercise components are unchanged from the old app. `renderItem()` in `NewLessonPlayer.tsx` maps an item's `type` to a component.
 
-**Check you didn't break anything.** `npm run typecheck`, then `npm run parity` — it verifies every route's guard and chrome against the original app's route table in both auth states, then that the CMS is up and actually serving content. There is no test suite; these two are the check.
+**Check you didn't break anything.** `npm run typecheck`, `npm test`, then `npm run parity` — parity verifies every route's guard and chrome against the original app's route table in both auth states, then that the CMS is up and actually serving content. If you touched Payload or `content/snapshot/`, add `npm run content:verify`: parity reads through `unstable_cache` and can be answered from an entry built before your change, so it is not evidence about content.
 
 ---
 

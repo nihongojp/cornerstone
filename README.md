@@ -131,10 +131,14 @@ src/features/
 
 `(player)` is a sibling of `(learn)`, not a child. It admits a CMS editor with no learner session, which a `requireSession()` layout would refuse.
 
-Screens live next to their `page.tsx` when they belong to one route, or in
-`src/features/` when they are shared. `src/components/` is Header, Footer,
-SiteChrome, media, richtext, and other pieces more than one feature uses.
-Items marked NEW are product work.
+`src/features/<domain>/` is for a domain that owns more than components — server
+actions, shared types, or a render pipeline its own components dispatch through.
+A screen with no such domain behind it lives next to its `page.tsx`. `src/components/`
+is Header, Footer, SiteChrome, media, richtext, and other cross-domain pieces.
+
+The test is *what the domain owns*, not how many routes use it: every screen in
+`features/account/` is used by exactly one route, and belongs there because the
+domain also owns `actions.ts`. Items marked NEW are product work.
 
 List the route directories with `find src/app -type d | sort`.
 
