@@ -8,7 +8,16 @@ export default async function Page() {
   const [newLessons, lessons, progressBySlug] = await Promise.all([
     listNewLessons().catch(() => []),
     listLessons().catch(() => []),
-    getProgressBySlug(),
+    /*
+     * Caught for the same reason as the two above — one failing source must not
+     * take the page down. Deliberately NOT `.catch(() => ({}))`: an empty map
+     * renders every card as "not started", which a learner reads as *lost
+     * progress* rather than *unavailable*. `null` keeps the two distinguishable.
+     */
+    getProgressBySlug().catch((error) => {
+      console.error("[lessons] progress lookup failed", error);
+      return null;
+    }),
   ]);
 
   return (

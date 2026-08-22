@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Box, Container, Paper, Stack, Typography } from "@mui/material";
+import { Alert, Box, Container, Paper, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 
 import { lessonHref } from "@/lib/content/routes";
@@ -201,9 +201,19 @@ const LessonColumn: React.FC<{
 const LessonsListPage: React.FC<{
   newLessons: Lesson[];
   lessons: Lesson[];
-  progressBySlug: Record<string, ProgressStatus>;
+  /**
+   * `null` when the progress lookup itself failed — distinct from an empty map,
+   * which means "looked, found none". Colouring every card "not started" for a
+   * failed lookup would read to a learner as lost progress.
+   */
+  progressBySlug: Record<string, ProgressStatus> | null;
 }> = ({ newLessons, lessons: prefLessons, progressBySlug }) => {
+  const progressUnavailable = progressBySlug === null;
+
   const { grammar, reading } = useMemo(() => {
+    const statusOf = (slug: string): CardProgressStatus =>
+      progressBySlug?.[slug] ?? "not_started";
+
     const grammarMap = new Map<number, Part[]>();
     for (const l of newLessons) {
       pushPart(grammarMap, l.level, {
@@ -212,7 +222,7 @@ const LessonsListPage: React.FC<{
         to: lessonHref(l.slug),
         slug: l.slug,
         cardTitle: l.cardTitle ?? undefined,
-        progressStatus: progressBySlug[l.slug] ?? "not_started",
+        progressStatus: statusOf(l.slug),
       });
     }
 
@@ -224,7 +234,7 @@ const LessonsListPage: React.FC<{
         to: lessonHref(l.slug),
         slug: l.slug,
         cardTitle: l.cardTitle || deriveReadingCardTitle(l),
-        progressStatus: progressBySlug[l.slug] ?? "not_started",
+        progressStatus: statusOf(l.slug),
       });
     }
 
@@ -250,6 +260,17 @@ const LessonsListPage: React.FC<{
             Select a lesson to begin
           </Typography>
         </Box>
+
+        {/*
+         * Says "we couldn't read it" rather than showing every lesson as
+         * untouched, which is what an empty map would have looked like.
+         */}
+        {progressUnavailable && (
+          <Alert severity="info" sx={{ mb: 3 }}>
+            We couldn&apos;t load your progress just now, so these cards show as not
+            started. Your saved progress is safe — refresh to try again.
+          </Alert>
+        )}
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
             {levels.map((n) => (

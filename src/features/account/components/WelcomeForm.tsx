@@ -40,13 +40,13 @@ export default function WelcomeForm(): React.ReactElement {
   async function save() {
     setBusy(true);
     setError(null);
-    const { error } = await saveWelcomeName({
+    const result = await saveWelcomeName({
       firstName: first.trim(),
       lastName: last.trim(),
     });
     setBusy(false);
 
-    if (error) return setError(error);
+    if (!result.ok) return setError(result.message);
     router.push("/lessons");
   }
 

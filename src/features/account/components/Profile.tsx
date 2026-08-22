@@ -99,19 +99,20 @@ const Profile: React.FC = () => {
       setSaving(true);
       setError(null);
 
-      console.log("[PROFILE] saving profile", draft);
-
-      const { error: nameError } = await updateProfile({
+      // `currentEmail` is no longer sent — the action reads the authoritative
+      // one from the session, so a stale client cannot skip the email change
+      // and still be told it succeeded.
+      const result = await updateProfile({
         firstName: draft.firstName,
         lastName: draft.lastName,
         email: draft.email,
-        currentEmail: user?.email ?? "",
       });
 
-      if (nameError) {
-        const msg = nameError;
-        console.error("[PROFILE] save error:", msg);
-        setError(msg);
+      if (!result.ok) {
+        setError(result.message);
+        // Refresh even on failure: `updateProfile` can save the name and then
+        // fail on the email, so the form must not keep showing pre-save values.
+        router.refresh();
         return;
       }
 
@@ -129,15 +130,13 @@ const Profile: React.FC = () => {
   const submitPassword = async () => {
     setError(null);
 
-    console.log("[PROFILE] change password");
-    const { error: pwError } = await updatePassword({
+    const result = await updatePassword({
       currentPassword: pwForm.currentPassword,
       newPassword: pwForm.newPassword,
     });
 
-    if (pwError) {
-      console.error("[PROFILE] change password error:", pwError);
-      setError(pwError);
+    if (!result.ok) {
+      setError(result.message);
       return;
     }
 
@@ -149,13 +148,11 @@ const Profile: React.FC = () => {
   const [delOpen, setDelOpen] = useState(false);
   const confirmDelete = async () => {
     setError(null);
-    console.log("[PROFILE] delete account");
 
-    const { error: delError } = await deleteAccount();
+    const result = await deleteAccount();
 
-    if (delError) {
-      console.error("[PROFILE] delete error:", delError);
-      setError(delError);
+    if (!result.ok) {
+      setError(result.message);
       return;
     }
 
