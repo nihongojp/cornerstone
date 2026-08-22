@@ -100,71 +100,35 @@ Four things are worth knowing up front:
 
 ## Repo layout
 
-The structure the app is converging on. Items marked **NEW** don't exist yet
-and are product roadmap, not renames of current code.
+Chrome and the session check live on the group layout. Put a new page in the group that already has the rule you want. Folders in parentheses are not in the URL.
 
 ```
-src/
-├── app/
-│   ├── (payload)/             # Payload admin UI + its /api — generated, do not modify
-│   ├── (public)/              # Public: discovery, culture pages, sign-in surfaces
-│   │   ├── layout.tsx         # Header + Footer chrome
-│   │   ├── page.tsx           # Home landing page
-│   │   ├── courses/           # NEW — public catalog (courses render nowhere today)
-│   │   │   ├── page.tsx       # Course catalog list
-│   │   │   └── [courseSlug]/
-│   │   │       └── page.tsx   # Course overview (pricing wall — NEW, no payments yet)
-│   │   ├── gallery/           # static/local data (src/data/), not CMS
-│   │   ├── characters/[slug]/ # folklore companions — static, not kana/kanji
-│   │   ├── stories/  funfacts/
-│   │   ├── resources/         # CMS-backed (Payload `resources`, live preview)
-│   │   ├── auth/              # the one sign-in surface; guards itself, sending a
-│   │   │                      #   signed-in visitor to their `from` (a layout is
-│   │   │                      #   never given searchParams, so it cannot be a group)
-│   │   └── forgot-password/  reset-password/   # public — reachable mid-reset on any device
-│   │
-│   ├── (app)/                 # Signed-in learning workspace (session check in layout)
-│   │   ├── layout.tsx
-│   │   ├── dashboard/
-│   │   │   └── page.tsx       # replaces the old (dashboard)/dashboard nesting
-│   │   ├── welcome/  profile/  talk/  watch/
-│   │   └── lessons/
-│   │       ├── [courseSlug]/
-│   │       │   └── page.tsx   # module tree for one course (NEW — no course page today)
-│   │       └── [lessonSlug]/
-│   │           └── page.tsx   # full-screen player. Flat, not nested under the course:
-│   │                          # lesson slugs are globally unique, progress keys on them,
-│   │                          # and `lessons.course` is optional.
-│   └── api/                   # Live routes: Better Auth (`api/auth/[...all]`), progress, pronunciation
-├── payload.config.ts          # stays at src root — the Payload CLI resolves it here
-├── payload/
-│   ├── collections/           # Courses, Lessons, Terms, Resources, Media, CmsAdmins
-│   │                          #   course → lesson → steps[] → blocks → terms.
-│   │                          #   See CONTEXT.md "Content model" for what each one is.
-│   ├── fields/  hooks/  access/  migrations/  storage/
-│   └── payload-types.ts       # generated — `npm run payload:types`
-│
-├── features/                  # replaces pages-client/ — one folder per domain
-│   ├── learning/              # progress tracking + lesson consumption
-│   │   ├── actions.ts         # Server Actions: `completeLesson()`, `startCourse()`
-│   │   └── components/        # `LessonProgressBar`, `CourseAccordion`, `StreakCounter`
-│   ├── exercises/             # "exercise" is the domain exercises[] (quizzes)
-│   │   ├── actions.ts         # Server Actions: `verifyAnswer()`, `submitQuizScore()`
-│   │   └── components/        # `"use client"` components: `Flashcard`, `MultipleChoice`, `AudioPlayer`
-│   └── profile/               # account management
-│       ├── actions.ts         # Server Actions: `updateTargetLanguage()`, `resetPassword()`
-│       └── components/        # `XPRankBoard`, `LanguageSelectorDropdown`
-├── components/                # shared presentation: ui primitives, richtext/, media/,
-│   └── blocks/                # the single blocks library (multiple choice, fill-blank, …)
-├── utils/                     # pure helpers: kana.ts, buildChoiceOptions.ts, …
-└── lib/                       # instances: auth.ts + auth-client.ts (Better Auth, both
-                               #   halves together), db/ (Drizzle schemas), content/
-                               #   (the only module that reads Payload), mail.ts
-drizzle/            Migrations for the public schema
-scripts/            Parity checker, Payload tooling, content snapshot round-trip
-services/
-  pronunciation/    Standalone ML scoring container
+src/app/
+├── (payload)/                 Payload admin at /admin. Generated. Do not edit.
+└── (app)/
+    ├── layout.tsx             html, theme, analytics
+    ├── api/                   Better Auth, progress, pronunciation, preview
+    ├── [...catchall]/         unmatched paths redirect to /
+    ├── (public)/              no auth. Header and Footer
+    │   ├── page.tsx           Home
+    │   ├── auth/              Guards itself. Sends a signed-in visitor to `from`.
+    │   ├── forgot-password/  reset-password/
+    │   ├── gallery/  characters/[slug]/  stories/  funfacts/  resources/
+    │   └── courses/           NEW. Public catalog. Courses render nowhere today.
+    ├── (learn)/               requireSession(). Header and Footer
+    │   ├── lessons/           Lesson list at /lessons
+    │   └── welcome/  profile/  talk/  watch/
+    ├── (dashboard)/           requireSession(). Header, no Footer
+    │   └── dashboard/
+    └── (player)/              requirePlayerAccess(). No chrome
+        └── lessons/[slug]/    Both lesson formats at /lessons/<slug>
 ```
+
+`(player)` is a sibling of `(learn)`, not a child. It admits a CMS editor with no learner session, which a `requireSession()` layout would refuse.
+
+Screens still live in `src/pages-client/`. Moving them into `src/features/` is remaining work on [#77](https://github.com/nihongojp/cornerstone/issues/77). Items marked NEW are product work, not part of that move.
+
+List the route directories with `find src/app -type d | sort`.
 
 ---
 

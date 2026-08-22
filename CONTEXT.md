@@ -129,12 +129,15 @@ itself (`あ-ア`), which an ASCII rule would reject outright.
 
 | Group | Auth gate | Chrome |
 |---|---|---|
+| `(public)` | none | Header and Footer |
+| `(learn)` | signed-in | Header and Footer |
 | `(dashboard)` | signed-in | Header, no Footer |
-| `(site)/(protected)` | signed-in | Header + Footer |
 | `(player)` | learner session **or** CMS editor previewing | none |
 
 A new page picks whichever row matches the auth + chrome it needs — these
-are two independent axes, not competing patterns.
+are two independent axes, not competing patterns. All four sit inside
+`(app)`, which holds the single root layout (html, theme, analytics) so
+navigating between them does not full-reload.
 
 `/auth` is the exception and guards itself, in `auth/page.tsx`: it sends a
 signed-in visitor to their `from` destination, and a layout is never given

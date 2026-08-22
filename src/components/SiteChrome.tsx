@@ -7,7 +7,7 @@ import Footer from "./Footer";
 
 /*
  * Ported from client/src/App.tsx AppContent. The route groups decide which
- * chrome a page gets ((site) = header+footer, (dashboard) = header only,
+ * chrome a page gets ((public) and (learn) = header+footer, (dashboard) = header only,
  * (player) = bare) — this component reproduces the shared page skeleton and
  * the sticky header wrapper exactly as the CRA app rendered it.
  *

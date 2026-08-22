@@ -66,7 +66,7 @@ mentions left in `src/` are historical comments. Content comes from Payload.
 - **Migration order is fixed**: `npm run db:migrate` before `npm run payload:migrate`.
   Payload never issues `CREATE SCHEMA`, so Drizzle has to create `payload` first.
 - **There is no test suite.** A change is verified by `npm run typecheck` plus
-  `npm run parity [url]`, which checks all 36 routes in both auth states and then
+  `npm run parity [url]`, which checks all 40 routes in both auth states and then
   asserts the CMS is up and serving real content. Both must pass before you call
   something done.
 - **Node 24 LTS**, pinned in `.nvmrc` and floored at 24.11.0 in `engines`. CI
@@ -134,16 +134,19 @@ Exercise components are likewise format-specific and not 1:1 interchangeable.
 Better Auth issues httpOnly cookie sessions — no token in `localStorage`, no
 `Authorization` header to attach. `src/proxy.ts` is an optimistic gate: it checks only
 that a cookie *exists*, because validating means a database call. The real boundary is
-`requireSession()` from `src/lib/session.ts`, called in the `(protected)`,
-`(dashboard)` and `(player)` layouts and in route handlers.
+`requireSession()` from `src/lib/session.ts`, called in the `(learn)` and
+`(dashboard)` layouts, `requirePlayerAccess()` in the `(player)` layout, and in
+route handlers.
 
 `proxy.ts` is Next 16's name for what used to be `middleware.ts` — same position, same
 runtime, same `config.matcher`, exported function named `proxy`. Write new code against
 that name.
 
-Route groups carry both the auth rule and the chrome: `(site)` has Header + Footer,
-`(dashboard)` drops the Footer, `(player)` has none. A new page inherits its group's
-rules — put it in the right group rather than re-implementing the gate.
+Route groups carry both the auth rule and the chrome: `(public)` has Header + Footer,
+`(learn)` adds `requireSession()`, `(dashboard)` drops the Footer, `(player)` has none.
+A new page inherits its group's rules — put it in the right group rather than
+re-implementing the gate. `(player)` stays a sibling of `(learn)` so a CMS editor
+can preview without a learner session.
 
 ### Payload admin
 

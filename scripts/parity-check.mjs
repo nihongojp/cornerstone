@@ -37,16 +37,16 @@
  *
  * The route table below only asks whether each URL renders. That is silent
  * about the half of the stack the pivot introduced: a deployment with an empty
- * database, or with a wide-open admin bootstrap, renders all 36 routes exactly
+ * database, or with a wide-open admin bootstrap, renders all 40 routes exactly
  * as a good one does. The CMS section (see CMS, further down) covers that, and
- * prints its own count so the 36 stays comparable with earlier runs.
+ * prints its own count so the 40 stays comparable with earlier runs.
  *
  * ── Getting past Vercel's auth wall ─────────────────────────────────────────
  *
  * Vercel Authentication at the Standard Protection scope (#32) covers every
  * preview URL and the `*.vercel.app` production one. Against those, a run with
  * no credentials never reaches the app at all: Vercel answers 401 before Next
- * sees the request, so all 36 routes fail identically and the report reads as
+ * sees the request, so all 40 routes fail identically and the report reads as
  * "this deployment is broken" when it means "the checker could not get in".
  *
  * So every request carries `x-vercel-protection-bypass` when

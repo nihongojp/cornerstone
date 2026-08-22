@@ -9,7 +9,7 @@ import { getSessionCookie } from "better-auth/cookies";
  * Optimistic gate only: this checks that a session cookie is *present*, not that
  * it is valid — validating would mean a database call, which the edge runtime
  * can't do cheaply. It exists to bounce logged-out visitors before a protected
- * page renders. Actual enforcement lives in the (protected)/(dashboard)/(player)
+ * page renders. Actual enforcement lives in the (learn)/(dashboard)/(player)
  * layouts and in every route handler, which call auth.api.getSession().
  *
  * That split is the shape Next's own guidance asks for: it names optimistic
