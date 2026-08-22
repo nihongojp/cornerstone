@@ -124,10 +124,12 @@ src/app/
         └── lessons/[slug]/    Both lesson formats at /lessons/<slug>
 
 src/features/
-├── learning/                  LessonRunner, list, dashboard, preview
+├── learning/
+│   ├── components/            LessonRunner, LessonsListPage, Dashboard, LessonPreview
 │   └── actions.ts             upsertProgress
 ├── exercises/components/      Block renderers and exercise widgets
-└── account/                   AuthForm, Profile, recovery, WelcomeForm
+└── account/
+    ├── components/            AuthForm, Profile, password recovery, WelcomeForm
     └── actions.ts             Profile and welcome mutations
 ```
 

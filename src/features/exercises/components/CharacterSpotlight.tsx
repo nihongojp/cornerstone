@@ -1,11 +1,72 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
+import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
+import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 
 import type { Term } from "@/payload/payload-types";
-import MediaAudio from "@/components/media/MediaAudio";
+import { termAudio } from "./termText";
 import MediaImage from "@/components/media/MediaImage";
+
+const BRAND = "#B43D20";
+
+/*
+ * Same round "audio button" pattern used in FlashcardReview.tsx, MatchDotsMedia.tsx,
+ * MatchAudioExercisePlaceholder.tsx and PronunciationExercise.tsx. None of those share a
+ * component today, so this is a local copy rather than a new abstraction — consistent
+ * with how the others already do it.
+ */
+const AudioButton: React.FC<{ audioUrl?: string }> = ({ audioUrl }) => {
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const hasAudio = Boolean(audioUrl);
+
+  const playAudio = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!hasAudio || !audioRef.current) return;
+    audioRef.current.currentTime = 0;
+    setPlaying(true);
+    audioRef.current.play().catch(() => setPlaying(false));
+  };
+
+  return (
+    <>
+      {hasAudio && (
+        <audio ref={audioRef} src={audioUrl} preload="auto" onEnded={() => setPlaying(false)} />
+      )}
+      <Box
+        onClick={playAudio}
+        sx={{
+          width: 52,
+          height: 52,
+          borderRadius: "50%",
+          bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.1)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: hasAudio ? "pointer" : "default",
+          boxShadow: hasAudio ? "0 4px 14px rgba(180,61,32,0.35)" : "none",
+          animation: playing ? "audioPulse 1.2s ease-in-out infinite" : "none",
+          "@keyframes audioPulse": {
+            "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
+            "50%": { boxShadow: "0 0 0 12px rgba(180,61,32,0)" },
+          },
+          transition: "box-shadow 0.3s",
+          flexShrink: 0,
+        }}
+      >
+        {playing ? (
+          <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1.4rem" }} />
+        ) : (
+          <VolumeUpRoundedIcon
+            sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.25)", fontSize: "1.4rem" }}
+          />
+        )}
+      </Box>
+    </>
+  );
+};
 
 /*
  * One character, large, with its stroke-order diagram.
@@ -64,7 +125,7 @@ const CharacterSpotlight: React.FC<{ term: Term }> = ({ term }) => {
         </Typography>
       )}
 
-      <MediaAudio value={term.audio} />
+      <AudioButton audioUrl={termAudio(term)} />
 
       {typeof term.strokes === "number" && (
         <Typography sx={{ fontWeight: 600, fontSize: "0.95rem", color: "text.secondary" }}>

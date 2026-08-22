@@ -1,13 +1,17 @@
 import { defineConfig } from "drizzle-kit";
 import { config } from "dotenv";
 
+import { pinSslMode } from "./src/lib/db/connection";
+
 config({ path: ".env.local" });
 
 export default defineConfig({
   schema: "./src/lib/db/schema.ts",
   out: "./drizzle",
   dialect: "postgresql",
-  dbCredentials: { url: process.env.DATABASE_URL! },
+  dbCredentials: {
+    url: process.env.DATABASE_URL ? pinSslMode(process.env.DATABASE_URL) : "",
+  },
   // Payload owns the `payload` schema in the same database (spike #10).
   // `public` is already the default; naming it makes the boundary explicit and
   // keeps drizzle-kit from ever diffing Payload's tables.
