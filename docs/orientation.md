@@ -100,6 +100,19 @@ with a `page.tsx`. The auth rule lives in that group's `layout.tsx` — open it 
 it rather than assuming. Add the path to `scripts/parity-check.mjs`'s route table in
 the same PR, or nothing is guarding it.
 
+The `page.tsx` is a server component that fetches; the screen it renders is a
+client component, and where that lives depends on **what the domain owns**, not on
+how many routes use it:
+
+| The screen belongs to… | It lives in |
+|---|---|
+| a domain that also owns actions, shared types, or a render pipeline | `src/features/<domain>/components/` |
+| no such domain — just this one route | next to its `page.tsx` |
+| chrome or a cross-domain widget | `src/components/` |
+
+Every screen in `features/account/` is used by exactly one route and still belongs
+there, because the domain owns `actions.ts` too.
+
 **Change a Payload field.** This is a migration, not an edit:
 
 ```bash
@@ -132,7 +145,7 @@ how the `steps` rename shipped without a line of backfill SQL.
 | Command | Proves | Does not prove |
 |---|---|---|
 | `npm run typecheck` | the types line up | that anything runs |
-| `npm test` (89) | the pure logic is right | that any page renders |
+| `npm test` (96) | the pure logic is right | that any page renders |
 | `npm run parity` (40 route checks + 5 CMS) | every route's guard and chrome | that content is correct — it can be answered from cache |
 | `npm run content:verify` | every media and term reference resolves, uncached | that a page renders |
 
