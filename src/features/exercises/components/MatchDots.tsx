@@ -3,58 +3,58 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
-import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
-import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
-import { buildArrangement } from "../utils/dotMatchArrangement";
+import { buildArrangement } from "@/utils/dotMatchArrangement";
 
-export type MediaMatchPair = {
-  phrase: string;
-  audioUrl: string;
-  imageUrl: string;
-};
+export type DotMatchPair = { hiragana: string; katakana: string; audio?: string };
+
+function playAudio(src?: string) {
+  if (!src) return;
+  new Audio(src).play().catch(() => {});
+}
 
 type Connection = { dot1Id: string; dot2Id: string };
 
-type Props = {
-  pairs: MediaMatchPair[];
-  instructions?: string;
+type DotMatchProps = {
+  pairs: DotMatchPair[];
+  /*
+   * The heading. Defaults to the kana wording this was written for, which is
+   * wrong for every other kind of pair — `matchPairs` can pair a word with its
+   * meaning, its reading or its audio, and telling a learner to "match each
+   * hiragana to its katakana" on one of those is worse than saying nothing.
+   */
+  heading?: string;
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
+  // Version 1 keeps the left column in the order the terms were introduced
+  // instead of shuffling it along with the right column.
+  keepLeftOrder?: boolean;
 };
 
 const DOT_SIZE = 14;
-const CARD_W = 100;
-const CARD_H = 80;
-const ROW_HEIGHT = 110;
 
-function isPlaceholder(url: string) {
-  return !url || url.toUpperCase().includes("PLACEHOLDER");
-}
-
-const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
+const DotMatch: React.FC<DotMatchProps> = ({ pairs, heading, onResult, keepLeftOrder }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dotRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const audioRefs = useRef<Record<number, HTMLAudioElement | null>>({});
 
   const [firstId, setFirstId] = useState<string | null>(null);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [submitted, setSubmitted] = useState(false);
   const [correctSet, setCorrectSet] = useState<Set<string>>(new Set());
-  const [playing, setPlaying] = useState<number | null>(null);
 
-  // Randomized once per mount so each column's layout is fresh on every
-  // attempt, and the correct answer isn't reliably on the same row.
-  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length));
+  // Randomized once per mount so the layout is fresh on every attempt
+  // (except the left column when keepLeftOrder is set — see buildArrangement).
+  const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length, { keepLeftOrder }));
 
-  const leftPairs = useMemo(() => leftOrder.map((idx) => pairs[idx]), [leftOrder, pairs]);
-  const rightPairs = useMemo(() => rightOrder.map((idx) => pairs[idx]), [rightOrder, pairs]);
+  const leftLabels = useMemo(() => leftOrder.map((pairId) => pairs[pairId].hiragana), [leftOrder, pairs]);
+  const leftAudio = useMemo(() => leftOrder.map((pairId) => pairs[pairId].audio), [leftOrder, pairs]);
+  const rightLabels = useMemo(() => rightOrder.map((pairId) => pairs[pairId].katakana), [rightOrder, pairs]);
 
-  // Row index on the right column holding the correct match for each left row.
+  // Row index on the right column holding the correct katakana for each left row.
   const correctRightRowForLeftRow = useMemo(
     () => leftOrder.map((pairId) => rightOrder.indexOf(pairId)),
     [leftOrder, rightOrder]
   );
-  // Row index on the left column holding the correct match for each right row.
+  // Row index on the left column holding the correct hiragana for each right row.
   const correctLeftRowForRightRow = useMemo(
     () => rightOrder.map((pairId) => leftOrder.indexOf(pairId)),
     [leftOrder, rightOrder]
@@ -88,18 +88,28 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
 
       const color = getLineColor(dot1Id, dot2Id);
 
+      // Glow/shadow line
       const shadow = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      shadow.setAttribute("x1", String(x1)); shadow.setAttribute("y1", String(y1));
-      shadow.setAttribute("x2", String(x2)); shadow.setAttribute("y2", String(y2));
-      shadow.setAttribute("stroke", color); shadow.setAttribute("stroke-width", "8");
-      shadow.setAttribute("stroke-linecap", "round"); shadow.setAttribute("opacity", "0.15");
+      shadow.setAttribute("x1", String(x1));
+      shadow.setAttribute("y1", String(y1));
+      shadow.setAttribute("x2", String(x2));
+      shadow.setAttribute("y2", String(y2));
+      shadow.setAttribute("stroke", color);
+      shadow.setAttribute("stroke-width", "8");
+      shadow.setAttribute("stroke-linecap", "round");
+      shadow.setAttribute("opacity", "0.15");
       svg.appendChild(shadow);
 
+      // Main line
       const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("x1", String(x1)); line.setAttribute("y1", String(y1));
-      line.setAttribute("x2", String(x2)); line.setAttribute("y2", String(y2));
-      line.setAttribute("stroke", color); line.setAttribute("stroke-width", "2.5");
-      line.setAttribute("stroke-linecap", "round"); line.setAttribute("pointer-events", "stroke");
+      line.setAttribute("x1", String(x1));
+      line.setAttribute("y1", String(y1));
+      line.setAttribute("x2", String(x2));
+      line.setAttribute("y2", String(y2));
+      line.setAttribute("stroke", color);
+      line.setAttribute("stroke-width", "2.5");
+      line.setAttribute("stroke-linecap", "round");
+      line.setAttribute("pointer-events", "stroke");
       line.style.cursor = submitted ? "default" : "pointer";
 
       if (!submitted) {
@@ -117,7 +127,10 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
     });
   };
 
-  useEffect(() => { drawAllLines(connections); }, [connections, submitted, correctSet]);
+  useEffect(() => {
+    drawAllLines(connections);
+  }, [connections, submitted, correctSet]);
+
   useEffect(() => {
     const handler = () => drawAllLines(connections);
     window.addEventListener("resize", handler);
@@ -128,6 +141,7 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
 
   const handleDotClick = (id: string) => {
     if (submitted || isConnected(id)) return;
+
     if (!firstId) { setFirstId(id); return; }
     if (id === firstId) { setFirstId(null); return; }
 
@@ -141,15 +155,7 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
     setFirstId(null);
   };
 
-  const playAudio = (index: number) => {
-    const audio = audioRefs.current[index];
-    if (!audio) return;
-    audio.currentTime = 0;
-    setPlaying(index);
-    audio.play().catch(() => setPlaying(null));
-  };
-
-  const canCheck = connections.length === pairs.length && pairs.length > 0;
+  const canCheck = connections.length === leftLabels.length && leftLabels.length > 0;
 
   const handleCheck = () => {
     const made = new Set(connections.map((c) => `${c.dot1Id}-${c.dot2Id}`));
@@ -169,12 +175,14 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
     setCorrectSet(new Set());
   };
 
+  const CARD_SIZE = 72;
+  const ROW_HEIGHT = 100;
   const containerHeight = pairs.length * ROW_HEIGHT;
 
   return (
     <Box sx={{ textAlign: "center", p: { xs: 0.5, sm: 1 }, width: "100%", overflowX: "hidden" }}>
       <Typography sx={{ fontWeight: 700, fontSize: { xs: "1rem", sm: "1.1rem" }, mb: 0.5, color: "#1C1917" }}>
-        {instructions || "Match phrase to appropriate situation — connect the dots"}
+        {heading ?? "Match each hiragana to its katakana"}
       </Typography>
       <Typography variant="body2" sx={{ color: "text.secondary", mb: 1.25 }}>
         {submitted ? "Done! See your results above." : "Click a dot on the left, then one on the right to connect."}
@@ -184,8 +192,8 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
         ref={containerRef}
         sx={{
           position: "relative",
-          width: { xs: "100%", sm: 480 },
-          maxWidth: 520,
+          width: { xs: "100%", sm: 440 },
+          maxWidth: 480,
           height: containerHeight,
           mx: "auto",
           display: "flex",
@@ -195,79 +203,65 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
           px: { xs: 0, sm: 2 },
         }}
       >
+        {/* SVG overlay */}
         <svg
           ref={svgRef}
           style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 1, overflow: "visible" }}
         />
 
-        {/* Left column — audio buttons */}
+        {/* Left column */}
         <Box sx={{ display: "flex", flexDirection: "column", zIndex: 2 }}>
-          {leftPairs.map((pair, i) => {
+          {leftLabels.map((label, i) => {
             const id = `L${i + 1}`;
             const active = firstId === id;
             const connected = isConnected(id);
             const expectedRId = `R${correctRightRowForLeftRow[i] + 1}`;
             const isCorrect = submitted && connections.some((c) => c.dot1Id === id && c.dot2Id === expectedRId);
             const isWrong = submitted && connected && !isCorrect;
-            const hasAudio = !isPlaceholder(pair.audioUrl);
+
+            const audioSrc = leftAudio[i];
 
             return (
               <Box key={i} sx={{ height: ROW_HEIGHT, display: "flex", alignItems: "center", gap: 1.5 }}>
-                {/* Audio card */}
                 <Box
+                  onClick={audioSrc ? () => playAudio(audioSrc) : undefined}
                   sx={{
-                    width: CARD_W,
-                    height: CARD_H,
+                    position: "relative",
+                    width: CARD_SIZE,
+                    height: CARD_SIZE,
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 0.5,
+                    fontSize: { xs: "1.5rem", sm: "1.8rem" },
+                    fontWeight: 600,
                     borderRadius: "12px",
                     border: `2px solid ${isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.1)"}`,
                     bgcolor: isCorrect ? "rgba(5,150,105,0.05)" : isWrong ? "rgba(220,38,38,0.05)" : "#FAFAFA",
-                    transition: "border-color 0.3s",
-                    overflow: "hidden",
-                    px: 1,
+                    transition: "border-color 0.3s, background-color 0.3s",
+                    cursor: audioSrc ? "pointer" : "default",
                   }}
                 >
-                  {hasAudio && (
-                    <audio
-                      ref={(el) => { audioRefs.current[i] = el; }}
-                      src={pair.audioUrl}
-                      preload="auto"
-                      onEnded={() => setPlaying(null)}
+                  {label}
+                  {audioSrc && (
+                    <VolumeUpRoundedIcon
+                      sx={{
+                        position: "absolute",
+                        top: 2,
+                        right: 2,
+                        fontSize: "0.95rem",
+                        color: "#B43D20",
+                        opacity: 0.75,
+                      }}
                     />
                   )}
-                  <Box
-                    onClick={() => hasAudio && playAudio(i)}
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: "50%",
-                      bgcolor: hasAudio ? "#B43D20" : "rgba(0,0,0,0.12)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: hasAudio ? "pointer" : "default",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {playing === i
-                      ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1rem" }} />
-                      : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.3)", fontSize: "1rem" }} />}
-                  </Box>
-                  <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "text.secondary", lineHeight: 1.2, textAlign: "center" }}>
-                    {pair.phrase}
-                  </Typography>
                 </Box>
-
-                {/* Dot */}
                 <Box
                   ref={(el) => { dotRefs.current[id] = el as HTMLDivElement | null; }}
                   onClick={() => handleDotClick(id)}
                   sx={{
-                    width: DOT_SIZE, height: DOT_SIZE, borderRadius: "50%",
+                    width: DOT_SIZE,
+                    height: DOT_SIZE,
+                    borderRadius: "50%",
                     bgcolor: active ? "#B43D20" : connected ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "#B43D20") : "rgba(0,0,0,0.25)",
                     cursor: connected || submitted ? "default" : "pointer",
                     flexShrink: 0,
@@ -282,26 +276,27 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
           })}
         </Box>
 
-        {/* Right column — image placeholders */}
+        {/* Right column */}
         <Box sx={{ display: "flex", flexDirection: "column", zIndex: 2 }}>
-          {rightPairs.map((pair, i) => {
+          {rightLabels.map((label, i) => {
             const id = `R${i + 1}`;
             const active = firstId === id;
             const connected = isConnected(id);
+            // Find what L dot is connected to this R dot
             const connectedL = connections.find((c) => c.dot2Id === id)?.dot1Id;
             const expectedL = `L${correctLeftRowForRightRow[i] + 1}`;
             const isCorrect = submitted && connectedL === expectedL;
             const isWrong = submitted && connected && !isCorrect;
-            const hasImage = !isPlaceholder(pair.imageUrl);
 
             return (
               <Box key={i} sx={{ height: ROW_HEIGHT, display: "flex", alignItems: "center", gap: 1.5 }}>
-                {/* Dot */}
                 <Box
                   ref={(el) => { dotRefs.current[id] = el as HTMLDivElement | null; }}
                   onClick={() => handleDotClick(id)}
                   sx={{
-                    width: DOT_SIZE, height: DOT_SIZE, borderRadius: "50%",
+                    width: DOT_SIZE,
+                    height: DOT_SIZE,
+                    borderRadius: "50%",
                     bgcolor: active ? "#B43D20" : connected ? (isCorrect ? "#059669" : isWrong ? "#DC2626" : "#B43D20") : "rgba(0,0,0,0.25)",
                     cursor: connected || submitted ? "default" : "pointer",
                     flexShrink: 0,
@@ -311,39 +306,22 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
                     boxShadow: active ? "0 0 0 4px rgba(180,61,32,0.2)" : "none",
                   }}
                 />
-
-                {/* Image card */}
                 <Box
                   sx={{
-                    width: CARD_W,
-                    height: CARD_H,
+                    width: CARD_SIZE,
+                    height: CARD_SIZE,
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    gap: 0.5,
+                    fontSize: { xs: "1.5rem", sm: "1.8rem" },
+                    fontWeight: 600,
                     borderRadius: "12px",
                     border: `2px solid ${isCorrect ? "#059669" : isWrong ? "#DC2626" : "rgba(0,0,0,0.1)"}`,
                     bgcolor: isCorrect ? "rgba(5,150,105,0.05)" : isWrong ? "rgba(220,38,38,0.05)" : "#FAFAFA",
-                    transition: "border-color 0.3s",
-                    overflow: "hidden",
+                    transition: "border-color 0.3s, background-color 0.3s",
                   }}
                 >
-                  {hasImage ? (
-                    <Box
-                      component="img"
-                      src={pair.imageUrl}
-                      alt={pair.phrase}
-                      sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <>
-                      <ImageRoundedIcon sx={{ fontSize: "1.4rem", color: "rgba(0,0,0,0.2)" }} />
-                      <Typography sx={{ fontSize: "0.6rem", color: "text.disabled", lineHeight: 1.2, textAlign: "center", px: 0.5 }}>
-                        Image soon
-                      </Typography>
-                    </>
-                  )}
+                  {label}
                 </Box>
               </Box>
             );
@@ -351,13 +329,15 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
         </Box>
       </Box>
 
+      {/* Selection hint */}
       {firstId && !submitted && (
         <Typography variant="body2" sx={{ color: "#B43D20", fontWeight: 600, mt: 1.5 }}>
-          Selected — click a dot on the other side to connect
+          {firstId} selected — click a dot on the other side
         </Typography>
       )}
 
-      <Box sx={{ mt: 1.25, display: "flex", gap: 1.25, justifyContent: "center" }}>
+      {/* Actions */}
+      <Box sx={{ mt: 1.25, display: "flex", gap: 1.5, justifyContent: "center" }}>
         <Button
           variant="contained"
           disabled={!canCheck || submitted}
@@ -378,4 +358,4 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
   );
 };
 
-export default MatchDotsMedia;
+export default DotMatch;

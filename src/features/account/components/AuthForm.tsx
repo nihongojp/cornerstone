@@ -38,10 +38,10 @@ import {
 } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useRouter, useSearchParams } from "next/navigation";
-import { emailOtp, signIn } from "../lib/auth-client";
-import { safeReturnPath } from "../lib/return-path";
-import AuthCat from "../components/AuthCat";
-import GoogleMark from "../components/GoogleMark";
+import { emailOtp, signIn } from "@/lib/auth-client";
+import { safeReturnPath } from "@/lib/return-path";
+import AuthCat from "@/components/AuthCat";
+import GoogleMark from "@/components/GoogleMark";
 
 type Mode = "login" | "signup";
 type Stage = "email" | "password" | "sent" | "otp" | "linkFailed" | "sendFailed";

@@ -5,9 +5,9 @@ import { Box, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 
-import type { Term } from "../payload/payload-types";
-import { termAudio } from "./blocks/termText";
-import MediaImage from "./media/MediaImage";
+import type { Term } from "@/payload/payload-types";
+import { termAudio } from "./termText";
+import MediaImage from "@/components/media/MediaImage";
 
 const BRAND = "#B43D20";
 

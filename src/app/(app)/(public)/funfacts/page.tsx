@@ -1,4 +1,4 @@
-import FunFacts from "@/pages-client/FunFacts";
+import FunFacts from "./FunFacts";
 
 export default function Page() {
   return <FunFacts />;

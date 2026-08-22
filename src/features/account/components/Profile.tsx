@@ -35,7 +35,7 @@ import {
   changeEmail,
   changePassword,
   deleteUser,
-} from "../lib/auth-client";
+} from "@/lib/auth-client";
 
 export interface UserProfile {
   firstName: string;

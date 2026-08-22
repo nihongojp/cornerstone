@@ -14,16 +14,16 @@ import {
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import { useRouter } from "next/navigation";
 
-import Fact from "../components/Fact";
-import Reward from "../components/Rewards";
-import RewardInfo from "../components/RewardInfo";
-import RenderExercise from "../components/blocks/RenderExercise";
-import RichText from "../components/richtext/RichText";
+import Fact from "@/components/Fact";
+import Reward from "@/components/Rewards";
+import RewardInfo from "@/components/RewardInfo";
+import RenderExercise from "@/features/exercises/components/RenderExercise";
+import RichText from "@/components/richtext/RichText";
 
-import { stepSeed, shuffleSteps } from "../lib/content/shuffle";
-import { PRACTICE_BLOCK_SLUGS } from "../payload/blocks/librarySlugs";
-import { getProgress, submitAttempt, upsertProgress } from "../lib/progress-client";
-import type { Lesson } from "../payload/payload-types";
+import { stepSeed, shuffleSteps } from "@/lib/content/shuffle";
+import { PRACTICE_BLOCK_SLUGS } from "@/payload/blocks/librarySlugs";
+import { getProgress, submitAttempt, upsertProgress } from "@/lib/progress-client";
+import type { Lesson } from "@/payload/payload-types";
 
 /*
  * One player, for both lesson formats.
@@ -34,7 +34,7 @@ import type { Lesson } from "../payload/payload-types";
  * for the two families of imported content, and most of both was a switch on
  * `item.type` reconstructing a screen from flattened fields — which fields were
  * present decided which component ran. Both are gone: a screen is an ordered
- * list of blocks, `components/blocks/RenderExercise` renders it from the
+ * list of blocks, `features/exercises/components/RenderExercise` renders it from the
  * generated `Lesson` type, and what is left here is the shell around it.
  *
  * The two formats differ in nothing this file can see. `format` still decides

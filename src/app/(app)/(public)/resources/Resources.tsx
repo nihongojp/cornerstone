@@ -21,10 +21,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import LinkIcon from "@mui/icons-material/Link";
-import Bart from "../components/Menut";
-import RichText from "../components/richtext/RichText";
-import { proseToPlainText } from "../lib/content/prose";
-import type { Resource } from "../payload/payload-types";
+import Bart from "@/components/Menut";
+import RichText from "@/components/richtext/RichText";
+import { proseToPlainText } from "@/lib/content/prose";
+import type { Resource } from "@/payload/payload-types";
 
 /*
  * The generated Payload types, not a restatement of them.

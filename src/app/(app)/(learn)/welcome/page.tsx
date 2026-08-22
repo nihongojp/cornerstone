@@ -1,4 +1,4 @@
-import WelcomeForm from "@/pages-client/WelcomeForm";
+import WelcomeForm from "@/features/account/components/WelcomeForm";
 
 /*
  * Where a brand-new account lands after proving its address — see

@@ -3,11 +3,12 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
-import { kanaTilesToRomaji } from "../../utils/kana";
+import { kanaTilesToRomaji } from "@/utils/kana";
 import type {
   BuildSentenceBlock,
   DialogueBlock,
   GrammarPointBlock,
+  Lesson,
   ListenAndChooseBlock,
   MatchPairsBlock,
   MediaFigureBlock,
@@ -17,27 +18,27 @@ import type {
   Term,
   VideoLessonBlock,
   VocabListBlock,
-} from "../../payload/payload-types";
+} from "@/payload/payload-types";
 
-import CharacterSpotlight from "../CharacterSpotlight";
-import DragDropCombination from "../DragDropCombination";
-import Fact from "../Fact";
-import FlashcardReview, { type FlashcardReviewTerm } from "../FlashcardReview";
-import MatchAudioExercisePlaceholder from "../MatchAudioExercisePlaceholder";
-import DotMatch, { type DotMatchPair } from "../MatchDots";
-import MatchDotsMedia, { type MediaMatchPair } from "../MatchDotsMedia";
+import CharacterSpotlight from "./CharacterSpotlight";
+import DragDropCombination from "./DragDropCombination";
+import Fact from "@/components/Fact";
+import FlashcardReview, { type FlashcardReviewTerm } from "./FlashcardReview";
+import MatchAudioExercisePlaceholder from "./MatchAudioExercisePlaceholder";
+import DotMatch, { type DotMatchPair } from "./MatchDots";
+import MatchDotsMedia, { type MediaMatchPair } from "./MatchDotsMedia";
 import PronunciationExercise, {
   type PronunciationExerciseData,
-} from "../PronunciationExercise";
-import MediaAudio from "../media/MediaAudio";
-import MediaImage from "../media/MediaImage";
-import MediaVideo from "../media/MediaVideo";
-import RichText from "../richtext/RichText";
-import Ruby from "../richtext/Ruby";
+} from "./PronunciationExercise";
+import MediaAudio from "@/components/media/MediaAudio";
+import MediaImage from "@/components/media/MediaImage";
+import MediaVideo from "@/components/media/MediaVideo";
+import RichText from "@/components/richtext/RichText";
+import Ruby from "@/components/richtext/Ruby";
 
 import MultipleChoice from "./MultipleChoice";
 import { term, termAudio, termImage, termText } from "./termText";
-import { renderableTerm } from "../../lib/content/furigana";
+import { renderableTerm } from "@/lib/content/furigana";
 
 /*
  * One block from the library, rendered straight from the Payload document.
@@ -60,7 +61,7 @@ import { renderableTerm } from "../../lib/content/furigana";
  */
 
 export type BlockOf = NonNullable<
-  NonNullable<import("../../payload/payload-types").Lesson["steps"]>[number]["components"]
+  NonNullable<Lesson["steps"]>[number]["components"]
 >[number];
 
 export type ResultCallback = (r: { result: "correct" | "incorrect" }) => void;

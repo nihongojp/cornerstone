@@ -122,11 +122,19 @@ src/app/
     │   └── dashboard/
     └── (player)/              requirePlayerAccess(). No chrome
         └── lessons/[slug]/    Both lesson formats at /lessons/<slug>
+
+src/features/
+├── learning/components/       LessonRunner, LessonsListPage, Dashboard, LessonPreview
+├── exercises/components/      Block renderers and exercise widgets
+└── account/components/        AuthForm, Profile, password recovery, WelcomeForm
 ```
 
 `(player)` is a sibling of `(learn)`, not a child. It admits a CMS editor with no learner session, which a `requireSession()` layout would refuse.
 
-Screens still live in `src/pages-client/`. Moving them into `src/features/` is remaining work on [#77](https://github.com/nihongojp/cornerstone/issues/77). Items marked NEW are product work, not part of that move.
+Screens live next to their `page.tsx` when they belong to one route, or in
+`src/features/` when they are shared. `src/components/` is Header, Footer,
+SiteChrome, media, richtext, and other pieces more than one feature uses.
+Items marked NEW are product work.
 
 List the route directories with `find src/app -type d | sort`.
 

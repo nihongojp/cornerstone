@@ -88,7 +88,7 @@ blocks on it (`PRACTICE_BLOCK_SLUGS`). Named `step` to match
 
 **Block**: one authored widget on a step — prose, a flashcard deck, a multiple
 choice. Schemas live in `src/payload/blocks/` (what an author picks in `/admin`);
-the React renderers live in `src/components/blocks/`. Two layers, on purpose:
+the React renderers live in `src/features/exercises/components/`. Two layers, on purpose:
 Payload's config is loaded by its CLI in plain Node, where a `"use client"`
 component would break it.
 

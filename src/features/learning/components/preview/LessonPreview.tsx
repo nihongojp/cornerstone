@@ -2,11 +2,11 @@
 
 import { useLivePreview } from "@payloadcms/live-preview-react";
 
-import { CONTENT_DEPTH } from "../../lib/content/depth";
-import { previewOrigin } from "../../lib/content/previewOrigin";
+import { CONTENT_DEPTH } from "@/lib/content/depth";
+import { previewOrigin } from "@/lib/content/previewOrigin";
 
 import LessonRunner from "../LessonRunner";
-import type { Lesson } from "../../payload/payload-types";
+import type { Lesson } from "@/payload/payload-types";
 
 /*
  * The Live Preview seam for lessons — both formats, one wrapper.

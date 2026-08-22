@@ -10,7 +10,7 @@ import {
   Chip,
   Stack,
 } from "@mui/material";
-import Bart from "../components/Menut";
+import Bart from "@/components/Menut";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
 type Category =

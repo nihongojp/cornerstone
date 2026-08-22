@@ -10,7 +10,7 @@ import {
   Card,
   CardActionArea,
 } from '@mui/material';
-import Bart from '../components/Menut';
+import Bart from '@/components/Menut';
 
 const Stories = (): React.ReactElement => {
   return (

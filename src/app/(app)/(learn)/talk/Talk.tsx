@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, Typography, Button } from '@mui/material';
-import Bart from '../components/Menut';
+import Bart from '@/components/Menut';
 
 const Talk = (): React.ReactElement => {
   const [isRecording, setIsRecording] = useState(false);

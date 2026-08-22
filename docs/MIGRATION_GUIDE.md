@@ -50,27 +50,28 @@ This is the concept everything else depends on. In CRA, *all* your code ran in t
 In this codebase the split is deliberately simple:
 
 ```
-src/app/**/page.tsx     server — fetches data, passes it down as props
-src/pages-client/*.tsx  client — the actual page UI ("use client")
-src/components/*.tsx    client — all shared UI and exercises
+src/app/**/page.tsx                    server — fetches data, passes it down as props
+src/features/**/components/*.tsx       client — screens used by more than one route
+src/app/**/<Name>.tsx                  client — a screen used by that route only
+src/components/*.tsx                   client — chrome, media, richtext, shared widgets
 ```
 
 So a page is two files. The server one fetches; the client one renders:
 
 ```tsx
-// src/app/(app)/(player)/newlesson/[slug]/page.tsx  — server
+// src/app/(app)/(player)/lessons/[slug]/page.tsx  — server
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const lesson = await getNewLessonBySlug(slug);   // runs on the server
+  const lesson = await getLessonBySlug(slug);   // runs on the server
   if (!lesson) redirect("/dashboard");
-  return <NewLessonPlayer slug={lesson.slug} lesson={lesson} />;
+  return <LessonRunner lesson={lesson} />;
 }
 ```
 
 ```tsx
-// src/pages-client/NewLessonPlayer.tsx  — client
+// src/features/learning/components/LessonRunner.tsx  — client
 "use client";
-const NewLessonPlayer = ({ slug, lesson }) => { /* hooks, state, JSX */ };
+const LessonRunner = ({ lesson }) => { /* hooks, state, JSX */ };
 ```
 
 **Why bother?** The lesson data is fetched on the server, so there's no loading spinner, no API round trip from the browser, and the database is never reachable from the client. That's why most `useEffect(() => { fetch(...) })` patterns disappeared in the migration — the fetch moved up into the server component.
@@ -209,7 +210,7 @@ The Docker image bakes the model in at build time so cold starts don't re-downlo
 
 ## 5. Common tasks
 
-**Add a page.** Create `src/app/(app)/(learn)/thing/page.tsx` (or `(public)` / `(dashboard)` / `(player)`, matching chrome and access). If it needs data, fetch it in that file and pass it to a `"use client"` component in `src/pages-client/`.
+**Add a page.** Create `src/app/(app)/(learn)/thing/page.tsx` (or `(public)` / `(dashboard)` / `(player)`, matching chrome and access). If it needs data, fetch it in that file and pass it to a `"use client"` component: a sibling of `page.tsx` if only that route uses it, otherwise `src/features/<domain>/components/`.
 
 **Add an API endpoint.** `src/app/(app)/api/thing/route.ts`, exporting `GET`/`POST`. Start every authenticated handler with:
 

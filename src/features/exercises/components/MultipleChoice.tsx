@@ -5,9 +5,9 @@ import { Box, Button, Typography } from "@mui/material";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
-import type { MultipleChoiceBlock } from "../../payload/payload-types";
+import type { MultipleChoiceBlock } from "@/payload/payload-types";
 
-import RichText from "../richtext/RichText";
+import RichText from "@/components/richtext/RichText";
 
 /*
  * A question with one right answer.

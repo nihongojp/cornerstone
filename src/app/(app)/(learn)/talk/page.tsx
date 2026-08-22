@@ -1,4 +1,4 @@
-import Talk from "@/pages-client/Talk";
+import Talk from "./Talk";
 
 export default function Page() {
   return <Talk />;

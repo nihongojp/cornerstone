@@ -1,7 +1,7 @@
 import { getDraftResources, getResources } from "@/lib/content/content";
 import { getPreviewEditor } from "@/lib/session";
-import Resources from "@/pages-client/Resources";
-import ResourcesPreview from "@/pages-client/preview/ResourcesPreview";
+import Resources from "./Resources";
+import ResourcesPreview from "./ResourcesPreview";
 
 export default async function Page() {
   // The CMS preview path — see the note in the step player's page. Draft Mode

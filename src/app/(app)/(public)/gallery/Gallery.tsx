@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
 import Link from 'next/link';
-import Bart from '../components/Menut';
-import { CHARACTERS } from '../data/characters';
+import Bart from '@/components/Menut';
+import { CHARACTERS } from '@/data/characters';
 
 const Gallery: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'characters' | 'items'>('characters');

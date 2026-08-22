@@ -1,5 +1,5 @@
 import { listLessons, listNewLessons } from "@/lib/content/content";
-import LessonsListPage from "@/pages-client/LessonsListPage";
+import LessonsListPage from "@/features/learning/components/LessonsListPage";
 
 export default async function Page() {
   // Fetched independently so a failure in one source still shows the other's

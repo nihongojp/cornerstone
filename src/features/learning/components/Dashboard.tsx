@@ -4,11 +4,11 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Box, Typography, IconButton, CircularProgress, Divider } from "@mui/material";
 import * as d3 from "d3";
-import Bart from "../components/Menut";
+import Bart from "@/components/Menut";
 import Link from "next/link";
-import { lessonHref } from "../lib/content/routes";
-import type { Lesson as LessonDoc } from "../payload/payload-types";
-import { getUpNextLesson, UpNextLesson } from "../lib/progress-client";
+import { lessonHref } from "@/lib/content/routes";
+import type { Lesson as LessonDoc } from "@/payload/payload-types";
+import { getUpNextLesson, UpNextLesson } from "@/lib/progress-client";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";

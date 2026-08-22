@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import { Box, CircularProgress, Container, Paper, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 
-import { lessonHref } from "../lib/content/routes";
-import { termText } from "../components/blocks/termText";
-import type { Lesson, Term } from "../payload/payload-types";
-import { getProgress } from "../lib/progress-client";
+import { lessonHref } from "@/lib/content/routes";
+import { termText } from "@/features/exercises/components/termText";
+import type { Lesson, Term } from "@/payload/payload-types";
+import { getProgress } from "@/lib/progress-client";
 
 // A card's color reflects the signed-in user's progress on that specific
 // part, rather than which column (Grammar vs Reading & Writing) it lives in.

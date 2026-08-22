@@ -1,4 +1,4 @@
-import CharInfo from "@/pages-client/CharInfo";
+import CharInfo from "./CharInfo";
 
 export default function Page() {
   return <CharInfo />;
