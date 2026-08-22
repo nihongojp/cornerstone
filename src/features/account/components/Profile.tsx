@@ -29,13 +29,8 @@ import {
 import { deepPurple } from "@mui/material/colors";
 import { Edit, Save, Key, Delete, RefreshCcw, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  useSession,
-  updateUser,
-  changeEmail,
-  changePassword,
-  deleteUser,
-} from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { deleteAccount, updatePassword, updateProfile } from "@/features/account/actions";
 
 export interface UserProfile {
   firstName: string;
@@ -104,34 +99,21 @@ const Profile: React.FC = () => {
       setSaving(true);
       setError(null);
 
-      console.log("[PROFILE] saving profile", draft);
-
-      const { error: nameError } = await updateUser({
+      // `currentEmail` is no longer sent — the action reads the authoritative
+      // one from the session, so a stale client cannot skip the email change
+      // and still be told it succeeded.
+      const result = await updateProfile({
         firstName: draft.firstName,
         lastName: draft.lastName,
+        email: draft.email,
       });
 
-      if (nameError) {
-        const msg = nameError.message || "Update failed";
-        console.error("[PROFILE] save error:", { status: nameError.status, msg, raw: nameError });
-        setError(msg);
+      if (!result.ok) {
+        setError(result.message);
+        // Refresh even on failure: `updateProfile` can save the name and then
+        // fail on the email, so the form must not keep showing pre-save values.
+        router.refresh();
         return;
-      }
-
-      // Better Auth rejects a no-op email change, so only send it when it moved.
-      if (draft.email !== user?.email) {
-        const { error: emailError } = await changeEmail({ newEmail: draft.email });
-
-        if (emailError) {
-          const msg = emailError.message || "Update failed";
-          console.error("[PROFILE] save error:", {
-            status: emailError.status,
-            msg,
-            raw: emailError,
-          });
-          setError(msg);
-          return;
-        }
       }
 
       setSuccess("Profile updated");
@@ -148,17 +130,13 @@ const Profile: React.FC = () => {
   const submitPassword = async () => {
     setError(null);
 
-    console.log("[PROFILE] change password");
-    const { error: pwError } = await changePassword({
+    const result = await updatePassword({
       currentPassword: pwForm.currentPassword,
       newPassword: pwForm.newPassword,
-      revokeOtherSessions: true,
     });
 
-    if (pwError) {
-      const msg = pwError.message || "Password update failed";
-      console.error("[PROFILE] change password error:", { status: pwError.status, msg, raw: pwError });
-      setError(msg);
+    if (!result.ok) {
+      setError(result.message);
       return;
     }
 
@@ -170,14 +148,11 @@ const Profile: React.FC = () => {
   const [delOpen, setDelOpen] = useState(false);
   const confirmDelete = async () => {
     setError(null);
-    console.log("[PROFILE] delete account");
 
-    const { error: delError } = await deleteUser();
+    const result = await deleteAccount();
 
-    if (delError) {
-      const msg = delError.message || "Account deletion failed";
-      console.error("[PROFILE] delete error:", { status: delError.status, msg, raw: delError });
-      setError(msg);
+    if (!result.ok) {
+      setError(result.message);
       return;
     }
 

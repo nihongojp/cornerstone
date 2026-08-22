@@ -151,6 +151,26 @@ route handlers.
 runtime, same `config.matcher`, exported function named `proxy`. Write new code against
 that name.
 
+**Every exported function in a `"use server"` file is a public POST endpoint.** It is
+reachable whether or not any UI calls it, and a layout's `requireSession()` does not
+protect it — layouts guard rendering, not actions. So a Server Action that touches user
+data calls `getSession()` itself and scopes every query to `session.user.id`, never to
+an id passed in the arguments. `src/features/learning/actions.ts` is the shape to copy.
+
+The account actions in `src/features/account/actions.ts` look like they skip this, and
+do not: they delegate to `auth.api.*` with the real request headers, and Better Auth's
+own middleware rejects an unauthenticated call. That gate is real but invisible — do
+not copy that shape into an action that reaches the database directly.
+
+Two rules that follow from a mutation being an endpoint rather than a fetch:
+
+- **Return a discriminated result, not `void`.** A caller cannot tell "did nothing" from
+  "worked" otherwise, and the failure that matters here is a learner whose session
+  expired mid-lesson: the write no-ops and the lesson looks finished. See `SaveResult`.
+- **Log server-side in every `catch`.** A client `console.error` lands in a browser the
+  learner has usually just navigated away from, and an action absorbs the throw before
+  Next ever sees it — so without a server-side log an outage leaves no trace at all.
+
 Route groups carry both the auth rule and the chrome: `(public)` has Header + Footer,
 `(learn)` adds `requireSession()`, `(dashboard)` drops the Footer, `(player)` has none.
 A new page inherits its group's rules — put it in the right group rather than

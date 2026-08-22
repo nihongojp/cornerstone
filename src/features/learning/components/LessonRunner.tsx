@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   Box,
   Button,
   Chip,
@@ -22,7 +23,8 @@ import RichText from "@/components/richtext/RichText";
 
 import { stepSeed, shuffleSteps } from "@/lib/content/shuffle";
 import { PRACTICE_BLOCK_SLUGS } from "@/payload/blocks/librarySlugs";
-import { getProgress, submitAttempt, upsertProgress } from "@/lib/progress-client";
+import { upsertProgress } from "@/features/learning/actions";
+import type { ProgressDoc } from "@/features/learning/types";
 import type { Lesson } from "@/payload/payload-types";
 
 /*
@@ -171,12 +173,18 @@ const LessonRunner: React.FC<{
   userId?: string;
   /** How many times this learner has finished this lesson. Also server-side. */
   attempt?: number;
-}> = ({ lesson, nextHref, userId, attempt = 0 }) => {
+  /** Resume cursor, fetched on the server. Absent in Live Preview. */
+  initialProgress?: ProgressDoc | null;
+}> = ({ lesson, nextHref, userId, attempt = 0, initialProgress = null }) => {
   const router = useRouter();
 
   const [step, setStep] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [attemptCount, setAttemptCount] = useState(0);
+  // A failed write, shown to the learner rather than only logged. Cleared by
+  // the next successful save, so a recovered connection removes it.
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const answeredRef = useRef<Record<string, boolean>>({});
   const resumedRef = useRef(false);
@@ -229,18 +237,12 @@ const LessonRunner: React.FC<{
     if (!slug || !steps.length || resumedRef.current) return;
     resumedRef.current = true;
 
-    let cancelled = false;
-    void (async () => {
-      const saved = await getProgress(slug);
-      if (cancelled || !saved || saved.status !== "in_progress") return;
-      const index = saved.stepKey ? steps.findIndex((s) => s.key === saved.stepKey) : -1;
-      if (index >= 0) setStep(index);
-      else if (saved.lastStep > 0 && saved.lastStep < steps.length) setStep(saved.lastStep);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [slug, steps]);
+    const saved = initialProgress;
+    if (!saved || saved.status !== "in_progress") return;
+    const index = saved.stepKey ? steps.findIndex((s) => s.key === saved.stepKey) : -1;
+    if (index >= 0) setStep(index);
+    else if (saved.lastStep > 0 && saved.lastStep < steps.length) setStep(saved.lastStep);
+  }, [slug, steps, initialProgress]);
 
   const total = steps.length;
   const active = steps[step];
@@ -249,19 +251,39 @@ const LessonRunner: React.FC<{
   const accuracy = attemptCount ? Math.round((100 * correctCount) / attemptCount) : 0;
 
   /*
-   * Progress writes are best-effort and always caught. In the CMS preview panel
-   * there is no learner session at all, so every one of these 401s — unhandled,
-   * that is an unhandled rejection per screen turned.
+   * Mid-lesson saves stay non-blocking — a learner should never wait on the
+   * network to turn a screen — but they surface a failure instead of only
+   * logging one, because the alternative is losing the lesson silently.
+   *
+   * A CMS editor previewing has no learner session; `upsertProgress` reports
+   * that as `ok` with `saved: false`, so it is not an error here.
    */
-  function save(status: "in_progress" | "completed", index: number, accuracyPct: number) {
-    if (!slug || !steps[index]) return;
-    void upsertProgress({
-      lessonId: slug,
-      status,
-      lastStep: index,
-      stepKey: steps[index].key,
-      accuracyPct,
-    }).catch((e) => console.error("[Progress] save failed:", e));
+  async function save(
+    status: "in_progress" | "completed",
+    index: number,
+    accuracyPct: number
+  ): Promise<boolean> {
+    if (!slug || !steps[index]) return true;
+
+    try {
+      const result = await upsertProgress({
+        lessonId: slug,
+        status,
+        lastStep: index,
+        stepKey: steps[index].key,
+        accuracyPct,
+      });
+      if (!result.ok) {
+        setSaveError(result.message);
+        return false;
+      }
+      setSaveError(null);
+      return true;
+    } catch (e) {
+      console.error("[Progress] save failed:", e);
+      setSaveError("That didn't save. Check your connection and try again.");
+      return false;
+    }
   }
 
   /** Records an attempt at most once per screen, returning the resulting accuracy. */
@@ -274,20 +296,28 @@ const LessonRunner: React.FC<{
     setAttemptCount(attempts);
     setCorrectCount(corrects);
 
-    if (graded && slug) void submitAttempt({ lessonId: slug, stepIndex: step, result });
-
     return attempts ? Math.round((100 * corrects) / attempts) : accuracy;
   }
 
-  function advance(accuracyPct: number) {
+  async function advance(accuracyPct: number) {
     if (isLast) {
-      save("completed", step, accuracyPct);
+      /*
+       * The one write that is awaited. Finishing is the write worth blocking
+       * on: navigating first raced the RSC render for /lessons against this
+       * POST, so a learner could land on the list and see the lesson they had
+       * just completed still marked in progress — or, if the write failed
+       * outright, never learn that it had.
+       */
+      setSaving(true);
+      const ok = await save("completed", step, accuracyPct);
+      setSaving(false);
+      if (!ok) return; // stay put; the error banner offers a retry
       router.push(nextHref ?? "/lessons");
       return;
     }
     const next = step + 1;
     setStep(next);
-    save("in_progress", next, accuracyPct);
+    void save("in_progress", next, accuracyPct);
   }
 
   const handleResult = ({ result }: { result: "correct" | "incorrect" }) => {
@@ -297,22 +327,21 @@ const LessonRunner: React.FC<{
       // A wrong answer counts against accuracy but does not move on — the
       // learner stays on the screen and tries again.
       setAttemptCount((c) => c + 1);
-      if (slug) void submitAttempt({ lessonId: slug, stepIndex: step, result });
       return;
     }
 
     const next = record("correct", active.graded, active.key);
-    if (active.autoAdvance) setTimeout(() => advance(next), 900);
+    if (active.autoAdvance) setTimeout(() => void advance(next), 900);
   };
 
   const handleNext = () => {
-    if (!active) return;
-    advance(record(active.graded ? "incorrect" : "correct", active.graded, active.key));
+    if (saving || !active) return;
+    void advance(record(active.graded ? "incorrect" : "correct", active.graded, active.key));
   };
 
   const handleSkip = () => {
-    if (!active) return;
-    advance(record("incorrect", active.graded, active.key));
+    if (saving || !active) return;
+    void advance(record("incorrect", active.graded, active.key));
   };
 
   const handleBack = () => {
@@ -324,8 +353,12 @@ const LessonRunner: React.FC<{
     setStep(previous);
   };
 
-  const handleSaveAndExit = () => {
-    save("in_progress", step, accuracy);
+  // The button says "save", so it waits for the save and stays put if it fails.
+  const handleSaveAndExit = async () => {
+    setSaving(true);
+    const ok = await save("in_progress", step, accuracy);
+    setSaving(false);
+    if (!ok) return;
     router.push("/lessons");
   };
 
@@ -422,7 +455,8 @@ const LessonRunner: React.FC<{
               startIcon={<LogoutRoundedIcon />}
               variant="contained"
               size="small"
-              onClick={handleSaveAndExit}
+              disabled={saving}
+              onClick={() => void handleSaveAndExit()}
               sx={{
                 bgcolor: "#B43D20",
                 "&:hover": { bgcolor: "#9D351C" },
@@ -453,6 +487,19 @@ const LessonRunner: React.FC<{
           </Box>
         </Container>
       </Box>
+
+      {/*
+       * A failed save, said out loud. Previously this went to console.error in
+       * a browser the learner had usually just navigated away from, so losing a
+       * lesson looked exactly like finishing one.
+       */}
+      {saveError && (
+        <Container maxWidth="md" sx={{ pt: 1 }}>
+          <Alert severity="warning" sx={{ px: 1.5, "& .MuiAlert-icon": { mr: 1 } }}>
+            {saveError}
+          </Alert>
+        </Container>
+      )}
 
       {/* ── The screen ──────────────────────────────────────────────────── */}
       <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden", display: "flex", flexDirection: "column" }}>

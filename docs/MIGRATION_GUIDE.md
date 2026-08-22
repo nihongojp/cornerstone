@@ -146,7 +146,7 @@ const session = await requireSession();  // redirects to /auth if absent
 | `GET /api/lessons/:slug` | `getLessonBySlug(slug)` |
 | `GET /api/newlessons` | `listNewLessons()` |
 | `GET /api/resources` | `getResources()` |
-| `POST /api/progress` | Same URL — now a Next route handler backed by Postgres |
+| `POST /api/progress` | `upsertProgress` Server Action in `features/learning/actions.ts` |
 | Mongoose models | Drizzle schema in `src/lib/db/schema.ts` |
 | `services/api.ts` (axios) | Deleted. Server components fetch directly; `lib/*-client.ts` for browser calls |
 
@@ -192,7 +192,7 @@ Adapters in [`src/lib/content/adapters.ts`](../src/lib/content/adapters.ts) turn
 
 ### Progress
 
-`user_progress` in Postgres, one row per (user, lesson), enforced by a unique index. Writes go through `POST /api/progress`, which **always takes the user id from the session**, never the request body.
+`user_progress` in Postgres, one row per (user, lesson), enforced by a unique index. Writes go through `upsertProgress` in `features/learning/actions.ts`, which **always takes the user id from the session**, never the argument.
 
 The interesting part is **`stepKey`**. The grammar player re-shuffles its exercises on every visit, so saving "the user was on step 7" would resume them at a different exercise next time. Instead we save a content-derived key like `matchAudioExercise:Ohayou gozaimasu`, and on load find that exercise wherever it landed in the new order. `lastStep` is the fallback when the key isn't found.
 
