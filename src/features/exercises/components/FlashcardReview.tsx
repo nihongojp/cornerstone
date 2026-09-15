@@ -10,6 +10,8 @@ export type FlashcardReviewTerm = {
   audioUrl?: string;
   videoUrl?: string;
   imageUrl?: string;
+  /** Authored kana/kanji — same test as TermCard, not "is there a video". */
+  hasScript: boolean;
 };
 
 interface Props {
@@ -188,7 +190,7 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
 
           <Typography
             sx={{
-              fontSize: hasVideo ? "0.95rem" : { xs: "2.25rem", sm: "2.75rem" },
+              fontSize: term.hasScript ? { xs: "2.25rem", sm: "2.75rem" } : "0.95rem",
               fontWeight: 700,
               color: "#1C1917",
               textAlign: "center",
