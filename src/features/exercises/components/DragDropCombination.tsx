@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
+
+import { isCorrectPlacement } from "../dragDropPlacement";
 import SelfRecordButton from "./SelfRecordButton";
 
 // Grammar-lesson drag-and-drop: build the correct word/phrase by dragging
@@ -49,15 +51,7 @@ const DragDropCombination: React.FC<Props> = ({
   const tileAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const placedTiles = placedIndices.map((i) => options[i]);
-  const isComplete = placedIndices.length === correctSequence.length;
-  const isCorrect = useMemo(
-    () =>
-      isComplete &&
-      placedTiles.every(
-        (t, i) => t.trim().toLowerCase() === (correctSequence[i] ?? "").trim().toLowerCase()
-      ),
-    [placedTiles, correctSequence, isComplete]
-  );
+  const isCorrect = isCorrectPlacement(placedTiles, correctSequence);
   // Positive reinforcement, shown once the sequence is checked and correct —
   // the whole-word clip and the per-tile clips are gated the same way.
   const showResult = checked && isCorrect;
@@ -141,7 +135,6 @@ const DragDropCombination: React.FC<Props> = ({
   };
 
   const handleCheck = () => {
-    if (!isComplete) return;
     setChecked(true);
     onResult?.({
       result: isCorrect ? "correct" : "incorrect",
@@ -465,20 +458,19 @@ const DragDropCombination: React.FC<Props> = ({
         <Box
           component="button"
           onClick={handleCheck}
-          disabled={!isComplete}
           sx={{
             px: 3,
             py: 1.25,
             borderRadius: 999,
             border: "none",
-            bgcolor: isComplete ? "#B43D20" : "rgba(0,0,0,0.08)",
-            color: isComplete ? "#fff" : "rgba(0,0,0,0.35)",
+            bgcolor: "#B43D20",
+            color: "#fff",
             fontWeight: 700,
             fontSize: "0.9rem",
-            cursor: isComplete ? "pointer" : "default",
+            cursor: "pointer",
             transition: "all 0.2s",
-            boxShadow: isComplete ? "0 4px 14px rgba(180,61,32,0.35)" : "none",
-            "&:hover": isComplete ? { bgcolor: "#9D351C" } : {},
+            boxShadow: "0 4px 14px rgba(180,61,32,0.35)",
+            "&:hover": { bgcolor: "#9D351C" },
           }}
         >
           Check
