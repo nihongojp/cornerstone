@@ -18,8 +18,11 @@ export interface MatchAudioItem {
   audioUrl?: string;
   imageUrl?: string;
   // Other terms learned since the last checkpoint (or since the start of the
-  // lesson) — the pool the 2 wrong-answer images are drawn from.
+  // lesson) — the pool the 2 wrong answers are drawn from.
   checkpointPool?: ChoiceCandidate[];
+  /** Authored on the block: written characters vs pictures. */
+  answerWith?: "text" | "image";
+  prompt?: string;
 }
 
 interface Props {
@@ -29,6 +32,19 @@ interface Props {
 
 function isPlaceholder(url?: string) {
   return !url || url.toUpperCase().includes("PLACEHOLDER");
+}
+
+function defaultPrompt(answerWith: "text" | "image"): string {
+  switch (answerWith) {
+    case "image":
+      return "Which situation matches this phrase?";
+    case "text":
+      return "Listen and choose the character you hear";
+    default: {
+      const _exhaustive: never = answerWith;
+      return _exhaustive;
+    }
+  }
 }
 
 // The correct term plus up to 2 random, DISTINCT distractors from the
@@ -41,6 +57,56 @@ function buildChoices(item: MatchAudioItem): ChoiceCandidate[] {
   return buildChoiceOptions(correct, item.checkpointPool ?? [], 2);
 }
 
+function ChoiceFace({
+  answerWith,
+  phrase,
+  imageUrl,
+}: {
+  answerWith: "text" | "image";
+  phrase: string;
+  imageUrl?: string;
+}): React.ReactElement {
+  switch (answerWith) {
+    case "text":
+      return (
+        <Typography
+          sx={{
+            fontSize: { xs: "2.4rem", sm: "2.8rem" },
+            fontWeight: 800,
+            color: "#1C1917",
+            lineHeight: 1,
+            userSelect: "none",
+          }}
+        >
+          {phrase}
+        </Typography>
+      );
+    case "image":
+      if (!isPlaceholder(imageUrl)) {
+        return (
+          <Box
+            component="img"
+            src={imageUrl}
+            alt=""
+            sx={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
+          />
+        );
+      }
+      return (
+        <>
+          <ImageRoundedIcon sx={{ fontSize: "2rem", color: "rgba(0,0,0,0.18)" }} />
+          <Typography sx={{ fontSize: "0.65rem", color: "text.disabled", textAlign: "center", px: 0.5 }}>
+            Image soon
+          </Typography>
+        </>
+      );
+    default: {
+      const _exhaustive: never = answerWith;
+      return _exhaustive;
+    }
+  }
+}
+
 const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -48,6 +114,8 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
   const [wrongFlash, setWrongFlash] = useState<string | null>(null);
 
   const hasAudio = !isPlaceholder(item.audioUrl);
+  const answerWith = item.answerWith ?? "text";
+  const prompt = item.prompt || defaultPrompt(answerWith);
 
   const playAudio = () => {
     if (!hasAudio || !audioRef.current) return;
@@ -100,7 +168,6 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
         />
       )}
 
-      {/* Audio button */}
       {hasAudio && (
         <audio
           ref={audioRef}
@@ -112,60 +179,41 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
       <Box
         onClick={playAudio}
         sx={{
+          width: 72,
+          height: 72,
+          borderRadius: "50%",
+          bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.12)",
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
-          gap: 1,
+          justifyContent: "center",
           cursor: hasAudio ? "pointer" : "default",
-        }}
-      >
-        <Box
-          sx={{
-            width: 72,
-            height: 72,
-            borderRadius: "50%",
-            bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.12)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: playing
-              ? "0 0 0 0 transparent"
-              : hasAudio
+          boxShadow: playing
+            ? "0 0 0 0 transparent"
+            : hasAudio
               ? "0 4px 16px rgba(180,61,32,0.35)"
               : "none",
-            animation: playing ? "audioPulse 1.2s ease-in-out infinite" : "none",
-            "@keyframes audioPulse": {
-              "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
-              "50%": { boxShadow: "0 0 0 16px rgba(180,61,32,0)" },
-            },
-            transition: "box-shadow 0.3s",
-          }}
-        >
-          {playing
-            ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "2rem" }} />
-            : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.3)", fontSize: "2rem" }} />}
-        </Box>
-
-        {/* Phrase label — small, below audio button */}
-        <Typography
-          sx={{ fontSize: "0.78rem", fontWeight: 700, color: "text.secondary", letterSpacing: "0.02em" }}
-        >
-          {item.phrase}
-        </Typography>
+          animation: playing ? "audioPulse 1.2s ease-in-out infinite" : "none",
+          "@keyframes audioPulse": {
+            "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
+            "50%": { boxShadow: "0 0 0 16px rgba(180,61,32,0)" },
+          },
+          transition: "box-shadow 0.3s",
+        }}
+      >
+        {playing
+          ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "2rem" }} />
+          : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.3)", fontSize: "2rem" }} />}
       </Box>
 
-      {/* Prompt */}
       <Typography
         sx={{ fontWeight: 700, fontSize: "0.92rem", color: "#1C1917" }}
       >
-        Which situation matches this phrase?
+        {prompt}
       </Typography>
 
-      {/* Three image choice buttons */}
       <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 }, width: "100%", justifyContent: "center" }}>
         {choices.map((choice, i) => {
           const state = getState(choice);
-          const hasImg = !isPlaceholder(choice.imageUrl);
 
           return (
             <Box
@@ -201,21 +249,7 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
                 },
               }}
             >
-              {hasImg ? (
-                <Box
-                  component="img"
-                  src={choice.imageUrl}
-                  alt={choice.phrase}
-                  sx={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
-                />
-              ) : (
-                <>
-                  <ImageRoundedIcon sx={{ fontSize: "2rem", color: "rgba(0,0,0,0.18)" }} />
-                  <Typography sx={{ fontSize: "0.65rem", color: "text.disabled", textAlign: "center", px: 0.5 }}>
-                    Image soon
-                  </Typography>
-                </>
-              )}
+              <ChoiceFace answerWith={answerWith} phrase={choice.phrase} imageUrl={choice.imageUrl} />
 
               {/* Result overlay */}
               {state !== "idle" && (

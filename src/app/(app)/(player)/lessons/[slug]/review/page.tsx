@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { getDraftLesson, getLessonBySlug } from "@/lib/content/content";
+import {
+  getDraftLesson,
+  getDraftNeighborLessonReviewHref,
+  getLessonBySlug,
+  getNeighborLessonReviewHref,
+} from "@/lib/content/content";
 import { getPreviewEditor } from "@/lib/session";
 import { collectLessonTerms } from "@/lib/content/lessonTerms";
 import TermReviewPage from "@/features/learning/components/TermReviewPage";
@@ -30,6 +35,17 @@ export default async function Page({
   if (!lesson) redirect("/dashboard");
 
   const terms = collectLessonTerms(lesson);
+  const [prevHref, nextHref] = await Promise.all(
+    editor
+      ? [
+          getDraftNeighborLessonReviewHref(lesson, editor, "prev"),
+          getDraftNeighborLessonReviewHref(lesson, editor, "next"),
+        ]
+      : [
+          getNeighborLessonReviewHref(lesson, "prev"),
+          getNeighborLessonReviewHref(lesson, "next"),
+        ]
+  );
 
-  return <TermReviewPage lesson={lesson} terms={terms} />;
+  return <TermReviewPage lesson={lesson} terms={terms} prevHref={prevHref} nextHref={nextHref} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { Box, IconButton, Typography } from "@mui/material";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Box, IconButton, Typography, type SxProps, type Theme } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
@@ -14,7 +14,9 @@ import SelfRecordButton from "./SelfRecordButton";
 // fixed box per expected piece — the box just grows as tiles are added).
 // Tiles size themselves to their own text (padding-based, no fixed
 // width/height), since fragments vary a lot in length ("ha" vs "arigatou").
-type DragPayload = { source: "bank" | "box"; index: number };
+type DragPayload =
+  | { source: "bank"; option: number }
+  | { source: "box"; option: number; placedAt: number };
 
 type Props = {
   prompt?: string;
@@ -26,6 +28,29 @@ type Props = {
   tileAudio?: (string | undefined)[];
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
+
+function dropEffect(source: DragPayload["source"] | undefined): "copy" | "move" {
+  return source === "bank" ? "copy" : "move";
+}
+
+function tileHearButtonSx(hasAudio: boolean, isPlaying: boolean): SxProps<Theme> {
+  const base = {
+    width: 36,
+    height: 36,
+    transition: "all 0.2s",
+    "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.08)", color: "rgba(0,0,0,0.3)" },
+  };
+  if (!hasAudio) {
+    return { ...base, bgcolor: "rgba(0,0,0,0.08)", color: "rgba(0,0,0,0.3)", border: "none" };
+  }
+  return {
+    ...base,
+    bgcolor: isPlaying ? "rgba(180,61,32,0.08)" : "#B43D20",
+    color: isPlaying ? "#B43D20" : "#fff",
+    border: isPlaying ? "2px solid #B43D20" : "none",
+    "&:hover": { bgcolor: isPlaying ? "rgba(180,61,32,0.12)" : "#9D351C" },
+  };
+}
 
 const DragDropCombination: React.FC<Props> = ({
   prompt = "Drag the tiles into the correct order",
@@ -61,13 +86,23 @@ const DragDropCombination: React.FC<Props> = ({
   // piece" above a row of inert grey buttons.
   const showTileAudio = showResult && Boolean(tileAudio?.some(Boolean));
 
-  const bankIndices = options.map((_, i) => i).filter((i) => !placedIndices.includes(i));
-
-  const onDragStart = (e: React.DragEvent<HTMLDivElement>, source: "bank" | "box", index: number) => {
-    const payload: DragPayload = { source, index };
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>, payload: DragPayload) => {
     dragPayloadRef.current = payload;
+    // `text/plain` is what Firefox needs to treat this as a real drag.
+    e.dataTransfer.setData("text/plain", options[payload.option] ?? "");
     e.dataTransfer.setData("application/json", JSON.stringify(payload));
-    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.effectAllowed = dropEffect(payload.source);
+    // A cloned ghost keeps the bank tile itself on screen. Native `move`
+    // hides the source node, which is exactly "the tile disappeared."
+    if (payload.source === "bank") {
+      const ghost = e.currentTarget.cloneNode(true) as HTMLElement;
+      ghost.style.position = "absolute";
+      ghost.style.top = "-9999px";
+      ghost.style.pointerEvents = "none";
+      document.body.appendChild(ghost);
+      e.dataTransfer.setDragImage(ghost, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+      window.setTimeout(() => ghost.remove(), 0);
+    }
   };
 
   const readPayload = (e: React.DragEvent<HTMLDivElement>): DragPayload | null => {
@@ -79,22 +114,33 @@ const DragDropCombination: React.FC<Props> = ({
     }
   };
 
-  // Moves the dragged tile (from the bank, or already in the box) so it ends
-  // up at `targetPos` within the placed sequence — this is what actually
-  // lets you reorder tiles you've already placed, not just append/remove.
+  // Copies a bank tile into the placed sequence, or moves one already in the
+  // box. Bank tiles are not consumed: an answer that repeats a character
+  // ("おおい") pulls the same お twice rather than needing a duplicate in
+  // the bank. Reorder uses `placedAt` so two copies of the same option stay
+  // distinct slots.
   const moveToPosition = (payload: DragPayload, targetPos: number) => {
     setChecked(false);
     setPlacedIndices((prev) => {
       const next = [...prev];
       let pos = targetPos;
-      if (payload.source === "box") {
-        const fromPos = next.indexOf(payload.index);
-        if (fromPos === -1) return next;
-        next.splice(fromPos, 1);
-        if (fromPos < pos) pos -= 1;
+      switch (payload.source) {
+        case "box": {
+          if (payload.placedAt < 0 || payload.placedAt >= next.length) return next;
+          if (next[payload.placedAt] !== payload.option) return next;
+          next.splice(payload.placedAt, 1);
+          if (payload.placedAt < pos) pos -= 1;
+          break;
+        }
+        case "bank":
+          break;
+        default: {
+          const _exhaustive: never = payload;
+          return _exhaustive;
+        }
       }
       pos = Math.max(0, Math.min(pos, next.length));
-      next.splice(pos, 0, payload.index);
+      next.splice(pos, 0, payload.option);
       return next;
     });
   };
@@ -120,18 +166,17 @@ const DragDropCombination: React.FC<Props> = ({
     moveToPosition(payload, beforeIndexInPlaced);
   };
 
+  const removePlacedAt = (placedAt: number) => {
+    setChecked(false);
+    setPlacedIndices((prev) => prev.filter((_, i) => i !== placedAt));
+  };
+
   const onDropBank = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setBankDragOver(false);
     const payload = readPayload(e);
     if (!payload || payload.source !== "box") return;
-    setChecked(false);
-    setPlacedIndices((prev) => prev.filter((i) => i !== payload.index));
-  };
-
-  const removeTile = (index: number) => {
-    setChecked(false);
-    setPlacedIndices((prev) => prev.filter((i) => i !== index));
+    removePlacedAt(payload.placedAt);
   };
 
   const handleCheck = () => {
@@ -271,17 +316,13 @@ const DragDropCombination: React.FC<Props> = ({
         </Box>
       )}
 
-      {/* One button per tile, in the order they were placed — same
-          reinforcement moment as the reference audio above, but for each
-          piece that went into the answer. A tile with no recording yet still
-          gets a button, greyed out and inert, matching the filler-button
-          convention used everywhere else audio can be missing. */}
+      {/* After a correct check: one hear-button per option, including leftover
+          distractors. Missing clips stay as greyed-out filler buttons. */}
       {showTileAudio && (
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.75 }}>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
-            {placedIndices.map((idx) => {
-              const src = tileAudio?.[idx];
-              const hasAudio = Boolean(src);
+            {options.map((label, idx) => {
+              const hasAudio = Boolean(tileAudio?.[idx]);
               const isPlayingThis = playingTile === idx;
               return (
                 <Box
@@ -291,17 +332,8 @@ const DragDropCombination: React.FC<Props> = ({
                   <IconButton
                     onClick={() => playTile(idx)}
                     disabled={!hasAudio}
-                    aria-label={`Play audio for ${options[idx]}`}
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      bgcolor: hasAudio ? (isPlayingThis ? "rgba(180,61,32,0.08)" : "#B43D20") : "rgba(0,0,0,0.08)",
-                      color: hasAudio ? (isPlayingThis ? "#B43D20" : "#fff") : "rgba(0,0,0,0.3)",
-                      border: hasAudio && isPlayingThis ? "2px solid #B43D20" : "none",
-                      "&:hover": hasAudio ? { bgcolor: isPlayingThis ? "rgba(180,61,32,0.12)" : "#9D351C" } : {},
-                      "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.08)", color: "rgba(0,0,0,0.3)" },
-                      transition: "all 0.2s",
-                    }}
+                    aria-label={`Play audio for ${label}`}
+                    sx={tileHearButtonSx(hasAudio, isPlayingThis)}
                   >
                     {isPlayingThis ? (
                       <GraphicEqRoundedIcon sx={{ fontSize: "1.1rem" }} />
@@ -310,7 +342,7 @@ const DragDropCombination: React.FC<Props> = ({
                     )}
                   </IconButton>
                   <Typography sx={{ fontSize: "0.7rem", color: "text.secondary", fontWeight: 700 }}>
-                    {options[idx]}
+                    {label}
                   </Typography>
                 </Box>
               );
@@ -329,6 +361,7 @@ const DragDropCombination: React.FC<Props> = ({
         aria-label="Drop the tiles here in order"
         onDragOver={(e) => {
           e.preventDefault();
+          e.dataTransfer.dropEffect = dropEffect(dragPayloadRef.current?.source);
           setBoxDragOver(true);
         }}
         onDragLeave={() => setBoxDragOver(false)}
@@ -367,13 +400,14 @@ const DragDropCombination: React.FC<Props> = ({
         ) : (
           placedIndices.map((idx, pos) => (
             <Box
-              key={`placed-${idx}`}
+              key={`placed-${pos}-${idx}`}
               draggable
-              onDragStart={(e) => onDragStart(e, "box", idx)}
-              onDoubleClick={() => removeTile(idx)}
+              onDragStart={(e) => onDragStart(e, { source: "box", option: idx, placedAt: pos })}
+              onDoubleClick={() => removePlacedAt(pos)}
               onDragOver={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                e.dataTransfer.dropEffect = dropEffect(dragPayloadRef.current?.source);
                 setBoxDragOver(true);
               }}
               onDrop={(e) => onDropOnTile(e, pos)}
@@ -398,7 +432,7 @@ const DragDropCombination: React.FC<Props> = ({
         )}
       </Box>
 
-      {/* Bank — remaining, not-yet-placed tiles */}
+      {/* Always the full set — dropping copies a tile, it does not consume it. */}
       <Box
         sx={{
           display: "flex",
@@ -420,12 +454,12 @@ const DragDropCombination: React.FC<Props> = ({
         onDragLeave={() => setBankDragOver(false)}
         onDrop={onDropBank}
       >
-        {bankIndices.map((idx) => (
+        {options.map((label, idx) => (
           <Box
             key={`bank-${idx}`}
             draggable
-            onDragStart={(e) => onDragStart(e, "bank", idx)}
-            title="Drag to the box above"
+            onDragStart={(e) => onDragStart(e, { source: "bank", option: idx })}
+            title="Drag to the box above — you can use this tile more than once"
             sx={{
               px: 2.5,
               py: 1.25,
@@ -437,6 +471,7 @@ const DragDropCombination: React.FC<Props> = ({
               whiteSpace: "nowrap",
               userSelect: "none",
               bgcolor: "#fff",
+              opacity: 1,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -449,7 +484,7 @@ const DragDropCombination: React.FC<Props> = ({
               },
             }}
           >
-            {options[idx]}
+            {label}
           </Box>
         ))}
       </Box>
