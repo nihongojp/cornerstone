@@ -6,14 +6,26 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import Link from "next/link";
 
 import TermCard from "@/features/learning/components/TermCard";
+import ReviewNavArrows from "@/features/learning/components/ReviewNavArrows";
 import { lessonHref } from "@/lib/content/routes";
 import type { Lesson, Term } from "@/payload/payload-types";
 
 const BRAND = "#B43D20";
 
-const TermReviewPage: React.FC<{ lesson: Lesson; terms: Term[] }> = ({ lesson, terms }) => (
+const TermReviewPage: React.FC<{
+  lesson: Lesson;
+  terms: Term[];
+  prevHref?: string;
+  nextHref?: string;
+}> = ({ lesson, terms, prevHref, nextHref }) => (
   <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4" }}>
-    <Container maxWidth="md" sx={{ pt: 5, pb: 8 }}>
+    <ReviewNavArrows
+      prevHref={prevHref}
+      nextHref={nextHref}
+      prevLabel="Previous lesson review"
+      nextLabel="Next lesson review"
+    />
+    <Container maxWidth="md" sx={{ pt: 5, pb: 8, px: { xs: 7, sm: 3 } }}>
       <Box
         component={Link}
         href={lessonHref(lesson.slug)}

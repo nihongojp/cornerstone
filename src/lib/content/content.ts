@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 import type { TypedUser, Where } from "payload";
 import { payloadClient } from "./payload";
 import { TAGS } from "./tags";
-import { lessonHref } from "./routes";
+import { lessonHref, lessonReviewHref } from "./routes";
 import { CONTENT_DEPTH, MEDIA_POPULATE } from "./depth";
 import type { Lesson, Resource } from "../../payload/payload-types";
 
@@ -147,6 +147,82 @@ export function getLessonBySlug(slugOrLegacyId: string): Promise<Lesson | null> 
 
 // ── What comes next ──────────────────────────────────────────────────────────
 
+type NeighborDirection = "next" | "prev";
+
+type CoursePosition = {
+  courseId: number;
+  order: number;
+  format: Lesson["format"];
+};
+
+function coursePosition(lesson: Lesson): CoursePosition | null {
+  const courseId = typeof lesson.course === "object" ? lesson.course?.id : lesson.course;
+  if (
+    courseId === null ||
+    courseId === undefined ||
+    lesson.order === null ||
+    lesson.order === undefined
+  ) {
+    return null;
+  }
+  return { courseId, order: lesson.order, format: lesson.format };
+}
+
+function neighborOrderFilter(
+  direction: NeighborDirection,
+  order: number
+): { greater_than: number } | { less_than: number } {
+  switch (direction) {
+    case "next":
+      return { greater_than: order };
+    case "prev":
+      return { less_than: order };
+    default: {
+      const _exhaustive: never = direction;
+      return _exhaustive;
+    }
+  }
+}
+
+function neighborSort(direction: NeighborDirection): string {
+  switch (direction) {
+    case "next":
+      return "order";
+    case "prev":
+      return "-order";
+    default: {
+      const _exhaustive: never = direction;
+      return _exhaustive;
+    }
+  }
+}
+
+async function findNeighborSlug(
+  position: CoursePosition,
+  direction: NeighborDirection,
+  opts?: { user: TypedUser }
+): Promise<string | undefined> {
+  const clause: Where = {
+    format: { equals: position.format },
+    course: { equals: position.courseId },
+    order: neighborOrderFilter(direction, position.order),
+  };
+
+  const payload = await payloadClient();
+  const result = await payload.find({
+    collection: "lessons",
+    where: opts?.user ? clause : and(PUBLISHED, clause),
+    limit: 1,
+    // Deliberately 0: this reads `slug`.
+    depth: 0,
+    sort: neighborSort(direction),
+    overrideAccess: false,
+    ...(opts?.user ? { draft: true as const, user: opts.user } : {}),
+  });
+
+  return result.docs[0]?.slug;
+}
+
 /*
  * The lesson that follows, as a link.
  *
@@ -162,42 +238,49 @@ export function getLessonBySlug(slugOrLegacyId: string): Promise<Lesson | null> 
  * made that latent: both formats have course order, and both now use it.
  */
 export function getNextLessonHref(lesson: Lesson): Promise<string | undefined> {
-  const courseId = typeof lesson.course === "object" ? lesson.course?.id : lesson.course;
-  if (
-    courseId === null ||
-    courseId === undefined ||
-    lesson.order === null ||
-    lesson.order === undefined
-  ) {
-    return Promise.resolve(undefined);
-  }
-
-  const order = lesson.order;
-  const format = lesson.format;
+  const position = coursePosition(lesson);
+  if (!position) return Promise.resolve(undefined);
 
   return unstable_cache(
     async (): Promise<string | undefined> => {
-      const payload = await payloadClient();
-      const result = await payload.find({
-        collection: "lessons",
-        where: and(PUBLISHED, {
-          format: { equals: format },
-          course: { equals: courseId },
-          order: { greater_than: order },
-        }),
-        limit: 1,
-        // Deliberately 0: this reads two fields, `slug` and `format`.
-        depth: 0,
-        sort: "order",
-        overrideAccess: false,
-      });
-
-      const next = result.docs[0];
-      return next ? lessonHref(next.slug) : undefined;
+      const slug = await findNeighborSlug(position, "next");
+      return slug ? lessonHref(slug) : undefined;
     },
-    ["content", "getNextLessonHref", String(courseId), String(format), String(order)],
+    ["content", "getNextLessonHref", String(position.courseId), String(position.format), String(position.order)],
     // The whole-collection tags, not a per-slug one: this answer changes when a
     // *different* lesson is added, reordered or unpublished.
+    { tags: [TAGS.lessons, TAGS.newLessons], revalidate: REVALIDATE }
+  )();
+}
+
+export type AdjacentReviewHrefs = {
+  prevHref?: string;
+  nextHref?: string;
+};
+
+/**
+ * Previous and next lessons of the same format, as review-page links.
+ *
+ * Same course-order rule as `getNextLessonHref`, including staying inside one
+ * format — a grammar review steps to the next grammar review, a reading
+ * review to the next reading review, never across the two columns.
+ */
+export function getAdjacentReviewHrefs(lesson: Lesson): Promise<AdjacentReviewHrefs> {
+  const position = coursePosition(lesson);
+  if (!position) return Promise.resolve({});
+
+  return unstable_cache(
+    async (): Promise<AdjacentReviewHrefs> => {
+      const [prevSlug, nextSlug] = await Promise.all([
+        findNeighborSlug(position, "prev"),
+        findNeighborSlug(position, "next"),
+      ]);
+      return {
+        prevHref: prevSlug ? lessonReviewHref(prevSlug) : undefined,
+        nextHref: nextSlug ? lessonReviewHref(nextSlug) : undefined,
+      };
+    },
+    ["content", "getAdjacentReviewHrefs", String(position.courseId), String(position.format), String(position.order)],
     { tags: [TAGS.lessons, TAGS.newLessons], revalidate: REVALIDATE }
   )();
 }
@@ -353,32 +436,27 @@ export async function getDraftNextHref(
   lesson: Lesson,
   user: TypedUser
 ): Promise<string | undefined> {
-  const courseId = typeof lesson.course === "object" ? lesson.course?.id : lesson.course;
-  if (courseId === null || courseId === undefined || lesson.order === null || lesson.order === undefined) {
-    return undefined;
-  }
+  const position = coursePosition(lesson);
+  if (!position) return undefined;
+  const slug = await findNeighborSlug(position, "next", { user });
+  return slug ? lessonHref(slug) : undefined;
+}
 
-  const payload = await payloadClient();
-  const result = await payload.find({
-    collection: "lessons",
-    where: and({
-      // Matches `getNextLessonHref`: the next lesson of the same format, not the
-      // next step lesson regardless of what this one is.
-      format: { equals: lesson.format },
-      course: { equals: courseId },
-      order: { greater_than: lesson.order },
-    }),
-    limit: 1,
-    // Deliberately 0, as on the published path above.
-    depth: 0,
-    draft: true,
-    sort: "order",
-    overrideAccess: false,
-    user,
-  });
-
-  const next = result.docs[0];
-  return next ? lessonHref(next.slug) : undefined;
+/** Same as `getAdjacentReviewHrefs`, including unpublished drafts. */
+export async function getDraftAdjacentReviewHrefs(
+  lesson: Lesson,
+  user: TypedUser
+): Promise<AdjacentReviewHrefs> {
+  const position = coursePosition(lesson);
+  if (!position) return {};
+  const [prevSlug, nextSlug] = await Promise.all([
+    findNeighborSlug(position, "prev", { user }),
+    findNeighborSlug(position, "next", { user }),
+  ]);
+  return {
+    prevHref: prevSlug ? lessonReviewHref(prevSlug) : undefined,
+    nextHref: nextSlug ? lessonReviewHref(nextSlug) : undefined,
+  };
 }
 
 export async function getDraftResources(user: TypedUser): Promise<Resource[]> {

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { listLessons, listNewLessons } from "@/lib/content/content";
 import { collectLessonTerms } from "@/lib/content/lessonTerms";
+import { adjacentInSequence } from "@/lib/content/adjacentInSequence";
 import { lessonDisplayTitle } from "@/features/learning/lessonTitles";
 import LevelReviewPage, { type ReviewPart } from "@/features/learning/components/LevelReviewPage";
 import type { Lesson } from "@/payload/payload-types";
@@ -14,6 +15,9 @@ function toPart(lesson: Lesson, title: string): ReviewPart {
     terms: collectLessonTerms(lesson),
   };
 }
+
+/** Matches the list page: these numbered lessons always have a section. */
+const BASE_LEVELS = [1, 2, 3];
 
 /*
  * Every term under one numbered lesson, both formats — the aggregate the
@@ -45,5 +49,18 @@ export default async function Page({
     .sort((a, b) => a.part - b.part)
     .map((l) => toPart(l, lessonDisplayTitle(l)));
 
-  return <LevelReviewPage level={level} grammar={grammar} reading={reading} />;
+  const { prev, next } = adjacentInSequence(
+    [...BASE_LEVELS, ...newLessons.map((l) => l.level), ...prefLessons.map((l) => l.level)],
+    level
+  );
+
+  return (
+    <LevelReviewPage
+      level={level}
+      grammar={grammar}
+      reading={reading}
+      prevLevel={prev}
+      nextLevel={next}
+    />
+  );
 }

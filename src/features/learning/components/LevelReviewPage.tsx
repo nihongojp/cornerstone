@@ -6,7 +6,8 @@ import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import Link from "next/link";
 
 import TermCard from "@/features/learning/components/TermCard";
-import { lessonHref } from "@/lib/content/routes";
+import ReviewNavArrows from "@/features/learning/components/ReviewNavArrows";
+import { lessonHref, levelReviewHref } from "@/lib/content/routes";
 import type { Lesson, Term } from "@/payload/payload-types";
 
 const BRAND = "#B43D20";
@@ -89,12 +90,20 @@ const LevelReviewPage: React.FC<{
   level: number;
   grammar: ReviewPart[];
   reading: ReviewPart[];
-}> = ({ level, grammar, reading }) => {
-  const totalTerms = [...grammar, ...reading].reduce((sum, p) => sum + p.terms.length, 0);
+  prevLevel?: number;
+  nextLevel?: number;
+}> = ({ level, grammar, reading, prevLevel, nextLevel }) => {
+  const totalTerms = [...grammar, ...reading].reduce((sum, p) => p.terms.length + sum, 0);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4" }}>
-      <Container maxWidth="md" sx={{ pt: 5, pb: 8 }}>
+      <ReviewNavArrows
+        prevHref={prevLevel !== undefined ? levelReviewHref(prevLevel) : undefined}
+        nextHref={nextLevel !== undefined ? levelReviewHref(nextLevel) : undefined}
+        prevLabel={prevLevel !== undefined ? `Lesson ${prevLevel} review` : "Previous lesson review"}
+        nextLabel={nextLevel !== undefined ? `Lesson ${nextLevel} review` : "Next lesson review"}
+      />
+      <Container maxWidth="md" sx={{ pt: 5, pb: 8, px: { xs: 7, sm: 3 } }}>
         <Box
           component={Link}
           href="/lessons"
