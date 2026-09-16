@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 
 import {
+  getAdjacentReviewHrefs,
+  getDraftAdjacentReviewHrefs,
   getDraftLesson,
   getDraftNextHref,
   getLessonBySlug,
@@ -32,10 +34,13 @@ export default async function Page({
     const draft = await getDraftLesson(slug, editor);
     if (!draft) redirect("/dashboard");
 
+    const neighbors = await getDraftAdjacentReviewHrefs(draft, editor);
     return (
       <LessonPreview
         initialLesson={draft}
         nextHref={await getDraftNextHref(draft, editor)}
+        prevReviewHref={neighbors.prevHref}
+        nextReviewHref={neighbors.nextHref}
         serverURL={process.env.NEXT_PUBLIC_SERVER_URL || ""}
       />
     );
@@ -50,11 +55,14 @@ export default async function Page({
   // The lesson's own slug, not the URL segment: this route also resolves a
   // legacy Mongo id, and progress is keyed on whatever the runner is handed.
   const { userId, attempt } = await getShuffleIdentity(lesson.slug);
+  const neighbors = await getAdjacentReviewHrefs(lesson);
 
   return (
     <LessonRunner
       lesson={lesson}
       nextHref={await getNextLessonHref(lesson)}
+      prevReviewHref={neighbors.prevHref}
+      nextReviewHref={neighbors.nextHref}
       userId={userId}
       attempt={attempt}
       initialProgress={await getProgress(lesson.slug)}

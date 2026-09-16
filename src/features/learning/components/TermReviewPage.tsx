@@ -12,20 +12,24 @@ import type { Lesson, Term } from "@/payload/payload-types";
 
 const BRAND = "#B43D20";
 
+/**
+ * The end-of-lesson term review — every word and character this lesson taught.
+ * Reached from the player's final "Review" step via "Review terms".
+ */
 const TermReviewPage: React.FC<{
   lesson: Lesson;
   terms: Term[];
   prevHref?: string;
   nextHref?: string;
 }> = ({ lesson, terms, prevHref, nextHref }) => (
-  <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4" }}>
+  <Box sx={{ position: "relative", minHeight: "100vh", bgcolor: "#F9F7F4" }}>
     <ReviewNavArrows
       prevHref={prevHref}
       nextHref={nextHref}
       prevLabel="Previous lesson review"
       nextLabel="Next lesson review"
     />
-    <Container maxWidth="md" sx={{ pt: 3, pb: 8 }}>
+    <Container maxWidth="md" sx={{ pt: 7, pb: 8 }}>
       <Box
         component={Link}
         href={lessonHref(lesson.slug)}

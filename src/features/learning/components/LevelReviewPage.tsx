@@ -96,14 +96,14 @@ const LevelReviewPage: React.FC<{
   const totalTerms = [...grammar, ...reading].reduce((sum, p) => p.terms.length + sum, 0);
 
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4" }}>
+    <Box sx={{ position: "relative", minHeight: "100vh", bgcolor: "#F9F7F4" }}>
       <ReviewNavArrows
         prevHref={prevLevel !== undefined ? levelReviewHref(prevLevel) : undefined}
         nextHref={nextLevel !== undefined ? levelReviewHref(nextLevel) : undefined}
         prevLabel={prevLevel !== undefined ? `Lesson ${prevLevel} review` : "Previous lesson review"}
         nextLabel={nextLevel !== undefined ? `Lesson ${nextLevel} review` : "Next lesson review"}
       />
-      <Container maxWidth="md" sx={{ pt: 3, pb: 8 }}>
+      <Container maxWidth="md" sx={{ pt: 7, pb: 8 }}>
         <Box
           component={Link}
           href="/lessons"
