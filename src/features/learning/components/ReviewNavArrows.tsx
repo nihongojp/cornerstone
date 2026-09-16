@@ -1,31 +1,26 @@
 "use client";
 
 import React from "react";
-import { IconButton } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import Link from "next/link";
 
 const BRAND = "#B43D20";
 
-const sideButtonSx = (side: "left" | "right") => ({
-  position: "fixed",
-  top: "50%",
-  [side]: { xs: 4, sm: 12 },
-  transform: "translateY(-50%)",
-  zIndex: 2,
-  width: { xs: 40, sm: 48 },
-  height: { xs: 40, sm: 48 },
+const cornerButtonSx = {
+  width: 40,
+  height: 40,
   bgcolor: "#fff",
   color: BRAND,
-  boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+  boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
   border: "1.5px solid rgba(180,61,32,0.25)",
   "&:hover": {
     bgcolor: "#fff",
     borderColor: BRAND,
-    boxShadow: "0 6px 20px rgba(180,61,32,0.2)",
+    boxShadow: "0 4px 14px rgba(180,61,32,0.18)",
   },
-});
+};
 
 export type ReviewNavArrowsProps = {
   prevHref?: string;
@@ -35,9 +30,10 @@ export type ReviewNavArrowsProps = {
 };
 
 /**
- * Fixed chevrons on the left and right of a review page. A missing href
- * hides that side — the first and last lessons in a sequence have nowhere
- * to go, and a disabled control would look like a broken link.
+ * Prev/next chevrons pinned to the top-left and top-right corners of the
+ * review page. A missing href leaves that corner empty — the first and last
+ * lessons in a sequence have nowhere to go, and a disabled control would look
+ * like a broken link.
  */
 const ReviewNavArrows: React.FC<ReviewNavArrowsProps> = ({
   prevHref,
@@ -45,28 +41,46 @@ const ReviewNavArrows: React.FC<ReviewNavArrowsProps> = ({
   prevLabel,
   nextLabel,
 }) => (
-  <>
-    {prevHref && (
-      <IconButton
-        component={Link}
-        href={prevHref}
-        aria-label={prevLabel}
-        sx={sideButtonSx("left")}
-      >
-        <ChevronLeftRoundedIcon sx={{ fontSize: { xs: 28, sm: 32 } }} />
-      </IconButton>
-    )}
-    {nextHref && (
-      <IconButton
-        component={Link}
-        href={nextHref}
-        aria-label={nextLabel}
-        sx={sideButtonSx("right")}
-      >
-        <ChevronRightRoundedIcon sx={{ fontSize: { xs: 28, sm: 32 } }} />
-      </IconButton>
-    )}
-  </>
+  <Box
+    sx={{
+      position: "sticky",
+      top: 0,
+      zIndex: 2,
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      px: { xs: 1.5, sm: 2 },
+      py: 1.5,
+      bgcolor: "#F9F7F4",
+      // Keep the sticky bar from sitting on top of scrolled term cards.
+      borderBottom: "1px solid rgba(0,0,0,0.06)",
+    }}
+  >
+    <Box sx={{ width: 40, height: 40, displayShrink: 0 }}>
+      {prevHref ? (
+        <IconButton
+          component={Link}
+          href={prevHref}
+          aria-label={prevLabel}
+          sx={cornerButtonSx}
+        >
+          <ChevronLeftRoundedIcon sx={{ fontSize: 28 }} />
+        </IconButton>
+      ) : null}
+    </Box>
+    <Box sx={{ width: 40, height: 40, flexShrink: 0 }}>
+      {nextHref ? (
+        <IconButton
+          component={Link}
+          href={nextHref}
+          aria-label={nextLabel}
+          sx={cornerButtonSx}
+        >
+          <ChevronRightRoundedIcon sx={{ fontSize: 28 }} />
+        </IconButton>
+      ) : null}
+    </Box>
+  </Box>
 );
 
 export default ReviewNavArrows;

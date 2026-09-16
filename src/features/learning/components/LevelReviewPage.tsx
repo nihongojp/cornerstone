@@ -103,7 +103,7 @@ const LevelReviewPage: React.FC<{
         prevLabel={prevLevel !== undefined ? `Lesson ${prevLevel} review` : "Previous lesson review"}
         nextLabel={nextLevel !== undefined ? `Lesson ${nextLevel} review` : "Next lesson review"}
       />
-      <Container maxWidth="md" sx={{ pt: 5, pb: 8, px: { xs: 7, md: 3 } }}>
+      <Container maxWidth="md" sx={{ pt: 3, pb: 8 }}>
         <Box
           component={Link}
           href="/lessons"
