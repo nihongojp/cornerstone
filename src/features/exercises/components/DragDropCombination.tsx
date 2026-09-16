@@ -5,6 +5,8 @@ import { Box, IconButton, Typography, type SxProps, type Theme } from "@mui/mate
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
+
+import { isCorrectPlacement } from "../dragDropPlacement";
 import SelfRecordButton from "./SelfRecordButton";
 
 // Grammar-lesson drag-and-drop: build the correct word/phrase by dragging
@@ -74,15 +76,7 @@ const DragDropCombination: React.FC<Props> = ({
   const tileAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const placedTiles = placedIndices.map((i) => options[i]);
-  const isComplete = placedIndices.length === correctSequence.length;
-  const isCorrect = useMemo(
-    () =>
-      isComplete &&
-      placedTiles.every(
-        (t, i) => t.trim().toLowerCase() === (correctSequence[i] ?? "").trim().toLowerCase()
-      ),
-    [placedTiles, correctSequence, isComplete]
-  );
+  const isCorrect = isCorrectPlacement(placedTiles, correctSequence);
   // Positive reinforcement, shown once the sequence is checked and correct —
   // the whole-word clip and the per-tile clips are gated the same way.
   const showResult = checked && isCorrect;

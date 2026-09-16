@@ -295,6 +295,7 @@ const VocabListView: React.FC<VocabListBlock> = ({ title, intro, terms, layout }
       term: termText(t, "plain"),
       audioUrl: termAudio(t),
       imageUrl: termImage(t),
+      hasScript: Boolean(t.japanese?.trim() || t.katakana?.trim()),
     }));
     return (
       <Box sx={{ width: "100%", maxWidth: 720, mx: "auto", px: { xs: 1, sm: 2 } }}>
