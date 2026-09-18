@@ -22,7 +22,7 @@ const BRAND = "#B43D20";
 
 /*
  * Same round audio-button pattern as CharacterSpotlight / TermCard, sized down
- * (~38px) so it sits beside the term row instead of dominating it.
+ * (~32px) to match the smaller caption-scale term row.
  */
 const TermAudioButton: React.FC<{ audioUrl: string }> = ({ audioUrl }) => {
   const [playing, setPlaying] = useState(false);
@@ -44,28 +44,28 @@ const TermAudioButton: React.FC<{ audioUrl: string }> = ({ audioUrl }) => {
         role="button"
         aria-label="Play pronunciation"
         sx={{
-          width: 38,
-          height: 38,
+          width: 32,
+          height: 32,
           borderRadius: "50%",
           bgcolor: BRAND,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
-          boxShadow: "0 3px 10px rgba(180,61,32,0.35)",
+          boxShadow: "0 2px 8px rgba(180,61,32,0.35)",
           animation: playing ? "termIntroPulse 1.2s ease-in-out infinite" : "none",
           "@keyframes termIntroPulse": {
             "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
-            "50%": { boxShadow: "0 0 0 10px rgba(180,61,32,0)" },
+            "50%": { boxShadow: "0 0 0 8px rgba(180,61,32,0)" },
           },
           transition: "box-shadow 0.3s",
           flexShrink: 0,
         }}
       >
         {playing ? (
-          <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1.15rem" }} />
+          <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1rem" }} />
         ) : (
-          <VolumeUpRoundedIcon sx={{ color: "#fff", fontSize: "1.15rem" }} />
+          <VolumeUpRoundedIcon sx={{ color: "#fff", fontSize: "1rem" }} />
         )}
       </Box>
     </>
@@ -97,11 +97,10 @@ export type TermIntroDialogueProps = {
 };
 
 /*
- * Term introduction with a dialogue transcript: term (+ optional note) and
- * audio at the top, media (or a gray placeholder) in the middle, compact
- * dialogue card underneath. Composed by `RenderExercise` when a screen's
- * blocks are only dialogue / videoLesson / mediaFigure and a term name
- * resolves.
+ * Term introduction with a dialogue transcript. Vertical order (confirmed):
+ * media / placeholder → small term row (+ optional note + audio) → compact
+ * dialogue card. Composed by `RenderExercise` when a screen's blocks are only
+ * dialogue / videoLesson / mediaFigure and a term name resolves.
  */
 const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
   term,
@@ -124,46 +123,12 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
         display: "flex",
         flexDirection: "column",
         alignItems: "stretch",
-        gap: { xs: 1.25, sm: 1.5 },
+        gap: { xs: 0.75, sm: 1 },
         // Prefer fitting the lesson viewport; media shrinks before dialogue.
         minHeight: 0,
         height: "100%",
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 1.25,
-          flexShrink: 0,
-          textAlign: "center",
-        }}
-      >
-        <Typography
-          component="h2"
-          sx={{
-            fontWeight: 800,
-            fontSize: { xs: "1.25rem", sm: "1.4rem" },
-            color: "#1C1917",
-            lineHeight: 1.25,
-          }}
-        >
-          {detail ? (
-            <>
-              {term}
-              <Box component="span" sx={{ fontWeight: 600, color: "#57534E" }}>
-                {" "}
-                — {detail}
-              </Box>
-            </>
-          ) : (
-            term
-          )}
-        </Typography>
-        {audioUrl ? <TermAudioButton audioUrl={audioUrl} /> : null}
-      </Box>
-
       <Box
         sx={{
           flex: "1 1 auto",
@@ -209,7 +174,7 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
                   sx={{
                     width: "100%",
                     aspectRatio: "16 / 9",
-                    maxHeight: { xs: 180, sm: 220 },
+                    maxHeight: { xs: 160, sm: 200 },
                     borderRadius: "12px",
                     bgcolor: "rgba(0,0,0,0.08)",
                   }}
@@ -221,6 +186,40 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
             }
           }
         })()}
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 0.75,
+          flexShrink: 0,
+          textAlign: "center",
+        }}
+      >
+        <Typography
+          component="h2"
+          sx={{
+            fontWeight: 700,
+            fontSize: { xs: "0.85rem", sm: "0.9rem" },
+            color: "#1C1917",
+            lineHeight: 1.3,
+          }}
+        >
+          {detail ? (
+            <>
+              {term}
+              <Box component="span" sx={{ fontWeight: 500, color: "#57534E" }}>
+                {" "}
+                — {detail}
+              </Box>
+            </>
+          ) : (
+            term
+          )}
+        </Typography>
+        {audioUrl ? <TermAudioButton audioUrl={audioUrl} /> : null}
       </Box>
 
       <Box sx={{ flexShrink: 0, width: "100%" }}>

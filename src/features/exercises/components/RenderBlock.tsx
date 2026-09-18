@@ -174,12 +174,13 @@ export const DialogueTranscript: React.FC<{
       ...CARD_SX,
       display: "flex",
       flexDirection: "column",
-      gap: compact ? 0.75 : 1.5,
+      gap: compact ? 0.4 : 1.5,
       ...(compact
         ? {
-            px: { xs: 1.75, sm: 2.25 },
-            py: { xs: 1.5, sm: 1.75 },
-            borderRadius: "16px",
+            px: { xs: 1.25, sm: 1.5 },
+            py: { xs: 0.85, sm: 1 },
+            borderRadius: "14px",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
           }
         : null),
     }}
@@ -189,8 +190,8 @@ export const DialogueTranscript: React.FC<{
         key={line.id ?? index}
         sx={{
           display: "grid",
-          gridTemplateColumns: compact ? "48px 1fr" : "56px 1fr",
-          columnGap: compact ? 1 : 1.5,
+          gridTemplateColumns: compact ? "36px 1fr" : "56px 1fr",
+          columnGap: compact ? 0.75 : 1.5,
           rowGap: 0,
           alignItems: "center",
         }}
@@ -202,7 +203,7 @@ export const DialogueTranscript: React.FC<{
          */}
         <Typography
           sx={{
-            fontSize: compact ? "0.65rem" : "0.72rem",
+            fontSize: compact ? "0.6rem" : "0.72rem",
             fontWeight: 800,
             letterSpacing: "0.04em",
             textTransform: "uppercase",
@@ -217,9 +218,9 @@ export const DialogueTranscript: React.FC<{
           sx={{
             minWidth: 0,
             fontSize: compact
-              ? { xs: "0.92rem", sm: "1rem" }
+              ? { xs: "0.85rem", sm: "0.9rem" }
               : { xs: "1rem", sm: "1.1rem" },
-            lineHeight: compact ? 1.35 : 1.7,
+            lineHeight: compact ? 1.25 : 1.7,
           }}
         >
           <RichText data={line.japanese} disableContainer />
@@ -228,10 +229,10 @@ export const DialogueTranscript: React.FC<{
           <Typography
             sx={{
               gridColumn: 2,
-              fontSize: compact ? "0.78rem" : "0.85rem",
+              fontSize: compact ? "0.72rem" : "0.85rem",
               color: "text.secondary",
               fontStyle: "italic",
-              lineHeight: compact ? 1.3 : undefined,
+              lineHeight: compact ? 1.2 : undefined,
             }}
           >
             {line.romaji}
@@ -241,9 +242,9 @@ export const DialogueTranscript: React.FC<{
           <Typography
             sx={{
               gridColumn: 2,
-              fontSize: compact ? "0.82rem" : "0.9rem",
+              fontSize: compact ? "0.75rem" : "0.9rem",
               color: "#374151",
-              lineHeight: compact ? 1.3 : undefined,
+              lineHeight: compact ? 1.2 : undefined,
             }}
           >
             {line.english}
