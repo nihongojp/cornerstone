@@ -158,7 +158,92 @@ const ProseView: React.FC<ProseBlock> = ({ tone, title, content }) => {
  * The old `videoPage.videoForm` rendering coloured a line by whether its index was
  * even, so the speaker was a property of position — inserting a line silently
  * reassigned every line after it. Here the speaker is on the line.
+ *
+ * `compact` is for term-intro screens (`TermIntroDialogue`): same speaker labels
+ * and lines, tighter spacing so the transcript sits under media without
+ * forcing the lesson viewport to scroll.
  */
+export const DialogueTranscript: React.FC<{
+  speakerA: string;
+  speakerB: string;
+  lines: DialogueBlock["lines"];
+  compact?: boolean;
+}> = ({ speakerA, speakerB, lines, compact = false }) => (
+  <Box
+    sx={{
+      ...CARD_SX,
+      display: "flex",
+      flexDirection: "column",
+      gap: compact ? 0.75 : 1.5,
+      ...(compact
+        ? {
+            px: { xs: 1.75, sm: 2.25 },
+            py: { xs: 1.5, sm: 1.75 },
+            borderRadius: "16px",
+          }
+        : null),
+    }}
+  >
+    {(lines ?? []).map((line, index) => (
+      <Box
+        key={line.id ?? index}
+        sx={{ display: "flex", gap: compact ? 1 : 1.5, alignItems: "flex-start" }}
+      >
+        <Typography
+          sx={{
+            fontSize: compact ? "0.65rem" : "0.72rem",
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            pt: compact ? 0.25 : 0.5,
+            minWidth: compact ? 48 : 56,
+            color: line.speaker === "a" ? "#B43D20" : "#6366f1",
+          }}
+        >
+          {line.speaker === "a" ? speakerA : speakerB}
+        </Typography>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Box
+            sx={{
+              fontSize: compact
+                ? { xs: "0.92rem", sm: "1rem" }
+                : { xs: "1rem", sm: "1.1rem" },
+              lineHeight: compact ? 1.35 : 1.7,
+            }}
+          >
+            <RichText data={line.japanese} disableContainer />
+          </Box>
+          {line.romaji && (
+            <Typography
+              sx={{
+                fontSize: compact ? "0.78rem" : "0.85rem",
+                color: "text.secondary",
+                fontStyle: "italic",
+                lineHeight: compact ? 1.3 : undefined,
+              }}
+            >
+              {line.romaji}
+            </Typography>
+          )}
+          {line.english && (
+            <Typography
+              sx={{
+                fontSize: compact ? "0.82rem" : "0.9rem",
+                color: "#374151",
+                lineHeight: compact ? 1.3 : undefined,
+              }}
+            >
+              {line.english}
+            </Typography>
+          )}
+          {line.audio && <MediaAudio value={line.audio} />}
+        </Box>
+      </Box>
+    ))}
+  </Box>
+);
+
 const DialogueView: React.FC<DialogueBlock> = ({
   title,
   speakerA,
@@ -175,42 +260,7 @@ const DialogueView: React.FC<DialogueBlock> = ({
         <MediaVideo value={video} />
       </Box>
     )}
-    <Box sx={{ ...CARD_SX, display: "flex", flexDirection: "column", gap: 1.5 }}>
-      {(lines ?? []).map((line, index) => (
-        <Box key={line.id ?? index} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
-          <Typography
-            sx={{
-              fontSize: "0.72rem",
-              fontWeight: 800,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-              pt: 0.5,
-              minWidth: 56,
-              color: line.speaker === "a" ? "#B43D20" : "#6366f1",
-            }}
-          >
-            {line.speaker === "a" ? speakerA : speakerB}
-          </Typography>
-          <Box sx={{ flex: 1 }}>
-            <Box sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, lineHeight: 1.7 }}>
-              <RichText data={line.japanese} disableContainer />
-            </Box>
-            {line.romaji && (
-              <Typography
-                sx={{ fontSize: "0.85rem", color: "text.secondary", fontStyle: "italic" }}
-              >
-                {line.romaji}
-              </Typography>
-            )}
-            {line.english && (
-              <Typography sx={{ fontSize: "0.9rem", color: "#374151" }}>{line.english}</Typography>
-            )}
-            {line.audio && <MediaAudio value={line.audio} />}
-          </Box>
-        </Box>
-      ))}
-    </Box>
+    <DialogueTranscript speakerA={speakerA} speakerB={speakerB} lines={lines} />
   </Box>
 );
 
