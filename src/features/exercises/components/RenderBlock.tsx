@@ -187,8 +187,19 @@ export const DialogueTranscript: React.FC<{
     {(lines ?? []).map((line, index) => (
       <Box
         key={line.id ?? index}
-        sx={{ display: "flex", gap: compact ? 1 : 1.5, alignItems: "flex-start" }}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: compact ? "48px 1fr" : "56px 1fr",
+          columnGap: compact ? 1 : 1.5,
+          rowGap: 0,
+          alignItems: "center",
+        }}
       >
+        {/*
+         * Speaker and Japanese share the first row with alignItems: center so
+         * the label sits on the same horizontal axis as the spoken line — no
+         * top padding nudge. Romaji/english/audio span column 2 only.
+         */}
         <Typography
           sx={{
             fontSize: compact ? "0.65rem" : "0.72rem",
@@ -196,49 +207,53 @@ export const DialogueTranscript: React.FC<{
             letterSpacing: "0.04em",
             textTransform: "uppercase",
             whiteSpace: "nowrap",
-            pt: compact ? 0.25 : 0.5,
-            minWidth: compact ? 48 : 56,
+            lineHeight: 1,
             color: line.speaker === "a" ? "#B43D20" : "#6366f1",
           }}
         >
           {line.speaker === "a" ? speakerA : speakerB}
         </Typography>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Box
+        <Box
+          sx={{
+            minWidth: 0,
+            fontSize: compact
+              ? { xs: "0.92rem", sm: "1rem" }
+              : { xs: "1rem", sm: "1.1rem" },
+            lineHeight: compact ? 1.35 : 1.7,
+          }}
+        >
+          <RichText data={line.japanese} disableContainer />
+        </Box>
+        {line.romaji && (
+          <Typography
             sx={{
-              fontSize: compact
-                ? { xs: "0.92rem", sm: "1rem" }
-                : { xs: "1rem", sm: "1.1rem" },
-              lineHeight: compact ? 1.35 : 1.7,
+              gridColumn: 2,
+              fontSize: compact ? "0.78rem" : "0.85rem",
+              color: "text.secondary",
+              fontStyle: "italic",
+              lineHeight: compact ? 1.3 : undefined,
             }}
           >
-            <RichText data={line.japanese} disableContainer />
+            {line.romaji}
+          </Typography>
+        )}
+        {line.english && (
+          <Typography
+            sx={{
+              gridColumn: 2,
+              fontSize: compact ? "0.82rem" : "0.9rem",
+              color: "#374151",
+              lineHeight: compact ? 1.3 : undefined,
+            }}
+          >
+            {line.english}
+          </Typography>
+        )}
+        {line.audio && (
+          <Box sx={{ gridColumn: 2 }}>
+            <MediaAudio value={line.audio} />
           </Box>
-          {line.romaji && (
-            <Typography
-              sx={{
-                fontSize: compact ? "0.78rem" : "0.85rem",
-                color: "text.secondary",
-                fontStyle: "italic",
-                lineHeight: compact ? 1.3 : undefined,
-              }}
-            >
-              {line.romaji}
-            </Typography>
-          )}
-          {line.english && (
-            <Typography
-              sx={{
-                fontSize: compact ? "0.82rem" : "0.9rem",
-                color: "#374151",
-                lineHeight: compact ? 1.3 : undefined,
-              }}
-            >
-              {line.english}
-            </Typography>
-          )}
-          {line.audio && <MediaAudio value={line.audio} />}
-        </Box>
+        )}
       </Box>
     ))}
   </Box>
