@@ -203,7 +203,7 @@ export const DialogueTranscript: React.FC<{
          */}
         <Typography
           sx={{
-            fontSize: compact ? "0.6rem" : "0.72rem",
+            fontSize: compact ? "0.65rem" : "0.72rem",
             fontWeight: 800,
             letterSpacing: "0.04em",
             textTransform: "uppercase",
@@ -218,9 +218,10 @@ export const DialogueTranscript: React.FC<{
           sx={{
             minWidth: 0,
             fontSize: compact
-              ? { xs: "0.85rem", sm: "0.9rem" }
+              ? { xs: "0.95rem", sm: "1rem" }
               : { xs: "1rem", sm: "1.1rem" },
-            lineHeight: compact ? 1.25 : 1.7,
+            // Slightly denser line-height so the font bump doesn’t grow the card.
+            lineHeight: compact ? 1.2 : 1.7,
           }}
         >
           <RichText data={line.japanese} disableContainer />
@@ -229,10 +230,10 @@ export const DialogueTranscript: React.FC<{
           <Typography
             sx={{
               gridColumn: 2,
-              fontSize: compact ? "0.72rem" : "0.85rem",
+              fontSize: compact ? "0.78rem" : "0.85rem",
               color: "text.secondary",
               fontStyle: "italic",
-              lineHeight: compact ? 1.2 : undefined,
+              lineHeight: compact ? 1.15 : undefined,
             }}
           >
             {line.romaji}
@@ -242,9 +243,9 @@ export const DialogueTranscript: React.FC<{
           <Typography
             sx={{
               gridColumn: 2,
-              fontSize: compact ? "0.75rem" : "0.9rem",
+              fontSize: compact ? "0.82rem" : "0.9rem",
               color: "#374151",
-              lineHeight: compact ? 1.2 : undefined,
+              lineHeight: compact ? 1.15 : undefined,
             }}
           >
             {line.english}

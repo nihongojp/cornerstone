@@ -192,17 +192,17 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
+          justifyContent: "flex-start",
           gap: 0.75,
           flexShrink: 0,
-          textAlign: "center",
+          textAlign: "left",
         }}
       >
         <Typography
           component="h2"
           sx={{
             fontWeight: 700,
-            fontSize: { xs: "0.85rem", sm: "0.9rem" },
+            fontSize: { xs: "1rem", sm: "1.05rem" },
             color: "#1C1917",
             lineHeight: 1.3,
           }}
