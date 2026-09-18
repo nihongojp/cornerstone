@@ -7,7 +7,12 @@ import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 
 import MediaImage from "@/components/media/MediaImage";
 import MediaVideo from "@/components/media/MediaVideo";
-import { mediaSrc, renderableImage } from "@/lib/content/media";
+import {
+  DEFAULT_LESSON_VIDEO_ASPECT_RATIO,
+  mediaAspectRatio,
+  mediaSrc,
+  renderableImage,
+} from "@/lib/content/media";
 import { proseToPlainText } from "@/lib/content/prose";
 import type {
   DialogueBlock,
@@ -20,6 +25,64 @@ import { DialogueTranscript, type BlockOf } from "./RenderBlock";
 
 const BRAND = "#B43D20";
 
+/** Max rendered height for the term-intro media stage (xs / sm). */
+const MEDIA_MAX_HEIGHT_PX = { xs: 200, sm: 240 } as const;
+
+function parseAspectRatio(ratio: string): { w: number; h: number } {
+  const [wRaw, hRaw] = ratio.split("/").map((part) => Number(part.trim()));
+  if (wRaw > 0 && hRaw > 0) return { w: wRaw, h: hRaw };
+  return { w: 16, h: 9 };
+}
+
+/*
+ * Shared stage for video, image, and the gray placeholder so they share one
+ * aspect ratio and one max-height. Width is `min(100%, maxHeight × ratio)` so
+ * capping height cannot squash the box into a flatter rectangle than the media.
+ */
+const TermIntroMediaStage: React.FC<{
+  aspectRatio: string;
+  children?: React.ReactNode;
+  placeholder?: boolean;
+}> = ({ aspectRatio, children, placeholder }) => {
+  const { w, h } = parseAspectRatio(aspectRatio);
+
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: 0,
+      }}
+    >
+      <Box
+        aria-hidden={placeholder ? true : undefined}
+        sx={{
+          aspectRatio,
+          width: {
+            xs: `min(100%, calc(${MEDIA_MAX_HEIGHT_PX.xs}px * ${w} / ${h}))`,
+            sm: `min(100%, calc(${MEDIA_MAX_HEIGHT_PX.sm}px * ${w} / ${h}))`,
+          },
+          maxHeight: { xs: MEDIA_MAX_HEIGHT_PX.xs, sm: MEDIA_MAX_HEIGHT_PX.sm },
+          borderRadius: "12px",
+          overflow: "hidden",
+          flexShrink: 1,
+          ...(placeholder ? { bgcolor: "rgba(0,0,0,0.08)" } : null),
+          "& video, & img": {
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            display: "block",
+            borderRadius: "12px",
+          },
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+};
 /*
  * Same round audio-button pattern as CharacterSpotlight / TermCard, sized down
  * (~32px) to match the smaller caption-scale term row.
@@ -112,6 +175,12 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
 }) => {
   const detail = note?.trim() ?? "";
   const media = resolveMediaSlot(video, image);
+  // Prefer the Media document's own dimensions so player and placeholder match;
+  // fall back to the lesson-video default when none are stored (current snapshot).
+  const aspectRatio =
+    mediaAspectRatio(video) ??
+    mediaAspectRatio(image) ??
+    DEFAULT_LESSON_VIDEO_ASPECT_RATIO;
 
   return (
     <Box
@@ -143,43 +212,22 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
           switch (media.kind) {
             case "video":
               return (
-                <Box
-                  sx={{
-                    width: "100%",
-                    maxHeight: { xs: 200, sm: 240 },
-                    "& video": { maxHeight: { xs: 200, sm: 240 }, objectFit: "contain" },
-                  }}
+                <TermIntroMediaStage
+                  aspectRatio={mediaAspectRatio(media.value) ?? aspectRatio}
                 >
                   <MediaVideo value={media.value} />
-                </Box>
+                </TermIntroMediaStage>
               );
             case "image":
               return (
-                <Box
-                  sx={{
-                    width: "100%",
-                    maxHeight: { xs: 200, sm: 240 },
-                    display: "flex",
-                    justifyContent: "center",
-                    "& img": { maxHeight: { xs: 200, sm: 240 }, objectFit: "contain" },
-                  }}
+                <TermIntroMediaStage
+                  aspectRatio={mediaAspectRatio(media.value) ?? aspectRatio}
                 >
                   <MediaImage value={media.value} size="wide" />
-                </Box>
+                </TermIntroMediaStage>
               );
             case "placeholder":
-              return (
-                <Box
-                  aria-hidden
-                  sx={{
-                    width: "100%",
-                    aspectRatio: "16 / 9",
-                    maxHeight: { xs: 160, sm: 200 },
-                    borderRadius: "12px",
-                    bgcolor: "rgba(0,0,0,0.08)",
-                  }}
-                />
-              );
+              return <TermIntroMediaStage aspectRatio={aspectRatio} placeholder />;
             default: {
               const _exhaustive: never = media;
               return _exhaustive;
