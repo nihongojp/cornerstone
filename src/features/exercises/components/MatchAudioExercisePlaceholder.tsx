@@ -92,7 +92,7 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
         gap: 3,
       }}
     >
-      {item.number !== undefined && (
+      {item.number !== undefined && item.number > 0 && (
         <Chip
           label={`Exercise ${item.number}`}
           size="small"

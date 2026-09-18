@@ -622,7 +622,8 @@ const BuildSentenceView: React.FC<
 const SpeakAndScoreView: React.FC<SpeakAndScoreBlock> = ({ term: target, transcript, video }) => {
   const exercise: PronunciationExerciseData = {
     type: "pronunciationExercise",
-    number: 0,
+    // No authored ordinal on `speakAndScore` — omit rather than inventing 0,
+    // which used to render as an "Exercise 0" Chip on every screen.
     phrase: termText(target, "plain"),
     // Reference audio for scoring, from the term. Never the video's track — the
     // scorer has nothing to grade against without it.
