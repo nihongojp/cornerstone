@@ -1,6 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { getDraftLesson, getLessonBySlug } from "@/lib/content/content";
+import {
+  getAdjacentReviewHrefs,
+  getDraftAdjacentReviewHrefs,
+  getDraftLesson,
+  getLessonBySlug,
+} from "@/lib/content/content";
 import { getPreviewEditor } from "@/lib/session";
 import { collectLessonTerms } from "@/lib/content/lessonTerms";
 import TermReviewPage from "@/features/learning/components/TermReviewPage";
@@ -30,6 +35,16 @@ export default async function Page({
   if (!lesson) redirect("/dashboard");
 
   const terms = collectLessonTerms(lesson);
+  const neighbors = editor
+    ? await getDraftAdjacentReviewHrefs(lesson, editor)
+    : await getAdjacentReviewHrefs(lesson);
 
-  return <TermReviewPage lesson={lesson} terms={terms} />;
+  return (
+    <TermReviewPage
+      lesson={lesson}
+      terms={terms}
+      prevHref={neighbors.prevHref}
+      nextHref={neighbors.nextHref}
+    />
+  );
 }

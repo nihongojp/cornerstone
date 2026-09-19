@@ -158,7 +158,109 @@ const ProseView: React.FC<ProseBlock> = ({ tone, title, content }) => {
  * The old `videoPage.videoForm` rendering coloured a line by whether its index was
  * even, so the speaker was a property of position — inserting a line silently
  * reassigned every line after it. Here the speaker is on the line.
+ *
+ * `compact` is for term-intro screens (`TermIntroDialogue`): same speaker labels
+ * and lines, tighter spacing so the transcript sits under media without
+ * forcing the lesson viewport to scroll.
  */
+export const DialogueTranscript: React.FC<{
+  speakerA: string;
+  speakerB: string;
+  lines: DialogueBlock["lines"];
+  compact?: boolean;
+}> = ({ speakerA, speakerB, lines, compact = false }) => (
+  <Box
+    sx={{
+      ...CARD_SX,
+      display: "flex",
+      flexDirection: "column",
+      gap: compact ? 0.4 : 1.5,
+      ...(compact
+        ? {
+            px: { xs: 1.25, sm: 1.5 },
+            py: { xs: 0.85, sm: 1 },
+            borderRadius: "14px",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+          }
+        : null),
+    }}
+  >
+    {(lines ?? []).map((line, index) => (
+      <Box
+        key={line.id ?? index}
+        sx={{
+          display: "grid",
+          gridTemplateColumns: compact ? "36px 1fr" : "56px 1fr",
+          columnGap: compact ? 0.75 : 1.5,
+          rowGap: 0,
+          alignItems: "center",
+        }}
+      >
+        {/*
+         * Speaker and Japanese share the first row with alignItems: center so
+         * the label sits on the same horizontal axis as the spoken line — no
+         * top padding nudge. Romaji/english/audio span column 2 only.
+         */}
+        <Typography
+          sx={{
+            fontSize: compact ? "0.65rem" : "0.72rem",
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            lineHeight: 1,
+            color: line.speaker === "a" ? "#B43D20" : "#6366f1",
+          }}
+        >
+          {line.speaker === "a" ? speakerA : speakerB}
+        </Typography>
+        <Box
+          sx={{
+            minWidth: 0,
+            fontSize: compact
+              ? { xs: "0.95rem", sm: "1rem" }
+              : { xs: "1rem", sm: "1.1rem" },
+            // Slightly denser line-height so the font bump doesn’t grow the card.
+            lineHeight: compact ? 1.2 : 1.7,
+          }}
+        >
+          <RichText data={line.japanese} disableContainer />
+        </Box>
+        {line.romaji && (
+          <Typography
+            sx={{
+              gridColumn: 2,
+              fontSize: compact ? "0.78rem" : "0.85rem",
+              color: "text.secondary",
+              fontStyle: "italic",
+              lineHeight: compact ? 1.15 : undefined,
+            }}
+          >
+            {line.romaji}
+          </Typography>
+        )}
+        {line.english && (
+          <Typography
+            sx={{
+              gridColumn: 2,
+              fontSize: compact ? "0.82rem" : "0.9rem",
+              color: "#374151",
+              lineHeight: compact ? 1.15 : undefined,
+            }}
+          >
+            {line.english}
+          </Typography>
+        )}
+        {line.audio && (
+          <Box sx={{ gridColumn: 2 }}>
+            <MediaAudio value={line.audio} />
+          </Box>
+        )}
+      </Box>
+    ))}
+  </Box>
+);
+
 const DialogueView: React.FC<DialogueBlock> = ({
   title,
   speakerA,
@@ -175,42 +277,7 @@ const DialogueView: React.FC<DialogueBlock> = ({
         <MediaVideo value={video} />
       </Box>
     )}
-    <Box sx={{ ...CARD_SX, display: "flex", flexDirection: "column", gap: 1.5 }}>
-      {(lines ?? []).map((line, index) => (
-        <Box key={line.id ?? index} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
-          <Typography
-            sx={{
-              fontSize: "0.72rem",
-              fontWeight: 800,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-              pt: 0.5,
-              minWidth: 56,
-              color: line.speaker === "a" ? "#B43D20" : "#6366f1",
-            }}
-          >
-            {line.speaker === "a" ? speakerA : speakerB}
-          </Typography>
-          <Box sx={{ flex: 1 }}>
-            <Box sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, lineHeight: 1.7 }}>
-              <RichText data={line.japanese} disableContainer />
-            </Box>
-            {line.romaji && (
-              <Typography
-                sx={{ fontSize: "0.85rem", color: "text.secondary", fontStyle: "italic" }}
-              >
-                {line.romaji}
-              </Typography>
-            )}
-            {line.english && (
-              <Typography sx={{ fontSize: "0.9rem", color: "#374151" }}>{line.english}</Typography>
-            )}
-            {line.audio && <MediaAudio value={line.audio} />}
-          </Box>
-        </Box>
-      ))}
-    </Box>
+    <DialogueTranscript speakerA={speakerA} speakerB={speakerB} lines={lines} />
   </Box>
 );
 
@@ -555,7 +622,8 @@ const BuildSentenceView: React.FC<
 const SpeakAndScoreView: React.FC<SpeakAndScoreBlock> = ({ term: target, transcript, video }) => {
   const exercise: PronunciationExerciseData = {
     type: "pronunciationExercise",
-    number: 0,
+    // No authored ordinal on `speakAndScore` — omit rather than inventing 0,
+    // which used to render as an "Exercise 0" Chip on every screen.
     phrase: termText(target, "plain"),
     // Reference audio for scoring, from the term. Never the video's track — the
     // scorer has nothing to grade against without it.

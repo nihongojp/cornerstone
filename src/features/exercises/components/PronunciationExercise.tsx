@@ -24,7 +24,12 @@ import { checkPronunciation, PronunciationCheckResult } from "@/lib/pronunciatio
  */
 export type PronunciationExerciseData = {
   type: "pronunciationExercise";
-  number: number;
+  /**
+   * Optional ordinal for a Chip badge. Omitted when the block has no authored
+   * number — a hardcoded `0` used to paint "Exercise 0" on every speak-and-score
+   * screen.
+   */
+  number?: number;
   phrase: string;
   /** Dedicated reference audio — do not derive from video. */
   audioUrl?: string;
@@ -271,12 +276,14 @@ const PronunciationExercise: React.FC<Props> = ({ exercise, onRecordingComplete 
         gap: 3,
       }}
     >
-      {/* Exercise number badge */}
-      <Chip
-        label={`Exercise ${number}`}
-        size="small"
-        sx={{ fontWeight: 700, fontSize: "0.72rem", bgcolor: "rgba(180,61,32,0.08)", color: BRAND }}
-      />
+      {/* Ordinal badge — only when an authored number is present and positive. */}
+      {number !== undefined && number > 0 && (
+        <Chip
+          label={`Exercise ${number}`}
+          size="small"
+          sx={{ fontWeight: 700, fontSize: "0.72rem", bgcolor: "rgba(180,61,32,0.08)", color: BRAND }}
+        />
+      )}
 
       {/* Video (when present) */}
       {hasVideo && (
