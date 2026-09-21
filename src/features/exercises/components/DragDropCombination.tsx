@@ -6,7 +6,7 @@ import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
 
-import { isCorrectPlacement } from "../dragDropPlacement";
+import { isCorrectPlacement, isTileCorrect } from "../dragDropPlacement";
 import SelfRecordButton from "./SelfRecordButton";
 
 // Grammar-lesson drag-and-drop: build the correct word/phrase by dragging
@@ -365,36 +365,43 @@ const DragDropCombination: React.FC<Props> = ({
             Drop the words here in order…
           </Typography>
         ) : (
-          placedIndices.map((idx, pos) => (
-            <Box
-              key={`placed-${idx}`}
-              draggable
-              onDragStart={(e) => onDragStart(e, "box", idx)}
-              onDoubleClick={() => removeTile(idx)}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setBoxDragOver(true);
-              }}
-              onDrop={(e) => onDropOnTile(e, pos)}
-              title="Drag out, drag onto another tile to reorder, or double-click to remove"
-              sx={{
-                px: 2,
-                py: 1,
-                borderRadius: "10px",
-                border: `2px solid ${checked ? (isCorrect ? "#059669" : "#DC2626") : "rgba(0,0,0,0.15)"}`,
-                bgcolor: checked ? (isCorrect ? "rgba(5,150,105,0.06)" : "rgba(220,38,38,0.06)") : "#F9F7F4",
-                fontSize: { xs: "0.95rem", sm: "1.05rem" },
-                fontWeight: 700,
-                whiteSpace: "nowrap",
-                cursor: "grab",
-                userSelect: "none",
-                color: checked ? (isCorrect ? "#065F46" : "#7F1D1D") : "inherit",
-              }}
-            >
-              {options[idx]}
-            </Box>
-          ))
+          placedIndices.map((idx, pos) => {
+            // Graded per tile, not by whether the whole box is right — a
+            // learner with three of five correct sees which three, rather
+            // than one pass/fail colour across every tile.
+            const tileCorrect = checked && isTileCorrect(placedTiles, correctSequence, pos);
+            const tileWrong = checked && !tileCorrect;
+            return (
+              <Box
+                key={`placed-${idx}`}
+                draggable
+                onDragStart={(e) => onDragStart(e, "box", idx)}
+                onDoubleClick={() => removeTile(idx)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setBoxDragOver(true);
+                }}
+                onDrop={(e) => onDropOnTile(e, pos)}
+                title="Drag out, drag onto another tile to reorder, or double-click to remove"
+                sx={{
+                  px: 2,
+                  py: 1,
+                  borderRadius: "10px",
+                  border: `2px solid ${tileCorrect ? "#059669" : tileWrong ? "#DC2626" : "rgba(0,0,0,0.15)"}`,
+                  bgcolor: tileCorrect ? "rgba(5,150,105,0.06)" : tileWrong ? "rgba(220,38,38,0.06)" : "#F9F7F4",
+                  fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  cursor: "grab",
+                  userSelect: "none",
+                  color: tileCorrect ? "#065F46" : tileWrong ? "#7F1D1D" : "inherit",
+                }}
+              >
+                {options[idx]}
+              </Box>
+            );
+          })
         )}
       </Box>
 
