@@ -77,9 +77,15 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
       sx={{
         perspective: "1000px",
         width: { xs: "calc(50% - 8px)", sm: 220 },
-        minWidth: 130,
+        minWidth: 150,
         maxWidth: 220,
-        minHeight: 210,
+        // A concrete height, not just `minHeight` — the inner flip face sizes
+        // itself with `height: 100%`, and a percentage height only resolves
+        // against an ancestor with a definite height. `minHeight` alone left
+        // that undefined on narrow/mobile viewports, which is what made the
+        // cards render squashed there.
+        height: { xs: 190, sm: 210 },
+        minHeight: { xs: 190, sm: 210 },
         cursor: "pointer",
         flexShrink: 0,
       }}

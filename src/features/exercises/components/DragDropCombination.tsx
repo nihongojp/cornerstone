@@ -14,7 +14,16 @@ import SelfRecordButton from "./SelfRecordButton";
 // fixed box per expected piece — the box just grows as tiles are added).
 // Tiles size themselves to their own text (padding-based, no fixed
 // width/height), since fragments vary a lot in length ("ha" vs "arigatou").
-type DragPayload = { source: "bank" | "box"; index: number };
+//
+// Bank tiles are reusable: `options` is the set of distinct tiles on offer,
+// not one slot per placement. Dropping (or tapping) a bank tile adds a new,
+// independently-identified copy of it to the box — it never gets removed
+// from the bank — so an answer that repeats a character ("おおい") only
+// needs one お in the bank, not two. Each placement therefore needs its own
+// id distinct from `options`' index, since the same option can be placed
+// more than once at once.
+type Placement = { id: string; value: string };
+type DragPayload = { source: "bank"; value: string } | { source: "box"; id: string };
 
 type Props = {
   prompt?: string;
@@ -22,8 +31,15 @@ type Props = {
   audioUrl?: string;
   options: string[];
   correctSequence: string[];
-  /** One entry per `options` index — that tile's own audio, if any. */
-  tileAudio?: (string | undefined)[];
+  /** A tile's own audio, by its displayed value. */
+  tileAudio?: Record<string, string | undefined>;
+  /*
+   * "romaji" tiles are individual letters of a romanized word ("a", "ri",
+   * "ga" …) — not a pronounceable unit worth its own audio button. Per-tile
+   * audio is only offered for "asAuthored" tiles (actual kana/kanji), where
+   * each one is a real term with its own recording.
+   */
+  tileScript?: "asAuthored" | "romaji";
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
 
@@ -34,37 +50,42 @@ const DragDropCombination: React.FC<Props> = ({
   options,
   correctSequence,
   tileAudio,
+  tileScript,
   onResult,
 }) => {
   const resolvedImageUrl = String(imageUrl || "").trim();
 
-  const [placedIndices, setPlacedIndices] = useState<number[]>([]);
+  const [placed, setPlaced] = useState<Placement[]>([]);
   const [checked, setChecked] = useState(false);
   const [boxDragOver, setBoxDragOver] = useState(false);
   const [bankDragOver, setBankDragOver] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [playingTile, setPlayingTile] = useState<number | null>(null);
+  // One playing-tile key across bank and box tiles, namespaced so a bank
+  // entry and an identically-valued placed tile never collide.
+  const [playingKey, setPlayingKey] = useState<string | null>(null);
 
   const dragPayloadRef = useRef<DragPayload | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const tileAudioRef = useRef<HTMLAudioElement | null>(null);
+  const idCounterRef = useRef(0);
+  const nextId = () => `t${idCounterRef.current++}`;
 
-  const placedTiles = placedIndices.map((i) => options[i]);
+  const placedTiles = placed.map((p) => p.value);
   const isCorrect = isCorrectPlacement(placedTiles, correctSequence);
-  // Positive reinforcement, shown once the sequence is checked and correct —
-  // the whole-word clip and the per-tile clips are gated the same way.
   const showResult = checked && isCorrect;
   const showAudio = showResult && Boolean(audioUrl);
-  // `tileAudio` has one entry per tile whether or not that tile has a clip, so
-  // its length says nothing — an all-undefined array would still put "Hear each
-  // piece" above a row of inert grey buttons.
-  const showTileAudio = showResult && Boolean(tileAudio?.some(Boolean));
 
-  const bankIndices = options.map((_, i) => i).filter((i) => !placedIndices.includes(i));
+  // Before checking, a tap edits the sequence (add/remove). After checking,
+  // a tap instead plays that tile's own recording — the box itself becomes
+  // the audio button, for every tile on offer, not just the ones placed and
+  // not just the correct ones, so a learner can double-check any
+  // pronunciation. Romaji-letter tiles never get this: a single letter
+  // fragment has no pronunciation of its own to play.
+  const canEdit = !checked;
+  const tilesPlayAudio = checked && tileScript !== "romaji";
 
-  const onDragStart = (e: React.DragEvent<HTMLDivElement>, source: "bank" | "box", index: number) => {
-    const payload: DragPayload = { source, index };
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>, payload: DragPayload) => {
     dragPayloadRef.current = payload;
     e.dataTransfer.setData("application/json", JSON.stringify(payload));
     e.dataTransfer.effectAllowed = "move";
@@ -79,24 +100,39 @@ const DragDropCombination: React.FC<Props> = ({
     }
   };
 
-  // Moves the dragged tile (from the bank, or already in the box) so it ends
-  // up at `targetPos` within the placed sequence — this is what actually
-  // lets you reorder tiles you've already placed, not just append/remove.
+  // Moves the dragged tile so it ends up at `targetPos` in the placed
+  // sequence. A tile coming from the bank is always a brand-new placement
+  // (the bank copy is never consumed); a tile coming from the box is the
+  // same placement, relocated — which is what lets you reorder tiles you've
+  // already placed, not just append or remove them.
   const moveToPosition = (payload: DragPayload, targetPos: number) => {
     setChecked(false);
-    setPlacedIndices((prev) => {
+    setPlaced((prev) => {
       const next = [...prev];
       let pos = targetPos;
+      let moving: Placement;
       if (payload.source === "box") {
-        const fromPos = next.indexOf(payload.index);
-        if (fromPos === -1) return next;
-        next.splice(fromPos, 1);
+        const fromPos = next.findIndex((p) => p.id === payload.id);
+        if (fromPos === -1) return prev;
+        [moving] = next.splice(fromPos, 1);
         if (fromPos < pos) pos -= 1;
+      } else {
+        moving = { id: nextId(), value: payload.value };
       }
       pos = Math.max(0, Math.min(pos, next.length));
-      next.splice(pos, 0, payload.index);
+      next.splice(pos, 0, moving);
       return next;
     });
+  };
+
+  const addTile = (value: string) => {
+    setChecked(false);
+    setPlaced((prev) => [...prev, { id: nextId(), value }]);
+  };
+
+  const removeTile = (id: string) => {
+    setChecked(false);
+    setPlaced((prev) => prev.filter((p) => p.id !== id));
   };
 
   const onDropBox = (e: React.DragEvent<HTMLDivElement>) => {
@@ -106,7 +142,7 @@ const DragDropCombination: React.FC<Props> = ({
     if (!payload) return;
     // Dropped on the box's own background (not on a specific tile) — treat
     // as "put it at the end."
-    moveToPosition(payload, placedIndices.length);
+    moveToPosition(payload, placed.length);
   };
 
   // Dropped directly on an already-placed tile — insert the dragged tile
@@ -120,18 +156,15 @@ const DragDropCombination: React.FC<Props> = ({
     moveToPosition(payload, beforeIndexInPlaced);
   };
 
+  // A box tile dragged back onto the bank just removes that placement — the
+  // bank was never depleted when it was placed, so there is nothing to
+  // "return."
   const onDropBank = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setBankDragOver(false);
     const payload = readPayload(e);
     if (!payload || payload.source !== "box") return;
-    setChecked(false);
-    setPlacedIndices((prev) => prev.filter((i) => i !== payload.index));
-  };
-
-  const removeTile = (index: number) => {
-    setChecked(false);
-    setPlacedIndices((prev) => prev.filter((i) => i !== index));
+    removeTile(payload.id);
   };
 
   const handleCheck = () => {
@@ -143,7 +176,7 @@ const DragDropCombination: React.FC<Props> = ({
   };
 
   const reset = () => {
-    setPlacedIndices([]);
+    setPlaced([]);
     setChecked(false);
   };
 
@@ -157,24 +190,72 @@ const DragDropCombination: React.FC<Props> = ({
     audio.play().catch(() => setPlaying(false));
   };
 
-  const playTile = (index: number) => {
-    const src = tileAudio?.[index];
+  const playTileAudio = (key: string, value: string) => {
+    const src = tileAudio?.[value];
     if (!src) return;
     tileAudioRef.current?.pause();
     const audio = new Audio(src);
     tileAudioRef.current = audio;
-    audio.onended = () => setPlayingTile(null);
-    audio.onerror = () => setPlayingTile(null);
-    setPlayingTile(index);
-    audio.play().catch(() => setPlayingTile(null));
+    audio.onended = () => setPlayingKey(null);
+    audio.onerror = () => setPlayingKey(null);
+    setPlayingKey(key);
+    audio.play().catch(() => setPlayingKey(null));
   };
 
-  // `playTile` builds a detached `Audio` rather than rendering an element, so
-  // unmounting this exercise does not stop it the way removing the <audio>
-  // below does — without this, a tile plays on over the next screen.
+  // `playTileAudio` builds a detached `Audio` rather than rendering an
+  // element, so unmounting this exercise does not stop it the way removing
+  // the <audio> below does — without this, a tile plays on over the next
+  // screen.
   useEffect(() => () => tileAudioRef.current?.pause(), []);
 
   const shouldShowImage = Boolean(resolvedImageUrl && !imageFailed);
+
+  // Shared look for a tile, whether it's sitting in the bank or placed in
+  // the box. `tone` carries the grading colors once checked; a bank tile
+  // (never graded) always passes "idle".
+  const tileSx = (tone: "idle" | "correct" | "wrong", interactive: boolean) => ({
+    position: "relative" as const,
+    px: 2,
+    py: 1,
+    borderRadius: "10px",
+    border: `2px solid ${tone === "correct" ? "#059669" : tone === "wrong" ? "#DC2626" : "rgba(0,0,0,0.15)"}`,
+    bgcolor: tone === "correct" ? "rgba(5,150,105,0.06)" : tone === "wrong" ? "rgba(220,38,38,0.06)" : "#F9F7F4",
+    fontSize: { xs: "0.95rem", sm: "1.05rem" },
+    fontWeight: 700,
+    whiteSpace: "nowrap" as const,
+    cursor: interactive ? "pointer" : "default",
+    userSelect: "none" as const,
+    color: tone === "correct" ? "#065F46" : tone === "wrong" ? "#7F1D1D" : "inherit",
+  });
+
+  // Small in-box icon that shows a tile has become an audio button, instead
+  // of a separate button living outside the character box.
+  const AudioCorner: React.FC<{ value: string; playingHere: boolean }> = ({ value, playingHere }) => {
+    const hasAudio = Boolean(tileAudio?.[value]);
+    return (
+      <Box
+        sx={{
+          position: "absolute",
+          top: -6,
+          right: -6,
+          width: 18,
+          height: 18,
+          borderRadius: "50%",
+          bgcolor: hasAudio ? "#B43D20" : "rgba(0,0,0,0.15)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+        }}
+      >
+        {playingHere ? (
+          <GraphicEqRoundedIcon sx={{ fontSize: "0.7rem", color: "#fff" }} />
+        ) : (
+          <VolumeUpRoundedIcon sx={{ fontSize: "0.7rem", color: hasAudio ? "#fff" : "rgba(0,0,0,0.4)" }} />
+        )}
+      </Box>
+    );
+  };
 
   return (
     <Box
@@ -195,11 +276,16 @@ const DragDropCombination: React.FC<Props> = ({
         </Typography>
       </Box>
 
-      {/* Prompt image */}
+      {/* Prompt image — fixed height, auto width, so the whole picture shows
+          rather than a square crop. The height matches the other exercise
+          image boxes (MatchAudioExercisePlaceholder, MatchDotsMedia) so every
+          exercise's imagery reads at the same scale even though the images
+          themselves are not all the same shape. */}
       <Box
         sx={{
-          width: { xs: 148, sm: 180 },
           height: { xs: 148, sm: 180 },
+          width: shouldShowImage ? "auto" : { xs: 148, sm: 180 },
+          maxWidth: "100%",
           borderRadius: "18px",
           bgcolor: "#F3F4F6",
           border: "1px solid rgba(0,0,0,0.08)",
@@ -216,7 +302,7 @@ const DragDropCombination: React.FC<Props> = ({
             src={resolvedImageUrl}
             alt={prompt}
             onError={() => setImageFailed(true)}
-            sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            sx={{ height: "100%", width: "auto", maxWidth: "100%", objectFit: "contain", display: "block" }}
           />
         ) : (
           <Box
@@ -271,73 +357,23 @@ const DragDropCombination: React.FC<Props> = ({
         </Box>
       )}
 
-      {/* One button per tile, in the order they were placed — same
-          reinforcement moment as the reference audio above, but for each
-          piece that went into the answer. A tile with no recording yet still
-          gets a button, greyed out and inert, matching the filler-button
-          convention used everywhere else audio can be missing. */}
-      {showTileAudio && (
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.75 }}>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
-            {placedIndices.map((idx) => {
-              const src = tileAudio?.[idx];
-              const hasAudio = Boolean(src);
-              const isPlayingThis = playingTile === idx;
-              return (
-                <Box
-                  key={`tile-audio-${idx}`}
-                  sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.25 }}
-                >
-                  <IconButton
-                    onClick={() => playTile(idx)}
-                    disabled={!hasAudio}
-                    aria-label={`Play audio for ${options[idx]}`}
-                    sx={{
-                      width: 36,
-                      height: 36,
-                      bgcolor: hasAudio ? (isPlayingThis ? "rgba(180,61,32,0.08)" : "#B43D20") : "rgba(0,0,0,0.08)",
-                      color: hasAudio ? (isPlayingThis ? "#B43D20" : "#fff") : "rgba(0,0,0,0.3)",
-                      border: hasAudio && isPlayingThis ? "2px solid #B43D20" : "none",
-                      "&:hover": hasAudio ? { bgcolor: isPlayingThis ? "rgba(180,61,32,0.12)" : "#9D351C" } : {},
-                      "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.08)", color: "rgba(0,0,0,0.3)" },
-                      transition: "all 0.2s",
-                    }}
-                  >
-                    {isPlayingThis ? (
-                      <GraphicEqRoundedIcon sx={{ fontSize: "1.1rem" }} />
-                    ) : (
-                      <VolumeUpRoundedIcon sx={{ fontSize: "1.1rem" }} />
-                    )}
-                  </IconButton>
-                  <Typography sx={{ fontSize: "0.7rem", color: "text.secondary", fontWeight: 700 }}>
-                    {options[idx]}
-                  </Typography>
-                </Box>
-              );
-            })}
-          </Box>
-          <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-            Hear each piece
-          </Typography>
-        </Box>
-      )}
-
       {/* Single long drop target — holds the ordered sequence of placed
           tiles, growing to fit them instead of showing per-piece boxes. */}
       <Box
         role="button"
         aria-label="Drop the tiles here in order"
         onDragOver={(e) => {
+          if (!canEdit) return;
           e.preventDefault();
           setBoxDragOver(true);
         }}
         onDragLeave={() => setBoxDragOver(false)}
-        onDrop={onDropBox}
+        onDrop={canEdit ? onDropBox : undefined}
         sx={{
           width: "100%",
           minHeight: 64,
           borderRadius: "14px",
-          border: `2px ${placedIndices.length ? "solid" : "dashed"} ${
+          border: `2px ${placed.length ? "solid" : "dashed"} ${
             boxDragOver
               ? "#60A5FA"
               : checked
@@ -352,7 +388,7 @@ const DragDropCombination: React.FC<Props> = ({
           display: "flex",
           alignItems: "center",
           flexWrap: "wrap",
-          justifyContent: placedIndices.length ? "flex-start" : "center",
+          justifyContent: placed.length ? "flex-start" : "center",
           gap: 1,
           px: 2,
           py: 1.5,
@@ -360,52 +396,59 @@ const DragDropCombination: React.FC<Props> = ({
           boxShadow: boxDragOver ? "0 0 0 4px rgba(96,165,250,0.2)" : "none",
         }}
       >
-        {placedIndices.length === 0 ? (
+        {placed.length === 0 ? (
           <Typography sx={{ color: "text.disabled", fontSize: "0.9rem", userSelect: "none" }}>
             Drop the words here in order…
           </Typography>
         ) : (
-          placedIndices.map((idx, pos) => {
+          placed.map((placement, pos) => {
             // Graded per tile, not by whether the whole box is right — a
             // learner with three of five correct sees which three, rather
             // than one pass/fail colour across every tile.
             const tileCorrect = checked && isTileCorrect(placedTiles, correctSequence, pos);
             const tileWrong = checked && !tileCorrect;
+            const key = `box:${placement.id}`;
+            const tone = checked ? (tileCorrect ? "correct" : "wrong") : "idle";
+
             return (
               <Box
-                key={`placed-${idx}`}
-                draggable
-                onDragStart={(e) => onDragStart(e, "box", idx)}
-                onDoubleClick={() => removeTile(idx)}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setBoxDragOver(true);
+                key={placement.id}
+                draggable={canEdit}
+                onDragStart={canEdit ? (e) => onDragStart(e, { source: "box", id: placement.id }) : undefined}
+                onClick={() => {
+                  if (canEdit) removeTile(placement.id);
+                  else if (tilesPlayAudio) playTileAudio(key, placement.value);
                 }}
-                onDrop={(e) => onDropOnTile(e, pos)}
-                title="Drag out, drag onto another tile to reorder, or double-click to remove"
-                sx={{
-                  px: 2,
-                  py: 1,
-                  borderRadius: "10px",
-                  border: `2px solid ${tileCorrect ? "#059669" : tileWrong ? "#DC2626" : "rgba(0,0,0,0.15)"}`,
-                  bgcolor: tileCorrect ? "rgba(5,150,105,0.06)" : tileWrong ? "rgba(220,38,38,0.06)" : "#F9F7F4",
-                  fontSize: { xs: "0.95rem", sm: "1.05rem" },
-                  fontWeight: 700,
-                  whiteSpace: "nowrap",
-                  cursor: "grab",
-                  userSelect: "none",
-                  color: tileCorrect ? "#065F46" : tileWrong ? "#7F1D1D" : "inherit",
-                }}
+                onDragOver={
+                  canEdit
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setBoxDragOver(true);
+                      }
+                    : undefined
+                }
+                onDrop={canEdit ? (e) => onDropOnTile(e, pos) : undefined}
+                title={
+                  canEdit
+                    ? "Drag out, drag onto another tile to reorder, or click to remove"
+                    : tilesPlayAudio
+                      ? "Click to hear this"
+                      : undefined
+                }
+                sx={tileSx(tone, canEdit || tilesPlayAudio)}
               >
-                {options[idx]}
+                {placement.value}
+                {tilesPlayAudio && <AudioCorner value={placement.value} playingHere={playingKey === key} />}
               </Box>
             );
           })
         )}
       </Box>
 
-      {/* Bank — remaining, not-yet-placed tiles */}
+      {/* Bank — every distinct tile on offer. A tile stays here after being
+          placed (it is not consumed), since the same tile can be dropped in
+          more than once when the answer repeats a character. */}
       <Box
         sx={{
           display: "flex",
@@ -420,45 +463,66 @@ const DragDropCombination: React.FC<Props> = ({
           width: "100%",
           transition: "border-color 0.2s, background-color 0.2s",
         }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setBankDragOver(true);
-        }}
+        onDragOver={
+          canEdit
+            ? (e) => {
+                e.preventDefault();
+                setBankDragOver(true);
+              }
+            : undefined
+        }
         onDragLeave={() => setBankDragOver(false)}
-        onDrop={onDropBank}
+        onDrop={canEdit ? onDropBank : undefined}
       >
-        {bankIndices.map((idx) => (
-          <Box
-            key={`bank-${idx}`}
-            draggable
-            onDragStart={(e) => onDragStart(e, "bank", idx)}
-            title="Drag to the box above"
-            sx={{
-              px: 2.5,
-              py: 1.25,
-              border: "2px solid rgba(0,0,0,0.1)",
-              borderRadius: "12px",
-              cursor: "grab",
-              fontSize: { xs: "0.95rem", sm: "1.05rem" },
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              userSelect: "none",
-              bgcolor: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-              "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                borderColor: "#B43D20",
-              },
-            }}
-          >
-            {options[idx]}
-          </Box>
-        ))}
+        {options.map((value) => {
+          const key = `bank:${value}`;
+          return (
+            <Box
+              key={value}
+              draggable={canEdit}
+              onDragStart={canEdit ? (e) => onDragStart(e, { source: "bank", value }) : undefined}
+              onClick={() => {
+                if (canEdit) addTile(value);
+                else if (tilesPlayAudio) playTileAudio(key, value);
+              }}
+              title={
+                canEdit
+                  ? "Drag to the box above, or click to add"
+                  : tilesPlayAudio
+                    ? "Click to hear this"
+                    : undefined
+              }
+              sx={{
+                position: "relative",
+                px: 2.5,
+                py: 1.25,
+                border: "2px solid rgba(0,0,0,0.1)",
+                borderRadius: "12px",
+                cursor: canEdit || tilesPlayAudio ? "pointer" : "default",
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                userSelect: "none",
+                bgcolor: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                "&:hover": canEdit
+                  ? {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      borderColor: "#B43D20",
+                    }
+                  : {},
+              }}
+            >
+              {value}
+              {tilesPlayAudio && <AudioCorner value={value} playingHere={playingKey === key} />}
+            </Box>
+          );
+        })}
       </Box>
 
       <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", justifyContent: "center" }}>
