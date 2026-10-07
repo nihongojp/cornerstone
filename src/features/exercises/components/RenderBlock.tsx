@@ -172,9 +172,14 @@ export const DialogueTranscript: React.FC<{
   <Box
     sx={{
       ...CARD_SX,
-      display: "flex",
-      flexDirection: "column",
-      gap: compact ? 0.4 : 1.5,
+      // One grid for the whole transcript, which each line joins as a subgrid:
+      // the label column is as wide as the longest speaker name, and every
+      // line starts at the same edge. A fixed width per line let a longer
+      // name ("Tanaka") run into the text beside it.
+      display: "grid",
+      gridTemplateColumns: `minmax(${compact ? 36 : 56}px, max-content) 1fr`,
+      columnGap: compact ? 0.75 : 1.5,
+      rowGap: compact ? 0.4 : 1.5,
       ...(compact
         ? {
             px: { xs: 1.25, sm: 1.5 },
@@ -190,8 +195,8 @@ export const DialogueTranscript: React.FC<{
         key={line.id ?? index}
         sx={{
           display: "grid",
-          gridTemplateColumns: compact ? "36px 1fr" : "56px 1fr",
-          columnGap: compact ? 0.75 : 1.5,
+          gridColumn: "1 / -1",
+          gridTemplateColumns: "subgrid",
           rowGap: 0,
           alignItems: "center",
         }}
