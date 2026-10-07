@@ -232,29 +232,25 @@
           "components": [
             {
               "id": "6a83f02bb78e2c76b66a8657",
-              "instructions": "Listen and choose the character you hear",
+              "instructions": "Which situation matches this phrase?",
               "term": {
-                "$ref": "あ-ア",
+                "$ref": "あお",
                 "$collection": "terms"
               },
-              "answerWith": "text",
+              "answerWith": "image",
               "blockName": null,
               "blockType": "listenAndChoose",
               "distractors": [
                 {
-                  "$ref": "い-イ",
+                  "$ref": "うえ",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "う-ウ",
+                  "$ref": "あう",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "え-エ",
-                  "$collection": "terms"
-                },
-                {
-                  "$ref": "お-オ",
+                  "$ref": "おおい",
                   "$collection": "terms"
                 }
               ]
@@ -267,29 +263,25 @@
           "components": [
             {
               "id": "6a83f02bb78e2c76b66a8658",
-              "instructions": "Listen and choose the character you hear",
+              "instructions": "Which situation matches this phrase?",
               "term": {
-                "$ref": "い-イ",
+                "$ref": "うえ",
                 "$collection": "terms"
               },
-              "answerWith": "text",
+              "answerWith": "image",
               "blockName": null,
               "blockType": "listenAndChoose",
               "distractors": [
                 {
-                  "$ref": "あ-ア",
+                  "$ref": "あお",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "う-ウ",
+                  "$ref": "あう",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "え-エ",
-                  "$collection": "terms"
-                },
-                {
-                  "$ref": "お-オ",
+                  "$ref": "おおい",
                   "$collection": "terms"
                 }
               ]
@@ -302,29 +294,25 @@
           "components": [
             {
               "id": "6a83f02bb78e2c76b66a8659",
-              "instructions": "Listen and choose the character you hear",
+              "instructions": "Which situation matches this phrase?",
               "term": {
-                "$ref": "う-ウ",
+                "$ref": "あう",
                 "$collection": "terms"
               },
-              "answerWith": "text",
+              "answerWith": "image",
               "blockName": null,
               "blockType": "listenAndChoose",
               "distractors": [
                 {
-                  "$ref": "あ-ア",
+                  "$ref": "あお",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "い-イ",
+                  "$ref": "うえ",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "え-エ",
-                  "$collection": "terms"
-                },
-                {
-                  "$ref": "お-オ",
+                  "$ref": "おおい",
                   "$collection": "terms"
                 }
               ]
@@ -337,29 +325,25 @@
           "components": [
             {
               "id": "6a83f02bb78e2c76b66a865a",
-              "instructions": "Listen and choose the character you hear",
+              "instructions": "Which situation matches this phrase?",
               "term": {
-                "$ref": "え-エ",
+                "$ref": "おおい",
                 "$collection": "terms"
               },
-              "answerWith": "text",
+              "answerWith": "image",
               "blockName": null,
               "blockType": "listenAndChoose",
               "distractors": [
                 {
-                  "$ref": "あ-ア",
+                  "$ref": "あお",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "い-イ",
+                  "$ref": "うえ",
                   "$collection": "terms"
                 },
                 {
-                  "$ref": "う-ウ",
-                  "$collection": "terms"
-                },
-                {
-                  "$ref": "お-オ",
+                  "$ref": "あう",
                   "$collection": "terms"
                 }
               ]

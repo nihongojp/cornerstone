@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, IconButton, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
 
-import { isCorrectPlacement } from "../dragDropPlacement";
+import { isCorrectPlacement, isTileCorrect } from "../dragDropPlacement";
 import SelfRecordButton from "./SelfRecordButton";
 
 // Grammar-lesson drag-and-drop: build the correct word/phrase by dragging
@@ -14,7 +14,9 @@ import SelfRecordButton from "./SelfRecordButton";
 // fixed box per expected piece — the box just grows as tiles are added).
 // Tiles size themselves to their own text (padding-based, no fixed
 // width/height), since fragments vary a lot in length ("ha" vs "arigatou").
-type DragPayload = { source: "bank" | "box"; index: number };
+type DragPayload =
+  | { source: "bank"; option: number }
+  | { source: "box"; option: number; placedAt: number };
 
 type Props = {
   prompt?: string;
@@ -26,6 +28,10 @@ type Props = {
   tileAudio?: (string | undefined)[];
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
+
+function dropEffect(source: DragPayload["source"] | undefined): "copy" | "move" {
+  return source === "bank" ? "copy" : "move";
+}
 
 const DragDropCombination: React.FC<Props> = ({
   prompt = "Drag the tiles into the correct order",
@@ -52,20 +58,30 @@ const DragDropCombination: React.FC<Props> = ({
 
   const placedTiles = placedIndices.map((i) => options[i]);
   const isCorrect = isCorrectPlacement(placedTiles, correctSequence);
-  // After Check succeeds, every option card (placed + leftovers) becomes a
+  // After Check succeeds, every option card (placed + bank) becomes a
   // listen card: text stays, small corner speaker, whole card plays audio.
   const showResult = checked && isCorrect;
   // Reference clip under the image is available from the start (not gated on
   // a correct answer) so learners can hear the target while assembling tiles.
   const showAudio = Boolean(audioUrl);
 
-  const bankIndices = options.map((_, i) => i).filter((i) => !placedIndices.includes(i));
-
-  const onDragStart = (e: React.DragEvent<HTMLDivElement>, source: "bank" | "box", index: number) => {
-    const payload: DragPayload = { source, index };
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>, payload: DragPayload) => {
     dragPayloadRef.current = payload;
+    // `text/plain` is what Firefox needs to treat this as a real drag.
+    e.dataTransfer.setData("text/plain", options[payload.option] ?? "");
     e.dataTransfer.setData("application/json", JSON.stringify(payload));
-    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.effectAllowed = dropEffect(payload.source);
+    // A cloned ghost keeps the bank tile itself on screen. Native `move`
+    // hides the source node, which is exactly "the tile disappeared."
+    if (payload.source === "bank") {
+      const ghost = e.currentTarget.cloneNode(true) as HTMLElement;
+      ghost.style.position = "absolute";
+      ghost.style.top = "-9999px";
+      ghost.style.pointerEvents = "none";
+      document.body.appendChild(ghost);
+      e.dataTransfer.setDragImage(ghost, e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+      window.setTimeout(() => ghost.remove(), 0);
+    }
   };
 
   const readPayload = (e: React.DragEvent<HTMLDivElement>): DragPayload | null => {
@@ -77,22 +93,33 @@ const DragDropCombination: React.FC<Props> = ({
     }
   };
 
-  // Moves the dragged tile (from the bank, or already in the box) so it ends
-  // up at `targetPos` within the placed sequence — this is what actually
-  // lets you reorder tiles you've already placed, not just append/remove.
+  // Copies a bank tile into the placed sequence, or moves one already in the
+  // box. Bank tiles are not consumed: an answer that repeats a character
+  // ("おおい") pulls the same お twice rather than needing a duplicate in
+  // the bank. Reorder uses `placedAt` so two copies of the same option stay
+  // distinct slots.
   const moveToPosition = (payload: DragPayload, targetPos: number) => {
     setChecked(false);
     setPlacedIndices((prev) => {
       const next = [...prev];
       let pos = targetPos;
-      if (payload.source === "box") {
-        const fromPos = next.indexOf(payload.index);
-        if (fromPos === -1) return next;
-        next.splice(fromPos, 1);
-        if (fromPos < pos) pos -= 1;
+      switch (payload.source) {
+        case "box": {
+          if (payload.placedAt < 0 || payload.placedAt >= next.length) return next;
+          if (next[payload.placedAt] !== payload.option) return next;
+          next.splice(payload.placedAt, 1);
+          if (payload.placedAt < pos) pos -= 1;
+          break;
+        }
+        case "bank":
+          break;
+        default: {
+          const _exhaustive: never = payload;
+          return _exhaustive;
+        }
       }
       pos = Math.max(0, Math.min(pos, next.length));
-      next.splice(pos, 0, payload.index);
+      next.splice(pos, 0, payload.option);
       return next;
     });
   };
@@ -118,18 +145,17 @@ const DragDropCombination: React.FC<Props> = ({
     moveToPosition(payload, beforeIndexInPlaced);
   };
 
+  const removePlacedAt = (placedAt: number) => {
+    setChecked(false);
+    setPlacedIndices((prev) => prev.filter((_, i) => i !== placedAt));
+  };
+
   const onDropBank = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setBankDragOver(false);
     const payload = readPayload(e);
     if (!payload || payload.source !== "box") return;
-    setChecked(false);
-    setPlacedIndices((prev) => prev.filter((i) => i !== payload.index));
-  };
-
-  const removeTile = (index: number) => {
-    setChecked(false);
-    setPlacedIndices((prev) => prev.filter((i) => i !== index));
+    removePlacedAt(payload.placedAt);
   };
 
   const handleCheck = () => {
@@ -168,15 +194,16 @@ const DragDropCombination: React.FC<Props> = ({
   };
 
   // Card that keeps the tile label and plays that option's clip on any click.
-  // Used in the post-success review for both the correct sequence and unused
-  // distractors — so every authored option with audio is hearable, not only
-  // the ones that belonged in the answer.
-  const renderListenCard = (idx: number, variant: "correct" | "unused") => {
+  // Used after a correct Check for both the placed sequence and the bank — so
+  // every authored option with audio is hearable, distractors included, not
+  // only the ones that belonged in the answer.
+  const renderListenCard = (idx: number, variant: "correct" | "bank", key: string) => {
     const hasAudio = Boolean(tileAudio?.[idx]);
     const isPlayingThis = playingTile === idx;
+    const SpeakerIcon = isPlayingThis ? GraphicEqRoundedIcon : VolumeUpRoundedIcon;
     return (
       <Box
-        key={`listen-${variant}-${idx}`}
+        key={key}
         role={hasAudio ? "button" : undefined}
         tabIndex={hasAudio ? 0 : undefined}
         onClick={hasAudio ? () => playTile(idx) : undefined}
@@ -218,29 +245,18 @@ const DragDropCombination: React.FC<Props> = ({
             : {},
         }}
       >
-        {hasAudio &&
-          (isPlayingThis ? (
-            <GraphicEqRoundedIcon
-              sx={{
-                position: "absolute",
-                top: 4,
-                left: 4,
-                fontSize: "0.9rem",
-                color: "#B43D20",
-              }}
-            />
-          ) : (
-            <VolumeUpRoundedIcon
-              sx={{
-                position: "absolute",
-                top: 4,
-                left: 4,
-                fontSize: "0.9rem",
-                color: "#B43D20",
-                opacity: 0.85,
-              }}
-            />
-          ))}
+        {hasAudio && (
+          <SpeakerIcon
+            sx={{
+              position: "absolute",
+              top: 4,
+              left: 4,
+              fontSize: "0.9rem",
+              color: "#B43D20",
+              opacity: isPlayingThis ? 1 : 0.85,
+            }}
+          />
+        )}
         {options[idx]}
       </Box>
     );
@@ -358,6 +374,7 @@ const DragDropCombination: React.FC<Props> = ({
         onDragOver={(e) => {
           if (showResult) return;
           e.preventDefault();
+          e.dataTransfer.dropEffect = dropEffect(dragPayloadRef.current?.source);
           setBoxDragOver(true);
         }}
         onDragLeave={() => setBoxDragOver(false)}
@@ -384,7 +401,7 @@ const DragDropCombination: React.FC<Props> = ({
           display: "flex",
           alignItems: "center",
           flexWrap: "wrap",
-          justifyContent: placedIndices.length ? (showResult ? "center" : "flex-start") : "center",
+          justifyContent: placedIndices.length && !showResult ? "flex-start" : "center",
           gap: 1,
           px: 2,
           py: 1.5,
@@ -397,44 +414,53 @@ const DragDropCombination: React.FC<Props> = ({
             Drop the words here in order…
           </Typography>
         ) : showResult ? (
-          placedIndices.map((idx) => renderListenCard(idx, "correct"))
+          placedIndices.map((idx, pos) => renderListenCard(idx, "correct", `listen-placed-${pos}`))
         ) : (
-          placedIndices.map((idx, pos) => (
-            <Box
-              key={`placed-${idx}`}
-              draggable
-              onDragStart={(e) => onDragStart(e, "box", idx)}
-              onDoubleClick={() => removeTile(idx)}
-              onDragOver={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setBoxDragOver(true);
-              }}
-              onDrop={(e) => onDropOnTile(e, pos)}
-              title="Drag out, drag onto another tile to reorder, or double-click to remove"
-              sx={{
-                px: 2,
-                py: 1,
-                borderRadius: "10px",
-                border: `2px solid ${checked ? "#DC2626" : "rgba(0,0,0,0.15)"}`,
-                bgcolor: checked ? "rgba(220,38,38,0.06)" : "#F9F7F4",
-                fontSize: { xs: "0.95rem", sm: "1.05rem" },
-                fontWeight: 700,
-                whiteSpace: "nowrap",
-                cursor: "grab",
-                userSelect: "none",
-                color: checked ? "#7F1D1D" : "inherit",
-              }}
-            >
-              {options[idx]}
-            </Box>
-          ))
+          placedIndices.map((idx, pos) => {
+            // Graded per tile, not by whether the whole box is right — a
+            // learner with three of five correct sees which three, rather
+            // than one pass/fail colour across every tile.
+            const tileCorrect = checked && isTileCorrect(placedTiles, correctSequence, pos);
+            const tileWrong = checked && !tileCorrect;
+            return (
+              <Box
+                key={`placed-${pos}-${idx}`}
+                draggable
+                onDragStart={(e) => onDragStart(e, { source: "box", option: idx, placedAt: pos })}
+                onDoubleClick={() => removePlacedAt(pos)}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.dataTransfer.dropEffect = dropEffect(dragPayloadRef.current?.source);
+                  setBoxDragOver(true);
+                }}
+                onDrop={(e) => onDropOnTile(e, pos)}
+                title="Drag out, drag onto another tile to reorder, or double-click to remove"
+                sx={{
+                  px: 2,
+                  py: 1,
+                  borderRadius: "10px",
+                  border: `2px solid ${tileCorrect ? "#059669" : tileWrong ? "#DC2626" : "rgba(0,0,0,0.15)"}`,
+                  bgcolor: tileCorrect ? "rgba(5,150,105,0.06)" : tileWrong ? "rgba(220,38,38,0.06)" : "#F9F7F4",
+                  fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  cursor: "grab",
+                  userSelect: "none",
+                  color: tileCorrect ? "#065F46" : tileWrong ? "#7F1D1D" : "inherit",
+                }}
+              >
+                {options[idx]}
+              </Box>
+            );
+          })
         )}
       </Box>
 
-      {/* Bank — remaining tiles. After a correct Check these become listen
-          cards too, so distractors (options not in the winning sequence)
-          are still hearable alongside the answer. */}
+      {/* Always the full set — dropping copies a tile, it does not consume it.
+          After a correct Check these become listen cards too, so distractors
+          (options not in the winning sequence) are hearable alongside the
+          answer. */}
       <Box
         sx={{
           display: "flex",
@@ -460,40 +486,43 @@ const DragDropCombination: React.FC<Props> = ({
           onDropBank(e);
         }}
       >
-        {showResult
-          ? bankIndices.map((idx) => renderListenCard(idx, "unused"))
-          : bankIndices.map((idx) => (
-              <Box
-                key={`bank-${idx}`}
-                draggable
-                onDragStart={(e) => onDragStart(e, "bank", idx)}
-                title="Drag to the box above"
-                sx={{
-                  px: 2.5,
-                  py: 1.25,
-                  border: "2px solid rgba(0,0,0,0.1)",
-                  borderRadius: "12px",
-                  cursor: "grab",
-                  fontSize: { xs: "0.95rem", sm: "1.05rem" },
-                  fontWeight: 700,
-                  whiteSpace: "nowrap",
-                  userSelect: "none",
-                  bgcolor: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
-                  boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-                  "&:hover": {
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    borderColor: "#B43D20",
-                  },
-                }}
-              >
-                {options[idx]}
-              </Box>
-            ))}
+        {options.map((label, idx) =>
+          showResult ? (
+            renderListenCard(idx, "bank", `listen-bank-${idx}`)
+          ) : (
+            <Box
+              key={`bank-${idx}`}
+              draggable
+              onDragStart={(e) => onDragStart(e, { source: "bank", option: idx })}
+              title="Drag to the box above — you can use this tile more than once"
+              sx={{
+                px: 2.5,
+                py: 1.25,
+                border: "2px solid rgba(0,0,0,0.1)",
+                borderRadius: "12px",
+                cursor: "grab",
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                userSelect: "none",
+                bgcolor: "#fff",
+                opacity: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  borderColor: "#B43D20",
+                },
+              }}
+            >
+              {label}
+            </Box>
+          )
+        )}
       </Box>
 
       <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", justifyContent: "center" }}>
