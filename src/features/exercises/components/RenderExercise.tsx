@@ -4,7 +4,8 @@ import React from "react";
 import { Box } from "@mui/material";
 
 import RenderBlock, { type BlockOf, type ResultCallback } from "./RenderBlock";
-import TermIntroDialogue, { resolveTermIntro } from "./TermIntroDialogue";
+import TermIntroDialogue from "./TermIntroDialogue";
+import { resolveTermIntro } from "../termIntro";
 import type { Term } from "@/payload/payload-types";
 
 /*

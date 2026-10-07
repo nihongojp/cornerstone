@@ -13,15 +13,10 @@ import {
   mediaSrc,
   renderableImage,
 } from "@/lib/content/media";
-import { proseToPlainText } from "@/lib/content/prose";
-import type {
-  DialogueBlock,
-  Media,
-  MediaFigureBlock,
-  VideoLessonBlock,
-} from "@/payload/payload-types";
+import type { Media } from "@/payload/payload-types";
 
-import { DialogueTranscript, type BlockOf } from "./RenderBlock";
+import type { TermIntroDialogueProps } from "../termIntro";
+import { DialogueTranscript } from "./RenderBlock";
 
 const BRAND = "#B43D20";
 
@@ -149,16 +144,6 @@ function resolveMediaSlot(
   return { kind: "placeholder" };
 }
 
-export type TermIntroDialogueProps = {
-  term: string;
-  /** Plain-text detail shown after an em dash when present. */
-  note?: string;
-  audioUrl?: string;
-  video?: Media | number | null;
-  image?: Media | number | null;
-  dialogue: DialogueBlock;
-};
-
 /*
  * Term introduction with a dialogue transcript. Vertical order (confirmed):
  * media / placeholder → small term row (+ optional note + audio) → compact
@@ -193,7 +178,10 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
         flexDirection: "column",
         alignItems: "stretch",
         gap: { xs: 0.75, sm: 1 },
-        // Prefer fitting the lesson viewport; media shrinks before dialogue.
+        // `height: 100%` only resolves if an ancestor gives the screen a
+        // definite height, and the runner's step wrapper sizes to content. So
+        // today the media renders at its `MEDIA_MAX_HEIGHT_PX` cap and a taller
+        // screen scrolls; the shrink below takes effect only once it has one.
         minHeight: 0,
         height: "100%",
       }}
@@ -283,56 +271,3 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
 };
 
 export default TermIntroDialogue;
-
-/** Block types that can participate in a term-intro composite screen. */
-const TERM_INTRO_BLOCK_TYPES = new Set(["dialogue", "videoLesson", "mediaFigure"]);
-
-/**
- * When every block on the screen is dialogue / videoLesson / mediaFigure and a
- * term name can be resolved, return the props for `TermIntroDialogue`.
- * Otherwise null — `RenderExercise` falls back to stacking blocks.
- *
- * Content patterns (from the snapshot):
- * - dialogue + videoLesson → term/note/audio/video from videoLesson
- * - dialogue + mediaFigure → term from dialogue.title; audio/media from mediaFigure
- * - dialogue only (titled) → term from dialogue.title; placeholder media
- */
-export function resolveTermIntro(blocks: BlockOf[]): TermIntroDialogueProps | null {
-  if (blocks.length === 0) return null;
-  if (!blocks.every((b) => TERM_INTRO_BLOCK_TYPES.has(b.blockType))) return null;
-
-  const dialogue = blocks.find((b): b is DialogueBlock & BlockOf => b.blockType === "dialogue");
-  if (!dialogue) return null;
-
-  const videoLesson = blocks.find(
-    (b): b is VideoLessonBlock & BlockOf => b.blockType === "videoLesson"
-  );
-  const mediaFigure = blocks.find(
-    (b): b is MediaFigureBlock & BlockOf => b.blockType === "mediaFigure"
-  );
-
-  if (videoLesson) {
-    const title = videoLesson.title?.trim();
-    if (!title) return null;
-    const note = proseToPlainText(videoLesson.content).trim();
-    return {
-      term: title,
-      note: note || undefined,
-      audioUrl: mediaSrc(videoLesson.audio),
-      video: videoLesson.video ?? dialogue.video ?? null,
-      image: mediaFigure?.image ?? null,
-      dialogue,
-    };
-  }
-
-  const title = dialogue.title?.trim();
-  if (!title) return null;
-
-  return {
-    term: title,
-    audioUrl: mediaSrc(mediaFigure?.audio),
-    video: mediaFigure?.video ?? dialogue.video ?? null,
-    image: mediaFigure?.image ?? null,
-    dialogue,
-  };
-}

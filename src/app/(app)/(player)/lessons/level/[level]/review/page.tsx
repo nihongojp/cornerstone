@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { listLessons, listNewLessons } from "@/lib/content/content";
 import { collectLessonTerms } from "@/lib/content/lessonTerms";
 import { adjacentInSequence } from "@/lib/content/adjacentInSequence";
+import { courseLevels } from "@/lib/content/levels";
 import { lessonDisplayTitle } from "@/features/learning/lessonTitles";
 import LevelReviewPage, { type ReviewPart } from "@/features/learning/components/LevelReviewPage";
 import type { Lesson } from "@/payload/payload-types";
@@ -15,9 +16,6 @@ function toPart(lesson: Lesson, title: string): ReviewPart {
     terms: collectLessonTerms(lesson),
   };
 }
-
-/** Matches the list page: these numbered lessons always have a section. */
-const BASE_LEVELS = [1, 2, 3];
 
 /*
  * Every term under one numbered lesson, both formats — the aggregate the
@@ -50,7 +48,8 @@ export default async function Page({
     .map((l) => toPart(l, lessonDisplayTitle(l)));
 
   const { prev, next } = adjacentInSequence(
-    [...BASE_LEVELS, ...newLessons.map((l) => l.level), ...prefLessons.map((l) => l.level)],
+    // The same sequence the list page draws its sections from.
+    courseLevels([...newLessons, ...prefLessons].map((l) => l.level)),
     level
   );
 
