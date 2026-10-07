@@ -25,6 +25,7 @@ import DragDropCombination from "./DragDropCombination";
 import Fact from "@/components/Fact";
 import FlashcardReview, { type FlashcardReviewTerm } from "./FlashcardReview";
 import MatchAudioExercisePlaceholder from "./MatchAudioExercisePlaceholder";
+import MatchChoiceRows, { type ChoiceRowPair } from "./MatchChoiceRows";
 import DotMatch, { type DotMatchPair } from "./MatchDots";
 import MatchDotsMedia, { type MediaMatchPair } from "./MatchDotsMedia";
 import PronunciationExercise, {
@@ -457,6 +458,32 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
   }
 
   /*
+   * "Word ↔ reading" (romaji ↔ hiragana, in reading/writing lessons) uses the
+   * same three-box choose-the-right-one layout as the other choice exercises
+   * (MatchAudioExercisePlaceholder) rather than DotMatch's connect-the-dots —
+   * the two don't read as the same kind of exercise even though they are both
+   * "matching". "Word ↔ meaning" is unaffected; only "reading" moves.
+   */
+  if (pairing === "reading") {
+    const pairs: ChoiceRowPair[] = list
+      .map((t) => ({ prompt: termText(t, "reading"), answer: termText(t, "plain") }))
+      // Same gap this pairing has always had to guard against: a term with no
+      // reading falls back to its written form, which would pair a value with
+      // itself and render an unsolvable row.
+      .filter((p) => p.prompt !== "" && p.answer !== "" && p.prompt !== p.answer);
+
+    if (pairs.length < 2) return null;
+
+    return (
+      <MatchChoiceRows
+        pairs={pairs}
+        heading={instructions?.trim() || "Match each reading to its hiragana"}
+        onResult={onResult}
+      />
+    );
+  }
+
+  /*
    * `DotMatchPair` calls its two sides `hiragana` and `katakana` — it was written
    * for the kana exercise and the names stuck. Structurally they are just the
    * left and right columns, which is why every pairing can use it. Renaming them
@@ -473,11 +500,7 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
       // hiragana form (right).
       if (pairing === "kana") return { hiragana: "", katakana: written, audio };
 
-      return {
-        hiragana: written,
-        katakana: pairing === "reading" ? termText(t, "reading") : termText(t, "meaning"),
-        audio,
-      };
+      return { hiragana: written, katakana: termText(t, "meaning"), audio };
     })
     /*
      * Drop pairs whose two sides came out the same.
@@ -511,15 +534,12 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
 
   /*
    * `DotMatch` defaults its heading to the kana wording it was written for,
-   * which is wrong for the two pairings that also reach it. Blank instructions
-   * get the heading for the pairing on screen instead of that one sentence.
+   * which is wrong for "meaning" (the only other pairing that still reaches
+   * it — "reading" now returns above). Blank instructions get "meaning"'s own
+   * heading instead of that one sentence.
    */
   const defaultHeading =
-    pairing === "kana"
-      ? "Match each audio clip to its hiragana"
-      : pairing === "reading"
-        ? "Match each word to its reading"
-        : "Match each word to its meaning";
+    pairing === "kana" ? "Match each audio clip to its hiragana" : "Match each word to its meaning";
 
   return (
     <DotMatch
@@ -589,8 +609,13 @@ const BuildSentenceView: React.FC<
     return termAudio(match);
   };
 
-  // Distinct tiles only — DragDropCombination copies from the bank, so a
-  // repeated character ("おおい") does not need a duplicate option.
+  /*
+   * Some authored answers repeat a character — "おおい" needs お twice. The
+   * bank used to need a tile per occurrence to make that solvable, which is
+   * what `withEnoughTiles` padded in. `DragDropCombination` now lets one bank
+   * tile be dropped as many times as the answer needs, so the bank only ever
+   * needs one of each distinct tile — hence the dedupe rather than a pad.
+   */
   const resolvedTiles = [...new Set(tiles ?? [])];
 
   return (
@@ -598,7 +623,11 @@ const BuildSentenceView: React.FC<
       prompt={instructions || "Drag the tiles into the correct order"}
       options={convert(resolvedTiles)}
       correctSequence={convert(correctSequence ?? [])}
+      // By position, and looked up against the authored tile rather than the
+      // converted one: two kana can romanize to the same label, and the
+      // term's written field is the pre-conversion form.
       tileAudio={resolvedTiles.map(audioForTile)}
+      tileScript={tileScript}
       imageUrl={termImage(subject)}
       audioUrl={termAudio(subject)}
       onResult={onResult}

@@ -88,7 +88,7 @@ function ChoiceFace({
             component="img"
             src={imageUrl}
             alt=""
-            sx={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
+            sx={{ width: "100%", height: "100%", objectFit: "contain", position: "absolute", inset: 0 }}
           />
         );
       }
