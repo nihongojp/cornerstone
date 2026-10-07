@@ -2,8 +2,10 @@ import { redirect } from "next/navigation";
 
 import {
   getDraftLesson,
+  getDraftNeighborLessonReviewHref,
   getDraftNextHref,
   getLessonBySlug,
+  getNeighborLessonReviewHref,
   getNextLessonHref,
 } from "@/lib/content/content";
 import { getShuffleIdentity, getProgress } from "@/lib/progress-server";
@@ -32,10 +34,17 @@ export default async function Page({
     const draft = await getDraftLesson(slug, editor);
     if (!draft) redirect("/dashboard");
 
+    const [nextHref, prevReviewHref, nextReviewHref] = await Promise.all([
+      getDraftNextHref(draft, editor),
+      getDraftNeighborLessonReviewHref(draft, editor, "prev"),
+      getDraftNeighborLessonReviewHref(draft, editor, "next"),
+    ]);
     return (
       <LessonPreview
         initialLesson={draft}
-        nextHref={await getDraftNextHref(draft, editor)}
+        nextHref={nextHref}
+        prevReviewHref={prevReviewHref}
+        nextReviewHref={nextReviewHref}
         serverURL={process.env.NEXT_PUBLIC_SERVER_URL || ""}
       />
     );
@@ -50,11 +59,18 @@ export default async function Page({
   // The lesson's own slug, not the URL segment: this route also resolves a
   // legacy Mongo id, and progress is keyed on whatever the runner is handed.
   const { userId, attempt } = await getShuffleIdentity(lesson.slug);
+  const [nextHref, prevReviewHref, nextReviewHref] = await Promise.all([
+    getNextLessonHref(lesson),
+    getNeighborLessonReviewHref(lesson, "prev"),
+    getNeighborLessonReviewHref(lesson, "next"),
+  ]);
 
   return (
     <LessonRunner
       lesson={lesson}
-      nextHref={await getNextLessonHref(lesson)}
+      nextHref={nextHref}
+      prevReviewHref={prevReviewHref}
+      nextReviewHref={nextReviewHref}
       userId={userId}
       attempt={attempt}
       initialProgress={await getProgress(lesson.slug)}

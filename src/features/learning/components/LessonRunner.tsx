@@ -25,6 +25,7 @@ import RewardInfo from "@/components/RewardInfo";
 import RenderExercise from "@/features/exercises/components/RenderExercise";
 import RichText from "@/components/richtext/RichText";
 import NotesNotebookDialog from "@/features/learning/components/NotesNotebookDialog";
+import ReviewNavArrows from "@/features/learning/components/ReviewNavArrows";
 
 import { stepSeed, shuffleSteps } from "@/lib/content/shuffle";
 import { PRACTICE_BLOCK_SLUGS } from "@/payload/blocks/librarySlugs";
@@ -158,7 +159,8 @@ function blockTypes(step: AuthoredStep): string[] {
 function buildSteps(
   lesson: Lesson,
   seed: string,
-  complete: React.RefObject<(() => Promise<boolean>) | null>
+  complete: React.RefObject<(() => Promise<boolean>) | null>,
+  reviewNeighbors: { prevHref?: string; nextHref?: string }
 ): Step[] {
   const authored = shuffleSteps(lesson.steps ?? [], {
     seed,
@@ -231,23 +233,33 @@ function buildSteps(
   if (lessonTerms.length) {
     steps.push(
       chrome("lesson:review", "Review", (
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-            gap: 2,
-            py: 2,
-          }}
-        >
-          <MenuBookRoundedIcon sx={{ fontSize: "2.5rem", color: "#B43D20" }} />
-          <Typography sx={{ fontWeight: 800, fontSize: "1.1rem" }}>Nice work!</Typography>
-          <Typography sx={{ color: "text.secondary", maxWidth: 360 }}>
-            Review every word and character from this lesson — with audio, playback speed,
-            and a place to record yourself.
-          </Typography>
-          <ReviewTermsButton href={lessonReviewHref(lesson.slug)} complete={complete} />
+        <Box sx={{ position: "relative", width: "100%", minHeight: 280 }}>
+          <ReviewNavArrows
+            prevHref={reviewNeighbors.prevHref}
+            nextHref={reviewNeighbors.nextHref}
+            prevLabel="Previous lesson review"
+            nextLabel="Next lesson review"
+            beforeNavigate={async () => (await complete.current?.()) ?? true}
+          />
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              textAlign: "center",
+              gap: 2,
+              py: 2,
+              px: 6,
+            }}
+          >
+            <MenuBookRoundedIcon sx={{ fontSize: "2.5rem", color: "#B43D20" }} />
+            <Typography sx={{ fontWeight: 800, fontSize: "1.1rem" }}>Nice work!</Typography>
+            <Typography sx={{ color: "text.secondary", maxWidth: 360 }}>
+              Review every word and character from this lesson — with audio, playback speed,
+              and a place to record yourself.
+            </Typography>
+            <ReviewTermsButton href={lessonReviewHref(lesson.slug)} complete={complete} />
+          </Box>
         </Box>
       ))
     );
@@ -265,6 +277,13 @@ const LessonRunner: React.FC<{
    */
   nextHref?: string;
   /**
+   * Prev/next end-of-lesson review pages for the same format. Shown as corner
+   * arrows on the runner's final Review step so a learner can jump without
+   * opening this lesson's own term grid first.
+   */
+  prevReviewHref?: string;
+  nextReviewHref?: string;
+  /**
    * The signed-in learner, for the shuffle seed. Resolved on the server and
    * passed down rather than fetched: the seed has to be the same value during
    * SSR and during hydration, and anything fetched in the browser is not.
@@ -277,7 +296,16 @@ const LessonRunner: React.FC<{
   initialProgress?: ProgressDoc | null;
   /** Every sticky note the signed-in learner has written. Empty when signed out. */
   initialNotes?: NotebookEntry[];
-}> = ({ lesson, nextHref, userId, attempt = 0, initialProgress = null, initialNotes = [] }) => {
+}> = ({
+  lesson,
+  nextHref,
+  prevReviewHref,
+  nextReviewHref,
+  userId,
+  attempt = 0,
+  initialProgress = null,
+  initialNotes = [],
+}) => {
   const router = useRouter();
 
   const [step, setStep] = useState(0);
@@ -312,8 +340,12 @@ const LessonRunner: React.FC<{
   const slug = lesson.slug;
 
   const steps = useMemo(
-    () => buildSteps(lesson, stepSeed({ userId, lessonId: slug, attempt }), completeRef),
-    [lesson, userId, slug, attempt]
+    () =>
+      buildSteps(lesson, stepSeed({ userId, lessonId: slug, attempt }), completeRef, {
+        prevHref: prevReviewHref,
+        nextHref: nextReviewHref,
+      }),
+    [lesson, userId, slug, attempt, prevReviewHref, nextReviewHref]
   );
 
   /*

@@ -7,6 +7,7 @@ import MenuBookRoundedIcon from "@mui/icons-material/MenuBookRounded";
 import Link from "next/link";
 
 import { lessonHref, levelReviewHref } from "@/lib/content/routes";
+import { courseLevels } from "@/lib/content/levels";
 import { deriveReadingCardTitle } from "@/features/learning/lessonTitles";
 import NotesNotebookDialog from "@/features/learning/components/NotesNotebookDialog";
 import type { Lesson } from "@/payload/payload-types";
@@ -37,9 +38,6 @@ type Part = {
 function partTitle(p: Part): string {
   return p.cardTitle || `Lesson ${p.level}.${p.part}`;
 }
-
-// Sections are always shown for at least these levels.
-const BASE_LEVELS = [1, 2, 3];
 
 function pushPart(map: Map<number, Part[]>, level: number, p: Part) {
   const arr = map.get(level) ?? [];
@@ -256,9 +254,7 @@ const LessonsListPage: React.FC<{
   }, [newLessons, prefLessons, progressBySlug]);
 
   // Show the base sections plus any additional levels found in the data.
-  const levels = Array.from(
-    new Set<number>([...BASE_LEVELS, ...grammar.keys(), ...reading.keys()])
-  ).sort((a, b) => a - b);
+  const levels = courseLevels([...grammar.keys(), ...reading.keys()]);
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4" }}>

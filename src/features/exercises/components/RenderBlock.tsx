@@ -159,7 +159,114 @@ const ProseView: React.FC<ProseBlock> = ({ tone, title, content }) => {
  * The old `videoPage.videoForm` rendering coloured a line by whether its index was
  * even, so the speaker was a property of position — inserting a line silently
  * reassigned every line after it. Here the speaker is on the line.
+ *
+ * `compact` is for term-intro screens (`TermIntroDialogue`): same speaker labels
+ * and lines, tighter spacing so the transcript sits under media without
+ * forcing the lesson viewport to scroll.
  */
+export const DialogueTranscript: React.FC<{
+  speakerA: string;
+  speakerB: string;
+  lines: DialogueBlock["lines"];
+  compact?: boolean;
+}> = ({ speakerA, speakerB, lines, compact = false }) => (
+  <Box
+    sx={{
+      ...CARD_SX,
+      // One grid for the whole transcript, which each line joins as a subgrid:
+      // the label column is as wide as the longest speaker name, and every
+      // line starts at the same edge. A fixed width per line let a longer
+      // name ("Tanaka") run into the text beside it.
+      display: "grid",
+      gridTemplateColumns: `minmax(${compact ? 36 : 56}px, max-content) 1fr`,
+      columnGap: compact ? 0.75 : 1.5,
+      rowGap: compact ? 0.4 : 1.5,
+      ...(compact
+        ? {
+            px: { xs: 1.25, sm: 1.5 },
+            py: { xs: 0.85, sm: 1 },
+            borderRadius: "14px",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+          }
+        : null),
+    }}
+  >
+    {(lines ?? []).map((line, index) => (
+      <Box
+        key={line.id ?? index}
+        sx={{
+          display: "grid",
+          gridColumn: "1 / -1",
+          gridTemplateColumns: "subgrid",
+          rowGap: 0,
+          alignItems: "center",
+        }}
+      >
+        {/*
+         * Speaker and Japanese share the first row with alignItems: center so
+         * the label sits on the same horizontal axis as the spoken line — no
+         * top padding nudge. Romaji/english/audio span column 2 only.
+         */}
+        <Typography
+          sx={{
+            fontSize: compact ? "0.65rem" : "0.72rem",
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            lineHeight: 1,
+            color: line.speaker === "a" ? "#B43D20" : "#6366f1",
+          }}
+        >
+          {line.speaker === "a" ? speakerA : speakerB}
+        </Typography>
+        <Box
+          sx={{
+            minWidth: 0,
+            fontSize: compact
+              ? { xs: "0.95rem", sm: "1rem" }
+              : { xs: "1rem", sm: "1.1rem" },
+            // Slightly denser line-height so the font bump doesn’t grow the card.
+            lineHeight: compact ? 1.2 : 1.7,
+          }}
+        >
+          <RichText data={line.japanese} disableContainer />
+        </Box>
+        {line.romaji && (
+          <Typography
+            sx={{
+              gridColumn: 2,
+              fontSize: compact ? "0.78rem" : "0.85rem",
+              color: "text.secondary",
+              fontStyle: "italic",
+              lineHeight: compact ? 1.15 : undefined,
+            }}
+          >
+            {line.romaji}
+          </Typography>
+        )}
+        {line.english && (
+          <Typography
+            sx={{
+              gridColumn: 2,
+              fontSize: compact ? "0.82rem" : "0.9rem",
+              color: "#374151",
+              lineHeight: compact ? 1.15 : undefined,
+            }}
+          >
+            {line.english}
+          </Typography>
+        )}
+        {line.audio && (
+          <Box sx={{ gridColumn: 2 }}>
+            <MediaAudio value={line.audio} />
+          </Box>
+        )}
+      </Box>
+    ))}
+  </Box>
+);
+
 const DialogueView: React.FC<DialogueBlock> = ({
   title,
   speakerA,
@@ -176,42 +283,7 @@ const DialogueView: React.FC<DialogueBlock> = ({
         <MediaVideo value={video} />
       </Box>
     )}
-    <Box sx={{ ...CARD_SX, display: "flex", flexDirection: "column", gap: 1.5 }}>
-      {(lines ?? []).map((line, index) => (
-        <Box key={line.id ?? index} sx={{ display: "flex", gap: 1.5, alignItems: "flex-start" }}>
-          <Typography
-            sx={{
-              fontSize: "0.72rem",
-              fontWeight: 800,
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-              whiteSpace: "nowrap",
-              pt: 0.5,
-              minWidth: 56,
-              color: line.speaker === "a" ? "#B43D20" : "#6366f1",
-            }}
-          >
-            {line.speaker === "a" ? speakerA : speakerB}
-          </Typography>
-          <Box sx={{ flex: 1 }}>
-            <Box sx={{ fontSize: { xs: "1rem", sm: "1.1rem" }, lineHeight: 1.7 }}>
-              <RichText data={line.japanese} disableContainer />
-            </Box>
-            {line.romaji && (
-              <Typography
-                sx={{ fontSize: "0.85rem", color: "text.secondary", fontStyle: "italic" }}
-              >
-                {line.romaji}
-              </Typography>
-            )}
-            {line.english && (
-              <Typography sx={{ fontSize: "0.9rem", color: "#374151" }}>{line.english}</Typography>
-            )}
-            {line.audio && <MediaAudio value={line.audio} />}
-          </Box>
-        </Box>
-      ))}
-    </Box>
+    <DialogueTranscript speakerA={speakerA} speakerB={speakerB} lines={lines} />
   </Box>
 );
 
@@ -482,6 +554,8 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
 const ListenAndChooseView: React.FC<ListenAndChooseBlock & { onResult?: ResultCallback }> = ({
   term: correct,
   distractors,
+  answerWith,
+  instructions,
   onResult,
 }) => {
   const pool = (distractors ?? [])
@@ -498,6 +572,8 @@ const ListenAndChooseView: React.FC<ListenAndChooseBlock & { onResult?: ResultCa
         audioUrl: termAudio(correct),
         imageUrl: termImage(correct),
         checkpointPool: pool.length ? pool : undefined,
+        answerWith,
+        prompt: instructions?.trim(),
       }}
       onResult={onResult}
     />
@@ -540,22 +616,17 @@ const BuildSentenceView: React.FC<
    * tile be dropped as many times as the answer needs, so the bank only ever
    * needs one of each distinct tile — hence the dedupe rather than a pad.
    */
-  const resolvedTiles = Array.from(new Set(tiles ?? []));
-  const convertedTiles = convert(resolvedTiles);
-
-  // Keyed by the *displayed* (post-conversion) value, since that is what
-  // DragDropCombination renders and clicks on — looked up against the
-  // pre-conversion form, which is what the term's written field actually is.
-  const tileAudio: Record<string, string | undefined> = Object.fromEntries(
-    resolvedTiles.map((original, i) => [convertedTiles[i], audioForTile(original)])
-  );
+  const resolvedTiles = [...new Set(tiles ?? [])];
 
   return (
     <DragDropCombination
       prompt={instructions || "Drag the tiles into the correct order"}
-      options={convertedTiles}
+      options={convert(resolvedTiles)}
       correctSequence={convert(correctSequence ?? [])}
-      tileAudio={tileAudio}
+      // By position, and looked up against the authored tile rather than the
+      // converted one: two kana can romanize to the same label, and the
+      // term's written field is the pre-conversion form.
+      tileAudio={resolvedTiles.map(audioForTile)}
       tileScript={tileScript}
       imageUrl={termImage(subject)}
       audioUrl={termAudio(subject)}
@@ -567,7 +638,8 @@ const BuildSentenceView: React.FC<
 const SpeakAndScoreView: React.FC<SpeakAndScoreBlock> = ({ term: target, transcript, video }) => {
   const exercise: PronunciationExerciseData = {
     type: "pronunciationExercise",
-    number: 0,
+    // No authored ordinal on `speakAndScore` — omit rather than inventing 0,
+    // which used to render as an "Exercise 0" Chip on every screen.
     phrase: termText(target, "plain"),
     // Reference audio for scoring, from the term. Never the video's track — the
     // scorer has nothing to grade against without it.
