@@ -462,6 +462,8 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
 const ListenAndChooseView: React.FC<ListenAndChooseBlock & { onResult?: ResultCallback }> = ({
   term: correct,
   distractors,
+  answerWith,
+  instructions,
   onResult,
 }) => {
   const pool = (distractors ?? [])
@@ -478,6 +480,8 @@ const ListenAndChooseView: React.FC<ListenAndChooseBlock & { onResult?: ResultCa
         audioUrl: termAudio(correct),
         imageUrl: termImage(correct),
         checkpointPool: pool.length ? pool : undefined,
+        answerWith,
+        prompt: instructions?.trim(),
       }}
       onResult={onResult}
     />
@@ -513,31 +517,9 @@ const BuildSentenceView: React.FC<
     return termAudio(match);
   };
 
-  /*
-   * Some authored answers repeat a character — "おおい" needs お twice — but
-   * the tile bank was authored with one of each, which makes the puzzle
-   * impossible to actually place: the second お simply is not there to drag.
-   * Padded rather than fixed in the content, because the same authoring
-   * habit (one tile per distinct kana) is likely elsewhere too and this
-   * makes every instance of it solvable rather than only the ones noticed.
-   * Extra tiles are appended after the authored set so the original bank
-   * order is otherwise unchanged.
-   */
-  const withEnoughTiles = (available: string[], needed: string[]): string[] => {
-    const have = new Map<string, number>();
-    for (const t of available) have.set(t, (have.get(t) ?? 0) + 1);
-
-    const extra: string[] = [];
-    const seen = new Map<string, number>();
-    for (const n of needed) {
-      const count = (seen.get(n) ?? 0) + 1;
-      seen.set(n, count);
-      if (count > (have.get(n) ?? 0)) extra.push(n);
-    }
-    return extra.length ? [...available, ...extra] : available;
-  };
-
-  const resolvedTiles = withEnoughTiles(tiles ?? [], correctSequence ?? []);
+  // Distinct tiles only — DragDropCombination copies from the bank, so a
+  // repeated character ("おおい") does not need a duplicate option.
+  const resolvedTiles = [...new Set(tiles ?? [])];
 
   return (
     <DragDropCombination

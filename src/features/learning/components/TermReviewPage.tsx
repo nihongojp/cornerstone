@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Container, IconButton, Typography } from "@mui/material";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import Link from "next/link";
 
 import TermCard from "@/features/learning/components/TermCard";
@@ -11,9 +13,50 @@ import type { Lesson, Term } from "@/payload/payload-types";
 
 const BRAND = "#B43D20";
 
-const TermReviewPage: React.FC<{ lesson: Lesson; terms: Term[] }> = ({ lesson, terms }) => (
+const arrowSx = {
+  color: "text.secondary",
+  "&:hover": { color: BRAND, bgcolor: "rgba(180,61,32,0.08)" },
+} as const;
+
+function NeighborArrow({
+  href,
+  label,
+  Icon,
+}: {
+  href?: string;
+  label: string;
+  Icon: typeof ChevronLeftRoundedIcon;
+}) {
+  if (!href) return <Box sx={{ width: 48 }} />;
+
+  return (
+    <IconButton component={Link} href={href} aria-label={label} size="small" sx={arrowSx}>
+      <Icon fontSize="large" />
+    </IconButton>
+  );
+}
+
+const TermReviewPage: React.FC<{
+  lesson: Lesson;
+  terms: Term[];
+  prevHref?: string;
+  nextHref?: string;
+}> = ({ lesson, terms, prevHref, nextHref }) => (
   <Box sx={{ minHeight: "100vh", bgcolor: "#F9F7F4" }}>
-    <Container maxWidth="md" sx={{ pt: 5, pb: 8 }}>
+    <Container maxWidth="md" sx={{ pt: 3, pb: 8 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+        <NeighborArrow
+          href={prevHref}
+          label="Previous lesson review"
+          Icon={ChevronLeftRoundedIcon}
+        />
+        <NeighborArrow
+          href={nextHref}
+          label="Next lesson review"
+          Icon={ChevronRightRoundedIcon}
+        />
+      </Box>
+
       <Box
         component={Link}
         href={lessonHref(lesson.slug)}
