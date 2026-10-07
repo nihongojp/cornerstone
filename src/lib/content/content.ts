@@ -220,13 +220,12 @@ async function findNeighborSlug(args: {
 /**
  * Published neighbour lookup. Whole-collection tags, not a per-slug one:
  * this answer changes when a *different* lesson is added, reordered or unpublished.
+ *
+ * Cached as the slug rather than as a finished href, so the lesson page —
+ * which wants the next lesson both as a player link and as a review link —
+ * asks one question once instead of the same question under two cache keys.
  */
-function getPublishedNeighborHref(
-  lesson: Lesson,
-  neighbor: Neighbor,
-  toHref: (slug: string) => string,
-  cacheKey: readonly string[]
-): Promise<string | undefined> {
+function getPublishedNeighborSlug(lesson: Lesson, neighbor: Neighbor): Promise<string | undefined> {
   const placement = coursePlacement(lesson);
   if (!placement) return Promise.resolve(undefined);
 
@@ -234,38 +233,25 @@ function getPublishedNeighborHref(
   const format = lesson.format;
 
   return unstable_cache(
-    async (): Promise<string | undefined> => {
-      const slug = await findNeighborSlug({
-        courseId,
-        format,
-        order,
-        neighbor,
-        publishedOnly: true,
-      });
-      return slug ? toHref(slug) : undefined;
-    },
-    [...cacheKey, String(courseId), String(format), String(order)],
+    (): Promise<string | undefined> =>
+      findNeighborSlug({ courseId, format, order, neighbor, publishedOnly: true }),
+    ["content", "neighborSlug", neighbor, String(courseId), String(format), String(order)],
     { tags: [TAGS.lessons, TAGS.newLessons], revalidate: REVALIDATE }
   )();
 }
 
-export function getNextLessonHref(lesson: Lesson): Promise<string | undefined> {
-  return getPublishedNeighborHref(lesson, "next", lessonHref, [
-    "content",
-    "getNextLessonHref",
-  ]);
+export async function getNextLessonHref(lesson: Lesson): Promise<string | undefined> {
+  const slug = await getPublishedNeighborSlug(lesson, "next");
+  return slug ? lessonHref(slug) : undefined;
 }
 
 /** The neighbouring lesson's term-review page, same course and format. */
-export function getNeighborLessonReviewHref(
+export async function getNeighborLessonReviewHref(
   lesson: Lesson,
   neighbor: Neighbor
 ): Promise<string | undefined> {
-  return getPublishedNeighborHref(lesson, neighbor, lessonReviewHref, [
-    "content",
-    "getNeighborLessonReviewHref",
-    neighbor,
-  ]);
+  const slug = await getPublishedNeighborSlug(lesson, neighbor);
+  return slug ? lessonReviewHref(slug) : undefined;
 }
 
 // ── Resources ────────────────────────────────────────────────────────────────

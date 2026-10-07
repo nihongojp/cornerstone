@@ -79,3 +79,27 @@ export function renderableImage(
 export function mediaSrc(value: Media | number | null | undefined): string | undefined {
   return resolveMedia(value)?.url ?? undefined;
 }
+
+/**
+ * CSS `aspect-ratio` value from a Media document's intrinsic width/height, or
+ * `undefined` when the upload is unset, unpopulated, or has no dimensions
+ * (common for audio, and for videos migrated before size was recorded).
+ */
+export function mediaAspectRatio(
+  value: Media | number | null | undefined
+): string | undefined {
+  const media = resolveMedia(value);
+  const width = media?.width;
+  const height = media?.height;
+  if (typeof width !== "number" || typeof height !== "number") return undefined;
+  if (width <= 0 || height <= 0) return undefined;
+  return `${width} / ${height}`;
+}
+
+/*
+ * Fallback for grammar term-intro placeholders when no Media dimensions exist.
+ * The four `videoLesson` clips in the snapshot currently store null width/
+ * height (Cloudinary migration); the old dialogue player framed them at 16:9,
+ * which matches landscape lesson clips once the frame preserves the ratio.
+ */
+export const DEFAULT_LESSON_VIDEO_ASPECT_RATIO = "16 / 9";

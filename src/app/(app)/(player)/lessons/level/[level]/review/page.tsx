@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 
 import { listLessons, listNewLessons } from "@/lib/content/content";
 import { collectLessonTerms } from "@/lib/content/lessonTerms";
+import { adjacentInSequence } from "@/lib/content/adjacentInSequence";
+import { courseLevels } from "@/lib/content/levels";
 import { lessonDisplayTitle } from "@/features/learning/lessonTitles";
 import LevelReviewPage, { type ReviewPart } from "@/features/learning/components/LevelReviewPage";
 import type { Lesson } from "@/payload/payload-types";
@@ -45,5 +47,19 @@ export default async function Page({
     .sort((a, b) => a.part - b.part)
     .map((l) => toPart(l, lessonDisplayTitle(l)));
 
-  return <LevelReviewPage level={level} grammar={grammar} reading={reading} />;
+  const { prev, next } = adjacentInSequence(
+    // The same sequence the list page draws its sections from.
+    courseLevels([...newLessons, ...prefLessons].map((l) => l.level)),
+    level
+  );
+
+  return (
+    <LevelReviewPage
+      level={level}
+      grammar={grammar}
+      reading={reading}
+      prevLevel={prev}
+      nextLevel={next}
+    />
+  );
 }

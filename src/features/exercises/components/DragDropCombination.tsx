@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Box, IconButton, Typography, type SxProps, type Theme } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 import ImageNotSupportedRoundedIcon from "@mui/icons-material/ImageNotSupportedRounded";
@@ -33,25 +33,6 @@ function dropEffect(source: DragPayload["source"] | undefined): "copy" | "move" 
   return source === "bank" ? "copy" : "move";
 }
 
-function tileHearButtonSx(hasAudio: boolean, isPlaying: boolean): SxProps<Theme> {
-  const base = {
-    width: 36,
-    height: 36,
-    transition: "all 0.2s",
-    "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.08)", color: "rgba(0,0,0,0.3)" },
-  };
-  if (!hasAudio) {
-    return { ...base, bgcolor: "rgba(0,0,0,0.08)", color: "rgba(0,0,0,0.3)", border: "none" };
-  }
-  return {
-    ...base,
-    bgcolor: isPlaying ? "rgba(180,61,32,0.08)" : "#B43D20",
-    color: isPlaying ? "#B43D20" : "#fff",
-    border: isPlaying ? "2px solid #B43D20" : "none",
-    "&:hover": { bgcolor: isPlaying ? "rgba(180,61,32,0.12)" : "#9D351C" },
-  };
-}
-
 const DragDropCombination: React.FC<Props> = ({
   prompt = "Drag the tiles into the correct order",
   imageUrl,
@@ -77,14 +58,12 @@ const DragDropCombination: React.FC<Props> = ({
 
   const placedTiles = placedIndices.map((i) => options[i]);
   const isCorrect = isCorrectPlacement(placedTiles, correctSequence);
-  // Positive reinforcement, shown once the sequence is checked and correct —
-  // the whole-word clip and the per-tile clips are gated the same way.
+  // After Check succeeds, every option card (placed + bank) becomes a
+  // listen card: text stays, small corner speaker, whole card plays audio.
   const showResult = checked && isCorrect;
-  const showAudio = showResult && Boolean(audioUrl);
-  // `tileAudio` has one entry per tile whether or not that tile has a clip, so
-  // its length says nothing — an all-undefined array would still put "Hear each
-  // piece" above a row of inert grey buttons.
-  const showTileAudio = showResult && Boolean(tileAudio?.some(Boolean));
+  // Reference clip under the image is available from the start (not gated on
+  // a correct answer) so learners can hear the target while assembling tiles.
+  const showAudio = Boolean(audioUrl);
 
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, payload: DragPayload) => {
     dragPayloadRef.current = payload;
@@ -214,6 +193,75 @@ const DragDropCombination: React.FC<Props> = ({
     audio.play().catch(() => setPlayingTile(null));
   };
 
+  // Card that keeps the tile label and plays that option's clip on any click.
+  // Used after a correct Check for both the placed sequence and the bank — so
+  // every authored option with audio is hearable, distractors included, not
+  // only the ones that belonged in the answer.
+  const renderListenCard = (idx: number, variant: "correct" | "bank", key: string) => {
+    const hasAudio = Boolean(tileAudio?.[idx]);
+    const isPlayingThis = playingTile === idx;
+    const SpeakerIcon = isPlayingThis ? GraphicEqRoundedIcon : VolumeUpRoundedIcon;
+    return (
+      <Box
+        key={key}
+        role={hasAudio ? "button" : undefined}
+        tabIndex={hasAudio ? 0 : undefined}
+        onClick={hasAudio ? () => playTile(idx) : undefined}
+        onKeyDown={
+          hasAudio
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  playTile(idx);
+                }
+              }
+            : undefined
+        }
+        aria-label={hasAudio ? `Play audio for ${options[idx]}` : undefined}
+        title={hasAudio ? `Play ${options[idx]}` : undefined}
+        sx={{
+          position: "relative",
+          px: 2.5,
+          py: 1.5,
+          pt: 2.25,
+          minWidth: 52,
+          borderRadius: "12px",
+          border: `2px solid ${variant === "correct" ? "#059669" : "rgba(0,0,0,0.1)"}`,
+          bgcolor: variant === "correct" ? "rgba(5,150,105,0.06)" : "#fff",
+          fontSize: { xs: "0.95rem", sm: "1.05rem" },
+          fontWeight: 700,
+          whiteSpace: "nowrap",
+          userSelect: "none",
+          color: variant === "correct" ? "#065F46" : "inherit",
+          cursor: hasAudio ? "pointer" : "default",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+          transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
+          "&:hover": hasAudio
+            ? {
+                transform: "translateY(-1px)",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                borderColor: variant === "correct" ? "#047857" : "#B43D20",
+              }
+            : {},
+        }}
+      >
+        {hasAudio && (
+          <SpeakerIcon
+            sx={{
+              position: "absolute",
+              top: 4,
+              left: 4,
+              fontSize: "0.9rem",
+              color: "#B43D20",
+              opacity: isPlayingThis ? 1 : 0.85,
+            }}
+          />
+        )}
+        {options[idx]}
+      </Box>
+    );
+  };
+
   // `playTile` builds a detached `Audio` rather than rendering an element, so
   // unmounting this exercise does not stop it the way removing the <audio>
   // below does — without this, a tile plays on over the next screen.
@@ -284,8 +332,8 @@ const DragDropCombination: React.FC<Props> = ({
         )}
       </Box>
 
-      {/* Reference audio — hidden until the user presses Check and the
-          sequence is correct, as positive reinforcement. */}
+      {/* Reference audio under the image — available immediately so learners
+          can hear the target while dragging tiles into place. */}
       {showAudio && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexDirection: "column" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -316,56 +364,24 @@ const DragDropCombination: React.FC<Props> = ({
         </Box>
       )}
 
-      {/* After a correct check: one hear-button per option, including leftover
-          distractors. Missing clips stay as greyed-out filler buttons. */}
-      {showTileAudio && (
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.75 }}>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
-            {options.map((label, idx) => {
-              const hasAudio = Boolean(tileAudio?.[idx]);
-              const isPlayingThis = playingTile === idx;
-              return (
-                <Box
-                  key={`tile-audio-${idx}`}
-                  sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0.25 }}
-                >
-                  <IconButton
-                    onClick={() => playTile(idx)}
-                    disabled={!hasAudio}
-                    aria-label={`Play audio for ${label}`}
-                    sx={tileHearButtonSx(hasAudio, isPlayingThis)}
-                  >
-                    {isPlayingThis ? (
-                      <GraphicEqRoundedIcon sx={{ fontSize: "1.1rem" }} />
-                    ) : (
-                      <VolumeUpRoundedIcon sx={{ fontSize: "1.1rem" }} />
-                    )}
-                  </IconButton>
-                  <Typography sx={{ fontSize: "0.7rem", color: "text.secondary", fontWeight: 700 }}>
-                    {label}
-                  </Typography>
-                </Box>
-              );
-            })}
-          </Box>
-          <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600 }}>
-            Hear each piece
-          </Typography>
-        </Box>
-      )}
-
       {/* Single long drop target — holds the ordered sequence of placed
-          tiles, growing to fit them instead of showing per-piece boxes. */}
+          tiles, growing to fit them instead of showing per-piece boxes.
+          After a correct Check, placed tiles stay as cards with a small
+          corner speaker; clicking the card plays that option's audio. */}
       <Box
         role="button"
         aria-label="Drop the tiles here in order"
         onDragOver={(e) => {
+          if (showResult) return;
           e.preventDefault();
           e.dataTransfer.dropEffect = dropEffect(dragPayloadRef.current?.source);
           setBoxDragOver(true);
         }}
         onDragLeave={() => setBoxDragOver(false)}
-        onDrop={onDropBox}
+        onDrop={(e) => {
+          if (showResult) return;
+          onDropBox(e);
+        }}
         sx={{
           width: "100%",
           minHeight: 64,
@@ -385,7 +401,7 @@ const DragDropCombination: React.FC<Props> = ({
           display: "flex",
           alignItems: "center",
           flexWrap: "wrap",
-          justifyContent: placedIndices.length ? "flex-start" : "center",
+          justifyContent: placedIndices.length && !showResult ? "flex-start" : "center",
           gap: 1,
           px: 2,
           py: 1.5,
@@ -397,6 +413,8 @@ const DragDropCombination: React.FC<Props> = ({
           <Typography sx={{ color: "text.disabled", fontSize: "0.9rem", userSelect: "none" }}>
             Drop the words here in order…
           </Typography>
+        ) : showResult ? (
+          placedIndices.map((idx, pos) => renderListenCard(idx, "correct", `listen-placed-${pos}`))
         ) : (
           placedIndices.map((idx, pos) => {
             // Graded per tile, not by whether the whole box is right — a
@@ -439,15 +457,18 @@ const DragDropCombination: React.FC<Props> = ({
         )}
       </Box>
 
-      {/* Always the full set — dropping copies a tile, it does not consume it. */}
+      {/* Always the full set — dropping copies a tile, it does not consume it.
+          After a correct Check these become listen cards too, so distractors
+          (options not in the winning sequence) are hearable alongside the
+          answer. */}
       <Box
         sx={{
           display: "flex",
           gap: 1.25,
           p: 1.5,
           borderRadius: "14px",
-          bgcolor: bankDragOver ? "rgba(96,165,250,0.08)" : "#F9F7F4",
-          border: `1px solid ${bankDragOver ? "#60A5FA" : "rgba(0,0,0,0.08)"}`,
+          bgcolor: bankDragOver && !showResult ? "rgba(96,165,250,0.08)" : "#F9F7F4",
+          border: `1px solid ${bankDragOver && !showResult ? "#60A5FA" : "rgba(0,0,0,0.08)"}`,
           minHeight: 76,
           flexWrap: "wrap",
           justifyContent: "center",
@@ -455,45 +476,53 @@ const DragDropCombination: React.FC<Props> = ({
           transition: "border-color 0.2s, background-color 0.2s",
         }}
         onDragOver={(e) => {
+          if (showResult) return;
           e.preventDefault();
           setBankDragOver(true);
         }}
         onDragLeave={() => setBankDragOver(false)}
-        onDrop={onDropBank}
+        onDrop={(e) => {
+          if (showResult) return;
+          onDropBank(e);
+        }}
       >
-        {options.map((label, idx) => (
-          <Box
-            key={`bank-${idx}`}
-            draggable
-            onDragStart={(e) => onDragStart(e, { source: "bank", option: idx })}
-            title="Drag to the box above — you can use this tile more than once"
-            sx={{
-              px: 2.5,
-              py: 1.25,
-              border: "2px solid rgba(0,0,0,0.1)",
-              borderRadius: "12px",
-              cursor: "grab",
-              fontSize: { xs: "0.95rem", sm: "1.05rem" },
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              userSelect: "none",
-              bgcolor: "#fff",
-              opacity: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-              "&:hover": {
-                transform: "translateY(-2px)",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                borderColor: "#B43D20",
-              },
-            }}
-          >
-            {label}
-          </Box>
-        ))}
+        {options.map((label, idx) =>
+          showResult ? (
+            renderListenCard(idx, "bank", `listen-bank-${idx}`)
+          ) : (
+            <Box
+              key={`bank-${idx}`}
+              draggable
+              onDragStart={(e) => onDragStart(e, { source: "bank", option: idx })}
+              title="Drag to the box above — you can use this tile more than once"
+              sx={{
+                px: 2.5,
+                py: 1.25,
+                border: "2px solid rgba(0,0,0,0.1)",
+                borderRadius: "12px",
+                cursor: "grab",
+                fontSize: { xs: "0.95rem", sm: "1.05rem" },
+                fontWeight: 700,
+                whiteSpace: "nowrap",
+                userSelect: "none",
+                bgcolor: "#fff",
+                opacity: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                  borderColor: "#B43D20",
+                },
+              }}
+            >
+              {label}
+            </Box>
+          )
+        )}
       </Box>
 
       <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", justifyContent: "center" }}>
