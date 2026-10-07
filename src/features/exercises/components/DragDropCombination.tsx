@@ -133,8 +133,12 @@ const DragDropCombination: React.FC<Props> = ({
   // just the ones placed and not just the correct ones, so a learner can
   // double-check any pronunciation. Romaji-letter tiles never get this: a
   // single letter fragment has no pronunciation of its own to play, so a tap
-  // keeps editing.
-  const tilesPlayAudio = checked && tileScript !== "romaji";
+  // keeps editing. Nor does a bank with no recordings at all (the grammar
+  // lessons' word fragments): `tileAudio` has an entry per tile whether or not
+  // there is a clip, so without the `some` every tile would turn into an
+  // inert button with a greyed-out badge.
+  const tilesPlayAudio =
+    checked && tileScript !== "romaji" && Boolean(tileAudio?.some(Boolean));
   // A correct answer is finished. A wrong one can still be fixed by dragging:
   // any edit clears the check, which hands taps back to editing too. Without
   // that, per-tile grading would show which tiles are wrong and then leave
