@@ -372,12 +372,15 @@ export const MatchPairs: Block = {
         { label: "Word ↔ reading", value: "reading" },
         { label: "Audio ↔ hiragana", value: "kana" },
         { label: "Audio ↔ word", value: "audio" },
+        { label: "Audio ↔ image", value: "image" },
       ],
       admin: {
         description:
           "What the two sides are. Audio ↔ hiragana is where the old \"あ/ア\" strings ended up: " +
           "katakana is withheld for now, so that exercise plays the term's recording on the left " +
-          "and asks for its hiragana. Every term in it needs audio.",
+          "and asks for its hiragana. Every term in it needs audio. Audio ↔ word shows the word " +
+          "under each audio button; Audio ↔ image shows only the button, so the learner has to " +
+          "listen. Every term in it needs both audio and an image.",
       },
       validate: pairingIsPossible,
     },

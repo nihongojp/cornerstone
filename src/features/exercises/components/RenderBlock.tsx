@@ -460,6 +460,34 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
   }
 
   /*
+   * "Audio ↔ image": the same screen as "Audio ↔ word", minus the word under
+   * each audio button — the learner has to listen. A term needs both a clip
+   * and a picture to be a pair at all; one missing either is left out, and
+   * `content:verify` is where that gets reported rather than on a learner's
+   * screen.
+   */
+  if (pairing === "image") {
+    const pairs: MediaMatchPair[] = list
+      .map((t) => ({
+        phrase: termText(t, "plain"),
+        audioUrl: termAudio(t) ?? "",
+        imageUrl: termImage(t) ?? "",
+      }))
+      .filter((p) => p.audioUrl !== "" && p.imageUrl !== "");
+
+    if (pairs.length < 2) return null;
+
+    return (
+      <MatchDotsMedia
+        pairs={pairs}
+        showPhrase={false}
+        instructions={instructions?.trim() || "Match each audio clip to its picture"}
+        onResult={onResult}
+      />
+    );
+  }
+
+  /*
    * "Word ↔ reading" (romaji ↔ hiragana, in reading/writing lessons) uses the
    * same three-box choose-the-right-one layout as the other choice exercises
    * (MatchAudioExercisePlaceholder) rather than DotMatch's connect-the-dots —
