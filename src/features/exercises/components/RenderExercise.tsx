@@ -37,9 +37,11 @@ export const RenderExercise: React.FC<{
   blocks: BlockOf[];
   /** Every term the lesson references — see `RenderBlock`'s `buildSentence` case. */
   lessonTerms?: Term[];
+  /** The step's own label — the term's name on a screen with no dialogue to carry one. */
+  label?: string;
   onResult?: ResultCallback;
-}> = ({ blocks, lessonTerms, onResult }) => {
-  const termIntro = resolveTermIntro(blocks);
+}> = ({ blocks, lessonTerms, label, onResult }) => {
+  const termIntro = resolveTermIntro(blocks, label);
 
   if (termIntro) {
     return (
@@ -58,6 +60,13 @@ export const RenderExercise: React.FC<{
     );
   }
 
+  // A picture and a dialogue on one screen are one teaching beat that should
+  // fit without scrolling, so they get tighter spacing and a smaller picture.
+  // Every other combination keeps the roomier layout.
+  const compact =
+    blocks.some((b) => b.blockType === "mediaFigure" && Boolean(b.image)) &&
+    blocks.some((b) => b.blockType === "dialogue");
+
   return (
     <Box
       sx={{
@@ -65,7 +74,7 @@ export const RenderExercise: React.FC<{
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 2.5,
+        gap: compact ? 1.25 : 2.5,
       }}
     >
       {blocks.map((block, index) => (
@@ -73,7 +82,7 @@ export const RenderExercise: React.FC<{
         // Phase 4b keys learner progress on. Index is the fallback for a block
         // streamed by Live Preview before it has been saved and given one.
         <Box key={block.id ?? index} sx={{ width: "100%" }}>
-          <RenderBlock block={block} lessonTerms={lessonTerms} onResult={onResult} />
+          <RenderBlock block={block} lessonTerms={lessonTerms} onResult={onResult} compact={compact} />
         </Box>
       ))}
     </Box>

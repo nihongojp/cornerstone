@@ -31,7 +31,13 @@ export const MediaImage: React.FC<{
   /** Overrides the file's own alt text. Rarely right — alt belongs on the file. */
   alt?: string;
   className?: string;
-}> = ({ value, size, alt, className }) => {
+  /**
+   * Cap the rendered height (any CSS length, or a breakpoint map of them). The
+   * whole picture still shows — it scales down, centred, rather than cropping.
+   * Unset, the image is as wide as its container allows, as before.
+   */
+  maxHeight?: string | number | Record<string, string | number>;
+}> = ({ value, size, alt, className, maxHeight }) => {
   const image = renderableImage(value, size);
   if (!image) return null;
 
@@ -49,7 +55,14 @@ export const MediaImage: React.FC<{
       width={image.width}
       height={image.height}
       loading="lazy"
-      sx={{ maxWidth: "100%", height: "auto", borderRadius: "12px" }}
+      sx={{
+        maxWidth: "100%",
+        height: "auto",
+        borderRadius: "12px",
+        ...(maxHeight !== undefined
+          ? { maxHeight, width: "auto", objectFit: "contain", display: "block", mx: "auto" }
+          : null),
+      }}
     />
   );
 };

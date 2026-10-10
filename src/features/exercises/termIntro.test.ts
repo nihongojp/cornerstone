@@ -64,6 +64,51 @@ test("a video lesson with no audio falls back to the figure's", () => {
   assert.equal(result?.audioUrl, "/figure.mp3");
 });
 
+test("a picture and its recording, no dialogue, make one term screen named by the step label", () => {
+  const image = media("/i.png");
+  const result = resolveTermIntro(
+    [mediaFigure({ image }), mediaFigure({ audio: media("/a.mp3") })],
+    " Kore "
+  );
+  assert.equal(result?.term, "Kore");
+  assert.equal(result?.image, image);
+  assert.equal(result?.audioUrl, "/a.mp3");
+  assert.equal(result?.dialogue, undefined);
+});
+
+test("any other dialogue-less screen keeps stacking", () => {
+  const picture = mediaFigure({ image: media("/i.png") });
+  const clip = mediaFigure({ audio: media("/a.mp3") });
+
+  // no label, or a blank one
+  assert.equal(resolveTermIntro([picture, clip]), null);
+  assert.equal(resolveTermIntro([picture, clip], "  "), null);
+  // a lone picture, a lone clip, two pictures
+  assert.equal(resolveTermIntro([picture], "Kore"), null);
+  assert.equal(resolveTermIntro([clip], "Kore"), null);
+  assert.equal(resolveTermIntro([picture, mediaFigure({ image: media("/2.png") })], "Kore"), null);
+  // a caption, or a video lesson alongside
+  assert.equal(resolveTermIntro([picture, mediaFigure({ audio: media("/a.mp3"), caption: "x" })], "Kore"), null);
+  assert.equal(resolveTermIntro([videoLesson(), picture, clip], "Kore"), null);
+  assert.equal(resolveTermIntro([videoLesson()], "Kore"), null);
+});
+
+test("with a dialogue, a second figure still stacks as it did before", () => {
+  const blocks = [
+    dialogue({ title: "Kore" }),
+    mediaFigure({ image: media("/i.png") }),
+    mediaFigure({ audio: media("/a.mp3") }),
+  ];
+  assert.equal(resolveTermIntro(blocks, "Kore"), null);
+});
+
+test("a step label never overrides a dialogue's own title", () => {
+  const result = resolveTermIntro([dialogue({ title: "Sumimasen" }), mediaFigure()], "Something else");
+  assert.equal(result?.term, "Sumimasen");
+  assert.notEqual(result?.dialogue, undefined);
+  assert.equal(resolveTermIntro([dialogue(), mediaFigure()], "Kore"), null);
+});
+
 test("no term name means no composite", () => {
   assert.equal(resolveTermIntro([dialogue()]), null);
   assert.equal(resolveTermIntro([dialogue({ title: "  " })]), null);

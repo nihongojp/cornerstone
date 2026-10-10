@@ -183,7 +183,12 @@ function buildSteps(
       graded: types.some((type) => PRACTICE.has(type)),
       autoAdvance: !types.includes("buildSentence"),
       render: (onResult) => (
-        <RenderExercise blocks={step.components ?? []} lessonTerms={lessonTerms} onResult={onResult} />
+        <RenderExercise
+          blocks={step.components ?? []}
+          lessonTerms={lessonTerms}
+          label={step.label?.trim()}
+          onResult={onResult}
+        />
       ),
     };
   });

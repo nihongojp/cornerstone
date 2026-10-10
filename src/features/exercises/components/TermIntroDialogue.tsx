@@ -108,7 +108,7 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
   const media = resolveMediaSlot(video, image);
   // One speed for the whole screen: the term's clip and every dialogue line.
   const [speed, setSpeed] = useState<AudioSpeed>(1);
-  const hasAudio = Boolean(audioUrl) || (dialogue.lines ?? []).some((line) => Boolean(line.audio));
+  const hasAudio = Boolean(audioUrl) || (dialogue?.lines ?? []).some((line) => Boolean(line.audio));
   // Prefer the Media document's own dimensions so player and placeholder match;
   // fall back to the lesson-video default when none are stored (current snapshot).
   const aspectRatio =
@@ -177,11 +177,13 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
         sx={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-start",
+          // With a transcript below it the row lines up with the transcript's
+          // left edge; on its own it belongs under the picture, in the middle.
+          justifyContent: dialogue ? "flex-start" : "center",
           flexWrap: "wrap",
           gap: 0.75,
           flexShrink: 0,
-          textAlign: "left",
+          textAlign: dialogue ? "left" : "center",
         }}
       >
         <Typography
@@ -205,19 +207,25 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
             term
           )}
         </Typography>
-        {audioUrl ? <AudioButton src={audioUrl} speed={speed} /> : null}
-        {hasAudio ? <AudioSpeedControl speed={speed} onChange={setSpeed} /> : null}
+        {/* A screen with no transcript is just this row and the picture, so the
+            button is always there — greyed out until a clip is attached, which
+            makes a missing recording visible. With a transcript it appears only
+            when there is something to play, as it always has. */}
+        {audioUrl || !dialogue ? <AudioButton src={audioUrl} speed={speed} /> : null}
+        {hasAudio || !dialogue ? <AudioSpeedControl speed={speed} onChange={setSpeed} /> : null}
       </Box>
 
-      <Box sx={{ flexShrink: 0, width: "100%" }}>
-        <DialogueTranscript
-          speakerA={dialogue.speakerA}
-          speakerB={dialogue.speakerB}
-          lines={dialogue.lines}
-          audioSpeed={speed}
-          compact
-        />
-      </Box>
+      {dialogue && (
+        <Box sx={{ flexShrink: 0, width: "100%" }}>
+          <DialogueTranscript
+            speakerA={dialogue.speakerA}
+            speakerB={dialogue.speakerB}
+            lines={dialogue.lines}
+            audioSpeed={speed}
+            compact
+          />
+        </Box>
+      )}
     </Box>
   );
 };

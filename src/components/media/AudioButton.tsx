@@ -14,7 +14,8 @@ const BRAND = "#B43D20";
  * than restarting a clip that is already running.
  */
 export const AudioButton: React.FC<{
-  src: string;
+  /** No clip yet: the button still shows, greyed out and inert. */
+  src?: string;
   /** Diameter in px. */
   size?: number;
   speed?: number;
@@ -29,7 +30,7 @@ export const AudioButton: React.FC<{
   const play = (event: React.MouseEvent) => {
     event.stopPropagation();
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !src) return;
     audio.currentTime = 0;
     audio.playbackRate = speed;
     setPlaying(true);
@@ -38,13 +39,15 @@ export const AudioButton: React.FC<{
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        src={src}
-        preload="none"
-        onEnded={() => setPlaying(false)}
-        onError={() => setPlaying(false)}
-      />
+      {src && (
+        <audio
+          ref={audioRef}
+          src={src}
+          preload="none"
+          onEnded={() => setPlaying(false)}
+          onError={() => setPlaying(false)}
+        />
+      )}
       <Box
         onClick={play}
         role="button"
@@ -53,12 +56,12 @@ export const AudioButton: React.FC<{
           width: size,
           height: size,
           borderRadius: "50%",
-          bgcolor: BRAND,
+          bgcolor: src ? BRAND : "rgba(0,0,0,0.12)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          cursor: "pointer",
-          boxShadow: "0 2px 8px rgba(180,61,32,0.35)",
+          cursor: src ? "pointer" : "default",
+          boxShadow: src ? "0 2px 8px rgba(180,61,32,0.35)" : "none",
           animation: playing ? "audioButtonPulse 1.2s ease-in-out infinite" : "none",
           "@keyframes audioButtonPulse": {
             "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
@@ -71,7 +74,7 @@ export const AudioButton: React.FC<{
         {playing ? (
           <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: size * 0.5 }} />
         ) : (
-          <VolumeUpRoundedIcon sx={{ color: "#fff", fontSize: size * 0.5 }} />
+          <VolumeUpRoundedIcon sx={{ color: src ? "#fff" : "rgba(0,0,0,0.3)", fontSize: size * 0.5 }} />
         )}
       </Box>
     </>

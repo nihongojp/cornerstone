@@ -72,12 +72,14 @@ export const RenderBlock: React.FC<{
   /** Every term the lesson references — see the `buildSentence` case below. */
   lessonTerms?: Term[];
   onResult?: ResultCallback;
-}> = ({ block, lessonTerms, onResult }) => {
+  /** A picture and a dialogue share the screen: tighter spacing, smaller picture. */
+  compact?: boolean;
+}> = ({ block, lessonTerms, onResult, compact }) => {
   switch (block.blockType) {
     case "prose":
       return <ProseView {...block} />;
     case "dialogue":
-      return <DialogueView {...block} />;
+      return <DialogueView {...block} compact={compact} />;
     case "videoLesson":
       return <VideoLessonView {...block} />;
     case "grammarPoint":
@@ -85,7 +87,7 @@ export const RenderBlock: React.FC<{
     case "vocabList":
       return <VocabListView {...block} />;
     case "mediaFigure":
-      return <MediaFigureView {...block} />;
+      return <MediaFigureView {...block} compact={compact} />;
     case "matchPairs":
       return <MatchPairsView {...block} onResult={onResult} />;
     case "listenAndChoose":
@@ -162,16 +164,20 @@ const ProseView: React.FC<ProseBlock> = ({ tone, title, content }) => {
  *
  * `compact` is for term-intro screens (`TermIntroDialogue`): same speaker labels
  * and lines, tighter spacing so the transcript sits under media without
- * forcing the lesson viewport to scroll.
+ * forcing the lesson viewport to scroll — and smaller type to match.
+ *
+ * `tight` is the same idea for a transcript under a picture on a stacked
+ * screen: less padding and fewer gaps, but the type stays at its normal size.
  */
 export const DialogueTranscript: React.FC<{
   speakerA: string;
   speakerB: string;
   lines: DialogueBlock["lines"];
   compact?: boolean;
+  tight?: boolean;
   /** Playback speed for every line's clip, when the screen owns one control. */
   audioSpeed?: number;
-}> = ({ speakerA, speakerB, lines, compact = false, audioSpeed }) => (
+}> = ({ speakerA, speakerB, lines, compact = false, tight = false, audioSpeed }) => (
   <Box
     sx={{
       ...CARD_SX,
@@ -182,7 +188,7 @@ export const DialogueTranscript: React.FC<{
       display: "grid",
       gridTemplateColumns: `minmax(${compact ? 36 : 56}px, max-content) 1fr`,
       columnGap: compact ? 0.75 : 1.5,
-      rowGap: compact ? 0.4 : 1.5,
+      rowGap: compact ? 0.4 : tight ? 1.75 : 1.5,
       ...(compact
         ? {
             px: { xs: 1.25, sm: 1.5 },
@@ -190,7 +196,9 @@ export const DialogueTranscript: React.FC<{
             borderRadius: "14px",
             boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
           }
-        : null),
+        : tight
+          ? { py: { xs: 1.25, sm: 1.5 } }
+          : null),
     }}
   >
     {(lines ?? []).map((line, index) => (
@@ -229,7 +237,12 @@ export const DialogueTranscript: React.FC<{
               ? { xs: "0.95rem", sm: "1rem" }
               : { xs: "1rem", sm: "1.1rem" },
             // Slightly denser line-height so the font bump doesn’t grow the card.
-            lineHeight: compact ? 1.2 : 1.7,
+            lineHeight: compact ? 1.2 : tight ? 1.4 : 1.7,
+            // Each line's text is a rich-text paragraph, which brings the
+            // browser's default margin above and below it — about a line's worth
+            // of extra space between every pair of lines. Taken out here only,
+            // where the lines need to sit close together.
+            ...(tight ? { "& p": { margin: 0 } } : null),
           }}
         >
           <RichText data={line.japanese} disableContainer />
@@ -269,23 +282,26 @@ export const DialogueTranscript: React.FC<{
   </Box>
 );
 
-const DialogueView: React.FC<DialogueBlock> = ({
+const DialogueView: React.FC<DialogueBlock & { compact?: boolean }> = ({
   title,
   speakerA,
   speakerB,
   video,
   lines,
+  compact,
 }) => (
   <Box sx={{ width: "100%", maxWidth: 560, mx: "auto", px: { xs: 1, sm: 2 } }}>
     {title && (
-      <Typography sx={{ fontWeight: 800, fontSize: "1.2rem", mb: 1.5 }}>{title}</Typography>
+      <Typography sx={{ fontWeight: 800, fontSize: "1.2rem", mb: compact ? 0.75 : 1.5 }}>
+        {title}
+      </Typography>
     )}
     {video && (
-      <Box sx={{ mb: 2 }}>
+      <Box sx={{ mb: compact ? 1 : 2 }}>
         <MediaVideo value={video} />
       </Box>
     )}
-    <DialogueTranscript speakerA={speakerA} speakerB={speakerB} lines={lines} />
+    <DialogueTranscript speakerA={speakerA} speakerB={speakerB} lines={lines} tight={compact} />
   </Box>
 );
 
@@ -420,13 +436,28 @@ const TermRow: React.FC<{ term: Term; withImage?: boolean }> = ({ term: t, withI
   );
 };
 
-const MediaFigureView: React.FC<MediaFigureBlock> = ({ image, audio, video, caption }) => (
+// With a dialogue beside it the picture gets a share of the screen rather than
+// all of it: a fraction of the viewport, so a short window still fits the
+// transcript below without scrolling. The whole picture still shows.
+const COMPACT_IMAGE_MAX_HEIGHT = { xs: "30vh", sm: "min(38vh, 340px)" } as const;
+
+const MediaFigureView: React.FC<MediaFigureBlock & { compact?: boolean }> = ({
+  image,
+  audio,
+  video,
+  caption,
+  compact,
+}) => (
   <Box
     component="figure"
-    sx={{ width: "100%", maxWidth: 560, mx: "auto", my: 2, px: { xs: 1, sm: 2 } }}
+    sx={{ width: "100%", maxWidth: 560, mx: "auto", my: compact ? 0 : 2, px: { xs: 1, sm: 2 } }}
   >
     {/* Exactly one of the three is set — enforced by the block's own validate. */}
-    <MediaImage value={image} size="wide" />
+    <MediaImage
+      value={image}
+      size="wide"
+      maxHeight={compact ? COMPACT_IMAGE_MAX_HEIGHT : undefined}
+    />
     <MediaAudio value={audio} withSpeed />
     <MediaVideo value={video} />
     {caption && (
