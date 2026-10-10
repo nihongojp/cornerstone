@@ -169,7 +169,9 @@ export const DialogueTranscript: React.FC<{
   speakerB: string;
   lines: DialogueBlock["lines"];
   compact?: boolean;
-}> = ({ speakerA, speakerB, lines, compact = false }) => (
+  /** Playback speed for every line's clip, when the screen owns one control. */
+  audioSpeed?: number;
+}> = ({ speakerA, speakerB, lines, compact = false, audioSpeed }) => (
   <Box
     sx={{
       ...CARD_SX,
@@ -259,7 +261,7 @@ export const DialogueTranscript: React.FC<{
         )}
         {line.audio && (
           <Box sx={{ gridColumn: 2 }}>
-            <MediaAudio value={line.audio} />
+            <MediaAudio value={line.audio} speed={audioSpeed} />
           </Box>
         )}
       </Box>
@@ -293,7 +295,7 @@ const VideoLessonView: React.FC<VideoLessonBlock> = ({ title, video, audio, cont
     <MediaVideo value={video} />
     {audio && (
       <Box sx={{ mt: 1.5 }}>
-        <MediaAudio value={audio} />
+        <MediaAudio value={audio} withSpeed />
       </Box>
     )}
     {content && (
@@ -413,7 +415,7 @@ const TermRow: React.FC<{ term: Term; withImage?: boolean }> = ({ term: t, withI
         </Typography>
       )}
       {t.meaning && <Typography sx={{ fontSize: "0.95rem" }}>{t.meaning}</Typography>}
-      {audio && <MediaAudio value={t.audio} />}
+      {audio && <MediaAudio value={t.audio} withSpeed />}
     </Box>
   );
 };
@@ -425,7 +427,7 @@ const MediaFigureView: React.FC<MediaFigureBlock> = ({ image, audio, video, capt
   >
     {/* Exactly one of the three is set — enforced by the block's own validate. */}
     <MediaImage value={image} size="wide" />
-    <MediaAudio value={audio} />
+    <MediaAudio value={audio} withSpeed />
     <MediaVideo value={video} />
     {caption && (
       <Typography
@@ -455,6 +457,34 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
       imageUrl: termImage(t) ?? "",
     }));
     return <MatchDotsMedia pairs={pairs} instructions={instructions ?? undefined} onResult={onResult} />;
+  }
+
+  /*
+   * "Audio ↔ image": the same screen as "Audio ↔ word", minus the word under
+   * each audio button — the learner has to listen. A term needs both a clip
+   * and a picture to be a pair at all; one missing either is left out, and
+   * `content:verify` is where that gets reported rather than on a learner's
+   * screen.
+   */
+  if (pairing === "image") {
+    const pairs: MediaMatchPair[] = list
+      .map((t) => ({
+        phrase: termText(t, "plain"),
+        audioUrl: termAudio(t) ?? "",
+        imageUrl: termImage(t) ?? "",
+      }))
+      .filter((p) => p.audioUrl !== "" && p.imageUrl !== "");
+
+    if (pairs.length < 2) return null;
+
+    return (
+      <MatchDotsMedia
+        pairs={pairs}
+        showPhrase={false}
+        instructions={instructions?.trim() || "Match each audio clip to its picture"}
+        onResult={onResult}
+      />
+    );
   }
 
   /*

@@ -670,9 +670,9 @@ export interface MatchPairsBlock {
    */
   terms: (number | Term)[];
   /**
-   * What the two sides are. Audio ↔ hiragana is where the old "あ/ア" strings ended up: katakana is withheld for now, so that exercise plays the term's recording on the left and asks for its hiragana. Every term in it needs audio.
+   * What the two sides are. Audio ↔ hiragana is where the old "あ/ア" strings ended up: katakana is withheld for now, so that exercise plays the term's recording on the left and asks for its hiragana. Every term in it needs audio. Audio ↔ word shows the word under each audio button; Audio ↔ image shows only the button, so the learner has to listen. Every term in it needs both audio and an image.
    */
-  pairing: 'meaning' | 'reading' | 'kana' | 'audio';
+  pairing: 'meaning' | 'reading' | 'kana' | 'audio' | 'image';
   id?: string | null;
   blockName?: string | null;
   blockType: 'matchPairs';

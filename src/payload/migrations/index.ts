@@ -10,6 +10,7 @@ import * as migration_20260817_214000_phase4b_spotlight_layout from './20260817_
 import * as migration_20260817_223731_phase5_autosave_roles from './20260817_223731_phase5_autosave_roles';
 import * as migration_20260818_000000_phase4b_drop_old_blocks from './20260818_000000_phase4b_drop_old_blocks';
 import * as migration_20260819_110607_content_model_steps_level_part from './20260819_110607_content_model_steps_level_part';
+import * as migration_20261010_015736 from './20261010_015736';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260819_110607_content_model_steps_level_part.up,
     down: migration_20260819_110607_content_model_steps_level_part.down,
-    name: '20260819_110607_content_model_steps_level_part'
+    name: '20260819_110607_content_model_steps_level_part',
+  },
+  {
+    up: migration_20261010_015736.up,
+    down: migration_20261010_015736.down,
+    name: '20261010_015736'
   },
 ];

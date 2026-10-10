@@ -4,6 +4,7 @@ import { listLessons, listNewLessons } from "@/lib/content/content";
 import { collectLessonTerms } from "@/lib/content/lessonTerms";
 import { adjacentInSequence } from "@/lib/content/adjacentInSequence";
 import { courseLevels } from "@/lib/content/levels";
+import { placeLessons } from "@/lib/content/readingMerges";
 import { lessonDisplayTitle } from "@/features/learning/lessonTitles";
 import LevelReviewPage, { type ReviewPart } from "@/features/learning/components/LevelReviewPage";
 import type { Lesson } from "@/payload/payload-types";
@@ -32,10 +33,12 @@ export default async function Page({
   const level = Number(levelParam);
   if (!Number.isFinite(level)) notFound();
 
-  const [newLessons, prefLessons] = await Promise.all([
+  const [storedNew, storedPref] = await Promise.all([
     listNewLessons().catch(() => []),
     listLessons().catch(() => []),
   ]);
+  // The same placement the list page uses, so the two always agree.
+  const { grammar: newLessons, reading: prefLessons } = placeLessons(storedNew, storedPref);
 
   const grammar = newLessons
     .filter((l) => l.level === level)

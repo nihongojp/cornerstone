@@ -18,6 +18,11 @@ type Connection = { dot1Id: string; dot2Id: string };
 type Props = {
   pairs: MediaMatchPair[];
   instructions?: string;
+  /**
+   * Print the word under each audio button. Off for "Audio ↔ image", where
+   * showing it would let the learner match by reading instead of listening.
+   */
+  showPhrase?: boolean;
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
 
@@ -30,7 +35,7 @@ function isPlaceholder(url: string) {
   return !url || url.toUpperCase().includes("PLACEHOLDER");
 }
 
-const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
+const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, showPhrase = true, onResult }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const dotRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -257,9 +262,11 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
                       ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1rem" }} />
                       : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.3)", fontSize: "1rem" }} />}
                   </Box>
-                  <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "text.secondary", lineHeight: 1.2, textAlign: "center" }}>
-                    {pair.phrase}
-                  </Typography>
+                  {showPhrase && (
+                    <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "text.secondary", lineHeight: 1.2, textAlign: "center" }}>
+                      {pair.phrase}
+                    </Typography>
+                  )}
                 </Box>
 
                 {/* Dot */}
@@ -333,7 +340,7 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, onResult }) => {
                     <Box
                       component="img"
                       src={pair.imageUrl}
-                      alt={pair.phrase}
+                      alt={showPhrase ? pair.phrase : ""}
                       sx={{ width: "100%", height: "100%", objectFit: "contain" }}
                     />
                   ) : (

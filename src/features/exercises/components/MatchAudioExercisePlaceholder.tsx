@@ -57,6 +57,16 @@ function buildChoices(item: MatchAudioItem): ChoiceCandidate[] {
   return buildChoiceOptions(correct, item.checkpointPool ?? [], 2);
 }
 
+// One kana fills the box; a whole word ("Arigatou") at that size runs off the
+// edge of it, so the type steps down as the answer gets longer.
+function textFaceSize(phrase: string): { xs: string; sm: string } {
+  const length = [...phrase.trim()].length;
+  if (length <= 2) return { xs: "2.4rem", sm: "2.8rem" };
+  if (length <= 4) return { xs: "1.7rem", sm: "2rem" };
+  if (length <= 8) return { xs: "1.1rem", sm: "1.3rem" };
+  return { xs: "0.9rem", sm: "1.05rem" };
+}
+
 function ChoiceFace({
   answerWith,
   phrase,
@@ -71,10 +81,13 @@ function ChoiceFace({
       return (
         <Typography
           sx={{
-            fontSize: { xs: "2.4rem", sm: "2.8rem" },
+            fontSize: textFaceSize(phrase),
             fontWeight: 800,
             color: "#1C1917",
-            lineHeight: 1,
+            lineHeight: 1.15,
+            textAlign: "center",
+            px: 0.75,
+            overflowWrap: "anywhere",
             userSelect: "none",
           }}
         >

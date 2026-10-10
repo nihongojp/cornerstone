@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
+import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
 
 export type FlashcardReviewTerm = {
   term: string;
@@ -30,6 +31,7 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasAudio = !isPlaceholder(term.audioUrl);
   const hasVideo = !isPlaceholder(term.videoUrl);
+  const hasImage = !isPlaceholder(term.imageUrl);
 
   const playAudio = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -186,7 +188,8 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
             alignItems: "center",
             justifyContent: "center",
             gap: 1.5,
-            px: 1.5,
+            px: term.hasScript ? 1.5 : 0,
+            overflow: "hidden",
           }}
         >
           {/* Grammar cards (video front) keep the audio button on the back,
@@ -194,18 +197,34 @@ const SingleCard: React.FC<{ term: FlashcardReviewTerm }> = ({ term }) => {
               the audio button on the front, so the back is just the term. */}
           {hasVideo && audioButton}
 
-          <Typography
-            sx={{
-              fontSize: term.hasScript ? { xs: "2.25rem", sm: "2.75rem" } : "0.95rem",
-              fontWeight: 700,
-              color: "#1C1917",
-              textAlign: "center",
-              lineHeight: 1.2,
-              overflowWrap: "anywhere",
-            }}
-          >
-            {term.term}
-          </Typography>
+          {term.hasScript ? (
+            <Typography
+              sx={{
+                fontSize: { xs: "2.25rem", sm: "2.75rem" },
+                fontWeight: 700,
+                color: "#1C1917",
+                textAlign: "center",
+                lineHeight: 1.2,
+                overflowWrap: "anywhere",
+              }}
+            >
+              {term.term}
+            </Typography>
+          ) : hasImage ? (
+            // A grammar card has no script of its own, only a romaji stand-in,
+            // so its back is the picture it names — never that romaji.
+            <Box
+              component="img"
+              src={term.imageUrl}
+              alt={term.term}
+              sx={{ width: "100%", height: "100%", objectFit: "contain", p: 1 }}
+            />
+          ) : (
+            <>
+              <ImageRoundedIcon sx={{ fontSize: "2rem", color: "rgba(0,0,0,0.18)" }} />
+              <Typography sx={{ fontSize: "0.65rem", color: "text.disabled" }}>Image soon</Typography>
+            </>
+          )}
         </Box>
       </Box>
     </Box>
