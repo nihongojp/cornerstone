@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Box, Typography } from "@mui/material";
-import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
-import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 
+import AudioButton from "@/components/media/AudioButton";
+import AudioSpeedControl, { type AudioSpeed } from "@/components/media/AudioSpeedControl";
 import MediaImage from "@/components/media/MediaImage";
 import MediaVideo from "@/components/media/MediaVideo";
 import {
@@ -17,8 +17,6 @@ import type { Media } from "@/payload/payload-types";
 
 import type { TermIntroDialogueProps } from "../termIntro";
 import { DialogueTranscript } from "./RenderBlock";
-
-const BRAND = "#B43D20";
 
 /** Max rendered height for the term-intro media stage (xs / sm). */
 const MEDIA_MAX_HEIGHT_PX = { xs: 200, sm: 240 } as const;
@@ -78,58 +76,6 @@ const TermIntroMediaStage: React.FC<{
     </Box>
   );
 };
-/*
- * Same round audio-button pattern as CharacterSpotlight / TermCard, sized down
- * (~32px) to match the smaller caption-scale term row.
- */
-const TermAudioButton: React.FC<{ audioUrl: string }> = ({ audioUrl }) => {
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const playAudio = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!audioRef.current) return;
-    audioRef.current.currentTime = 0;
-    setPlaying(true);
-    audioRef.current.play().catch(() => setPlaying(false));
-  };
-
-  return (
-    <>
-      <audio ref={audioRef} src={audioUrl} preload="auto" onEnded={() => setPlaying(false)} />
-      <Box
-        onClick={playAudio}
-        role="button"
-        aria-label="Play pronunciation"
-        sx={{
-          width: 32,
-          height: 32,
-          borderRadius: "50%",
-          bgcolor: BRAND,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          boxShadow: "0 2px 8px rgba(180,61,32,0.35)",
-          animation: playing ? "termIntroPulse 1.2s ease-in-out infinite" : "none",
-          "@keyframes termIntroPulse": {
-            "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
-            "50%": { boxShadow: "0 0 0 8px rgba(180,61,32,0)" },
-          },
-          transition: "box-shadow 0.3s",
-          flexShrink: 0,
-        }}
-      >
-        {playing ? (
-          <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "1rem" }} />
-        ) : (
-          <VolumeUpRoundedIcon sx={{ color: "#fff", fontSize: "1rem" }} />
-        )}
-      </Box>
-    </>
-  );
-};
-
 type MediaSlot =
   | { kind: "video"; value: Media | number }
   | { kind: "image"; value: Media | number }
@@ -160,6 +106,9 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
 }) => {
   const detail = note?.trim() ?? "";
   const media = resolveMediaSlot(video, image);
+  // One speed for the whole screen: the term's clip and every dialogue line.
+  const [speed, setSpeed] = useState<AudioSpeed>(1);
+  const hasAudio = Boolean(audioUrl) || (dialogue.lines ?? []).some((line) => Boolean(line.audio));
   // Prefer the Media document's own dimensions so player and placeholder match;
   // fall back to the lesson-video default when none are stored (current snapshot).
   const aspectRatio =
@@ -229,6 +178,7 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "flex-start",
+          flexWrap: "wrap",
           gap: 0.75,
           flexShrink: 0,
           textAlign: "left",
@@ -255,7 +205,8 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
             term
           )}
         </Typography>
-        {audioUrl ? <TermAudioButton audioUrl={audioUrl} /> : null}
+        {audioUrl ? <AudioButton src={audioUrl} speed={speed} /> : null}
+        {hasAudio ? <AudioSpeedControl speed={speed} onChange={setSpeed} /> : null}
       </Box>
 
       <Box sx={{ flexShrink: 0, width: "100%" }}>
@@ -263,6 +214,7 @@ const TermIntroDialogue: React.FC<TermIntroDialogueProps> = ({
           speakerA={dialogue.speakerA}
           speakerB={dialogue.speakerB}
           lines={dialogue.lines}
+          audioSpeed={speed}
           compact
         />
       </Box>

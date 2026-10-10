@@ -32,8 +32,6 @@ import type { Lesson } from "@/payload/payload-types";
 export default function LessonPreview({
   initialLesson,
   nextHref,
-  prevReviewHref,
-  nextReviewHref,
   serverURL,
 }: {
   initialLesson: Lesson;
@@ -45,8 +43,6 @@ export default function LessonPreview({
    * and a reload fixes; the alternative is a fetch per keystroke.
    */
   nextHref?: string;
-  prevReviewHref?: string;
-  nextReviewHref?: string;
   /** The exact origin /admin is served from — the hook checks it against the
    * message origin, so a mismatch silently drops every update. Read on the
    * server and passed down, so there is one place to look when it is wrong. */
@@ -64,12 +60,5 @@ export default function LessonPreview({
    * the CMS. Everyone previewing sees the same order, which is the one a
    * signed-out learner gets.
    */
-  return (
-    <LessonRunner
-      lesson={data}
-      nextHref={nextHref}
-      prevReviewHref={prevReviewHref}
-      nextReviewHref={nextReviewHref}
-    />
-  );
+  return <LessonRunner lesson={data} nextHref={nextHref} />;
 }

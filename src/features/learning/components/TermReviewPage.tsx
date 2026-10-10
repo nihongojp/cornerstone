@@ -29,7 +29,7 @@ const TermReviewPage: React.FC<{
       prevLabel="Previous lesson review"
       nextLabel="Next lesson review"
     />
-    <Container maxWidth="md" sx={{ pt: 7, pb: 8 }}>
+    <Container maxWidth="md" sx={{ pt: 7, pb: 8, px: { xs: 6, sm: 3 } }}>
       <Box
         component={Link}
         href={lessonHref(lesson.slug)}

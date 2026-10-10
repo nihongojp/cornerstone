@@ -5,6 +5,14 @@ import { payloadClient } from "./payload";
 import { TAGS } from "./tags";
 import { lessonHref, lessonReviewHref } from "./routes";
 import { CONTENT_DEPTH, MEDIA_POPULATE } from "./depth";
+import {
+  ABSORBED_SLUGS,
+  mergeFor,
+  mergeReadingLessons,
+  neighborInTrack,
+  placeLessons,
+  relabelReadingLesson,
+} from "./readingMerges";
 import type { Lesson, Resource } from "../../payload/payload-types";
 
 /*
@@ -85,7 +93,7 @@ const cachedListLessons = unstable_cache(
     if (prefecture) clauses.push({ prefecture: { equals: prefecture } });
     if (!includeInactive) clauses.push(PUBLISHED);
 
-    return findLessons(and(...clauses));
+    return mergeReadingLessons(await findLessons(and(...clauses)));
   },
   ["content", "listLessons"],
   { tags: [TAGS.lessons], revalidate: REVALIDATE }
@@ -138,7 +146,11 @@ export function getLessonBySlug(slugOrLegacyId: string): Promise<Lesson | null> 
   return unstable_cache(
     async (): Promise<Lesson | null> => {
       const [lesson] = await findLessons(and(PUBLISHED, byKey(key)), 1);
-      return lesson ?? null;
+      if (!lesson) return null;
+
+      const absorbs = mergeFor(lesson.slug)?.absorbs;
+      const [absorbed] = absorbs ? await findLessons(and(PUBLISHED, byKey(absorbs)), 1) : [];
+      return relabelReadingLesson(lesson, absorbed);
     },
     ["content", "getLessonBySlug", key],
     { tags: [TAGS.lessons, TAGS.newLessons, TAGS.lesson(key), TAGS.newLesson(key)], revalidate: REVALIDATE }
@@ -200,6 +212,12 @@ async function findNeighborSlug(args: {
     format: { equals: args.format },
     course: { equals: args.courseId },
     order: clause,
+    // Learners never see a folded-in lesson on its own, so it is not a "next"
+    // or "previous" — stepping onto it would replay steps already played as
+    // part of the lesson before it. The editor preview keeps the raw order.
+    ...(args.publishedOnly && ABSORBED_SLUGS.length
+      ? { slug: { not_in: [...ABSORBED_SLUGS] } }
+      : {}),
   };
 
   const payload = await payloadClient();
@@ -245,12 +263,17 @@ export async function getNextLessonHref(lesson: Lesson): Promise<string | undefi
   return slug ? lessonHref(slug) : undefined;
 }
 
-/** The neighbouring lesson's term-review page, same course and format. */
+/**
+ * The neighbouring lesson's term-review page, in the order the Lessons page
+ * lists them (same column, by level then part) — not stored course order, which
+ * does not match what a learner sees.
+ */
 export async function getNeighborLessonReviewHref(
   lesson: Lesson,
   neighbor: Neighbor
 ): Promise<string | undefined> {
-  const slug = await getPublishedNeighborSlug(lesson, neighbor);
+  const [stepLessons, flashcardLessons] = await Promise.all([listNewLessons(), listLessons()]);
+  const slug = neighborInTrack(placeLessons(stepLessons, flashcardLessons), lesson.slug, neighbor);
   return slug ? lessonReviewHref(slug) : undefined;
 }
 
@@ -310,8 +333,9 @@ export function getLessonRoute(slugOrLegacyId: string): Promise<LessonRoute | nu
 
   return unstable_cache(
     async (): Promise<LessonRoute | null> => {
-      const [lesson] = await findLessons(and(PUBLISHED, byKey(key)), 1);
-      if (!lesson) return null;
+      const [stored] = await findLessons(and(PUBLISHED, byKey(key)), 1);
+      if (!stored) return null;
+      const lesson = relabelReadingLesson(stored);
 
       return {
         slug: lesson.slug,

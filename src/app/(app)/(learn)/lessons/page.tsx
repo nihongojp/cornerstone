@@ -1,4 +1,5 @@
 import { listLessons, listNewLessons } from "@/lib/content/content";
+import { placeLessons } from "@/lib/content/readingMerges";
 import { getProgressBySlug } from "@/lib/progress-server";
 import { getNotebook } from "@/lib/notes-server";
 import LessonsListPage from "@/features/learning/components/LessonsListPage";
@@ -25,10 +26,12 @@ export default async function Page() {
     }),
   ]);
 
+  const placed = placeLessons(newLessons, lessons);
+
   return (
     <LessonsListPage
-      newLessons={newLessons}
-      lessons={lessons}
+      newLessons={placed.grammar}
+      lessons={placed.reading}
       progressBySlug={progressBySlug}
       notes={notes}
     />

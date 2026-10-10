@@ -25,7 +25,6 @@ import RewardInfo from "@/components/RewardInfo";
 import RenderExercise from "@/features/exercises/components/RenderExercise";
 import RichText from "@/components/richtext/RichText";
 import NotesNotebookDialog from "@/features/learning/components/NotesNotebookDialog";
-import ReviewNavArrows from "@/features/learning/components/ReviewNavArrows";
 
 import { stepSeed, shuffleSteps } from "@/lib/content/shuffle";
 import { PRACTICE_BLOCK_SLUGS } from "@/payload/blocks/librarySlugs";
@@ -159,8 +158,7 @@ function blockTypes(step: AuthoredStep): string[] {
 function buildSteps(
   lesson: Lesson,
   seed: string,
-  complete: React.RefObject<(() => Promise<boolean>) | null>,
-  reviewNeighbors: { prevHref?: string; nextHref?: string }
+  complete: React.RefObject<(() => Promise<boolean>) | null>
 ): Step[] {
   const authored = shuffleSteps(lesson.steps ?? [], {
     seed,
@@ -233,14 +231,7 @@ function buildSteps(
   if (lessonTerms.length) {
     steps.push(
       chrome("lesson:review", "Review", (
-        <Box sx={{ position: "relative", width: "100%", minHeight: 280 }}>
-          <ReviewNavArrows
-            prevHref={reviewNeighbors.prevHref}
-            nextHref={reviewNeighbors.nextHref}
-            prevLabel="Previous lesson review"
-            nextLabel="Next lesson review"
-            beforeNavigate={async () => (await complete.current?.()) ?? true}
-          />
+        <Box sx={{ width: "100%", minHeight: 280 }}>
           <Box
             sx={{
               display: "flex",
@@ -249,7 +240,7 @@ function buildSteps(
               textAlign: "center",
               gap: 2,
               py: 2,
-              px: 6,
+              px: 2,
             }}
           >
             <MenuBookRoundedIcon sx={{ fontSize: "2.5rem", color: "#B43D20" }} />
@@ -277,13 +268,6 @@ const LessonRunner: React.FC<{
    */
   nextHref?: string;
   /**
-   * Prev/next end-of-lesson review pages for the same format. Shown as corner
-   * arrows on the runner's final Review step so a learner can jump without
-   * opening this lesson's own term grid first.
-   */
-  prevReviewHref?: string;
-  nextReviewHref?: string;
-  /**
    * The signed-in learner, for the shuffle seed. Resolved on the server and
    * passed down rather than fetched: the seed has to be the same value during
    * SSR and during hydration, and anything fetched in the browser is not.
@@ -299,8 +283,6 @@ const LessonRunner: React.FC<{
 }> = ({
   lesson,
   nextHref,
-  prevReviewHref,
-  nextReviewHref,
   userId,
   attempt = 0,
   initialProgress = null,
@@ -340,12 +322,8 @@ const LessonRunner: React.FC<{
   const slug = lesson.slug;
 
   const steps = useMemo(
-    () =>
-      buildSteps(lesson, stepSeed({ userId, lessonId: slug, attempt }), completeRef, {
-        prevHref: prevReviewHref,
-        nextHref: nextReviewHref,
-      }),
-    [lesson, userId, slug, attempt, prevReviewHref, nextReviewHref]
+    () => buildSteps(lesson, stepSeed({ userId, lessonId: slug, attempt }), completeRef),
+    [lesson, userId, slug, attempt]
   );
 
   /*

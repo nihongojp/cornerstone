@@ -7,11 +7,11 @@ import GraphicEqRoundedIcon from "@mui/icons-material/GraphicEqRounded";
 
 import { termAudio, termText } from "@/features/exercises/components/termText";
 import { renderableImage } from "@/lib/content/media";
+import AudioSpeedControl, { type AudioSpeed } from "@/components/media/AudioSpeedControl";
 import SelfRecordButton from "@/features/exercises/components/SelfRecordButton";
 import type { Term } from "@/payload/payload-types";
 
 const BRAND = "#B43D20";
-const SPEEDS = [0.5, 0.75, 1, 1.25] as const;
 
 /*
  * The round "audio button" pattern repeated across CharacterSpotlight,
@@ -69,35 +69,6 @@ const AudioButton: React.FC<{ audioUrl?: string; speed: number }> = ({ audioUrl,
   );
 };
 
-/** Applied on the next play — changing it mid-playback would otherwise
- *  require restarting the clip to hear the new rate. */
-const SpeedControl: React.FC<{ speed: number; onChange: (s: (typeof SPEEDS)[number]) => void }> = ({
-  speed,
-  onChange,
-}) => (
-  <Box sx={{ display: "flex", gap: 0.5 }}>
-    {SPEEDS.map((s) => (
-      <Box
-        key={s}
-        onClick={() => onChange(s)}
-        sx={{
-          px: 0.75,
-          py: 0.25,
-          borderRadius: "999px",
-          fontSize: "0.65rem",
-          fontWeight: 700,
-          cursor: "pointer",
-          color: speed === s ? "#fff" : "text.secondary",
-          bgcolor: speed === s ? BRAND : "rgba(0,0,0,0.06)",
-          transition: "background-color 0.15s, color 0.15s",
-        }}
-      >
-        {s}x
-      </Box>
-    ))}
-  </Box>
-);
-
 /*
  * One term, as a card: what to look at, what to listen to, and a place to
  * record yourself. Shared by the per-lesson review page and the per-level
@@ -107,7 +78,7 @@ const TermCard: React.FC<{ term: Term }> = ({ term }) => {
   const written = termText(term, "plain");
   const reading = termText(term, "reading");
   const meaning = term.meaning?.trim();
-  const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
+  const [speed, setSpeed] = useState<AudioSpeed>(1);
 
   /*
    * Written form falls back through the chain in `renderableTerm` — for a
@@ -178,7 +149,7 @@ const TermCard: React.FC<{ term: Term }> = ({ term }) => {
           <AudioButton audioUrl={termAudio(term)} speed={speed} />
           <SelfRecordButton />
         </Box>
-        <SpeedControl speed={speed} onChange={setSpeed} />
+        <AudioSpeedControl speed={speed} onChange={setSpeed} />
       </Box>
     </Box>
   );
