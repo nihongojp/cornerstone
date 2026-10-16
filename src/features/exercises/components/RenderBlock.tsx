@@ -22,6 +22,7 @@ import type {
 
 import CharacterSpotlight from "./CharacterSpotlight";
 import DragDropCombination from "./DragDropCombination";
+import FillInBlank from "./FillInBlank";
 import Fact from "@/components/Fact";
 import FlashcardReview, { type FlashcardReviewTerm } from "./FlashcardReview";
 import MatchAudioExercisePlaceholder from "./MatchAudioExercisePlaceholder";
@@ -96,6 +97,8 @@ export const RenderBlock: React.FC<{
       return <SpeakAndScoreView {...block} />;
     case "multipleChoice":
       return <MultipleChoice {...block} onResult={onResult} />;
+    case "fillInBlank":
+      return <FillInBlank {...block} onResult={onResult} />;
     default:
       /*
        * An old block, or `legacyJson`. Nothing renders: during Phase 4a the old

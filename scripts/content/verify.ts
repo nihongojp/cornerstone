@@ -42,6 +42,7 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import { CONTENT_DEPTH, MEDIA_POPULATE } from "../../src/lib/content/depth";
+import { problemWithBlock, type BlankSpec } from "../../src/lib/content/fillInBlank";
 
 type Problem = { doc: string; where: string; detail: string };
 
@@ -315,6 +316,15 @@ async function main() {
           detail: `${correct.length} option(s) marked correct out of ${options.length} — exactly one is needed`,
         });
       }
+    }
+
+    if (blockType === "fillInBlank") {
+      const problem = problemWithBlock({
+        mode: block.mode as string | undefined,
+        sentence: block.sentence as string | undefined,
+        blanks: Array.isArray(block.blanks) ? (block.blanks as BlankSpec[]) : [],
+      });
+      if (problem) failures.push({ doc, where, detail: problem });
     }
 
     if (blockType === "mediaFigure") {
