@@ -55,9 +55,16 @@ constraint that is not in `schema.ts`.
 ## Pull requests
 
 `.github/workflows/neon-preview-branch.yml` creates `preview/pr-<n>` from
-`production` when a PR opens, runs both migration systems against it, then
-typechecks and builds. The branch is deleted when the PR closes. A migration
-that fails to apply therefore fails the PR, not the merge.
+`production` when a PR opens and resets it to the latest production state on
+every run before applying both migration systems, verifying content and building.
+The branch is deleted when the PR closes. Tests and typechecking run separately
+in `ci.yml`. A migration that fails to apply therefore fails the PR, not the merge.
+
+Content comes from the parent branch, including CMS edits and recordings. CI
+must not import the August 2026 snapshot over that data: the partial snapshot
+clears newer vocabulary fields while retaining newer lessons that depend on
+them. That import was a one-time CMS cutover step, not ongoing preview setup.
+Resetting the CI branch also repairs content overwritten by earlier runs.
 
 That branch is a test fixture and nothing else — its connection string never
 leaves the Actions runner. **The deployed preview gets its database from the
