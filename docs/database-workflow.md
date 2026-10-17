@@ -200,6 +200,25 @@ prints exactly what a repo admin has to apply.
 
 ## Local development
 
+### Cleanup rules
+
+- CI's `preview/pr-<n>` branch is deleted by `neon-preview-branch.yml` when
+  the PR closes, whether merged or abandoned. It is reset before each CI run
+  and never serves the deployed preview. Open PRs keep their CI branches.
+- The deployed `preview/<git-branch>` database is owned by the Neon-managed
+  Vercel integration. Enable automatic obsolete-branch cleanup in that
+  integration's Branches settings; GitHub's CI delete job does not remove it.
+- Branches created by `npm run db:branch:new` expire after three days by
+  default, with `--days N` to change the lifetime. `dev/*` and `--keep`
+  branches have no expiry and need manual cleanup.
+- `production` and `development` are long-lived. The removal helper refuses
+  those names. For occasional audits, use `npm run db:branch:ls` and remove
+  finished temporary branches with `npm run db:branch:rm -- <name>`.
+
+If a PR-close cleanup job fails or the Vercel integration setting is off,
+an occasional manual audit catches the leftover branches. These rules do
+not imply that the integration's current console settings have been verified.
+
 There is no local Postgres. Every developer works against a Neon branch, which
 is what makes local schema behaviour match production's exactly — a branch is a
 copy-on-write fork, so it starts with production's real schema instead of an

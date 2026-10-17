@@ -42,6 +42,7 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 
 import { CONTENT_DEPTH, MEDIA_POPULATE } from "../../src/lib/content/depth";
+import { isKnownRecordingGap } from "./lib/recording-backlog";
 import { problemWithBlock, type BlankSpec } from "../../src/lib/content/fillInBlank";
 
 type Problem = { doc: string; where: string; detail: string };
@@ -222,13 +223,17 @@ async function main() {
       });
 
       if (missing.length) {
-        failures.push({
+        const knownRecordingGap = isKnownRecordingGap(
+          doc, where, pairing, missing.map((t) => String(t.key)),
+        );
+        (knownRecordingGap ? todos : failures).push({
           doc,
           where,
           detail:
             `pairing is "${pairing}" but ${missing.length} of ${list.length} term(s) have nothing ` +
             `on that side (${missing.map((t) => String(t.key)).join(", ")}). Those pairs are ` +
-            "dropped at render, and a screen with fewer than two left renders nothing at all.",
+            "dropped at render, and a screen with fewer than two left renders nothing at all." +
+            (knownRecordingGap ? " Known production recording backlog; see docs/content-backlog.md." : ""),
         });
       } else if (list.length - missing.length < 2) {
         failures.push({
