@@ -45,6 +45,13 @@ type Props = {
    * each one is a real term with its own recording.
    */
   tileScript?: "asAuthored" | "romaji";
+  /**
+   * Hold the reference clip back until the answer is right. Off by default: in
+   * reading/writing it is there from the start so a learner can hear the target
+   * while assembling tiles. Grammar lessons turn it on — the clip is the reward
+   * for building the phrase, and hearing it first gives the pronunciation away.
+   */
+  audioAfterCorrect?: boolean;
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
 };
 
@@ -102,6 +109,7 @@ const DragDropCombination: React.FC<Props> = ({
   correctSequence,
   tileAudio,
   tileScript,
+  audioAfterCorrect = false,
   onResult,
 }) => {
   const resolvedImageUrl = String(imageUrl || "").trim();
@@ -124,9 +132,10 @@ const DragDropCombination: React.FC<Props> = ({
 
   const placedTiles = placed.map((p) => options[p.option]);
   const isCorrect = isCorrectPlacement(placedTiles, correctSequence);
-  // Reference clip under the image is available from the start (not gated on
-  // a correct answer) so learners can hear the target while assembling tiles.
-  const showAudio = Boolean(audioUrl);
+  // Reference clip under the image: available from the start so learners can
+  // hear the target while assembling tiles — unless the lesson asks for it to
+  // wait until the sequence is checked and right (see `audioAfterCorrect`).
+  const showAudio = Boolean(audioUrl) && (!audioAfterCorrect || (checked && isCorrect));
 
   // Once checked, a tap plays that tile's own recording instead of editing —
   // the box itself becomes the audio button, for every tile on offer, not
@@ -295,9 +304,16 @@ const DragDropCombination: React.FC<Props> = ({
   // What a tap on a tile does right now: play its clip once checked, edit the
   // sequence before that, or nothing (a checked tile with no recording, or any
   // tile once the answer is correct and there is no audio to offer).
-  const tapFor = (key: string, option: number, edit: { run: () => void; verb: string; hint: string }) => {
+  // Only the bank plays clips: the answer box sits just above it, so a second set
+  // of speaker badges there would repeat what is a tap away.
+  const tapFor = (
+    key: string,
+    option: number,
+    edit: { run: () => void; verb: string; hint: string },
+    inAnswer = false
+  ) => {
     const label = options[option];
-    if (tilesPlayAudio) {
+    if (tilesPlayAudio && !inAnswer) {
       const hasAudio = Boolean(tileAudio?.[option]);
       return {
         action: hasAudio ? () => playTileAudio(key, option) : undefined,
@@ -394,8 +410,8 @@ const DragDropCombination: React.FC<Props> = ({
         )}
       </Box>
 
-      {/* Reference audio under the image — available immediately so learners
-          can hear the target while dragging tiles into place. */}
+      {/* Reference audio under the image — from the start, or only once the answer
+          is correct when `audioAfterCorrect` is set. */}
       {showAudio && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexDirection: "column" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -484,7 +500,7 @@ const DragDropCombination: React.FC<Props> = ({
               run: () => removeTile(placement.id),
               verb: "Remove",
               hint: "Drag out, drag onto another tile to reorder, or click to remove",
-            });
+            }, true);
 
             return (
               <Box
@@ -509,9 +525,6 @@ const DragDropCombination: React.FC<Props> = ({
                 sx={tileSx(tone, Boolean(tap.action))}
               >
                 {label}
-                {tilesPlayAudio && (
-                  <AudioCorner hasAudio={Boolean(tileAudio?.[placement.option])} playing={playingKey === key} />
-                )}
               </Box>
             );
           })

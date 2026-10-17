@@ -23,6 +23,11 @@ import Fact from "@/components/Fact";
 import Reward from "@/components/Rewards";
 import RewardInfo from "@/components/RewardInfo";
 import RenderExercise from "@/features/exercises/components/RenderExercise";
+import { isBlankProse, isEmptyFunFactStep } from "@/lib/content/blankProse";
+import { flashcardsLast } from "@/lib/content/flashcardOrder";
+import { introAudioByName } from "@/lib/content/introAudio";
+import { isGrammarLesson } from "@/lib/content/lessonFamily";
+import { lessonHeading } from "@/lib/content/lessonHeading";
 import RichText from "@/components/richtext/RichText";
 import NotesNotebookDialog from "@/features/learning/components/NotesNotebookDialog";
 
@@ -160,17 +165,29 @@ function buildSteps(
   seed: string,
   complete: React.RefObject<(() => Promise<boolean>) | null>
 ): Step[] {
-  const authored = shuffleSteps(lesson.steps ?? [], {
-    seed,
-    // The field has existed since the import and nothing has ever read it.
-    // Defaulting to true matches the collection's own default.
-    enabled: lesson.shuffleSteps !== false,
-  });
+  // A step that is only a Fun Fact with nothing in it is left out, not shown as a
+  // heading over an empty box.
+  const visibleSteps = (lesson.steps ?? []).filter((step) => !isEmptyFunFactStep(step.components));
+  // Flashcards are gathered at the end, after the shuffle (which only reorders runs
+  // of exercises) so the deck stays together whatever the exercises do.
+  const authored = flashcardsLast(
+    shuffleSteps(visibleSteps, {
+      seed,
+      // The field has existed since the import and nothing has ever read it.
+      // Defaulting to true matches the collection's own default.
+      enabled: lesson.shuffleSteps !== false,
+    })
+  );
 
   // Every term the lesson references, so a `buildSentence` screen can look a
   // tile's own audio up by its written form — the block stores tiles as
   // plain strings, with no relationship of its own to carry that audio.
   const lessonTerms = collectLessonTerms(lesson);
+  // Recordings carried on the lesson's intro screens, for a tile exercise whose
+  // own term has none — see `introAudio.ts`.
+  const introAudio = introAudioByName(lesson.steps);
+  // A few exercises play differently in a grammar lesson than in reading/writing.
+  const grammar = isGrammarLesson(lesson.slug);
 
   const steps: Step[] = authored.map((step, index) => {
     const types = blockTypes(step);
@@ -183,7 +200,13 @@ function buildSteps(
       graded: types.some((type) => PRACTICE.has(type)),
       autoAdvance: !types.includes("buildSentence"),
       render: (onResult) => (
-        <RenderExercise blocks={step.components ?? []} lessonTerms={lessonTerms} onResult={onResult} />
+        <RenderExercise
+          blocks={step.components ?? []}
+          lessonTerms={lessonTerms}
+          introAudio={introAudio}
+          grammar={grammar}
+          onResult={onResult}
+        />
       ),
     };
   });
@@ -196,7 +219,7 @@ function buildSteps(
     render: () => node,
   });
 
-  if (lesson.funFact) {
+  if (lesson.funFact && !isBlankProse(lesson.funFact)) {
     steps.push(
       chrome("lesson:funFact", "Fun Fact", (
         <Fact title="Fun Fact" description={<RichText data={lesson.funFact} />} />
@@ -577,7 +600,7 @@ const LessonRunner: React.FC<{
                   letterSpacing: "-0.01em",
                 }}
               >
-                {lesson.cardTitle?.trim() || lesson.title}
+                {lessonHeading(lesson)}
               </Typography>
             </Box>
 
