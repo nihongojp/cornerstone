@@ -61,6 +61,7 @@ screens are interchangeable.
 | **Build a sentence** | Assemble a sentence from parts. Can present as authored or converted to romaji. |
 | **Speak and score** | The learner says it; the app scores against a reference recording. |
 | **Multiple choice** | A question and options. |
+| **Fill in the blank** | A sentence with gaps. Write `___` where each word goes, then list the answers in the same order. Dropdown mode gives the learner choices; typed mode has them type it. |
 
 Every block shows a meaningful summary when collapsed, so a long exercise list stays readable.
 

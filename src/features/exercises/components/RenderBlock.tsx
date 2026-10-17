@@ -3,6 +3,9 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
 
+import { isBlankProse } from "@/lib/content/blankProse";
+import { characterChoice } from "@/lib/content/characterChoice";
+import { nameKey } from "@/lib/content/introAudio";
 import { kanaTilesToRomaji } from "@/utils/kana";
 import type {
   BuildSentenceBlock,
@@ -22,10 +25,11 @@ import type {
 
 import CharacterSpotlight from "./CharacterSpotlight";
 import DragDropCombination from "./DragDropCombination";
+import FillInBlank from "./FillInBlank";
 import Fact from "@/components/Fact";
 import FlashcardReview, { type FlashcardReviewTerm } from "./FlashcardReview";
 import MatchAudioExercisePlaceholder from "./MatchAudioExercisePlaceholder";
-import MatchChoiceRows, { type ChoiceRowPair } from "./MatchChoiceRows";
+import ReadingChoiceSequence, { type ReadingChoiceItem } from "./ReadingChoiceSequence";
 import DotMatch, { type DotMatchPair } from "./MatchDots";
 import MatchDotsMedia, { type MediaMatchPair } from "./MatchDotsMedia";
 import PronunciationExercise, {
@@ -38,7 +42,7 @@ import RichText from "@/components/richtext/RichText";
 import Ruby from "@/components/richtext/Ruby";
 
 import MultipleChoice from "./MultipleChoice";
-import { term, termAudio, termImage, termText } from "./termText";
+import { term, termAudio, termImage, termStrokeOrderImage, termText } from "./termText";
 import { renderableTerm } from "@/lib/content/furigana";
 
 /*
@@ -71,8 +75,12 @@ export const RenderBlock: React.FC<{
   block: BlockOf;
   /** Every term the lesson references — see the `buildSentence` case below. */
   lessonTerms?: Term[];
+  /** Recordings from the lesson's intro screens, by term name — see `introAudio.ts`. */
+  introAudio?: Record<string, string>;
+  /** A grammar lesson, as opposed to reading/writing — see `isGrammarLesson`. */
+  grammar?: boolean;
   onResult?: ResultCallback;
-}> = ({ block, lessonTerms, onResult }) => {
+}> = ({ block, lessonTerms, introAudio, grammar, onResult }) => {
   switch (block.blockType) {
     case "prose":
       return <ProseView {...block} />;
@@ -91,11 +99,40 @@ export const RenderBlock: React.FC<{
     case "listenAndChoose":
       return <ListenAndChooseView {...block} onResult={onResult} />;
     case "buildSentence":
-      return <BuildSentenceView {...block} lessonTerms={lessonTerms} onResult={onResult} />;
+      return (
+        <BuildSentenceView
+          {...block}
+          lessonTerms={lessonTerms}
+          introAudio={introAudio}
+          grammar={grammar}
+          onResult={onResult}
+        />
+      );
     case "speakAndScore":
       return <SpeakAndScoreView {...block} />;
-    case "multipleChoice":
-      return <MultipleChoice {...block} onResult={onResult} />;
+    case "multipleChoice": {
+      // "Which hiragana is the sound “a”?" plays as Part 1's choose-the-character
+      // screen; any other question keeps the list. See `characterChoice`.
+      const pick = characterChoice(block);
+      if (!pick) return <MultipleChoice {...block} onResult={onResult} />;
+
+      return (
+        <MatchAudioExercisePlaceholder
+          item={{
+            phrase: pick.answer,
+            answerWith: "text",
+            prompt: pick.prompt,
+            // The question gives the romaji and asks for the character: playing the
+            // sound would answer it, so there is no audio button.
+            hideAudio: true,
+            checkpointPool: pick.wrong.map((phrase) => ({ phrase })),
+          }}
+          onResult={onResult}
+        />
+      );
+    }
+    case "fillInBlank":
+      return <FillInBlank {...block} onResult={onResult} />;
     default:
       /*
        * An old block, or `legacyJson`. Nothing renders: during Phase 4a the old
@@ -124,6 +161,9 @@ const CARD_SX = {
  * four collapse to a switch here rather than four blocks in the schema.
  */
 const ProseView: React.FC<ProseBlock> = ({ tone, title, content }) => {
+  // A Fun Fact with nothing in it (or only "…") shows a heading over an empty box.
+  if (tone === "fact" && isBlankProse(content)) return null;
+
   if (tone === "fact" || tone === "lifeTip") {
     return (
       <Fact
@@ -454,9 +494,24 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
     const pairs: MediaMatchPair[] = list.map((t) => ({
       phrase: termText(t, "plain"),
       audioUrl: termAudio(t) ?? "",
-      imageUrl: termImage(t) ?? "",
+      // A kana has no picture of a "thing"; its picture is the stroke-order diagram
+      // of the character. Anything else uses its own picture, if it has one.
+      imageUrl: termImage(t) ?? termStrokeOrderImage(t) ?? "",
     }));
-    return <MatchDotsMedia pairs={pairs} instructions={instructions ?? undefined} onResult={onResult} />;
+    /*
+     * The word is never printed under the audio button, in any lesson: with it
+     * there the exercise is "match the word to the picture" and the audio does
+     * nothing. A card with no picture shows its word on the right instead, so it
+     * is still a pair the learner can make.
+     */
+    return (
+      <MatchDotsMedia
+        pairs={pairs}
+        instructions={instructions ?? undefined}
+        showPhrase={false}
+        onResult={onResult}
+      />
+    );
   }
 
   /*
@@ -488,29 +543,28 @@ const MatchPairsView: React.FC<MatchPairsBlock & { onResult?: ResultCallback }> 
   }
 
   /*
-   * "Word ↔ reading" (romaji ↔ hiragana, in reading/writing lessons) uses the
-   * same three-box choose-the-right-one layout as the other choice exercises
-   * (MatchAudioExercisePlaceholder) rather than DotMatch's connect-the-dots —
-   * the two don't read as the same kind of exercise even though they are both
-   * "matching". "Word ↔ meaning" is unaffected; only "reading" moves.
+   * "Word ↔ reading" (romaji ↔ hiragana, in reading/writing lessons) plays as a
+   * run of the same screens as Part 1's "listen and choose the character" —
+   * one word at a time (MatchAudioExercisePlaceholder, see
+   * ReadingChoiceSequence) — rather than DotMatch's connect-the-dots.
+   * "Word ↔ meaning" is unaffected; only "reading" moves.
    */
   if (pairing === "reading") {
-    const pairs: ChoiceRowPair[] = list
-      .map((t) => ({ prompt: termText(t, "reading"), answer: termText(t, "plain") }))
-      // Same gap this pairing has always had to guard against: a term with no
-      // reading falls back to its written form, which would pair a value with
-      // itself and render an unsolvable row.
+    const items: ReadingChoiceItem[] = list
+      .map((t) => ({
+        // The reading if the term has one, else its romaji — read off the fields
+        // rather than through `termText`, whose "reading" falls back to the written
+        // form and so turned あ into the prompt for あ.
+        prompt: t.reading?.trim() || t.romaji?.trim() || "",
+        answer: termText(t, "plain"),
+      }))
+      // A term with neither would have nothing to show as the prompt, and one whose
+      // prompt equals its answer would be a question with the answer printed on it.
       .filter((p) => p.prompt !== "" && p.answer !== "" && p.prompt !== p.answer);
 
-    if (pairs.length < 2) return null;
+    if (items.length < 2) return null;
 
-    return (
-      <MatchChoiceRows
-        pairs={pairs}
-        heading={instructions?.trim() || "Match each reading to its hiragana"}
-        onResult={onResult}
-      />
-    );
+    return <ReadingChoiceSequence items={items} onResult={onResult} />;
   }
 
   /*
@@ -611,8 +665,23 @@ const ListenAndChooseView: React.FC<ListenAndChooseBlock & { onResult?: ResultCa
 };
 
 const BuildSentenceView: React.FC<
-  BuildSentenceBlock & { lessonTerms?: Term[]; onResult?: ResultCallback }
-> = ({ instructions, term: subject, tiles, correctSequence, tileScript, lessonTerms, onResult }) => {
+  BuildSentenceBlock & {
+    lessonTerms?: Term[];
+    introAudio?: Record<string, string>;
+    grammar?: boolean;
+    onResult?: ResultCallback;
+  }
+> = ({
+  instructions,
+  term: subject,
+  tiles,
+  correctSequence,
+  tileScript,
+  lessonTerms,
+  introAudio,
+  grammar,
+  onResult,
+}) => {
   /*
    * The romaji conversion used to happen at render time on a code path chosen by
    * a checkbox named `bonus` — so the same stored tiles produced two different
@@ -658,8 +727,14 @@ const BuildSentenceView: React.FC<
       // term's written field is the pre-conversion form.
       tileAudio={resolvedTiles.map(audioForTile)}
       tileScript={tileScript}
+      // The reference clip is held back until the answer is right in grammar lessons
+      // and in the romaji versions of reading/writing — the romaji-tile exercises are
+      // the harder second pass, and hearing the word first would give it away.
+      audioAfterCorrect={grammar || tileScript === "romaji"}
       imageUrl={termImage(subject)}
-      audioUrl={termAudio(subject)}
+      // The term's own recording first; failing that, the one on this lesson's intro
+      // screen for the same phrase, so the learner still hears the answer they built.
+      audioUrl={termAudio(subject) ?? introAudio?.[nameKey(termText(subject, "plain"))]}
       onResult={onResult}
     />
   );

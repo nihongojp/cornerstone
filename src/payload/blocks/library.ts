@@ -1,6 +1,7 @@
 import type { Block, Field } from "payload";
 
 import { audioField, imageField, videoField } from "../fields/media";
+import { problemWithBlock } from "../../lib/content/fillInBlank";
 import { sentenceEditor } from "../fields/prose";
 import {
   LIBRARY_BLOCK_SLUGS as LIBRARY_SLUGS,
@@ -546,12 +547,96 @@ export const MultipleChoice: Block = {
   ],
 };
 
+/*
+ * A sentence with gaps for the learner to fill: either a dropdown of choices or a
+ * box to type in. One block with a `mode` rather than two, because everything
+ * else about them — the sentence, the blanks, the answers, the feedback — is the
+ * same, and switching a screen from one to the other should be one dropdown, not
+ * a rebuild.
+ *
+ * The sentence carries `___` where a blank goes and `blanks` lists the answers in
+ * the order the blanks appear. Position is the only link between the two, so
+ * `blanksMatchSentence` refuses to save a block where the counts differ.
+ */
+export const FillInBlank: Block = {
+  slug: "fillInBlank",
+  interfaceName: "FillInBlankBlock",
+  labels: { singular: "Fill in the blank", plural: "Fill in the blank" },
+  admin: { ...ROW_LABEL, group: "Practice" },
+  fields: [
+    instructions,
+    {
+      name: "mode",
+      type: "select",
+      required: true,
+      defaultValue: "dropdown",
+      options: [
+        { label: "Dropdown — the learner picks from choices", value: "dropdown" },
+        { label: "Typed — the learner types the answer", value: "typed" },
+      ],
+    },
+    {
+      name: "sentence",
+      type: "textarea",
+      required: true,
+      admin: {
+        description:
+          "The whole sentence, with ___ (three underscores) wherever a word goes. " +
+          "Example: Kore ___ hon desu.",
+      },
+    },
+    {
+      name: "blanks",
+      type: "array",
+      required: true,
+      minRows: 1,
+      labels: { singular: "Blank", plural: "Blanks" },
+      admin: {
+        description:
+          "One row per ___ in the sentence, in the order they appear: the first row is the first ___.",
+      },
+      fields: [
+        { name: "answer", type: "text", required: true },
+        {
+          name: "distractors",
+          type: "text",
+          hasMany: true,
+          label: "Wrong choices",
+          admin: {
+            description: "The other choices in the dropdown. At least one.",
+            condition: (_data, _sibling, { blockData }) => blockData?.mode === "dropdown",
+          },
+        },
+        {
+          name: "alsoAccept",
+          type: "text",
+          hasMany: true,
+          label: "Also accept",
+          admin: {
+            description:
+              "Other spellings that are also right — romaji for a kana answer, say. " +
+              "Capital letters, extra spaces and a final full stop never count against the learner.",
+            condition: (_data, _sibling, { blockData }) => blockData?.mode === "typed",
+          },
+        },
+      ],
+      validate: blanksMatchSentence,
+    },
+    {
+      name: "explanation",
+      type: "richText",
+      admin: { description: "Shown after checking, right or wrong." },
+    },
+  ],
+};
+
 export const practiceBlocks: Block[] = [
   MatchPairs,
   ListenAndChoose,
   BuildSentence,
   SpeakAndScore,
   MultipleChoice,
+  FillInBlank,
 ];
 
 /** Every block in the library, in the order the admin offers them. */
@@ -653,6 +738,17 @@ function pairingIsPossible(value: unknown, _args: SiblingArgs) {
   // words all have the side this pairing reads off them?" is a `content:verify`
   // question.
   return true;
+}
+
+/** The sentence's blanks and the rows below it have to line up, or a blank can never be right. */
+function blanksMatchSentence(value: unknown, { siblingData }: SiblingArgs) {
+  return (
+    problemWithBlock({
+      mode: siblingData?.mode as string | undefined,
+      sentence: siblingData?.sentence as string | undefined,
+      blanks: Array.isArray(value) ? value : [],
+    }) ?? true
+  );
 }
 
 /** Exactly one right answer, or the exercise cannot be marked. */

@@ -23,6 +23,11 @@ export interface MatchAudioItem {
   /** Authored on the block: written characters vs pictures. */
   answerWith?: "text" | "image";
   prompt?: string;
+  /**
+   * No audio button at all. For a question that is answered by *reading* — the
+   * romaji for a character — where hearing the sound would hand over the answer.
+   */
+  hideAudio?: boolean;
 }
 
 interface Props {
@@ -181,7 +186,7 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
         />
       )}
 
-      {hasAudio && (
+      {!item.hideAudio && hasAudio && (
         <audio
           ref={audioRef}
           src={item.audioUrl}
@@ -189,34 +194,36 @@ const MatchAudioExercisePlaceholder: React.FC<Props> = ({ item, onResult }) => {
           onEnded={() => setPlaying(false)}
         />
       )}
-      <Box
-        onClick={playAudio}
-        sx={{
-          width: 72,
-          height: 72,
-          borderRadius: "50%",
-          bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.12)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: hasAudio ? "pointer" : "default",
-          boxShadow: playing
-            ? "0 0 0 0 transparent"
-            : hasAudio
-              ? "0 4px 16px rgba(180,61,32,0.35)"
-              : "none",
-          animation: playing ? "audioPulse 1.2s ease-in-out infinite" : "none",
-          "@keyframes audioPulse": {
-            "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
-            "50%": { boxShadow: "0 0 0 16px rgba(180,61,32,0)" },
-          },
-          transition: "box-shadow 0.3s",
-        }}
-      >
-        {playing
-          ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "2rem" }} />
-          : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.3)", fontSize: "2rem" }} />}
-      </Box>
+      {!item.hideAudio && (
+        <Box
+          onClick={playAudio}
+          sx={{
+            width: 72,
+            height: 72,
+            borderRadius: "50%",
+            bgcolor: hasAudio ? BRAND : "rgba(0,0,0,0.12)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: hasAudio ? "pointer" : "default",
+            boxShadow: playing
+              ? "0 0 0 0 transparent"
+              : hasAudio
+                ? "0 4px 16px rgba(180,61,32,0.35)"
+                : "none",
+            animation: playing ? "audioPulse 1.2s ease-in-out infinite" : "none",
+            "@keyframes audioPulse": {
+              "0%,100%": { boxShadow: "0 0 0 0 rgba(180,61,32,0.4)" },
+              "50%": { boxShadow: "0 0 0 16px rgba(180,61,32,0)" },
+            },
+            transition: "box-shadow 0.3s",
+          }}
+        >
+          {playing
+            ? <GraphicEqRoundedIcon sx={{ color: "#fff", fontSize: "2rem" }} />
+            : <VolumeUpRoundedIcon sx={{ color: hasAudio ? "#fff" : "rgba(0,0,0,0.3)", fontSize: "2rem" }} />}
+        </Box>
+      )}
 
       <Typography
         sx={{ fontWeight: 700, fontSize: "0.92rem", color: "#1C1917" }}

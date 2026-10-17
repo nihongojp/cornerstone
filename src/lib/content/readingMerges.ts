@@ -1,4 +1,5 @@
 import type { Lesson } from "../../payload/payload-types";
+import { isBlankProse } from "./blankProse";
 
 /*
  * Reading & Writing lessons regrouped into 5-character sets, on the website only.
@@ -82,7 +83,9 @@ export function relabelReadingLesson(lesson: Lesson, absorbed?: Lesson | null): 
     ...(merge.absorbs
       ? {
           steps: absorbed ? [...(lesson.steps ?? []), ...(absorbed.steps ?? [])] : lesson.steps,
-          funFact: lesson.funFact ?? absorbed?.funFact,
+          // A blank Fun Fact (empty, or just "…") does not stand in the way of the
+          // absorbed lesson's real one.
+          funFact: isBlankProse(lesson.funFact) ? (absorbed?.funFact ?? lesson.funFact) : lesson.funFact,
           notes: lesson.notes ?? absorbed?.notes,
           achievement: lesson.achievement ?? absorbed?.achievement,
         }

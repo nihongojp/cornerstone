@@ -53,3 +53,11 @@ export function termAudio(value: Term | number | null | undefined): string | und
 export function termImage(value: Term | number | null | undefined): string | undefined {
   return renderableImage(term(value)?.image, "card")?.src;
 }
+
+/**
+ * The picture of the character itself — the stroke-order diagram a kana term
+ * carries. For a kana there is no "picture of the thing", so this is its picture.
+ */
+export function termStrokeOrderImage(value: Term | number | null | undefined): string | undefined {
+  return renderableImage(term(value)?.strokeOrder, "card")?.src;
+}

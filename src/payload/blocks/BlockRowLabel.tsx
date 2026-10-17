@@ -82,6 +82,8 @@ function summarise(data: RowData | undefined): string {
       return text(data.transcript) ?? "Speak and score";
     case "multipleChoice":
       return firstText(data.question) ?? "Multiple choice";
+    case "fillInBlank":
+      return text(data.sentence) ?? "Fill in the blank";
     default:
       // An old block. It still gets a numbered row, which is more than it had.
       return blockType || "Block";
