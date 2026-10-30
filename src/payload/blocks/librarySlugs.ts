@@ -53,6 +53,7 @@ export const PRACTICE_BLOCK_SLUGS = [
   "buildSentence",
   "speakAndScore",
   "multipleChoice",
+  "fillInBlank",
 ] as const;
 
 export const LIBRARY_BLOCK_SLUGS = [

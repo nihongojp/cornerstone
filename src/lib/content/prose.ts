@@ -69,7 +69,7 @@ export function optProse(value: Prose | null | undefined): Prose | undefined {
 }
 
 /** A node that shows something without contributing text. */
-function hasRenderableNode(node: unknown): boolean {
+export function hasRenderableNode(node: unknown): boolean {
   if (!node || typeof node !== "object") return false;
   const type = (node as { type?: unknown }).type;
   if (type === "paragraph" || type === "root" || type === "text" || type === "linebreak") {

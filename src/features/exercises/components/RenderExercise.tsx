@@ -37,8 +37,12 @@ export const RenderExercise: React.FC<{
   blocks: BlockOf[];
   /** Every term the lesson references — see `RenderBlock`'s `buildSentence` case. */
   lessonTerms?: Term[];
+  /** Recordings from the lesson's intro screens, by term name — see `introAudio.ts`. */
+  introAudio?: Record<string, string>;
+  /** A grammar lesson, as opposed to reading/writing — see `isGrammarLesson`. */
+  grammar?: boolean;
   onResult?: ResultCallback;
-}> = ({ blocks, lessonTerms, onResult }) => {
+}> = ({ blocks, lessonTerms, introAudio, grammar, onResult }) => {
   const termIntro = resolveTermIntro(blocks);
 
   if (termIntro) {
@@ -73,7 +77,13 @@ export const RenderExercise: React.FC<{
         // Phase 4b keys learner progress on. Index is the fallback for a block
         // streamed by Live Preview before it has been saved and given one.
         <Box key={block.id ?? index} sx={{ width: "100%" }}>
-          <RenderBlock block={block} lessonTerms={lessonTerms} onResult={onResult} />
+          <RenderBlock
+            block={block}
+            lessonTerms={lessonTerms}
+            introAudio={introAudio}
+            grammar={grammar}
+            onResult={onResult}
+          />
         </Box>
       ))}
     </Box>

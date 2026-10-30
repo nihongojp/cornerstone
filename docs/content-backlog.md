@@ -149,6 +149,23 @@ land.
 
 ## Checking your work
 
+### Production audio-matching gaps confirmed on 2026-10-17
+
+The CI branch now inherits current production content instead of importing the
+August snapshot. That exposed two additional preexisting recording gaps:
+
+| Published lesson / screen (zero-based) | Recordings still needed |
+|---|---|
+| `grammar-l2-v1`, step 3, component 0 | `sumimasen-wakarimasen` (1 of 3 pairs) |
+| `hiragana-l6-v1-iwate`, step 6, component 0 | `た-タ`, `ち-チ`, `つ-ツ`, `て-テ`, `と-ト` (all 5 pairs) |
+
+These are **unplayable content**, not fixed exercises. Record the terms in the CMS
+Vocabulary collection. The verifier reports these exact screen/term combinations
+as editorial to-dos via `scripts/content/lib/recording-backlog.ts`; other missing
+audio in audio-matching screens still fails. Remove those entries once the clips
+land. This exception does not cover missing meanings/readings, unpopulated media,
+or unresolved references.
+
 `npm run content:verify` reads every published lesson and reports the placeholder strings and any
 media that failed to load. It exits with an error only on genuine breakage — the editorial items
 above are listed as to-dos, not failures, so the list getting shorter is the progress bar.

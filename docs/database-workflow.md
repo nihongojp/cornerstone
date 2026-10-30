@@ -55,9 +55,16 @@ constraint that is not in `schema.ts`.
 ## Pull requests
 
 `.github/workflows/neon-preview-branch.yml` creates `preview/pr-<n>` from
-`production` when a PR opens, runs both migration systems against it, then
-typechecks and builds. The branch is deleted when the PR closes. A migration
-that fails to apply therefore fails the PR, not the merge.
+`production` when a PR opens and resets it to the latest production state on
+every run before applying both migration systems, verifying content and building.
+The branch is deleted when the PR closes. Tests and typechecking run separately
+in `ci.yml`. A migration that fails to apply therefore fails the PR, not the merge.
+
+Content comes from the parent branch, including CMS edits and recordings. CI
+must not import the August 2026 snapshot over that data: the partial snapshot
+clears newer vocabulary fields while retaining newer lessons that depend on
+them. That import was a one-time CMS cutover step, not ongoing preview setup.
+Resetting the CI branch also repairs content overwritten by earlier runs.
 
 That branch is a test fixture and nothing else — its connection string never
 leaves the Actions runner. **The deployed preview gets its database from the
@@ -192,6 +199,25 @@ wizard checks up front and, if you do not have it, still collects every value an
 prints exactly what a repo admin has to apply.
 
 ## Local development
+
+### Cleanup rules
+
+- CI's `preview/pr-<n>` branch is deleted by `neon-preview-branch.yml` when
+  the PR closes, whether merged or abandoned. It is reset before each CI run
+  and never serves the deployed preview. Open PRs keep their CI branches.
+- The deployed `preview/<git-branch>` database is owned by the Neon-managed
+  Vercel integration. Enable automatic obsolete-branch cleanup in that
+  integration's Branches settings; GitHub's CI delete job does not remove it.
+- Branches created by `npm run db:branch:new` expire after three days by
+  default, with `--days N` to change the lifetime. `dev/*` and `--keep`
+  branches have no expiry and need manual cleanup.
+- `production` and `development` are long-lived. The removal helper refuses
+  those names. For occasional audits, use `npm run db:branch:ls` and remove
+  finished temporary branches with `npm run db:branch:rm -- <name>`.
+
+If a PR-close cleanup job fails or the Vercel integration setting is off,
+an occasional manual audit catches the leftover branches. These rules do
+not imply that the integration's current console settings have been verified.
 
 There is no local Postgres. Every developer works against a Neon branch, which
 is what makes local schema behaviour match production's exactly — a branch is a

@@ -244,6 +244,7 @@ export interface Lesson {
           | BuildSentenceBlock
           | SpeakAndScoreBlock
           | MultipleChoiceBlock
+          | FillInBlankBlock
         )[];
         id?: string | null;
       }[]
@@ -801,6 +802,57 @@ export interface MultipleChoiceBlock {
   blockType: 'multipleChoice';
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FillInBlankBlock".
+ */
+export interface FillInBlankBlock {
+  /**
+   * Shown above the exercise. One line.
+   */
+  instructions?: string | null;
+  mode: 'dropdown' | 'typed';
+  /**
+   * The whole sentence, with ___ (three underscores) wherever a word goes. Example: Kore ___ hon desu.
+   */
+  sentence: string;
+  /**
+   * One row per ___ in the sentence, in the order they appear: the first row is the first ___.
+   */
+  blanks: {
+    answer: string;
+    /**
+     * The other choices in the dropdown. At least one.
+     */
+    distractors?: string[] | null;
+    /**
+     * Other spellings that are also right — romaji for a kana answer, say. Capital letters, extra spaces and a final full stop never count against the learner.
+     */
+    alsoAccept?: string[] | null;
+    id?: string | null;
+  }[];
+  /**
+   * Shown after checking, right or wrong.
+   */
+  explanation?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'fillInBlank';
+}
+/**
  * Link collections shown on the Resources page, grouped by category.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1023,6 +1075,7 @@ export interface LessonsSelect<T extends boolean = true> {
               buildSentence?: T | BuildSentenceBlockSelect<T>;
               speakAndScore?: T | SpeakAndScoreBlockSelect<T>;
               multipleChoice?: T | MultipleChoiceBlockSelect<T>;
+              fillInBlank?: T | FillInBlankBlockSelect<T>;
             };
         id?: T;
       };
@@ -1185,6 +1238,26 @@ export interface MultipleChoiceBlockSelect<T extends boolean = true> {
     | {
         label?: T;
         isCorrect?: T;
+        id?: T;
+      };
+  explanation?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FillInBlankBlock_select".
+ */
+export interface FillInBlankBlockSelect<T extends boolean = true> {
+  instructions?: T;
+  mode?: T;
+  sentence?: T;
+  blanks?:
+    | T
+    | {
+        answer?: T;
+        distractors?: T;
+        alsoAccept?: T;
         id?: T;
       };
   explanation?: T;

@@ -43,12 +43,22 @@ jobs:
           cache: npm
 
       - name: Create Neon branch for this PR
-        id: branch
         uses: neondatabase/create-branch-action@v5
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
           branch_name: preview/pr-${{ github.event.pull_request.number }}
           parent: production
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      # This fixture never serves a deployment. Refresh it on every run so
+      # previous migrations/imports cannot mask failures or retain stale content.
+      - name: Reset CI branch to production
+        id: branch
+        uses: neondatabase/reset-branch-action@v1
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: preview/pr-${{ github.event.pull_request.number }}
+          parent: true
           api_key: ${{ secrets.NEON_API_KEY }}
 
       - run: npm ci
@@ -66,34 +76,10 @@ jobs:
           PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
         run: npm run payload:migrate
 
-      # ── Content ──────────────────────────────────────────────────────────
-      #
-      # The branch above forks `production`, and production's *content* is
-      # older than its schema: the migrations just applied bring the tables up
-      # to date, but nothing re-imports the rows. From Phase 4a onward that gap
-      # matters, because the block library replaced the seventeen old block
-      # types and the old rows have no definition behind them any more.
-      #
-      # So the snapshot is imported before anything reads the content. Two
-      # things fall out of that, both wanted:
-      #
-      #  - `content:verify` below is checking this pull request's content model
-      #    against this pull request's code, rather than reporting on whatever
-      #    production happened to be holding.
-      #  - the sequence migrate → import → read is the same one production
-      #    needs at merge time, so every pull request rehearses it. See
-      #    `docs/production-merge-runbook.md`; that ordering is the whole
-      #    subject of it.
-      #
-      # `--yes` is required to write; the script is a dry run without it. Media
-      # is never created here — the import checks that every file the snapshot
-      # references already exists and refuses to run when one does not.
-      - name: Import the content snapshot
-        env:
-          DATABASE_URL: ${{ steps.branch.outputs.db_url_with_pooler }}
-          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
-        run: npm run content:import -- --yes
-
+      # Content is inherited from production. The August 2026 snapshot was
+      # a one-time CMS migration fixture; importing it here overwrites newer
+      # vocabulary (including audio) while leaving newer lessons in place.
+      # Check the migrated production data without replacing CMS-authored rows.
       # The deterministic content check, and the reason it is worth a job slot:
       # it reads through Payload at the app's own depth and populate with no
       # cache in front of it. `parity` cannot replace it — `unstable_cache` has

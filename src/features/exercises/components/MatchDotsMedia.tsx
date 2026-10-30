@@ -20,7 +20,9 @@ type Props = {
   instructions?: string;
   /**
    * Print the word under each audio button. Off for "Audio ↔ image", where
-   * showing it would let the learner match by reading instead of listening.
+   * showing it would let the learner match by reading instead of listening — and
+   * with it off, a card that has no picture shows the word itself on the right, so
+   * the exercise can still be solved.
    */
   showPhrase?: boolean;
   onResult?: (r: { result: "correct" | "incorrect"; detail?: any }) => void;
@@ -30,6 +32,15 @@ const DOT_SIZE = 14;
 const CARD_W = 100;
 const CARD_H = 80;
 const ROW_HEIGHT = 110;
+
+// A single kana fills the card; a longer word at that size wraps onto two lines
+// and crowds it, so the type steps down as the words get longer. One size for the
+// whole column, taken from its longest word, so the cards match each other.
+function wordSize(length: number): string {
+  if (length <= 3) return "1.8rem";
+  if (length <= 8) return "1.2rem";
+  return "0.95rem";
+}
 
 function isPlaceholder(url: string) {
   return !url || url.toUpperCase().includes("PLACEHOLDER");
@@ -50,6 +61,7 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, showPhrase = tru
   // Randomized once per mount so each column's layout is fresh on every
   // attempt, and the correct answer isn't reliably on the same row.
   const [{ leftOrder, rightOrder }] = useState(() => buildArrangement(pairs.length));
+  const longestWord = Math.max(0, ...pairs.map((pair) => [...pair.phrase.trim()].length));
 
   const leftPairs = useMemo(() => leftOrder.map((idx) => pairs[idx]), [leftOrder, pairs]);
   const rightPairs = useMemo(() => rightOrder.map((idx) => pairs[idx]), [rightOrder, pairs]);
@@ -343,6 +355,10 @@ const MatchDotsMedia: React.FC<Props> = ({ pairs, instructions, showPhrase = tru
                       alt={showPhrase ? pair.phrase : ""}
                       sx={{ width: "100%", height: "100%", objectFit: "contain" }}
                     />
+                  ) : !showPhrase ? (
+                    <Typography sx={{ fontSize: wordSize(longestWord), fontWeight: 600, lineHeight: 1.2, textAlign: "center", color: "#1C1917", px: 0.5 }}>
+                      {pair.phrase}
+                    </Typography>
                   ) : (
                     <>
                       <ImageRoundedIcon sx={{ fontSize: "1.4rem", color: "rgba(0,0,0,0.2)" }} />
