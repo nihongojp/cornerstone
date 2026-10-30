@@ -8,6 +8,24 @@ const nextConfig: NextConfig = {
       { source: "/charinfo", destination: "/gallery", permanent: false },
     ];
   },
+  async headers() {
+    return [
+      {
+        /*
+         * The service worker must never be served from HTTP cache: a stale
+         * worker keeps serving stale assets and the only fix is the learner
+         * clearing site data. `Service-Worker-Allowed` is belt-and-braces —
+         * the file already sits at the root scope.
+         */
+        source: "/sw.js",
+        headers: [
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
+    ];
+  },
 };
 
 /*

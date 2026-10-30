@@ -4,6 +4,7 @@ import React from "react";
 import { Box } from "@mui/material";
 import Header from "./Header";
 import Footer from "./Footer";
+import InstallHint from "./pwa/InstallHint";
 
 /*
  * Ported from client/src/App.tsx AppContent. The route groups decide which
@@ -57,9 +58,18 @@ export default function SiteChrome({
           },
           // Side breathing room — content doesn't slam into viewport edges
           px: { xs: 1, sm: 2, md: 3 },
+          /*
+           * Safe areas (viewportFit: "cover" in the root layout). On an
+           * iPhone the top inset is the notch/Dynamic Island, and because
+           * the wrapper is sticky with a paper background it also paints
+           * the status-bar strip. 0 everywhere else, so desktop is
+           * unaffected. Footer handles the bottom inset.
+           */
+          pt: "env(safe-area-inset-top)",
         }}
       >
         <Header />
+        <InstallHint />
       </Box>
 
       <Box component="main" flexGrow={1}>
