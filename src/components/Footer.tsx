@@ -39,6 +39,9 @@ const Footer = (): React.ReactElement => {
         bgcolor: "background.paper",
         borderTop: "1px solid rgba(0,0,0,0.10)",
         overflowX: "hidden",
+        // Keep the last row above the iPhone home indicator when installed
+        // to the home screen (see viewportFit in the root layout).
+        pb: "env(safe-area-inset-bottom)",
       }}
     >
       <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
